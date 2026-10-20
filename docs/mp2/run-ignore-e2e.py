@@ -3,28 +3,30 @@
 
 Adapted from run-remote-e2e.py (remote-host). One Store server (A), two sandboxes:
 B1 runs with `ignore=git`, B2 is a plain sandbox (warm-base builder and "other
-machine"). Every container, network and volume is prefixed `ign-`; `ign-target`
+machine"). Every container, network and volume is prefixed `cxi-`; `cxi-target`
 (the cargo target dir) is the only thing kept between runs.
 
   run-ignore-e2e.py build       build the Linux binaries into $IGN_WORK/bin
   run-ignore-e2e.py e2e         scenarios 1-6 and the ignore-off comparison
+  run-ignore-e2e.py restart     only the remount/restart regression
   run-ignore-e2e.py transport   scenario 7 (layerfs-remote-store transport tests)
   run-ignore-e2e.py all         everything (default)
 
 Receipts: docs/mp2/receipts/$IGN_RECEIPTS/ (default ignore01).  Work dir (binaries, seed): $IGN_WORK,
-default ~/.cache/ign-e2e.
+default ~/.cache/cxi-ignore-e2e. Docker uses the local OrbStack context.
 """
 import hashlib, json, os, pathlib, re, subprocess, sys, time, shutil
 
+os.environ['DOCKER_CONTEXT'] = 'orbstack'
 REPO = pathlib.Path(__file__).resolve().parents[2]
 RECEIPTS = REPO / 'docs/mp2/receipts' / os.environ.get('IGN_RECEIPTS', 'ignore01')
-WORK = pathlib.Path(os.environ.get('IGN_WORK', pathlib.Path.home() / '.cache/ign-e2e'))
+WORK = pathlib.Path(os.environ.get('IGN_WORK', pathlib.Path.home() / '.cache/cxi-ignore-e2e'))
 BIN, SEED = WORK / 'bin', WORK / 'seed'
 IMAGE = 'public.ecr.aws/docker/library/rust:1.85.1-bookworm'
 WORKERS = os.environ.get('IGN_WORKERS', '1')  # same as the remote-host harness
-A, B1, B2 = 'ign-a', 'ign-b1', 'ign-b2'
-NET_A, NET_B, LINK = 'ign-server-net', 'ign-sandbox-net', 'ign-link'
-V_SERVER, V_B1, V_B2, V_TARGET = 'ign-server-data', 'ign-b1-data', 'ign-b2-data', 'ign-target'
+A, B1, B2 = 'cxi-a', 'cxi-b1', 'cxi-b2'
+NET_A, NET_B, LINK = 'cxi-server-net', 'cxi-sandbox-net', 'cxi-link'
+V_SERVER, V_B1, V_B2, V_TARGET = 'cxi-server-data', 'cxi-b1-data', 'cxi-b2-data', 'cxi-target'
 MIB = 1024 * 1024
 RECEIPTS.mkdir(parents=True, exist_ok=True)
 BIN.mkdir(parents=True, exist_ok=True)
@@ -71,7 +73,7 @@ CARGO_COMMON = ['--manifest-path', 'core/Cargo.toml', '--locked']
 
 
 def cargo_container(name, *cargo):
-    """cargo inside the rust image; source read-only, target dir in ign-target."""
+    """cargo inside the rust image; source read-only, target dir in cxi-target."""
     args = ['run', '--rm', '--name', name, '-v', f'{REPO}:/work:ro', '-v', f'{V_TARGET}:/target',
             '-w', '/work', '-e', 'CARGO_HOME=/target/cargo-home', '-e', 'CARGO_TARGET_DIR=/target/cargo',
             '-e', 'CARGO_TERM_COLOR=never']
@@ -97,11 +99,11 @@ def build():
     ]
     for label, cargo in steps:
         t = time.monotonic()
-        p = docker(*cargo_container('ign-build', *cargo), wall=3000)
+        p = docker(*cargo_container('cxi-build', *cargo), wall=3000)
         (build_dir / f'{label}.log').write_text(p.stdout)
         say(f'BUILD {label}: ok in {time.monotonic() - t:.0f}s: {p.stdout.strip().splitlines()[-1]}')
     t = time.monotonic()
-    args = ['docker', *cargo_container('ign-build', 'test', *CARGO_COMMON, '--no-run', '--message-format=json',
+    args = ['docker', *cargo_container('cxi-build', 'test', *CARGO_COMMON, '--no-run', '--message-format=json',
                                        '-p', 'layerfs-remote-store', '--test', 'remote_driver')]
     p = subprocess.run(args, text=True, capture_output=True, timeout=3000)
     (build_dir / 'driver.json').write_text(p.stdout)
@@ -117,7 +119,7 @@ def build():
             driver = msg['executable']
     assert driver, 'remote_driver executable not found in cargo output'
     say(f'BUILD driver: ok in {time.monotonic() - t:.0f}s: {driver}')
-    docker('run', '--rm', '--name', 'ign-collect', '-v', f'{V_TARGET}:/target:ro', '-v', f'{BIN}:/out', IMAGE,
+    docker('run', '--rm', '--name', 'cxi-collect', '-v', f'{V_TARGET}:/target:ro', '-v', f'{BIN}:/out', IMAGE,
            'bash', '-c', 'set -e; for n in layerfs-store layerfs-remote layerfs-remote-daemon; do cp /target/cargo/debug/$n /out/$n; done; cp "$1" /out/remote_driver',
            'bash', driver)
     shutil.copy2(REPO / 'docs/mp2/tcp-cut.py', BIN / 'tcp-cut.py')
@@ -675,8 +677,8 @@ class Env:
 
     def __enter__(self):
         existing = [x for x in (out('ps', '-a', '--format', '{{.Names}}').split() + out('network', 'ls', '--format', '{{.Name}}').split()
-                                + out('volume', 'ls', '--format', '{{.Name}}').split()) if x in {A, B1, B2, NET_A, NET_B, LINK, V_SERVER, V_B1, V_B2, 'ign-init', 'ign-seed'}]
-        assert not existing, f'leftover ign- resources: {existing}'
+                                + out('volume', 'ls', '--format', '{{.Name}}').split()) if x in {A, B1, B2, NET_A, NET_B, LINK, V_SERVER, V_B1, V_B2, 'cxi-init', 'cxi-seed'}]
+        assert not existing, f'leftover cxi- resources: {existing}'
         for n in ['layerfs-store', 'layerfs-remote', 'layerfs-remote-daemon', 'remote_driver', 'tcp-cut.py']:
             assert (BIN / n).is_file(), f'{n} missing: run the build phase first'
         # Empty the seed dir in place: removing and recreating a bind-mounted directory makes
@@ -692,7 +694,7 @@ class Env:
             for v in [V_SERVER, V_B1, V_B2]:
                 docker('volume', 'create', v)
                 self.volumes.append(v)
-            docker('run', '--rm', '--name', 'ign-init', '--network', NET_A, '-v', f'{BIN}:/opt/lfs:ro', '-v', f'{SEED}:/out', '-v', f'{V_SERVER}:/state',
+            docker('run', '--rm', '--name', 'cxi-init', '--network', NET_A, '-v', f'{BIN}:/opt/lfs:ro', '-v', f'{SEED}:/out', '-v', f'{V_SERVER}:/state',
                    '-e', 'LFS_MODE=init', '-e', f'LAYERFS_CONSTRUCTION_WORKERS={WORKERS}', IMAGE, 'timeout', '120', '/opt/lfs/remote_driver', '--ignored', '--exact', 'drive', '--nocapture')
             docker('run', '-d', '--name', A, '--init', '--network', NET_A, '-v', f'{BIN}:/opt/lfs:ro', '-v', f'{V_SERVER}:/state',
                    '-e', f'LAYERFS_CONSTRUCTION_WORKERS={WORKERS}', '-e', 'LAYERFS_REMOTE_TRACE_READS=1', IMAGE, 'bash', '-c', 'exec /opt/lfs/layerfs-store --config /state/server.setup > /state/server.log 2>&1')
@@ -701,7 +703,7 @@ class Env:
             ready(A, 'REMOTE_STORE_READY', '/state/server.log')
             # B1 alone gets `ignore=git` appended to its daemon setup.
             for b, v, cfg, extra in [(B1, V_B1, 'b1.setup', 'ignore=git\\n'), (B2, V_B2, 'b2.setup', '')]:
-                docker('run', '--rm', '--name', 'ign-seed', '--network', NET_B, '-v', f'{SEED}:/seed:ro', '-v', f'{v}:/state', IMAGE, 'bash', '-c',
+                docker('run', '--rm', '--name', 'cxi-seed', '--network', NET_B, '-v', f'{SEED}:/seed:ro', '-v', f'{v}:/state', IMAGE, 'bash', '-c',
                        f'cp /seed/{cfg} /state/daemon.setup; printf "{extra}" >> /state/daemon.setup; chmod 700 /state; chown 0:0 /state/daemon.setup; chmod 600 /state/daemon.setup')
                 docker('run', '-d', '--name', b, '--init', '--network', LINK, '--device', '/dev/fuse', '--cap-add', 'SYS_ADMIN', '--cap-add', 'SYS_PTRACE',
                        '--security-opt', 'apparmor=unconfined', '--security-opt', 'no-new-privileges=true', '-v', f'{BIN}:/opt/lfs:ro', '-v', f'{v}:/state',
@@ -733,22 +735,87 @@ class Env:
             docker('network', 'rm', n, expected=None)
 
 
-def e2e():
-    for f in (JSONL, CONSOLE):
-        f.unlink(missing_ok=True)
+
+def s10_restart():
+    s = '10 committed ignored content survives remount and restart'
+    paths = {
+        '.gitignore': 'node_modules/\ntarget/\n',
+        'src/restart.txt': 'tracked at last Commit\n',
+        'node_modules/restart/index.js': 'module.exports = "local dependency";\n',
+        'target/restart.bin': 'local build output\n',
+    }
+
+    def inventory(m, stage):
+        rows = {}
+        for rel, expected in paths.items():
+            present = exists(m, rel)
+            got = cat(m, rel) if present else None
+            rows[rel] = dict(present=present, bytes=got)
+            check(s, f'{stage}: {rel} restored exactly', got == expected, rows[rel])
+        FACTS.setdefault('restart_inventory', {})[stage] = rows
+
+    # Independent preludes: remount failure must not remove restart's input.
+    modes = ['restart'] if os.environ.get('IGN_RESTART_ONLY') == '1' else ['remount', 'restart']
+    for mode in modes:
+        m = mount(B1)
+        for rel, content in paths.items():
+            put(m, rel, content)
+        put(m, 'src/restart.txt', 'tracked before edit\n')
+        git(m, 'init', '-q')
+        git(m, 'add', '.gitignore', 'src/restart.txt')
+        # An edit to an index-tracked file is part of the committed restore point.
+        put(m, 'src/restart.txt', 'tracked at last Commit\n')
+        result, _, _ = commit(m)
+        FACTS[f'{mode}_commit'] = result
+        inventory(m, f'{mode}: before')
+        for rel in ['node_modules/restart/index.js', 'target/restart.bin']:
+            check(s, f'{mode}: published head excludes {rel}', server_read('/' + rel) is None)
+        check(s, f'{mode}: tracked edit published',
+              server_read('/src/restart.txt') == paths['src/restart.txt'])
+        if mode == 'remount':
+            if not try_unmount(s, m):
+                raise AssertionError('remount precondition: unmount refused')
+        else:
+            # Kill the daemon container, preserving its cache volume. Docker drops
+            # its old mount namespace; no manual FUSE or overlay recovery is done.
+            docker('cp', f'{B1}:/state/daemon.log', str(RECEIPTS / 'cxi-b1-before-restart-daemon.log'))
+            docker('cp', f'{B1}:/state/proxy.log', str(RECEIPTS / 'cxi-b1-before-restart-proxy.log'))
+            # Owner::start creates a new disposable overlay template per process.
+            # Fresh mount paths also avoid reusing the dead process's directories.
+            # Keep both old paths as evidence; only the cache is reused.
+            execute(B1, 'sed', '-i',
+                    '-e', 's|^overlay=.*|overlay=/state/overlay-restart/template.sqlite|',
+                    '-e', 's|^mounts=.*|mounts=/workspaces-restart|',
+                    '/state/daemon.setup')
+            execute(B1, 'mv', '/state/daemon.log', '/state/daemon.previous.log')
+            docker('kill', '--signal', 'KILL', B1)
+            docker('cp', f'{B1}:/state/daemon.previous.log', str(RECEIPTS / 'cxi-b1-killed-daemon.log'))
+            docker('start', B1)
+            ready(B1, 'REMOTE_DAEMON_READY', '/state/daemon.log')
+        restored = mount(B1)
+        inventory(restored, f'{mode}: after')
+        try_unmount(s, restored, discard=True)
+
+
+def e2e(restart_only=False):
+    assert not (RECEIPTS / 'results.json').exists(), 'keep prior results; use a fresh receipt directory'
     with Env():
-        scenario('1 warm base (B2, ignore off)', s1_warm_base)
-        m1 = mount(B1)
-        say('B1 mounted', m1.path)
-        scenario('2 ignored changes stay local (B1 ignore=git)', s2_ignored_changes_stay_local, m1)
-        scenario('3 clean', s3_clean, m1)
-        scenario('4 rebuild', s4_rebuild, m1)
-        scenario('5 flip', s5_flip, m1)
-        scenario('6 moved head', s6_moved_head, m1)
-        scenario('5b server rule flip (B2 un-ignores out/)', s5b_server_rule_flip, m1)
-        scenario('6b server delete (B2 deletes tracked pkg/)', s6b_server_delete, m1)
-        scenario('8 comparison (B2 ignore off, same shape as 2)', s8_comparison)
-        scenario('9 logs and warm-up summary', s9_logs)
+        if restart_only:
+            scenario('10 committed ignored content survives remount and restart', s10_restart)
+        else:
+            scenario('1 warm base (B2, ignore off)', s1_warm_base)
+            m1 = mount(B1)
+            say('B1 mounted', m1.path)
+            scenario('2 ignored changes stay local (B1 ignore=git)', s2_ignored_changes_stay_local, m1)
+            scenario('3 clean', s3_clean, m1)
+            scenario('4 rebuild', s4_rebuild, m1)
+            scenario('5 flip', s5_flip, m1)
+            scenario('6 moved head', s6_moved_head, m1)
+            scenario('5b server rule flip (B2 un-ignores out/)', s5b_server_rule_flip, m1)
+            scenario('6b server delete (B2 deletes tracked pkg/)', s6b_server_delete, m1)
+            scenario('8 comparison (B2 ignore off, same shape as 2)', s8_comparison)
+            scenario('9 logs and warm-up summary', s9_logs)
+            scenario('10 committed ignored content survives remount and restart', s10_restart)
     summary = {}
     for scn, checks in RESULTS.items():
         summary[scn] = dict(result='PASS' if all(c['ok'] for c in checks) else 'FAIL', checks=checks)
@@ -764,7 +831,7 @@ def transport():
     s = '7 platform check (Linux transport tests)'
     docker('volume', 'create', V_TARGET)
     t = time.monotonic()
-    p = docker(*cargo_container('ign-transport', 'test', *CARGO_COMMON, '-p', 'layerfs-remote-store', '--test', 'transport'), expected=None, wall=3000)
+    p = docker(*cargo_container('cxi-transport', 'test', *CARGO_COMMON, '-p', 'layerfs-remote-store', '--test', 'transport'), expected=None, wall=3000)
     (RECEIPTS / 'transport-tests.log').write_text(p.stdout)
     tail = '\n'.join(p.stdout.strip().splitlines()[-25:])
     say(f'=== {s}: exit {p.returncode} in {time.monotonic() - t:.0f}s\n{tail}')
@@ -775,10 +842,10 @@ def transport():
 
 if __name__ == '__main__':
     phase = sys.argv[1] if len(sys.argv) > 1 else 'all'
-    assert phase in ['build', 'e2e', 'transport', 'all'], phase
+    assert phase in ['build', 'e2e', 'restart', 'transport', 'all'], phase
     if phase in ('build', 'all'):
         build()
-    if phase in ('e2e', 'all'):
-        e2e()
+    if phase in ('e2e', 'restart', 'all'):
+        e2e(restart_only=phase == 'restart')
     if phase in ('transport', 'all'):
         transport()

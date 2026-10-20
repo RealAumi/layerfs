@@ -1,0 +1,60 @@
+ignore setting lines: B1 1 | B2 0
+=== 10 committed ignored content survives remount and restart
+  [PASS] 10 committed ignored content survives remount and restart :: restart: before: .gitignore restored exactly -- {'present': True, 'bytes': 'node_modules/\ntarget/\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: restart: before: src/restart.txt restored exactly -- {'present': True, 'bytes': 'tracked at last Commit\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: restart: before: node_modules/restart/index.js restored exactly -- {'present': True, 'bytes': 'module.exports = "local dependency";\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: restart: before: target/restart.bin restored exactly -- {'present': True, 'bytes': 'local build output\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: restart: published head excludes node_modules/restart/index.js
+  [PASS] 10 committed ignored content survives remount and restart :: restart: published head excludes target/restart.bin
+  [PASS] 10 committed ignored content survives remount and restart :: restart: tracked edit published
+  [PASS] 10 committed ignored content survives remount and restart :: restart: after: .gitignore restored exactly -- {'present': True, 'bytes': 'node_modules/\ntarget/\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: restart: after: src/restart.txt restored exactly -- {'present': True, 'bytes': 'tracked at last Commit\n'}
+  [FAIL] 10 committed ignored content survives remount and restart :: restart: after: node_modules/restart/index.js restored exactly -- {'present': False, 'bytes': None}
+  [FAIL] 10 committed ignored content survives remount and restart :: restart: after: target/restart.bin restored exactly -- {'present': False, 'bytes': None}
+  [PASS] 10 committed ignored content survives remount and restart :: unmount cxi-b1 ns1 (discard) clean
+cxi-b1 daemon.log error-ish lines: 0
+cxi-b2 daemon.log error-ish lines: 0
+
+SUMMARY
+  FAIL  10 committed ignored content survives remount and restart  (10/12 checks)  FAILED: ['restart: after: node_modules/restart/index.js restored exactly', 'restart: after: target/restart.bin restored exactly']
+FACTS {
+  "restart_commit": "Committed(Committed { record: CommitRecord { id: CommitId(120f412b75b2896505c2c012f3d888ce1a4b65c44a1d658c2a3ab6bd892778f0cc), stack: LayerStackId(3117171717171717171717171717171717), root: ObjectId(\"486f28de3a2ce7a362b8f130c3fced201aa705208f9d02ef301e4efeb3ab6854\"), parent: None, base_layer: LayerId(32619a7d2b149100a8e95985700d8dbdf1e417f9a7d6aa8323eee283168da34d06), second_parent: None, meta: CommitMeta { branch: Some(BranchId(113194cdee5f53d59e866ac08c390c6fdd)), via: Workspace, message: Some(\"remote explicit Commit\"), merged_from: None, lww: [], lww_truncated: false, units: [], statistics: CommitStatistics { logical: 74178, new_canonical: 40045, new_stored: 15356, new_metadata: 3802 }, displaced: None, time_ms: 1792520596769 } }, displaced: None })\nwall_ns=94967309\n",
+  "restart_inventory": {
+    "restart: before": {
+      ".gitignore": {
+        "present": true,
+        "bytes": "node_modules/\ntarget/\n"
+      },
+      "src/restart.txt": {
+        "present": true,
+        "bytes": "tracked at last Commit\n"
+      },
+      "node_modules/restart/index.js": {
+        "present": true,
+        "bytes": "module.exports = \"local dependency\";\n"
+      },
+      "target/restart.bin": {
+        "present": true,
+        "bytes": "local build output\n"
+      }
+    },
+    "restart: after": {
+      ".gitignore": {
+        "present": true,
+        "bytes": "node_modules/\ntarget/\n"
+      },
+      "src/restart.txt": {
+        "present": true,
+        "bytes": "tracked at last Commit\n"
+      },
+      "node_modules/restart/index.js": {
+        "present": false,
+        "bytes": null
+      },
+      "target/restart.bin": {
+        "present": false,
+        "bytes": null
+      }
+    }
+  }
+}

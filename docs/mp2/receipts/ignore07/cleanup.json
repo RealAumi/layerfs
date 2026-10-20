@@ -1,0 +1,9 @@
+{
+  "context": "orbstack",
+  "remaining": {
+    "containers": [],
+    "networks": [],
+    "volumes": []
+  },
+  "retained_target_volume": null
+}

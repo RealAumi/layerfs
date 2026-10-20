@@ -1,0 +1,38 @@
+ignore setting lines: B1 1 | B2 0
+=== 10 committed ignored content survives remount and restart
+  [PASS] 10 committed ignored content survives remount and restart :: restart: before: .gitignore restored exactly -- {'present': True, 'bytes': 'node_modules/\ntarget/\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: restart: before: src/restart.txt restored exactly -- {'present': True, 'bytes': 'tracked at last Commit\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: restart: before: node_modules/restart/index.js restored exactly -- {'present': True, 'bytes': 'module.exports = "local dependency";\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: restart: before: target/restart.bin restored exactly -- {'present': True, 'bytes': 'local build output\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: restart: published head excludes node_modules/restart/index.js
+  [PASS] 10 committed ignored content survives remount and restart :: restart: published head excludes target/restart.bin
+  [PASS] 10 committed ignored content survives remount and restart :: restart: tracked edit published
+  [FAIL] 10 committed ignored content survives remount and restart :: no exception -- AssertionError((['docker', 'exec', 'cxi-b1', 'timeout', '300', '/opt/lfs/layerfs-remote', '/state/daemon.setup', 'mount', '113194cdee5f53d59e866ac08c390c6fdd'], 1, 'Refused(ControlRefusal { code: Failed, phase: "attach:mount", moved: None, published: None, detail: "kernel attach Directory: File exis
+cxi-b1 daemon.log error-ish lines: 0
+cxi-b2 daemon.log error-ish lines: 0
+
+SUMMARY
+  FAIL  10 committed ignored content survives remount and restart  (7/8 checks)  FAILED: ['no exception']
+FACTS {
+  "restart_commit": "Committed(Committed { record: CommitRecord { id: CommitId(12630334414ce878299a4f1b4a788767c08810a706720848fa7a44d4712dbecd5f), stack: LayerStackId(3117171717171717171717171717171717), root: ObjectId(\"757ce6cf204a8b4e6e72582854a3745be2ae30b9cb659a56b42f566402f5f44b\"), parent: None, base_layer: LayerId(328773801fc461369d3bdba40c8b69b292e7541b627081c344ef96197de5607663), second_parent: None, meta: CommitMeta { branch: Some(BranchId(113194cdee5f53d59e866ac08c390c6fdd)), via: Workspace, message: Some(\"remote explicit Commit\"), merged_from: None, lww: [], lww_truncated: false, units: [], statistics: CommitStatistics { logical: 74178, new_canonical: 40045, new_stored: 15357, new_metadata: 3802 }, displaced: None, time_ms: 1792520562821 } }, displaced: None })\nwall_ns=95119810\n",
+  "restart_inventory": {
+    "restart: before": {
+      ".gitignore": {
+        "present": true,
+        "bytes": "node_modules/\ntarget/\n"
+      },
+      "src/restart.txt": {
+        "present": true,
+        "bytes": "tracked at last Commit\n"
+      },
+      "node_modules/restart/index.js": {
+        "present": true,
+        "bytes": "module.exports = \"local dependency\";\n"
+      },
+      "target/restart.bin": {
+        "present": true,
+        "bytes": "local build output\n"
+      }
+    }
+  }
+}

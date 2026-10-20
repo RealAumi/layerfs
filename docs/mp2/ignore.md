@@ -110,8 +110,12 @@ the then-current local tree. Failed projection leaves the seeds intact.
   separately walk `Q`. Index parsing is cached by content for two indexes.
 - Ignored leftovers already in `Q` stay stale. Previously published bytes can
   move with those leftovers. A kept hardlink legitimately publishes shared bytes.
-- Local roots, hints and pending seeds are memory-only. Restart/remount begins
-  from the published head and loses local-only content. Recovery is not built.
+- Local roots, hints and pending seeds are memory-only. Remount, or restart
+  with fresh disposable overlay/mount paths, begins from the published head and
+  loses local-only content from even a successful Commit. There is no restore
+  key, restore table or fallback status yet. Reusing the old process paths can
+  instead refuse startup or attachment with `AlreadyExists`. See the retained
+  [restart baseline and budget stop](receipts/ignore07/README.md).
 - Local-only cache objects have no eviction. No ctime, teardown/unmount, metadata
   batching or post-publication recovery changes are included.
 - Known publication followed by rebase/install failure retains custody and
@@ -145,4 +149,10 @@ remain; post-publication recovery remains unqualified.
 Local review evidence and commands: [ignore04](receipts/ignore04/README.md).
 Earlier failures remain in [ignore03](receipts/ignore03/README.md); historical
 Docker runs remain in [ignore01](receipts/ignore01/) and [ignore02](receipts/ignore02/).
-No Docker or remote environment was used for this round.
+The [ignore06 e2e](receipts/ignore06/README.txt) passed the corrected server-flip
+and deletion scenarios on `42f8a5ebb`. [ignore07](receipts/ignore07/README.md)
+adds a failing remount/restart scenario on those same binaries: tracked bytes
+survive, committed ignored bytes disappear. Its initial startup/attachment
+failures are retained separately. Restore implementation stopped at the owner's
+250-line budget gate; its estimated 350–450 production-line design is in that
+receipt. No restore acceptance or ignore08 result is claimed.

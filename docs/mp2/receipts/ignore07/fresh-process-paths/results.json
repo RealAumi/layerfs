@@ -1,0 +1,110 @@
+{
+  "scenarios": {
+    "10 committed ignored content survives remount and restart": {
+      "result": "FAIL",
+      "checks": [
+        {
+          "check": "restart: before: .gitignore restored exactly",
+          "ok": true,
+          "evidence": "{'present': True, 'bytes': 'node_modules/\\ntarget/\\n'}"
+        },
+        {
+          "check": "restart: before: src/restart.txt restored exactly",
+          "ok": true,
+          "evidence": "{'present': True, 'bytes': 'tracked at last Commit\\n'}"
+        },
+        {
+          "check": "restart: before: node_modules/restart/index.js restored exactly",
+          "ok": true,
+          "evidence": "{'present': True, 'bytes': 'module.exports = \"local dependency\";\\n'}"
+        },
+        {
+          "check": "restart: before: target/restart.bin restored exactly",
+          "ok": true,
+          "evidence": "{'present': True, 'bytes': 'local build output\\n'}"
+        },
+        {
+          "check": "restart: published head excludes node_modules/restart/index.js",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "restart: published head excludes target/restart.bin",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "restart: tracked edit published",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "restart: after: .gitignore restored exactly",
+          "ok": true,
+          "evidence": "{'present': True, 'bytes': 'node_modules/\\ntarget/\\n'}"
+        },
+        {
+          "check": "restart: after: src/restart.txt restored exactly",
+          "ok": true,
+          "evidence": "{'present': True, 'bytes': 'tracked at last Commit\\n'}"
+        },
+        {
+          "check": "restart: after: node_modules/restart/index.js restored exactly",
+          "ok": false,
+          "evidence": "{'present': False, 'bytes': None}"
+        },
+        {
+          "check": "restart: after: target/restart.bin restored exactly",
+          "ok": false,
+          "evidence": "{'present': False, 'bytes': None}"
+        },
+        {
+          "check": "unmount cxi-b1 ns1 (discard) clean",
+          "ok": true,
+          "evidence": ""
+        }
+      ]
+    }
+  },
+  "facts": {
+    "restart_commit": "Committed(Committed { record: CommitRecord { id: CommitId(120f412b75b2896505c2c012f3d888ce1a4b65c44a1d658c2a3ab6bd892778f0cc), stack: LayerStackId(3117171717171717171717171717171717), root: ObjectId(\"486f28de3a2ce7a362b8f130c3fced201aa705208f9d02ef301e4efeb3ab6854\"), parent: None, base_layer: LayerId(32619a7d2b149100a8e95985700d8dbdf1e417f9a7d6aa8323eee283168da34d06), second_parent: None, meta: CommitMeta { branch: Some(BranchId(113194cdee5f53d59e866ac08c390c6fdd)), via: Workspace, message: Some(\"remote explicit Commit\"), merged_from: None, lww: [], lww_truncated: false, units: [], statistics: CommitStatistics { logical: 74178, new_canonical: 40045, new_stored: 15356, new_metadata: 3802 }, displaced: None, time_ms: 1792520596769 } }, displaced: None })\nwall_ns=94967309\n",
+    "restart_inventory": {
+      "restart: before": {
+        ".gitignore": {
+          "present": true,
+          "bytes": "node_modules/\ntarget/\n"
+        },
+        "src/restart.txt": {
+          "present": true,
+          "bytes": "tracked at last Commit\n"
+        },
+        "node_modules/restart/index.js": {
+          "present": true,
+          "bytes": "module.exports = \"local dependency\";\n"
+        },
+        "target/restart.bin": {
+          "present": true,
+          "bytes": "local build output\n"
+        }
+      },
+      "restart: after": {
+        ".gitignore": {
+          "present": true,
+          "bytes": "node_modules/\ntarget/\n"
+        },
+        "src/restart.txt": {
+          "present": true,
+          "bytes": "tracked at last Commit\n"
+        },
+        "node_modules/restart/index.js": {
+          "present": false,
+          "bytes": null
+        },
+        "target/restart.bin": {
+          "present": false,
+          "bytes": null
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,88 @@
+ignore setting lines: B1 1 | B2 0
+=== 10 committed ignored content survives remount and restart
+  [PASS] 10 committed ignored content survives remount and restart :: remount: before: .gitignore restored exactly -- {'present': True, 'bytes': 'node_modules/\ntarget/\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: remount: before: src/restart.txt restored exactly -- {'present': True, 'bytes': 'tracked at last Commit\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: remount: before: node_modules/restart/index.js restored exactly -- {'present': True, 'bytes': 'module.exports = "local dependency";\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: remount: before: target/restart.bin restored exactly -- {'present': True, 'bytes': 'local build output\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: remount: published head excludes node_modules/restart/index.js
+  [PASS] 10 committed ignored content survives remount and restart :: remount: published head excludes target/restart.bin
+  [PASS] 10 committed ignored content survives remount and restart :: remount: tracked edit published
+  [PASS] 10 committed ignored content survives remount and restart :: unmount cxi-b1 ns1 clean
+  [PASS] 10 committed ignored content survives remount and restart :: remount: after: .gitignore restored exactly -- {'present': True, 'bytes': 'node_modules/\ntarget/\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: remount: after: src/restart.txt restored exactly -- {'present': True, 'bytes': 'tracked at last Commit\n'}
+  [FAIL] 10 committed ignored content survives remount and restart :: remount: after: node_modules/restart/index.js restored exactly -- {'present': False, 'bytes': None}
+  [FAIL] 10 committed ignored content survives remount and restart :: remount: after: target/restart.bin restored exactly -- {'present': False, 'bytes': None}
+  [PASS] 10 committed ignored content survives remount and restart :: unmount cxi-b1 ns2 (discard) clean
+  [PASS] 10 committed ignored content survives remount and restart :: restart: before: .gitignore restored exactly -- {'present': True, 'bytes': 'node_modules/\ntarget/\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: restart: before: src/restart.txt restored exactly -- {'present': True, 'bytes': 'tracked at last Commit\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: restart: before: node_modules/restart/index.js restored exactly -- {'present': True, 'bytes': 'module.exports = "local dependency";\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: restart: before: target/restart.bin restored exactly -- {'present': True, 'bytes': 'local build output\n'}
+  [PASS] 10 committed ignored content survives remount and restart :: restart: published head excludes node_modules/restart/index.js
+  [PASS] 10 committed ignored content survives remount and restart :: restart: published head excludes target/restart.bin
+  [PASS] 10 committed ignored content survives remount and restart :: restart: tracked edit published
+  [FAIL] 10 committed ignored content survives remount and restart :: no exception -- AssertionError(('cxi-b1', 'REMOTE_DAEMON_READY', '', 'Error response from daemon: container 6442587c87c3aa65b3d9c2a3d16e875d92e87547638a7028b8db2a88956913f4 is not running\n'))
+cxi-b1 daemon.log error-ish lines: 
+cxi-b2 daemon.log error-ish lines: 0
+
+SUMMARY
+  FAIL  10 committed ignored content survives remount and restart  (18/21 checks)  FAILED: ['remount: after: node_modules/restart/index.js restored exactly', 'remount: after: target/restart.bin restored exactly', 'no exception']
+FACTS {
+  "remount_commit": "Committed(Committed { record: CommitRecord { id: CommitId(127be7fd0c67023fc2e1c857cb3825be6f4756bcb9472f72985bfe5a6db645ede0), stack: LayerStackId(3117171717171717171717171717171717), root: ObjectId(\"54b464159bd76f5ac07b1a57770c38645b3ea035f14d448f197df2eb3e13f115\"), parent: None, base_layer: LayerId(32d39101947f8458ae4fe4d49548f44f496e33b61c8b3c2b66bd1afe8ea19c381c), second_parent: None, meta: CommitMeta { branch: Some(BranchId(113194cdee5f53d59e866ac08c390c6fdd)), via: Workspace, message: Some(\"remote explicit Commit\"), merged_from: None, lww: [], lww_truncated: false, units: [], statistics: CommitStatistics { logical: 74178, new_canonical: 40045, new_stored: 15354, new_metadata: 3800 }, displaced: None, time_ms: 1792520466899 } }, displaced: None })\nwall_ns=95118102\n",
+  "restart_inventory": {
+    "remount: before": {
+      ".gitignore": {
+        "present": true,
+        "bytes": "node_modules/\ntarget/\n"
+      },
+      "src/restart.txt": {
+        "present": true,
+        "bytes": "tracked at last Commit\n"
+      },
+      "node_modules/restart/index.js": {
+        "present": true,
+        "bytes": "module.exports = \"local dependency\";\n"
+      },
+      "target/restart.bin": {
+        "present": true,
+        "bytes": "local build output\n"
+      }
+    },
+    "remount: after": {
+      ".gitignore": {
+        "present": true,
+        "bytes": "node_modules/\ntarget/\n"
+      },
+      "src/restart.txt": {
+        "present": true,
+        "bytes": "tracked at last Commit\n"
+      },
+      "node_modules/restart/index.js": {
+        "present": false,
+        "bytes": null
+      },
+      "target/restart.bin": {
+        "present": false,
+        "bytes": null
+      }
+    },
+    "restart: before": {
+      ".gitignore": {
+        "present": true,
+        "bytes": "node_modules/\ntarget/\n"
+      },
+      "src/restart.txt": {
+        "present": true,
+        "bytes": "tracked at last Commit\n"
+      },
+      "node_modules/restart/index.js": {
+        "present": true,
+        "bytes": "module.exports = \"local dependency\";\n"
+      },
+      "target/restart.bin": {
+        "present": true,
+        "bytes": "local build output\n"
+      }
+    }
+  },
+  "restart_commit": "Committed(Committed { record: CommitRecord { id: CommitId(124dcf7b92ecbf797ff16e34241a9777046629de8117fa47717a382a7cbdce7328), stack: LayerStackId(3117171717171717171717171717171717), root: ObjectId(\"6c285e37381afcb5438ef0b218c28d7a5d152b1dd767b96033746e16b70f8c41\"), parent: Some(CommitId(127be7fd0c67023fc2e1c857cb3825be6f4756bcb9472f72985bfe5a6db645ede0)), base_layer: LayerId(32d39101947f8458ae4fe4d49548f44f496e33b61c8b3c2b66bd1afe8ea19c381c), second_parent: None, meta: CommitMeta { branch: Some(BranchId(113194cdee5f53d59e866ac08c390c6fdd)), via: Workspace, message: Some(\"remote explicit Commit\"), merged_from: None, lww: [], lww_truncated: false, units: [], statistics: CommitStatistics { logical: 74178, new_canonical: 10310, new_stored: 3151, new_metadata: 3012 }, displaced: None, time_ms: 1792520468109 } }, displaced: None })\nwall_ns=10136877\n"
+}
