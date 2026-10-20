@@ -665,3 +665,128 @@ plus **95 external diagnostic test lines**. The measurement/analysis scripts
 reuse the Phase-3 topology: **165 added non-comment lines**, within the
 approximately 200-line harness budget. The docs/receipt commit leaves production LOC unchanged. The cold-start
 target and complete 20 ms cold timings remain unresolved; no speedup is claimed.
+
+## Phase 5 results
+
+**Neither variant qualifies as a correct cold-start solution.** The refreshed
+index variant stopped at the requested all-fields-stable gate; minimal stat
+checking removes the working-file rehash but misses the restored-mtime edit.
+No production, protocol, FUSE, Git policy or index-rewriting change was made.
+The numerical metadata-batching condition is reached under minimal checking,
+but that variant fails a required correctness oracle: it was rejected rather
+than tuned, and no batching was built on it.
+
+### 1. Refreshed index: stat-stability gate
+
+Mounted the same immutable Dubbo root simultaneously in two independent sandbox
+containers, each with its own daemon, overlay and cache. Both used the same A
+server, separate sandbox-private networks and the shared link. Compared `lstat`
+for **all 4,846 tracked paths** before any refresh or file mutation.
+
+| Field | Paths differing | `README.md`, B1 → B2 |
+| --- | ---: | --- |
+| `st_ino` | 0 | 20 → 20 |
+| `st_dev` | **4,846** | **83 → 85** |
+| uid / gid | 0 / 0 | 1000/1000 → 1000/1000 |
+| `st_mtime_ns` | 0 | 1792484244627118447 → same |
+| `st_ctime_ns` | 0 | 1792484244627118447 → same |
+| Size, additional check | 0 | 8,526 → 8,526 |
+
+`st_dev` is a mount-specific kernel device identity. Per the explicit instruction
+“if something is unstable … stop that variant,” **no in-mount index refresh,
+Commit of a refreshed base, or timed remount was attempted**. This is a failure
+of the selected stability gate, **not proof that this Git build uses `st_dev`
+to reject an index entry**; that policy question was not silently substituted
+for the requested gate. Source supports the other observations:
+`core/crates/layerfs-fuse/src/attributes.rs::Identity::inode` projects stable serials, and
+`Identity::attributes` projects the configured uid/gid and portable mtime.
+
+| Refreshed-index variant | 0 ms | 2 ms | 20 ms | Correctness oracles a / b / c |
+| --- | --- | --- | --- | --- |
+| Cold mount + status; requests; working files read | NOT_RUN | NOT_RUN | NOT_RUN | NOT_RUN / NOT_RUN / NOT_RUN — stopped before refreshing |
+
+Full per-path stat pairs and the teardown result are retained in
+[stability receipts](receipts/run05/stability/results.jsonl.gz).
+
+### 2. Imported index with `core.checkStat=minimal`
+
+Only the Git command received `-c core.checkStat=minimal`; the imported index
+and repository configuration were unchanged. All status commands also used
+`--no-optional-locks`. Each sample started with a fresh B cache/overlay/mount and
+an independent copy of the same sealed Disposable Store in A. The timed status
+used narrow `strace` (`read,pread64,mmap`) to count actual file-content accesses;
+this instrumentation is included in every sample. No pre-status tree walk or
+refresh warmed the measured mount. Server opcode tracing was enabled only for
+a separate attribution run, not for the timing cohort.
+
+The attribution run used **4,055 status requests**: **2,772 metadata**, **1,247
+file-length**, and **36 content**. Metadata and lengths are **99.1%** of requests.
+Git read only **one working-tree file, `.gitignore` (687 bytes)**, plus its own
+`.git` metadata and pack/index mappings. It did not rehash ordinary tracked
+source files. The inode/uid/gid mismatch found in Phase 4 is thereby bypassed,
+but that speed path is not correctness-qualified.
+
+Three independent samples per RTT; seconds are median **[min–max]**, summing
+mount and status command walls, including Docker-exec and narrow strace costs.
+Request counts include mount. File counts exclude `.git/**` but include
+`.gitignore`; no ordinary working source file was read.
+
+| RTT | Cold mount + status | Store requests | Working files read | Oracles a / b / c |
+| --- | ---: | ---: | ---: | --- |
+| No added delay | 1.217 [1.217–1.258] s | 4,065 [4,064–4,066] | 1 [1–1] | FAIL / PASS / PASS |
+| 2 ms | 9.641 [9.634–9.706] s | 4,063 [4,062–4,063] | 1 [1–1] | Same variant oracle results; target unmet |
+| 20 ms | 83.370 [83.323–83.435] s | 4,063 [4,063–4,065] | 1 [1–1] | Same variant oracle results |
+
+Oracles were separate, untimed, fresh-fixture checks at no added delay; their
+results apply to the variant, not three repeated oracle campaigns per RTT.
+
+| Oracle | Minimal-policy outcome | Independent evidence |
+| --- | --- | --- |
+| a. Change content, keep size, explicitly restore mtime | **FAIL: status returned clean** | README remained 8,526 bytes; mtime and ctime both remained 1792484244627118447 ns; SHA-256 and Git's forced blob hash changed |
+| b. Server `fs.write`, then remount sandbox | **PASS: ` M README.md`** | Server write succeeded; remounted `cat` read the new text; forced hash differed from index |
+| c. Ordinary in-mount edit | **PASS: ` M README.md`** | Same-size content edit advanced mtime/ctime; forced hash differed from index |
+
+No adjustment was made after oracle (a) failed. In
+`core/crates/layerfs-fuse/src/attributes.rs::Identity::attributes`, **ctime is projected from
+mtime**. The oracle confirms that restoring mtime also restores the ctime seen
+by Git. Thus the remaining stat fields cannot establish unchanged contents for
+this case. This is a filesystem metadata limitation, not something metadata
+batching can repair. The refreshed-index variant's oracle outcomes remain
+unknown because its earlier stop gate fired; they are not inferred as passes.
+[Oracle receipts](receipts/run05/oracles/results.jsonl),
+[recomputed summary](receipts/run05/summary.json).
+
+### Warm-base recommendation and remaining limits
+
+**Keep Git's default stat policy and do not ship `core.checkStat=minimal` as a
+warm-base optimization.** Do not rewrite index stat fields outside Git. This
+phase does not qualify a refreshed index for cold remounts, so do not advertise
+`git update-index --refresh` + Commit as eliminating cold rehash safely. A future
+warm-base validation should first explicitly decide whether varying `st_dev` is
+acceptable for the selected Git build and establish mutation-sensitive ctime
+semantics; then prepare the index with Git inside the mount, Commit it, and pass
+all three oracles after a fresh remount. Until then, retain the conservative
+rehash cost. Reusing an active mount may amortize work, but it is not a cold-start
+correctness result.
+
+A second unresolved issue reappeared during the dual-sandbox stat check: B2's
+normal unmount detached but returned **Retained / Join** after the existing 5 s,
+with two receive loops entered and zero exited. The exact reply and executable
+hashes are retained; no root cause is claimed. The harness removed its owned
+containers after the refusal, without replaying unmount. B1's explicit unmount
+was consequently not reached in that check. Subsequent single-B diagnostic,
+oracle and timing unmounts succeeded. No teardown or FUSE fix was attempted in
+this phase.
+
+The retained Phase-4 executables were reused by hash; no Rust source changed or
+Linux Rust build was needed. The owned tools image reused its cached arm64
+ECR-base build layers. Only diagnostic scripts, receipts and this note changed.
+All commands used explicit bounds (status 115 s, mount/unmount 25 s, seed test
+120 s); no timeout was extended or failed operation replayed. Server/OS caches
+were not dropped, so “cold” describes B's new application cache and kernel mount,
+not a cold-storage claim. Netem/proxy calibration and one construction worker
+were unchanged. These are diagnostics, not frozen-family benchmark admission.
+Exact commands, identities, per-run accesses, measured RTT and cleanup are in
+[the receipt index](receipts/run05/README.md). All owned containers, networks,
+volumes and the temporary tools image were cleaned up. No push or upstream
+contract-document edits; production LOC remains **106,288 (delta 0)**.

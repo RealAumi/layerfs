@@ -1,0 +1,27 @@
+{
+  "counts": {
+    "status_exit_0": 16,
+    "unmount_exit_0": 14,
+    "sdk_write_exit_0": 1,
+    "unmount_exit_1": 1
+  },
+  "semantic_assertions": "PASS",
+  "retained_join": [
+    {
+      "receipt": "stability/commands.jsonl",
+      "command": [
+        "/usr/local/bin/docker",
+        "exec",
+        "mp2-p5-b2",
+        "timeout",
+        "25",
+        "/bin-lfs/layerfs-remote",
+        "/state/control.setup",
+        "unmount",
+        "1daa696713926cadc6cde415d5a65d39d82f6793e9923f5ef4d224532014863a",
+        "1"
+      ],
+      "output": "Retained(TeardownCustody { token: WorkspaceToken { workspace: WorkspaceId(1daa696713926cadc6cde415d5a65d39d82f6793e9923f5ef4d224532014863a), namespace: 1 }, stage: Join, detached: true, work: Some(MountWork { loops_configured: 2, loops_entered: 2, loops_exited: 0, loops_joined: 0, active: 0, retained: 0, completed: 7468, served: 7468, inline: 0, refused: 0, terminal: 0, forget_units: 0 }), detail: \"connection drain stopped at Join: loops Some(SessionSnapshot { phase: Serving, revision: 6, configured: 2, created: 2, entered: 2, exited: 0, joined: 0 }), work Some(MountWork { active: 0, retained: 0, requests: 7468, completed: 7468, terminal: true })\", forced: None })\nwall_ns=5010652131\ncontrol refused; original result printed\n"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "parent": "e4eae2953c034139e3bcd1c77764242a94d13b4e",
+  "before": 106288,
+  "after": 106288,
+  "delta": 0,
+  "counter_blob": "e6d94d1a731b402ccc9159f49cef1eba5a74cfe0",
+  "exclusion": "739 scripted mock lines; counter excludes comments and inline test code",
+  "scopes": {
+    "core": 98118,
+    "sdk": 2861,
+    "dsh": 5309
+  },
+  "basis": "all changed paths under docs/mp2; product blobs unchanged",
+  "harness_added_physical_lines": {
+    "docs/mp2/phase5-diagnostics.py": 78,
+    "docs/mp2/phase5-summary.py": 40,
+    "docs/mp2/phase5-cleanup.py": 20,
+    "docs/mp2/phase5-prepare.sh": 7
+  },
+  "harness_total": 145,
+  "validation": {
+    "python_ast": "PASS",
+    "phase5_links": "PASS",
+    "summary_assertions": "PASS"
+  }
+}

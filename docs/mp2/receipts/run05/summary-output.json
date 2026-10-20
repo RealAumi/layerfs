@@ -1,0 +1,292 @@
+{
+  "stability": {
+    "paths": 4846,
+    "changed": {
+      "st_ino": 0,
+      "st_dev": 4846,
+      "st_uid": 0,
+      "st_gid": 0,
+      "st_mtime_ns": 0,
+      "st_ctime_ns": 0,
+      "st_size": 0
+    },
+    "readme_first": {
+      "st_ino": 20,
+      "st_dev": 83,
+      "st_uid": 1000,
+      "st_gid": 1000,
+      "st_mtime_ns": 1792484244627118447,
+      "st_ctime_ns": 1792484244627118447,
+      "st_size": 8526
+    },
+    "readme_second": {
+      "st_ino": 20,
+      "st_dev": 85,
+      "st_uid": 1000,
+      "st_gid": 1000,
+      "st_mtime_ns": 1792484244627118447,
+      "st_ctime_ns": 1792484244627118447,
+      "st_size": 8526
+    }
+  },
+  "minimal": [
+    {
+      "rtt": 0,
+      "complete": true,
+      "wall_s": {
+        "median": 1.217332792,
+        "min": 1.217190542,
+        "max": 1.257563709
+      },
+      "requests": {
+        "median": 4065,
+        "min": 4064,
+        "max": 4066
+      },
+      "working_files": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "accesses": [
+        {
+          "working_files": 1,
+          "working_paths": [
+            ".gitignore"
+          ],
+          "read_bytes": {
+            ".git/HEAD": 80,
+            ".git/config": 885,
+            ".git/refs/heads/3.3": 123,
+            ".git/packed-refs": 12352,
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack": 32,
+            ".git/info/exclude": 480,
+            ".gitignore": 687
+          },
+          "mapped_paths": [
+            ".git/index",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.idx",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack"
+          ]
+        },
+        {
+          "working_files": 1,
+          "working_paths": [
+            ".gitignore"
+          ],
+          "read_bytes": {
+            ".git/HEAD": 80,
+            ".git/config": 885,
+            ".git/refs/heads/3.3": 123,
+            ".git/packed-refs": 12352,
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack": 32,
+            ".git/info/exclude": 480,
+            ".gitignore": 687
+          },
+          "mapped_paths": [
+            ".git/index",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.idx",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack"
+          ]
+        },
+        {
+          "working_files": 1,
+          "working_paths": [
+            ".gitignore"
+          ],
+          "read_bytes": {
+            ".git/HEAD": 80,
+            ".git/config": 885,
+            ".git/refs/heads/3.3": 123,
+            ".git/packed-refs": 12352,
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack": 32,
+            ".git/info/exclude": 480,
+            ".gitignore": 687
+          },
+          "mapped_paths": [
+            ".git/index",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.idx",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack"
+          ]
+        }
+      ],
+      "ping_ms": {
+        "median": 0.021,
+        "min": 0.007,
+        "max": 0.071
+      }
+    },
+    {
+      "rtt": 2,
+      "complete": true,
+      "wall_s": {
+        "median": 9.640799,
+        "min": 9.633524875,
+        "max": 9.706019333
+      },
+      "requests": {
+        "median": 4063,
+        "min": 4062,
+        "max": 4063
+      },
+      "working_files": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "accesses": [
+        {
+          "working_files": 1,
+          "working_paths": [
+            ".gitignore"
+          ],
+          "read_bytes": {
+            ".git/HEAD": 80,
+            ".git/config": 885,
+            ".git/refs/heads/3.3": 123,
+            ".git/packed-refs": 12352,
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack": 32,
+            ".git/info/exclude": 480,
+            ".gitignore": 687
+          },
+          "mapped_paths": [
+            ".git/index",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.idx",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack"
+          ]
+        },
+        {
+          "working_files": 1,
+          "working_paths": [
+            ".gitignore"
+          ],
+          "read_bytes": {
+            ".git/HEAD": 80,
+            ".git/config": 885,
+            ".git/refs/heads/3.3": 123,
+            ".git/packed-refs": 12352,
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack": 32,
+            ".git/info/exclude": 480,
+            ".gitignore": 687
+          },
+          "mapped_paths": [
+            ".git/index",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.idx",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack"
+          ]
+        },
+        {
+          "working_files": 1,
+          "working_paths": [
+            ".gitignore"
+          ],
+          "read_bytes": {
+            ".git/HEAD": 80,
+            ".git/config": 885,
+            ".git/refs/heads/3.3": 123,
+            ".git/packed-refs": 12352,
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack": 32,
+            ".git/info/exclude": 480,
+            ".gitignore": 687
+          },
+          "mapped_paths": [
+            ".git/index",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.idx",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack"
+          ]
+        }
+      ],
+      "ping_ms": {
+        "median": 2.02,
+        "min": 2.01,
+        "max": 4.08
+      }
+    },
+    {
+      "rtt": 20,
+      "complete": true,
+      "wall_s": {
+        "median": 83.369588833,
+        "min": 83.3233985,
+        "max": 83.434628834
+      },
+      "requests": {
+        "median": 4063,
+        "min": 4063,
+        "max": 4065
+      },
+      "working_files": {
+        "median": 1,
+        "min": 1,
+        "max": 1
+      },
+      "accesses": [
+        {
+          "working_files": 1,
+          "working_paths": [
+            ".gitignore"
+          ],
+          "read_bytes": {
+            ".git/HEAD": 80,
+            ".git/config": 885,
+            ".git/refs/heads/3.3": 123,
+            ".git/packed-refs": 12352,
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack": 32,
+            ".git/info/exclude": 480,
+            ".gitignore": 687
+          },
+          "mapped_paths": [
+            ".git/index",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.idx",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack"
+          ]
+        },
+        {
+          "working_files": 1,
+          "working_paths": [
+            ".gitignore"
+          ],
+          "read_bytes": {
+            ".git/HEAD": 80,
+            ".git/config": 885,
+            ".git/refs/heads/3.3": 123,
+            ".git/packed-refs": 12352,
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack": 32,
+            ".git/info/exclude": 480,
+            ".gitignore": 687
+          },
+          "mapped_paths": [
+            ".git/index",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.idx",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack"
+          ]
+        },
+        {
+          "working_files": 1,
+          "working_paths": [
+            ".gitignore"
+          ],
+          "read_bytes": {
+            ".git/HEAD": 80,
+            ".git/config": 885,
+            ".git/refs/heads/3.3": 123,
+            ".git/packed-refs": 12352,
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack": 32,
+            ".git/info/exclude": 480,
+            ".gitignore": 687
+          },
+          "mapped_paths": [
+            ".git/index",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.idx",
+            ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack"
+          ]
+        }
+      ],
+      "ping_ms": {
+        "median": 20.0,
+        "min": 20.0,
+        "max": 40.1
+      }
+    }
+  ]
+}
