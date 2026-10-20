@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "~/lfs-remote/mp2-remote-store/phase3-diagnostics.py", line 102, in <module>
+    m,_=mount();r=ex(B,'timeout','25','git','-c','safe.directory=*','-C',m[0],'--no-optional-locks','status','--short',wall=27)
+  File "~/lfs-remote/mp2-remote-store/phase3-diagnostics.py", line 26, in ex
+    def ex(c,*args,**kw):return docker('exec',c,*args,**kw)
+  File "~/lfs-remote/mp2-remote-store/phase3-diagnostics.py", line 25, in docker
+    def docker(*args,**kw):return run([D,*args],**kw)
+  File "~/lfs-remote/mp2-remote-store/phase3-diagnostics.py", line 22, in run
+    if check:assert result['exit']==0,result
+AssertionError: {'command': ['/usr/local/bin/docker', 'exec', 'mp2-p3-b', 'timeout', '25', 'git', '-c', 'safe.directory=*', '-C', '/workspaces/1', '--no-optional-locks', 'status', '--short'], 'exit': 124, 'ns': 25060190625, 'output': ''}

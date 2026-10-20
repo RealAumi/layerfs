@@ -1,0 +1,1 @@
+{"native": false, "rtt": 0, "rep": 1, "error": "{'command': ['/usr/local/bin/docker', 'exec', 'mp2-p3-b', 'timeout', '25', 'git', '-c', 'safe.directory=*', '-C', '/workspaces/1', '--no-optional-locks', 'status', '--short'], 'exit': 124, 'ns': 25046503041, 'output': ''}"}

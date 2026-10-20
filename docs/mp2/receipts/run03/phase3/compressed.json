@@ -1,0 +1,22 @@
+[
+  {
+    "path": "setup/phase3-measure-console.log.gz",
+    "uncompressed_sha256": "ecf0fe7792c22478825a4263ec2726c9fccd98d90b39d955de67d4b505ec9d43",
+    "uncompressed_bytes": 1383587
+  },
+  {
+    "path": "measure/commands.jsonl.gz",
+    "uncompressed_sha256": "af31487ace1dcadf0b669b8c0a9d856ea5af243fb0a8aa0e9a9801470ad5d892",
+    "uncompressed_bytes": 1399397
+  },
+  {
+    "path": "measure/results.jsonl.gz",
+    "uncompressed_sha256": "81472370ee3d9fefd74f8377d910d081744f5c9dc5af62b499aea13f9dbf2653",
+    "uncompressed_bytes": 1392062
+  },
+  {
+    "path": "workload/full-manifest.json.gz",
+    "uncompressed_sha256": "d98b2bbca4a9ab2fbab2bff0e89bedea3b2102172c0e8d741a0cf9f03e44ee61",
+    "uncompressed_bytes": 1240488
+  }
+]

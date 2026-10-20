@@ -1,0 +1,285 @@
+[INFO] Scanning for projects...
+[INFO] ------------------------------------------------------------------------
+[INFO] Detecting the operating system and CPU architecture
+[INFO] ------------------------------------------------------------------------
+[INFO] os.detected.name: linux
+[INFO] os.detected.arch: aarch_64
+[INFO] os.detected.bitness: 64
+[INFO] os.detected.version: 7.0
+[INFO] os.detected.version.major: 7
+[INFO] os.detected.version.minor: 0
+[INFO] os.detected.release: ubuntu
+[INFO] os.detected.release.version: 24.04
+[INFO] os.detected.release.like.ubuntu: true
+[INFO] os.detected.release.like.debian: true
+[INFO] os.detected.classifier: linux-aarch_64
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Build Order:
+[INFO]
+[INFO] dubbo-parent                                                       [pom]
+[INFO] dubbo-common                                                       [jar]
+[INFO] dubbo-serialization                                                [pom]
+[INFO] dubbo-serialization-api                                            [jar]
+[INFO] dubbo-native                                                       [jar]
+[INFO] dubbo-serialization-hessian2                                       [jar]
+[INFO] dubbo-serialization-fastjson2                                      [jar]
+[INFO] dubbo-remoting                                                     [pom]
+[INFO] dubbo-remoting-api                                                 [jar]
+[INFO] dubbo-remoting-netty                                               [jar]
+[INFO] dubbo-remoting-zookeeper-curator5                                  [jar]
+[INFO] dubbo-metrics                                                      [pom]
+[INFO] dubbo-metrics-event                                                [jar]
+[INFO] dubbo-rpc                                                          [pom]
+[INFO] dubbo-rpc-api                                                      [jar]
+[INFO] dubbo-metrics-api                                                  [jar]
+[INFO] dubbo-metrics-netty                                                [jar]
+[INFO] dubbo-remoting-netty4                                              [jar]
+[INFO] dubbo-remoting-http12                                              [jar]
+[INFO] dubbo-remoting-http3                                               [jar]
+[INFO] dubbo-remoting-websocket                                           [jar]
+[INFO] dubbo-rpc-injvm                                                    [jar]
+[INFO] dubbo-metrics-registry                                             [jar]
+[INFO] dubbo-metrics-default                                              [jar]
+[INFO] dubbo-cluster                                                      [jar]
+[INFO] dubbo-rpc-dubbo                                                    [jar]
+[INFO] dubbo-compiler                                                     [jar]
+[INFO] dubbo-maven-plugin                                        [maven-plugin]
+[INFO] dubbo-rpc-triple                                                   [jar]
+[INFO] dubbo-metrics-metadata                                             [jar]
+[INFO] dubbo-metadata                                                     [pom]
+[INFO] dubbo-metadata-api                                                 [jar]
+[INFO] dubbo-registry                                                     [pom]
+[INFO] dubbo-registry-api                                                 [jar]
+[INFO] dubbo-registry-multicast                                           [jar]
+[INFO] dubbo-registry-zookeeper                                           [jar]
+[INFO] dubbo-registry-nacos                                               [jar]
+[INFO] dubbo-registry-multiple                                            [jar]
+[INFO] dubbo-qos-api                                                      [jar]
+[INFO] dubbo-metrics-prometheus                                           [jar]
+[INFO] dubbo-metrics-config-center                                        [jar]
+[INFO] dubbo-configcenter                                                 [pom]
+[INFO] dubbo-configcenter-zookeeper                                       [jar]
+[INFO] dubbo-configcenter-apollo                                          [jar]
+[INFO] dubbo-configcenter-nacos                                           [jar]
+[INFO] dubbo-configcenter-file                                            [jar]
+[INFO] dubbo-tracing                                                      [jar]
+[INFO] dubbo-test                                                         [pom]
+[INFO] dubbo-test-check                                                   [jar]
+[INFO] dubbo-test-common                                                  [jar]
+[INFO] dubbo-metadata-report-zookeeper                                    [jar]
+[INFO] dubbo-filter-cache                                                 [jar]
+[INFO] dubbo-filter-validation                                            [jar]
+[INFO] dubbo-config                                                       [pom]
+[INFO] dubbo-config-api                                                   [jar]
+[INFO] dubbo-config-spring                                                [jar]
+[INFO] dubbo-config-spring6                                               [jar]
+[INFO] dubbo-qos                                                          [jar]
+[INFO] dubbo-metadata-processor                                           [jar]
+[INFO] dubbo-compatible                                                   [jar]
+[INFO] dubbo-dependencies-bom                                             [pom]
+[INFO] dubbo-metadata-definition-protobuf                                 [jar]
+[INFO] dubbo-metadata-report-nacos                                        [jar]
+[INFO] dubbo-metrics-otlp                                                 [jar]
+[INFO] dubbo-test-spring                                                  [jar]
+[INFO] dubbo-test-spring3.2                                               [jar]
+[INFO] dubbo-test-spring4.1                                               [jar]
+[INFO] dubbo-test-spring4.2                                               [jar]
+[INFO] dubbo-auth                                                         [jar]
+[INFO] dubbo-security                                                     [jar]
+[INFO] dubbo-reactive                                                     [jar]
+[INFO] dubbo-spring-security                                              [jar]
+[INFO] dubbo-rest-jaxrs                                                   [jar]
+[INFO] dubbo-triple-servlet                                               [jar]
+[INFO] dubbo-rest-spring                                                  [jar]
+[INFO] dubbo-rest-openapi                                                 [jar]
+[INFO] dubbo-triple-websocket                                             [jar]
+[INFO] dubbo-spring6-security                                             [jar]
+[INFO] dubbo-mcp                                                          [jar]
+[INFO] dubbo-mutiny                                                       [jar]
+[INFO] dubbo                                                              [jar]
+[INFO] dubbo-spring-boot                                                  [jar]
+[INFO] dubbo-spring-boot-actuator                                         [jar]
+[INFO] dubbo-spring-boot-compatible                                       [pom]
+[INFO] dubbo-spring-boot-autoconfigure-compatible                         [jar]
+[INFO] dubbo-spring-boot-autoconfigure                                    [jar]
+[INFO] dubbo-spring-boot-actuator-autoconfigure-compatible                [jar]
+[INFO] dubbo-spring-boot-actuator-autoconfigure                           [jar]
+[INFO] dubbo-spring-boot-starters                                         [pom]
+[INFO] dubbo-spring-boot-starter                                          [jar]
+[INFO] dubbo-tracing-otel-zipkin-spring-boot-starter                      [jar]
+[INFO] dubbo-tracing-otel-otlp-spring-boot-starter                        [jar]
+[INFO] dubbo-tracing-brave-zipkin-spring-boot-starter                     [jar]
+[INFO] dubbo-observability-spring-boot-starter                            [jar]
+[INFO] dubbo-nacos-spring-boot-starter                                    [jar]
+[INFO] dubbo-zookeeper-curator5-spring-boot-starter                       [jar]
+[INFO] dubbo-sentinel-spring-boot-starter                                 [jar]
+[INFO] dubbo-seata-spring-boot-starter                                    [jar]
+[INFO] dubbo-test-modules                                                 [jar]
+[INFO] dubbo-spring-boot-3-autoconfigure                                  [jar]
+[INFO] dubbo-dependencies-all                                             [jar]
+[INFO] dubbo-demo-api                                                     [pom]
+[INFO] dubbo-demo-api-interface                                           [jar]
+[INFO] dubbo-demo-api-provider                                            [jar]
+[INFO] dubbo-demo-api-consumer                                            [jar]
+[INFO] dubbo-demo-spring-boot                                             [pom]
+[INFO] dubbo-demo-spring-boot-interface                                   [jar]
+[INFO] dubbo-demo-spring-boot-consumer                                    [jar]
+[INFO] dubbo-demo-spring-boot-provider                                    [jar]
+[INFO] dubbo-demo-spring-boot-servlet                                     [jar]
+[INFO] dubbo-demo-spring-boot-idl                                         [pom]
+[INFO] dubbo-demo-spring-boot-idl-provider                                [jar]
+[INFO] dubbo-demo-spring-boot-idl-consumer                                [jar]
+[INFO] dubbo-demo-mcp-server                                              [jar]
+[INFO] dubbo-bom                                                          [pom]
+[INFO]
+[INFO] -------------------< org.apache.dubbo:dubbo-parent >--------------------
+[INFO] Building dubbo-parent 3.3.7-SNAPSHOT                             [1/115]
+[INFO]   from pom.xml
+[INFO] --------------------------------[ pom ]---------------------------------
+[INFO]
+[INFO] --- enforcer:3.4.1:enforce (enforce-maven-version) @ dubbo-parent ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireMavenVersion passed
+[INFO]
+[INFO] --- enforcer:3.4.1:enforce (enforce-java-version) @ dubbo-parent ---
+[INFO] Rule 0: org.apache.maven.enforcer.rules.version.RequireJavaVersion passed
+[INFO]
+[INFO] --- checkstyle:3.6.0:check (checkstyle-validation) @ dubbo-parent ---
+[INFO]
+[INFO] --- checkstyle:3.6.0:check (checkstyle-unix-validation) @ dubbo-parent ---
+[INFO]
+[INFO] --- jacoco:0.8.15:prepare-agent (jacoco-initialize) @ dubbo-parent ---
+[INFO] Skipping JaCoCo execution because property jacoco.skip is set.
+[INFO]
+[INFO] --- spotless:2.46.1:check (default) @ dubbo-parent ---
+[WARNING] The POM for com.palantir.javaformat:palantir-java-format:jar:2.28.0 is missing, no dependency information available
+[INFO] ------------------------------------------------------------------------
+[INFO] Reactor Summary for dubbo-parent 3.3.7-SNAPSHOT:
+[INFO]
+[INFO] dubbo-parent ....................................... FAILURE [  0.720 s]
+[INFO] dubbo-common ....................................... SKIPPED
+[INFO] dubbo-serialization ................................ SKIPPED
+[INFO] dubbo-serialization-api ............................ SKIPPED
+[INFO] dubbo-native ....................................... SKIPPED
+[INFO] dubbo-serialization-hessian2 ....................... SKIPPED
+[INFO] dubbo-serialization-fastjson2 ...................... SKIPPED
+[INFO] dubbo-remoting ..................................... SKIPPED
+[INFO] dubbo-remoting-api ................................. SKIPPED
+[INFO] dubbo-remoting-netty ............................... SKIPPED
+[INFO] dubbo-remoting-zookeeper-curator5 .................. SKIPPED
+[INFO] dubbo-metrics ...................................... SKIPPED
+[INFO] dubbo-metrics-event ................................ SKIPPED
+[INFO] dubbo-rpc .......................................... SKIPPED
+[INFO] dubbo-rpc-api ...................................... SKIPPED
+[INFO] dubbo-metrics-api .................................. SKIPPED
+[INFO] dubbo-metrics-netty ................................ SKIPPED
+[INFO] dubbo-remoting-netty4 .............................. SKIPPED
+[INFO] dubbo-remoting-http12 .............................. SKIPPED
+[INFO] dubbo-remoting-http3 ............................... SKIPPED
+[INFO] dubbo-remoting-websocket ........................... SKIPPED
+[INFO] dubbo-rpc-injvm .................................... SKIPPED
+[INFO] dubbo-metrics-registry ............................. SKIPPED
+[INFO] dubbo-metrics-default .............................. SKIPPED
+[INFO] dubbo-cluster ...................................... SKIPPED
+[INFO] dubbo-rpc-dubbo .................................... SKIPPED
+[INFO] dubbo-compiler ..................................... SKIPPED
+[INFO] dubbo-maven-plugin ................................. SKIPPED
+[INFO] dubbo-rpc-triple ................................... SKIPPED
+[INFO] dubbo-metrics-metadata ............................. SKIPPED
+[INFO] dubbo-metadata ..................................... SKIPPED
+[INFO] dubbo-metadata-api ................................. SKIPPED
+[INFO] dubbo-registry ..................................... SKIPPED
+[INFO] dubbo-registry-api ................................. SKIPPED
+[INFO] dubbo-registry-multicast ........................... SKIPPED
+[INFO] dubbo-registry-zookeeper ........................... SKIPPED
+[INFO] dubbo-registry-nacos ............................... SKIPPED
+[INFO] dubbo-registry-multiple ............................ SKIPPED
+[INFO] dubbo-qos-api ...................................... SKIPPED
+[INFO] dubbo-metrics-prometheus ........................... SKIPPED
+[INFO] dubbo-metrics-config-center ........................ SKIPPED
+[INFO] dubbo-configcenter ................................. SKIPPED
+[INFO] dubbo-configcenter-zookeeper ....................... SKIPPED
+[INFO] dubbo-configcenter-apollo .......................... SKIPPED
+[INFO] dubbo-configcenter-nacos ........................... SKIPPED
+[INFO] dubbo-configcenter-file ............................ SKIPPED
+[INFO] dubbo-tracing ...................................... SKIPPED
+[INFO] dubbo-test ......................................... SKIPPED
+[INFO] dubbo-test-check ................................... SKIPPED
+[INFO] dubbo-test-common .................................. SKIPPED
+[INFO] dubbo-metadata-report-zookeeper .................... SKIPPED
+[INFO] dubbo-filter-cache ................................. SKIPPED
+[INFO] dubbo-filter-validation ............................ SKIPPED
+[INFO] dubbo-config ....................................... SKIPPED
+[INFO] dubbo-config-api ................................... SKIPPED
+[INFO] dubbo-config-spring ................................ SKIPPED
+[INFO] dubbo-config-spring6 ............................... SKIPPED
+[INFO] dubbo-qos .......................................... SKIPPED
+[INFO] dubbo-metadata-processor ........................... SKIPPED
+[INFO] dubbo-compatible ................................... SKIPPED
+[INFO] dubbo-dependencies-bom ............................. SKIPPED
+[INFO] dubbo-metadata-definition-protobuf ................. SKIPPED
+[INFO] dubbo-metadata-report-nacos ........................ SKIPPED
+[INFO] dubbo-metrics-otlp ................................. SKIPPED
+[INFO] dubbo-test-spring .................................. SKIPPED
+[INFO] dubbo-test-spring3.2 ............................... SKIPPED
+[INFO] dubbo-test-spring4.1 ............................... SKIPPED
+[INFO] dubbo-test-spring4.2 ............................... SKIPPED
+[INFO] dubbo-auth ......................................... SKIPPED
+[INFO] dubbo-security ..................................... SKIPPED
+[INFO] dubbo-reactive ..................................... SKIPPED
+[INFO] dubbo-spring-security .............................. SKIPPED
+[INFO] dubbo-rest-jaxrs ................................... SKIPPED
+[INFO] dubbo-triple-servlet ............................... SKIPPED
+[INFO] dubbo-rest-spring .................................. SKIPPED
+[INFO] dubbo-rest-openapi ................................. SKIPPED
+[INFO] dubbo-triple-websocket ............................. SKIPPED
+[INFO] dubbo-spring6-security ............................. SKIPPED
+[INFO] dubbo-mcp .......................................... SKIPPED
+[INFO] dubbo-mutiny ....................................... SKIPPED
+[INFO] dubbo .............................................. SKIPPED
+[INFO] dubbo-spring-boot .................................. SKIPPED
+[INFO] dubbo-spring-boot-actuator ......................... SKIPPED
+[INFO] dubbo-spring-boot-compatible ....................... SKIPPED
+[INFO] dubbo-spring-boot-autoconfigure-compatible ......... SKIPPED
+[INFO] dubbo-spring-boot-autoconfigure .................... SKIPPED
+[INFO] dubbo-spring-boot-actuator-autoconfigure-compatible  SKIPPED
+[INFO] dubbo-spring-boot-actuator-autoconfigure ........... SKIPPED
+[INFO] dubbo-spring-boot-starters ......................... SKIPPED
+[INFO] dubbo-spring-boot-starter .......................... SKIPPED
+[INFO] dubbo-tracing-otel-zipkin-spring-boot-starter ...... SKIPPED
+[INFO] dubbo-tracing-otel-otlp-spring-boot-starter ........ SKIPPED
+[INFO] dubbo-tracing-brave-zipkin-spring-boot-starter ..... SKIPPED
+[INFO] dubbo-observability-spring-boot-starter ............ SKIPPED
+[INFO] dubbo-nacos-spring-boot-starter .................... SKIPPED
+[INFO] dubbo-zookeeper-curator5-spring-boot-starter ....... SKIPPED
+[INFO] dubbo-sentinel-spring-boot-starter ................. SKIPPED
+[INFO] dubbo-seata-spring-boot-starter .................... SKIPPED
+[INFO] dubbo-test-modules ................................. SKIPPED
+[INFO] dubbo-spring-boot-3-autoconfigure .................. SKIPPED
+[INFO] dubbo-dependencies-all ............................. SKIPPED
+[INFO] dubbo-demo-api ..................................... SKIPPED
+[INFO] dubbo-demo-api-interface ........................... SKIPPED
+[INFO] dubbo-demo-api-provider ............................ SKIPPED
+[INFO] dubbo-demo-api-consumer ............................ SKIPPED
+[INFO] dubbo-demo-spring-boot ............................. SKIPPED
+[INFO] dubbo-demo-spring-boot-interface ................... SKIPPED
+[INFO] dubbo-demo-spring-boot-consumer .................... SKIPPED
+[INFO] dubbo-demo-spring-boot-provider .................... SKIPPED
+[INFO] dubbo-demo-spring-boot-servlet ..................... SKIPPED
+[INFO] dubbo-demo-spring-boot-idl ......................... SKIPPED
+[INFO] dubbo-demo-spring-boot-idl-provider ................ SKIPPED
+[INFO] dubbo-demo-spring-boot-idl-consumer ................ SKIPPED
+[INFO] dubbo-demo-mcp-server .............................. SKIPPED
+[INFO] dubbo-bom .......................................... SKIPPED
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  1.618 s
+[INFO] Finished at: 2026-10-20T12:40:42Z
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal com.diffplug.spotless:spotless-maven-plugin:2.46.1:check (default) on project dubbo-parent: Execution default of goal com.diffplug.spotless:spotless-maven-plugin:2.46.1:check failed: Unable to resolve dependencies: The following artifacts could not be resolved: com.palantir.javaformat:palantir-java-format:jar:2.28.0 (absent): Cannot access aliyun (https://maven.aliyun.com/repository/public) in offline mode and the artifact com.palantir.javaformat:palantir-java-format:jar:2.28.0 has not been downloaded from it before. -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/PluginExecutionException

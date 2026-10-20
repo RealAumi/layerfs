@@ -396,3 +396,109 @@ authorization, remote JS SDK, FUSE optimization, provisioning or command
 supervisor was built. Durable was NOT_RUN—disabled by owner. Whole-workspace
 and frozen fs-bench-pro tests were skipped as instructed; extra symlink/sparse/
 descriptor/restart scenarios from the broader phase-1 plan remain unqualified.
+
+## Phase 3 results
+
+**Commit diagnostics completed; the historical unmount root cause remains
+unresolved.** Product changes are limited to acknowledged upload counters
+(`c834e1c`). No teardown/FUSE code, five-second deadline or replay behavior changed.
+Detailed commands, raw results and limitations are in
+[the Phase 3 receipt index](receipts/run03/phase3/README.md).
+
+### Unmount investigation and ten-cycle proof
+
+The pending pair is `fuser-0` / `fuser-1`, not the two Store TCP connections.
+`control/detach.rs::Service::unmount_kernel` calls `KernelSession::detach/drain`;
+`layerfs-fuse/src/session/drain.rs::quiesce` waits for
+`SessionPhase::Joined`. The receivers run the vendored Fuser event loop, whose
+`channel.rs::receive` reads `/dev/fuse`; the mount owner joins them. The remote
+client owns synchronous channels and creates no receive threads. Its shared
+Store sockets intentionally live across Workspace unmounts.
+
+Two fresh reproductions, including the original refresh/root/failing-command
+sequence, succeeded on committed Phase-2 source. Ten unchanged-source cycles
+also passed. With only counters added, a second **10/10 consecutive
+mount → edit → Commit → unmount proof passed** on separate A/B networks with
+one shared link: [cycle receipts](receipts/run03/phase3/cycles/results.jsonl).
+Every unmount returned `Unmounted`, median **0.768 ms**, range **0.712–0.872 ms**.
+After every cycle the daemon returned to exactly one accept thread and the same
+FD/socket identities; no per-mount threads, FUSE FD or overlay FD remained.
+Explicit daemon stop then removed its PID and daemon-owned sockets. All owned
+containers, networks, volumes and the temporary tools image were cleaned up.
+
+**No root-cause fix is claimed.** Phase 2 recorded loop counts but no stuck-thread
+stack or surviving mount-reference evidence. Its intermediate failing executable
+was not retained; the rebuilt committed-source executable passes. Thus why that
+historical detach failed to end the receivers is still unknown. Closing shared
+Store sockets would not be a justified repair. The receipt index records the
+binary identity gap; Phase-3 executables are now retained by hash remotely.
+
+### Build-output cost
+
+Used **real Dubbo** `cb05763298f081ed17171d704408b6478cf8fd83`, because its
+sources and offline Maven repository already existed on remote-host. Offline
+`package` with tests/checkstyle/RAT/Spotless skipped produced **5,354 files,
+260,024,428 bytes across 115 target directories**. An initial uncached formatter
+failure is retained. One leaf-module greeting change and incremental `package`
+rewrote 1,430 output files / 23,377,148 bytes; three output files changed content
+(class, JAR, compiler list), plus the source edit. Identical real output snapshots
+were copied through FUSE into each fresh sample; builds ran once as preparation,
+not inside the Commit timer or anew in each mount. No synthetic payload was used.
+
+Each cell has **three samples**; values are median **[min–max] seconds**. Timers
+cover control authentication through Commit reply; outer Docker-exec wall is
+also recorded. Native means the existing local Store/FUSE daemon on the same VM.
+
+| Store / configured RTT | First full output | Incremental output |
+| --- | ---: | ---: |
+| Remote, no added delay | **4.983** [4.945–5.208] | **0.260** [0.260–0.261] |
+| Remote, 2 ms | **5.188** [5.170–5.204] | **0.272** [0.265–0.273] |
+| Remote, 20 ms | **7.931** [7.166–7.990] | **0.376** [0.371–0.386] |
+| Native local Store | **2.909** [2.891–2.918] | **0.285** [0.282–0.290] |
+
+| Remote operation, identical counts in all nine samples | Uploaded canonical bytes | Objects | Store requests |
+| --- | ---: | ---: | ---: |
+| First full output | 114,849,854 | 11,781 | 73 |
+| Incremental output | 43,368 | 10 | 3 |
+
+Native has zero transport bytes/objects/requests; this does not mean zero Store
+I/O. Upload counters count acknowledged canonical payload, excluding framing.
+Save statistics report 81,108,655 new stored bytes first / 17,733 incremental
+remotely, versus 81,096,106 / 2,018 locally; these are not allocated SQLite/WAL
+file growth. [Recomputable summary](receipts/run03/phase3/summary.json).
+
+Network verification mattered: naive netem on an idle OrbStack VM overshot its
+setting. Earlier cohorts/calibrations remain retained and are not pooled. The
+final matched cohort uses B-egress netem, the existing TCP proxy pinned to CPU 0,
+and one low-priority continuously yielding loop on that CPU; daemon scheduling
+is unchanged. The same CPU load/idle proxy exist in the native arm. Individual
+ping medians were **0.013 / 2.04 / 20.0 ms**; the 2 ms samples include first-probe
+outliers up to 4.085 ms, while 20 ms spans 20.004–20.052 ms. This controlled-load
+setup is a diagnostic, not an idle-host or cloud-sandbox performance claim.
+
+At 2 ms, **cold mount + `git --no-optional-locks status` on Dubbo** took
+**20.579 s [20.505–20.605]**, with **8,885 requests [8,885–8,886]**. Mount alone
+used seven requests; status used 8,878–8,879. Those wall intervals include
+Docker-exec overhead. B's object cache and kernel mount were fresh; server/OS
+caches could be warm. Commits followed metadata preparation and ordinary FUSE
+writes, so metadata/overlay/own-write payload were warm. No cache drops or cold
+Commit claim. Frozen fs-bench-pro and Durable were not run.
+
+For the pending design decision: committing this full build output costs about
+**5.19 s at 2 ms** and **7.93 s at 20 ms**, plus roughly 115 MB uploaded; that is
+material overhead after every short task. The measured leaf-edit incremental
+case costs **0.272 s / 0.376 s**, which is reasonable after each task. These
+numbers support retaining incremental output when useful, but do not justify
+assuming a fresh/full artifact Commit is cheap. They do not by themselves settle
+a blanket “keep all ignored paths local” policy: core-module rebuilds,
+node_modules, future read/rebuild savings and total task wall were not measured.
+The earlier ~8 s native spike is not a matched comparison. No ignored-path
+feature, prefetch, recovery, eviction or other excluded feature was built.
+
+Validation: locked arm64 build/no-run PASS; transport tests 2 PASS; scoped
+all-target Clippy PASS; core-tool tests 50 PASS; changed-file formatting PASS.
+The boundary guard still has the same 57 upstream violations. Phase-3 production
+churn is **33 lines (+29/−4, net +25)**; total production is **106,285**.
+Fixture/harness/aggregation additions are about **227 non-comment code lines**,
+within the requested harness budget. Counter/method and mock exclusions are
+unchanged from Phase 2. No tests deleted; no push or upstream doc edits.

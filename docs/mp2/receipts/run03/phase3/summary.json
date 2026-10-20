@@ -1,0 +1,441 @@
+{
+  "commits": [
+    {
+      "native": false,
+      "rtt_ms": 0,
+      "kind": "full",
+      "wall_ns": {
+        "median": 4983302963,
+        "minimum": 4944606106,
+        "maximum": 5207937482
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 73,
+          "minimum": 73,
+          "maximum": 73
+        },
+        "uploadedObjects": {
+          "median": 11781,
+          "minimum": 11781,
+          "maximum": 11781
+        },
+        "uploadedBytes": {
+          "median": 114849854,
+          "minimum": 114849854,
+          "maximum": 114849854
+        }
+      },
+      "save_statistics": {
+        "new_canonical": {
+          "median": 114849854,
+          "minimum": 114849854,
+          "maximum": 114849854
+        },
+        "new_stored": {
+          "median": 81108655,
+          "minimum": 81108655,
+          "maximum": 81108655
+        },
+        "new_metadata": {
+          "median": 395100,
+          "minimum": 395100,
+          "maximum": 395100
+        }
+      }
+    },
+    {
+      "native": false,
+      "rtt_ms": 0,
+      "kind": "delta",
+      "wall_ns": {
+        "median": 259787254,
+        "minimum": 259590796,
+        "maximum": 261024253
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 3,
+          "minimum": 3,
+          "maximum": 3
+        },
+        "uploadedObjects": {
+          "median": 10,
+          "minimum": 10,
+          "maximum": 10
+        },
+        "uploadedBytes": {
+          "median": 43368,
+          "minimum": 43368,
+          "maximum": 43368
+        }
+      },
+      "save_statistics": {
+        "new_canonical": {
+          "median": 43368,
+          "minimum": 43368,
+          "maximum": 43368
+        },
+        "new_stored": {
+          "median": 17733,
+          "minimum": 17733,
+          "maximum": 17733
+        },
+        "new_metadata": {
+          "median": 3486,
+          "minimum": 3486,
+          "maximum": 3486
+        }
+      }
+    },
+    {
+      "native": false,
+      "rtt_ms": 2,
+      "kind": "full",
+      "wall_ns": {
+        "median": 5188342200,
+        "minimum": 5170233917,
+        "maximum": 5203747443
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 73,
+          "minimum": 73,
+          "maximum": 73
+        },
+        "uploadedObjects": {
+          "median": 11781,
+          "minimum": 11781,
+          "maximum": 11781
+        },
+        "uploadedBytes": {
+          "median": 114849854,
+          "minimum": 114849854,
+          "maximum": 114849854
+        }
+      },
+      "save_statistics": {
+        "new_canonical": {
+          "median": 114849854,
+          "minimum": 114849854,
+          "maximum": 114849854
+        },
+        "new_stored": {
+          "median": 81108655,
+          "minimum": 81108655,
+          "maximum": 81108655
+        },
+        "new_metadata": {
+          "median": 395100,
+          "minimum": 395100,
+          "maximum": 395100
+        }
+      }
+    },
+    {
+      "native": false,
+      "rtt_ms": 2,
+      "kind": "delta",
+      "wall_ns": {
+        "median": 271635706,
+        "minimum": 265267459,
+        "maximum": 272882164
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 3,
+          "minimum": 3,
+          "maximum": 3
+        },
+        "uploadedObjects": {
+          "median": 10,
+          "minimum": 10,
+          "maximum": 10
+        },
+        "uploadedBytes": {
+          "median": 43368,
+          "minimum": 43368,
+          "maximum": 43368
+        }
+      },
+      "save_statistics": {
+        "new_canonical": {
+          "median": 43368,
+          "minimum": 43368,
+          "maximum": 43368
+        },
+        "new_stored": {
+          "median": 17733,
+          "minimum": 17733,
+          "maximum": 17733
+        },
+        "new_metadata": {
+          "median": 3486,
+          "minimum": 3486,
+          "maximum": 3486
+        }
+      }
+    },
+    {
+      "native": false,
+      "rtt_ms": 20,
+      "kind": "full",
+      "wall_ns": {
+        "median": 7930654858,
+        "minimum": 7166265651,
+        "maximum": 7989640725
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 73,
+          "minimum": 73,
+          "maximum": 73
+        },
+        "uploadedObjects": {
+          "median": 11781,
+          "minimum": 11781,
+          "maximum": 11781
+        },
+        "uploadedBytes": {
+          "median": 114849854,
+          "minimum": 114849854,
+          "maximum": 114849854
+        }
+      },
+      "save_statistics": {
+        "new_canonical": {
+          "median": 114849854,
+          "minimum": 114849854,
+          "maximum": 114849854
+        },
+        "new_stored": {
+          "median": 81108655,
+          "minimum": 81108655,
+          "maximum": 81108655
+        },
+        "new_metadata": {
+          "median": 395100,
+          "minimum": 395100,
+          "maximum": 395100
+        }
+      }
+    },
+    {
+      "native": false,
+      "rtt_ms": 20,
+      "kind": "delta",
+      "wall_ns": {
+        "median": 376128991,
+        "minimum": 370519118,
+        "maximum": 386368152
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 3,
+          "minimum": 3,
+          "maximum": 3
+        },
+        "uploadedObjects": {
+          "median": 10,
+          "minimum": 10,
+          "maximum": 10
+        },
+        "uploadedBytes": {
+          "median": 43368,
+          "minimum": 43368,
+          "maximum": 43368
+        }
+      },
+      "save_statistics": {
+        "new_canonical": {
+          "median": 43368,
+          "minimum": 43368,
+          "maximum": 43368
+        },
+        "new_stored": {
+          "median": 17733,
+          "minimum": 17733,
+          "maximum": 17733
+        },
+        "new_metadata": {
+          "median": 3486,
+          "minimum": 3486,
+          "maximum": 3486
+        }
+      }
+    },
+    {
+      "native": true,
+      "rtt_ms": 0,
+      "kind": "full",
+      "wall_ns": {
+        "median": 2908507551,
+        "minimum": 2891045059,
+        "maximum": 2918113088
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 0,
+          "minimum": 0,
+          "maximum": 0
+        },
+        "uploadedObjects": {
+          "median": 0,
+          "minimum": 0,
+          "maximum": 0
+        },
+        "uploadedBytes": {
+          "median": 0,
+          "minimum": 0,
+          "maximum": 0
+        }
+      },
+      "save_statistics": {
+        "new_canonical": {
+          "median": 114849854,
+          "minimum": 114849854,
+          "maximum": 114849854
+        },
+        "new_stored": {
+          "median": 81096106,
+          "minimum": 81096106,
+          "maximum": 81096106
+        },
+        "new_metadata": {
+          "median": 383219,
+          "minimum": 383219,
+          "maximum": 383219
+        }
+      }
+    },
+    {
+      "native": true,
+      "rtt_ms": 0,
+      "kind": "delta",
+      "wall_ns": {
+        "median": 285009032,
+        "minimum": 281628493,
+        "maximum": 290339571
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 0,
+          "minimum": 0,
+          "maximum": 0
+        },
+        "uploadedObjects": {
+          "median": 0,
+          "minimum": 0,
+          "maximum": 0
+        },
+        "uploadedBytes": {
+          "median": 0,
+          "minimum": 0,
+          "maximum": 0
+        }
+      },
+      "save_statistics": {
+        "new_canonical": {
+          "median": 43368,
+          "minimum": 43368,
+          "maximum": 43368
+        },
+        "new_stored": {
+          "median": 2018,
+          "minimum": 2018,
+          "maximum": 2018
+        },
+        "new_metadata": {
+          "median": 684,
+          "minimum": 684,
+          "maximum": 684
+        }
+      }
+    }
+  ],
+  "rtt": [
+    {
+      "native": false,
+      "configured_ms": 0,
+      "packet_median_ms": 0.013,
+      "mean_ms": {
+        "median": 0.025,
+        "minimum": 0.025,
+        "maximum": 0.031
+      },
+      "min_ms": 0.009,
+      "max_ms": 0.081
+    },
+    {
+      "native": false,
+      "configured_ms": 2,
+      "packet_median_ms": 2.04,
+      "mean_ms": {
+        "median": 2.442,
+        "minimum": 2.437,
+        "maximum": 2.446
+      },
+      "min_ms": 2.008,
+      "max_ms": 4.085
+    },
+    {
+      "native": false,
+      "configured_ms": 20,
+      "packet_median_ms": 20.0,
+      "mean_ms": {
+        "median": 20.009,
+        "minimum": 20.009,
+        "maximum": 20.01
+      },
+      "min_ms": 20.004,
+      "max_ms": 20.052
+    },
+    {
+      "native": true,
+      "configured_ms": 0,
+      "packet_median_ms": 0.019,
+      "mean_ms": {
+        "median": 0.029,
+        "minimum": 0.02,
+        "maximum": 0.036
+      },
+      "min_ms": 0.006,
+      "max_ms": 0.062
+    }
+  ],
+  "cold_2ms": {
+    "mount_requests": {
+      "median": 7,
+      "minimum": 7,
+      "maximum": 7
+    },
+    "git_requests": {
+      "median": 8878,
+      "minimum": 8878,
+      "maximum": 8879
+    },
+    "mount_command_ns": {
+      "median": 59716833,
+      "minimum": 59323583,
+      "maximum": 63874042
+    },
+    "git_command_ns": {
+      "median": 20514670250,
+      "minimum": 20445566250,
+      "maximum": 20545133083
+    },
+    "combined_command_ns": {
+      "median": 20578544292,
+      "minimum": 20504889833,
+      "maximum": 20604849916
+    }
+  },
+  "cycles": {
+    "count": 10,
+    "threads": 1,
+    "unmount_min_ns": 712416,
+    "unmount_max_ns": 871541,
+    "unmount_median_ns": 767791.5,
+    "stopped": true
+  }
+}

@@ -1,0 +1,5 @@
+error: the argument '--bins' cannot be used multiple times
+
+Usage: cargo build [OPTIONS]
+
+For more information, try '--help'.
