@@ -300,3 +300,41 @@ needs a separate policy/cache declaration. Leave out Durable, offline Commits,
 restart reconciliation, GC, replication, remote JS SDK packaging, cloud-sandbox
 provisioning, FUSE optimization and hostile-client/per-Workspace security.
 Phase 1 stops here.
+
+## Phase 2 results (in progress)
+
+Prerequisite at phase-1 source `cfbd865f5`: the real mounted test
+`core/crates/layerfs-daemon/tests/remote_refresh_gate.rs` passed on remote-host,
+Docker 29.4.0 / Linux arm64, Rust 1.85.1. The build retained the repository ARM64
+flags and explicitly selected Disposable; no Linux compilation ran locally.
+
+- A clean mount with cached data accepted server `fs.write` followed by Commit,
+  and immediately read the new bytes. Disjoint local edits survived the same flow.
+- **Correction to phase 1:** nonzero `command_uid` is a configuration/attribute
+  identity, not a caller-UID allowlist. `request/callbacks.rs` does not inspect
+  request UID; `attributes.rs::Identity::attributes` projects configured UID/GID
+  for every inode. Root touch/write/cat succeeded and the new file appeared as
+  `65534:65534`. Kernel `default_permissions` still applies; this is not root
+  isolation. The configuration rule remains unchanged.
+- The first fixture mistakenly wrote `main`: SDK refused `ReadOnly` before the
+  refresh check. The corrected test forks writable `work`; no product fix was needed.
+
+Test commands so far (inside the owned Linux test container, cwd `/work`,
+`CARGO_HOME=/work/.cargo-home`, `CARGO_TARGET_DIR=/work/target-remote`,
+`LAYERFS_CONSTRUCTION_WORKERS=1`):
+
+```sh
+timeout 120 cargo test --manifest-path core/Cargo.toml --locked -j 2 -p layerfs-daemon --test remote_refresh_gate --no-run
+timeout 120 cargo test --manifest-path core/Cargo.toml --locked -j 2 -p layerfs-daemon --test remote_refresh_gate -- --nocapture
+```
+
+Both commands ran twice: first no-run PASS / execution FAIL (`main` ReadOnly,
+0.01 s); after fixture correction no-run PASS / execution PASS (1 test, 0.03 s).
+Compilation ran first with `cargo build --manifest-path core/Cargo.toml --locked
+-j 2 --profile test -p layerfs-daemon --test remote_refresh_gate` (PASS).
+Fuser provenance check passed. Initial build setup failures were missing Git
+metadata in the rsync copy and login-shell PATH hiding Cargo; fixed in the owned
+remote directory/container. One dependency acquisition/build was interrupted
+after crates.io timeout diagnostics; rsproxy then supplied locked dependencies
+with retries disabled. Raw logs are retained under `~/lfs-remote/mp2-remote-store/`.
+Remote transport, two-container proofs and RTT diagnostics are not yet run.
