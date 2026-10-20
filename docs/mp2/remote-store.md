@@ -950,3 +950,153 @@ external tests +118 lines. Only the remote-store crate changes. All owned
 containers, networks, volumes and the temporary tools image were removed;
 executable hashes and raw receipts remain under the authorized directories.
 No push, upstream issue/PR, upstream contract edit or Durable execution.
+
+## Phase 7 results
+
+Status: Local OrbStack lifecycle diagnostic; not universal kernel or performance
+qualification. Everything ran on this Mac, with `cx7-` Docker resource names.
+The ignore worktree's harness and ignore01/ignore02 receipts were read only.
+No ignore, ctime, metadata-batching or Store-protocol code changed.
+
+### Before/after rate and evidence
+
+The identical harness initializes each cycle from an independent copy of the
+same 3,003-file Disposable Store seed, starts fresh A/B containers and a fresh
+B cache/overlay, mounts, writes two small files, runs `git init`, `git add -A`,
+`git commit`, performs LayerFS Commit, then makes **one** normal unmount attempt.
+A/B have private networks plus one shared link; B has no Store path or volume.
+Each arm selects 40 Git cycles plus one plain-write control (same small writes,
+no Git). Git identity/config and the 3,003-file seed match the prior ignore-off
+reproduction's essential shape. No timeout or workload was tuned between arms.
+Both arms trace `umount2` with the same seccomp-filtered strace. These are failure
+rates under this diagnostic workload, not independent statistical qualification.
+
+| Shape | Before, `6394865a4` | After, `524862598` |
+| --- | --- | --- |
+| Git init/add/commit → LayerFS Commit → unmount | **28/40 Retained(Join), 70%**; 12 clean | **0/40 Retained(Join), 0%**; 40 clean |
+| Plain writes → Commit → unmount | **0/1 Retained**, clean | **0/1 Retained**, clean |
+| Deliberately held file across unmount | Not selected | **Refused(Busy), `EBUSY`**, mount and open file preserved; not a post-detach Retained |
+
+Every before failure is retained under
+[run07/cycles-before](receipts/run07/cycles-before/), including both fuser kernel
+stacks, exact connection's fusectl `waiting`, task-visible host namespace
+mountinfo, all sandbox processes' fd links/fdinfo/cwds/roots, and syscall trace.
+All 28 show **`umount2("/workspaces/1", 0) = 0`**, two readers blocked in
+`fuse_dev_do_read`, **waiting=0**, no remaining `fuse layerfs` mount in the
+captured namespaces, and no sandbox fd/cwd/root in the former mount. No Git
+process, automatic GC or fsmonitor survived in those snapshots. Successes also
+retain the original unmount reply, flags and post-unmount thread inventory.
+The one plain-write control is insufficient to prove that Git is necessary;
+it only establishes that this simpler selected control succeeds.
+
+A preflight configuration error (DNS name where the client requires a numeric
+socket address) occurred **before mount**. Its command/error/proc receipts are
+preserved separately; it is not a discarded unmount sample. The corrected
+harness is identical in the two 40-cycle cohorts. The candidate's first build
+failed because `PollFlags` has no `Default`; the compiler output and exact
+candidate patch are preserved. Explicit empty flags fixed that compilation
+error. No runtime failure was replayed or replaced by a clean sample.
+
+### Cause: proven wait dependency, kernel trigger still unproven
+
+Normal detach is **not lazy**: `layerfs-fuse/src/mount/syscalls.rs::detach`
+passes empty flags to `umount2`, confirmed by every actual trace. A held mount
+reference therefore has the kernel's reversible `EBUSY` path; there is no
+`MNT_DETACH` hiding a Git descendant or open file in these failures.
+
+`layerfs-fuse/src/session/drain.rs::KernelSession::detach` marks known detach
+and calls `MountRequests::stop_receive`. That is a userspace admission fence;
+it does not wake a read already sleeping in the kernel. In the old
+`core/vendor/fuser-0.18.0/src/channel.rs::Channel::receive`, the receiver is in
+blocking `read(/dev/fuse)`. `session.rs::SessionEventLoop::event_loop_started`
+can leave only after receiving Destroy or a terminal read result. Meanwhile
+`KernelSession::quiesce` waits for `SessionRunner::run` to consume every join.
+The same session/notifier still owns the device while those joins wait.
+Thus known namespace detach does not supply the receive-stop event that the
+userspace lifecycle requires. The stacks plus zero active/retained request
+counts prove the failure is idle receive exit, not an unfinished callback.
+
+The reference Linux read implementation waits while connected with no request;
+nonblocking mode returns EAGAIN instead. See
+[Linux v6.1 `fuse_dev_do_read`](https://github.com/torvalds/linux/blob/v6.1/fs/fuse/dev.c)
+and [last-superblock connection destruction](https://github.com/torvalds/linux/blob/v6.1/fs/fuse/inode.c).
+This explains the observed wait dependency, but **is not an exact source match**
+for this Mac's **7.2.9-orbstack-00391-g2b298d05fbd4** kernel. Why that kernel
+does not finish connection shutdown/wake these readers after successful detach
+is still unproven.
+The proc scans exclude observed userspace holders, not every possible internal
+superblock reference or a namespace with no observable task. No kernel leak,
+lost wakeup or Git process is asserted as the unobserved trigger.
+
+### Fix and custody argument
+
+Implemented option **(b), cancellable receive**, within the authorized scoped
+fuser lifecycle patch; option (a) had no evidenced process holder to fix.
+`session/receive_stop.rs::ReceiveStop` owns a nonblocking close-on-exec pipe.
+Receivers poll the device and the pipe. `SessionMonitor::stop_receivers` closes
+the sole writer, producing a persistent HUP visible to **every** receiver;
+no receiver consumes the notification. The device is also nonblocking: if two
+receivers observe readiness and one consumes the request, the other returns
+to poll on EAGAIN instead of becoming stuck in read again. No new unsafe code,
+dependency or version change. The old blocking Session route and non-Linux
+behavior are preserved; the explicit Linux SessionRunner uses cancellation.
+
+For normal unmount, `KernelSession::quiesce` signals only **after known detach
+and active-request quiescence**. A request already read still dispatches and
+retains its original disposition. All original receiver joins, owner/watcher
+joins, the final active/retained request check, namespace revocation and backing
+cleanup remain mandatory. Signal delivery is never substituted for a Join.
+The existing forced path also reaches this shared barrier only after its own
+known abort; this phase neither invokes nor adds that abort. No normal-path
+fusectl write, no deadline extension, no dropped handle and no replay.
+
+The change costs one pipe per session and two poll entries per receiver,
+independent of namespace size; it adds poll work to receives, whose throughput
+cost was not measured here. Startup pipe/fcntl failure remains an original
+startup error with the existing partial-startup join/custody machinery.
+Original timestamp/lifecycle/buffer provenance is unchanged. The additional
+[patch record](fuser-receive-stop/provenance.json) is separately pinned and
+verified by the extended integrity guard, with tamper/missing-file tests.
+
+### Verification and limits
+
+Locked Linux arm64 binaries and `--no-run` builds pass. Eight Fuse tests
+(including active-request wake/drain), two daemon backing/custody tests, Fuse
+and fuser Clippy, formatting, vendor integrity, and 51 guard tool tests pass.
+The product boundary guard still **fails with the identical 57 upstream
+findings**; it is not green. The exact commands, bounds, source/executable seals,
+all failed attempts and cleanup are in the [receipt index](receipts/run07/README.md).
+The scoped source commit is `524862598`; the after cohort uses one immutable
+binary set from its exact tree throughout. Its launcher recorded the parent
+HEAD just before the local commit completed; the precomputed staged tree equals
+the committed tree, and no product bytes changed during sampling.
+
+The held-file oracle returned `Refused(Busy)` at `unmount:kernel` with “kernel
+reported the mount busy; no terminal effect”; traced `umount2(..., 0)` returned
+`EBUSY`. The daemon reported 526,667 ns for that operation. The holder still had
+`/workspaces/1/local` open, the mount remained in mountinfo, and both receivers
+were still polling (kernel `__arm64_sys_ppoll`, two entries). This is a prompt,
+safe refusal with custody preserved, **but differs from the requested literal
+Retained variant**: the existing contract uses reversible Busy before detach,
+and Retained after an unestablished terminal effect. No response was relabeled
+or policy changed to manufacture that expected variant. The retained held-case
+receipt proves the cancellation hook was not used to force a busy mount through.
+All 40 candidate successes have no remaining fuser/mount-owner/fence thread.
+
+The rate comparison establishes this harness's observed improvement, not a
+zero probability of future refusal. Unproven: the kernel's underlying delayed
+connection destruction, inactive namespaces invisible to proc enumeration,
+other kernels/platforms, cloned-device configurations, injected startup failures,
+forced teardown integration, and receive-throughput impact. Exact retained
+custody remains the outcome for any future unestablished drain. No new
+recovery, replay, ignore, ctime, GC or Durable behavior was built.
+
+Production LOC: **106,523 → 106,524 (+1)** in the repository's first-party
+counter scope; separately audited vendor runtime files **770 → 880 (+110)**,
+so **+111 net runtime lines** for the phase's change budget. The vendor subtotal
+covers only the three changed files, not the whole dependency. The docs/harness
+commit has production delta 0. All owned containers, networks, seed/data volumes and the `cx7-tools` image
+were removed. The sole retained Docker resource is **`cx7-target`**, the Cargo
+cache/target volume permitted by the task. Binary copies and their hashes remain
+under `target/cx7/bin-before` and `target/cx7/bin-after`; receipts remain in
+`docs/mp2/receipts/run07/`. No other container, image or volume was changed.

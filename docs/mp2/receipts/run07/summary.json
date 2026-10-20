@@ -1,0 +1,354 @@
+{
+  "before": {
+    "git": {
+      "cycles": 40,
+      "retained_join": 28,
+      "rate": 0.7,
+      "success": 12
+    },
+    "plain": {
+      "cycles": 1,
+      "retained_join": false
+    },
+    "failures": [
+      {
+        "case": "git-01",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-02",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-03",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-04",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-05",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-07",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-08",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-09",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-10",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-11",
+        "waiting": {
+          "116": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-13",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-14",
+        "waiting": {
+          "114": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-16",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-17",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-19",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-20",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-21",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-22",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-23",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-24",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-26",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-28",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-30",
+        "waiting": {
+          "116": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-32",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-35",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-36",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-37",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      },
+      {
+        "case": "git-40",
+        "waiting": {
+          "115": "0\n"
+        },
+        "namespaces": 9,
+        "fuser_loops": 2,
+        "holders": [],
+        "mounts": []
+      }
+    ]
+  },
+  "after": {
+    "git": {
+      "cycles": 40,
+      "retained_join": 0,
+      "rate": 0.0,
+      "success": 40
+    },
+    "plain": {
+      "cycles": 1,
+      "retained_join": false
+    },
+    "failures": []
+  },
+  "held": {
+    "case": "held-01",
+    "shape": "held",
+    "mount": {
+      "path": "/workspaces/1",
+      "workspace": "6973fb00a74ada41350f707b5711a424c541ec39cb5590f9aeeaa32723e1aa3a",
+      "namespace": "1"
+    },
+    "commit": {
+      "command": [
+        "docker",
+        "exec",
+        "cx7-b",
+        "timeout",
+        "25",
+        "/bin-lfs/layerfs-remote",
+        "/state/daemon.setup",
+        "commit",
+        "6973fb00a74ada41350f707b5711a424c541ec39cb5590f9aeeaa32723e1aa3a",
+        "1"
+      ],
+      "exit": 0,
+      "ns": 61453500,
+      "output": "Committed(Committed { record: CommitRecord { id: CommitId(12ef43c80922e65839ea71971410e09edd1b786eda3ea6970a3c8047f053eeeb1f), stack: LayerStackId(3117171717171717171717171717171717), root: ObjectId(\"1b1ab25eda671138a8a81e0748336811e28db8cde84783525f7156b918ddd577\"), parent: None, base_layer: LayerId(32fe64ae93380207ac2abe634f9ab56d1a188ea55d056c1e7e12042317296f2ee6), second_parent: None, meta: CommitMeta { branch: Some(BranchId(113194cdee5f53d59e866ac08c390c6fdd)), via: Workspace, message: Some(\"remote explicit Commit\"), merged_from: None, lww: [], lww_truncated: false, units: [], statistics: CommitStatistics { logical: 49946, new_canonical: 11669, new_stored: 3141, new_metadata: 3081 }, displaced: None, time_ms: 1792515322902 } }, displaced: None })\nwall_ns=12422074\n"
+    },
+    "unmount": {
+      "command": [
+        "docker",
+        "exec",
+        "cx7-b",
+        "timeout",
+        "25",
+        "/bin-lfs/layerfs-remote",
+        "/state/daemon.setup",
+        "unmount",
+        "6973fb00a74ada41350f707b5711a424c541ec39cb5590f9aeeaa32723e1aa3a",
+        "1"
+      ],
+      "exit": 1,
+      "ns": 35343542,
+      "output": "Refused(ControlRefusal { code: Busy, phase: \"unmount:kernel\", moved: None, published: None, detail: \"kernel reported the mount busy; no terminal effect\" })\nwall_ns=526667\ncontrol refused; original result printed\n"
+    },
+    "umount_trace": "24    +++ exited with 0 +++\n42    +++ exited with 0 +++\n61    umount2(\"/workspaces/1\", 0)       = -1 EBUSY (Device or resource busy)\n61    +++ exited with 0 +++\n",
+    "retained_join": false
+  }
+}

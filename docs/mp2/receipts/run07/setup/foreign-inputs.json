@@ -1,0 +1,7 @@
+{
+  "~/Developer/layerfs-ignore/docs/mp2/run-ignore-e2e.py": "08e63b963e3f94b49f8fe39b679cf723246d255c8f55913c319d4a5d93021aea",
+  "~/Developer/layerfs-ignore/docs/mp2/receipts/ignore01/unmount-retention.txt": "29c790f4a4b9816f3fb92c1e993813f0487c97d81eb1e3ffd9951a4c71e6e40b",
+  "~/Developer/layerfs-ignore/docs/mp2/receipts/ignore01/results.json": "01ad9f8dedcd1ca47b13fc38aff6d16f0e3e06e3949675548c14887654051603",
+  "~/Developer/layerfs-ignore/docs/mp2/receipts/ignore02/results.json": "9840b7533574988633cab6721e53a570213395fbc6f37cb3ff7079797c868f06",
+  "~/Developer/layerfs-ignore/docs/mp2/receipts/ignore02/run1-unmount-retained/results.json": "79c80152f949544df125b85c4162a4b575cb976c4bee60bd81510a6e364e52d7"
+}

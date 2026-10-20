@@ -1,0 +1,8 @@
+{"command": ["docker", "ps", "-a", "--filter", "name=cx7-", "--format", "{{.Names}}"], "exit": 0, "output": ""}
+{"command": ["docker", "network", "ls", "--filter", "name=cx7-", "--format", "{{.Name}}"], "exit": 0, "output": ""}
+{"command": ["docker", "run", "--rm", "--name", "cx7-seal", "-v", "cx7-seed:/state:ro", "cx7-tools", "sha256sum", "/state/store/store.sqlite"], "exit": 0, "output": "2e4c7df2a818f62fc5c704631d6556169feb3be1810b940aecb63b112e98e29f  /state/store/store.sqlite\n"}
+{"command": ["docker", "volume", "rm", "cx7-seed"], "exit": 0, "output": "cx7-seed\n"}
+{"command": ["docker", "image", "rm", "cx7-tools"], "exit": 0, "output": "Untagged: cx7-tools:latest\nDeleted: sha256:92bc4173198feabbd538e814668db3702b6ad9a35aa76d31e344c9e778d26eb8\n"}
+{"command": ["docker", "ps", "-a", "--filter", "name=cx7-", "--format", "{{.Names}}"], "exit": 0, "output": ""}
+{"command": ["docker", "network", "ls", "--filter", "name=cx7-", "--format", "{{.Name}}"], "exit": 0, "output": ""}
+{"command": ["docker", "volume", "ls", "--filter", "name=cx7-", "--format", "{{.Name}}"], "exit": 0, "output": "cx7-target\n"}

@@ -1,0 +1,16 @@
+{
+  "commit": "52486259880b85d6af19371f219a53ce1da3bd7d",
+  "tree": "92f188ffedacbbfc5ef7d0ab8d2a5236670c172b",
+  "compiled_tree": "92f188ffedacbbfc5ef7d0ab8d2a5236670c172b",
+  "note": "After cohort launch began before commit because raw patch context blank lines triggered diff --check. No product bytes changed; the precomputed staged tree equals this committed tree. Every sample uses the same sealed bin-after executables.",
+  "files": {
+    "core/crates/layerfs-fuse/src/session/drain.rs": "5ba0ee2e309bab153d955ed7c87baed13577ac5da64eed4ae324ed5708118104",
+    "core/tools/check_fuser_integrity.py": "7449f5bcb4d44982ca9b5bd4c9431075f7d04a0c182766599f0ca6c4c76d15ca",
+    "core/tools/test_check_fuser_integrity.py": "becab15f97d07179c7feec11e17693867fdb2125a68cabca7c06b1fe94d935c7",
+    "core/vendor/fuser-0.18.0/src/session.rs": "d54fb2419f1c51e59110408fc819b423526e0dd8f848f3eca8e4e58f30b79a8c",
+    "core/vendor/fuser-0.18.0/src/session/lifecycle.rs": "69a46e91fb8ad12090b7386876faa3dab61ac12d610b9525d815f60aaba2ce85",
+    "core/vendor/fuser-0.18.0/src/session/receive_stop.rs": "586c8e15f53afab3909b4ca2090184690e34c19fc5779ca2ad346b449fdb45c4",
+    "docs/mp2/fuser-receive-stop/provenance.json": "747fd2331a28b527db6606f6c3afafab83e758a3ac5d132a684e4947d718390c",
+    "docs/mp2/fuser-receive-stop/receive-stop.patch": "d1e42547dccaa651a1b5f915b705a77e613e3277f3a9a4ad4297a4b42fc368ac"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "base_commit": "6394865a4",
+  "receive_buffer_provenance_sha256": "f3c129457d4eadaf41574c2c1b8da40fb80724e5f42602d3766ab140fdd6d39a",
+  "patch_sha256": "ad8cbeb3fea298e818ccfa00d2d92d3ec12b63579857c1dc4be7dda1b0a1240f",
+  "files": {
+    "src/session.rs": "d54fb2419f1c51e59110408fc819b423526e0dd8f848f3eca8e4e58f30b79a8c",
+    "src/session/lifecycle.rs": "69a46e91fb8ad12090b7386876faa3dab61ac12d610b9525d815f60aaba2ce85",
+    "src/session/receive_stop.rs": "71307371b4912e8c5f4f9647c54141e447de0e12699db157b5a6e6109d257957"
+  }
+}

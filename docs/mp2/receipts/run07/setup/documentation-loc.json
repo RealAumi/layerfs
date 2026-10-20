@@ -1,0 +1,17 @@
+{
+  "parent": "52486259880b85d6af19371f219a53ce1da3bd7d",
+  "before": 106524,
+  "after": 106524,
+  "delta": 0,
+  "vendor_changed_files_before": 880,
+  "vendor_changed_files_after": 880,
+  "method": "Counted-scope subtrees unchanged from the exact implementation snapshot counted in production-loc.json; counter blob e6d94d1a731b402ccc9159f49cef1eba5a74cfe0, mock exclusion 739",
+  "subtrees": {
+    "core/crates": "9d443083d4158f8297ffa58a5a915aaa3bdec781",
+    "core/vendor/fuser-0.18.0": "5dd8afc9ffef7846ad9c9cd263f7c0fe79993a81",
+    "sdk/js/native/src": "79d28fd5be8748a570c30068d9709d643b4cd57d",
+    "sdk/js/src": "1a68a293316a5cc506d336bb7d985260a1a8deee",
+    "sdk/js/operator": "761873ea5abfaf887917f28338de3581563449fa",
+    "dsh/packages": "6d2bd0cd47896bd5d2aa53ad84b9493eea2b51b7"
+  }
+}

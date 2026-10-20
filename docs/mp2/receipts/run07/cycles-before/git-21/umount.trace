@@ -1,0 +1,4 @@
+24    +++ exited with 0 +++
+73    +++ exited with 0 +++
+80    umount2("/workspaces/1", 0)       = 0
+80    +++ exited with 0 +++
