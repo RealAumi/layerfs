@@ -1,0 +1,19 @@
+{
+  "docs/mp2/phase6-diagnostics.py": "783b4b6f426f39feb0f571637b0cd9065a37a29cae5332781851526628c89977",
+  "docs/mp2/phase6-cleanup.py": "b65dc449efd5327abd759aafe105f0b16a1a77b3907014d19b287bc552b3bf97",
+  "docs/mp2/phase6-prepare.sh": "16107bfe1723e9e10aa5b7128b0999c66b66b08d11d8ab5c5ca4b27bdacd254f",
+  "docs/mp2/phase3-diagnostics.py": "ddaccd01e6027659a7a441e4fac02d24e77fc5b56b6b8280de61339d98897c05",
+  "core/crates/layerfs-remote-store/tests/metadata.rs": "535dc51dd598d1aa37bd5ebb5f3067798987590869c7640de6e774e0175278a6",
+  "core/crates/layerfs-remote-store/tests/transport.rs": "b69cf1e310b1d3dde654313f0846be096a29dad52947206f1e2eb14a9b6cf047",
+  "core/crates/layerfs-remote-store/tests/remote_driver.rs": "564085c110d22eac81cd40ed7d153a2cc5a423c4758af61552759609c512fa7e",
+  "core/crates/layerfs-remote-store/tests/request_paths.rs": "3c4dba7fad079eeefb8262d8fda41dd138a4a47739c6650db1f37e4ad0e6fcc3",
+  "core/crates/layerfs-remote-store/src/cache.rs": "38a9f445d73a60b18a81052705708ea414bbb1082addaf5746c4113f64c48989",
+  "core/crates/layerfs-remote-store/src/client.rs": "8ea40499b6e853961b12809d984c2bc9b800d4e49647490c204837c776f7de8f",
+  "core/crates/layerfs-remote-store/src/config.rs": "e33613838aa80b79739db670f8ab12a49a449602629d3c1b54a0303c9e9583a4",
+  "core/crates/layerfs-remote-store/src/metadata.rs": "bd727290cd5c938bc38448347fbc9741d55ebeba7465cfc559a555967b9eded6",
+  "core/crates/layerfs-remote-store/src/lib.rs": "7141b7eb125f22e7bb5d3e89ffa495455ab1c37b6bd3f976912d4877373432d6",
+  "core/crates/layerfs-remote-store/src/server.rs": "8c41a1e4822cf3116c255d46e2f1c14bd570c4c75022e75578eca60df10e1a9f",
+  "core/crates/layerfs-remote-store/src/wire.rs": "ebddbdcc27ee7d5ac590dcae95898ad16a7c79f1a9cf398e6da2917934d2ebe2",
+  "core/crates/layerfs-remote-store/src/bin/layerfs-remote.rs": "9c1f8658d9a2a5b5cd7514c8d1e19587abf010de1ba12771e4e79369acf20805",
+  "core/crates/layerfs-remote-store/src/bin/layerfs-store.rs": "116dc4f9b3bff4a42089d40ac9aa09878bda64688648c6481c9f6659ea5c9f90"
+}

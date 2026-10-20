@@ -1,0 +1,1 @@
+{"fdinfo": "pos:\t0\nflags:\t02400002\nmnt_id:\t434\nino:\t11\nfuse_connection:\t84\n", "before": {"23": "layerfs-remote-", "38": "layerfs-mount-1", "39": "layerfs-fence-1", "40": "fuser-0", "41": "fuser-1"}, "abort_bytes": 1, "after": {"23": "layerfs-remote-"}}

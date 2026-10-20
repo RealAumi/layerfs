@@ -1,0 +1,51 @@
+{
+  "combined": 107262,
+  "root": "~/Developer/layerfs",
+  "scopes": {
+    "core": {
+      "crates": {
+        "layerfs-api": 2291,
+        "layerfs-bridge": 3536,
+        "layerfs-content": 25783,
+        "layerfs-daemon": 6201,
+        "layerfs-fuse": 4523,
+        "layerfs-history": 990,
+        "layerfs-overlay": 9730,
+        "layerfs-persistence": 8398,
+        "layerfs-project": 1667,
+        "layerfs-remote-store": 1435,
+        "layerfs-sandbox": 3299,
+        "layerfs-storage": 8993,
+        "layerfs-store-service": 10236,
+        "layerfs-telemetry": 2280,
+        "layerfs-workspace": 8991
+      },
+      "files": 827,
+      "lines": 98353
+    },
+    "dsh": {
+      "crates": {
+        "@dsh-layerfs/client": 1591,
+        "@dsh-layerfs/host": 1535,
+        "@dsh-layerfs/mock": 739,
+        "@dsh-layerfs/model": 939,
+        "@dsh-layerfs/view": 1244
+      },
+      "files": 71,
+      "lines": 6048
+    },
+    "reference": {
+      "crates": {},
+      "files": 0,
+      "lines": 0
+    },
+    "sdk": {
+      "crates": {
+        "@layerfs/sdk": 548,
+        "layerfs-node": 2313
+      },
+      "files": 52,
+      "lines": 2861
+    }
+  }
+}

@@ -1,0 +1,83 @@
+90    mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xffffaa39f000
+90    mmap(NULL, 23611, PROT_READ, MAP_PRIVATE, 3</etc/ld.so.cache>, 0) = 0xffffaa399000
+90    read(3</usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.11.2>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0\267\0\1\0\0\0\0\0\0\0\0\0\0\0"..., 832) = 832
+90    mmap(NULL, 721648, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xffffaa2b8000
+90    mmap(0xffffaa2c0000, 656112, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.11.2>, 0) = 0xffffaa2c0000
+90    mmap(0xffffaa35f000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.11.2>, 0x8f000) = 0xffffaa35f000
+90    read(3</usr/lib/aarch64-linux-gnu/libz.so.1.2.13>, "\177ELF\2\1\1\0\0\0\0\0\0\0\0\0\3\0\267\0\1\0\0\0\0\0\0\0\0\0\0\0"..., 832) = 832
+90    mmap(NULL, 262560, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xffffaa27f000
+90    mmap(0xffffaa280000, 197024, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib/aarch64-linux-gnu/libz.so.1.2.13>, 0) = 0xffffaa280000
+90    mmap(0xffffaa2af000, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib/aarch64-linux-gnu/libz.so.1.2.13>, 0x1f000) = 0xffffaa2af000
+90    read(3</usr/lib/aarch64-linux-gnu/libc.so.6>, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0\267\0\1\0\0\0000y\2\0\0\0\0\0"..., 832) = 832
+90    mmap(NULL, 1826912, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xffffaa0c1000
+90    mmap(0xffffaa0d0000, 1761376, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib/aarch64-linux-gnu/libc.so.6>, 0) = 0xffffaa0d0000
+90    mmap(0xffffaa26c000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3</usr/lib/aarch64-linux-gnu/libc.so.6>, 0x18c000) = 0xffffaa26c000
+90    mmap(0xffffaa272000, 49248, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0xffffaa272000
+90    mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xffffaa397000
+90    read(3</workspaces/1/.git/HEAD>, "ref: refs/heads/3.3\n", 255) = 20
+90    read(3</workspaces/1/.git/HEAD>, "", 235) = 0
+90    read(3</workspaces/1/.git/config>, "[core]\n\trepositoryformatversion "..., 4096) = 295
+90    read(3</workspaces/1/.git/config>, "", 4096) = 0
+90    read(3</workspaces/1/.git/config>, "[core]\n\trepositoryformatversion "..., 4096) = 295
+90    read(3</workspaces/1/.git/config>, "", 4096) = 0
+90    read(3</workspaces/1/.git/config>, "[core]\n\trepositoryformatversion "..., 4096) = 295
+90    read(3</workspaces/1/.git/config>, "", 4096) = 0
+90    read(3</workspaces/1/.git/HEAD>, "ref: refs/heads/3.3\n", 256) = 20
+90    read(3</workspaces/1/.git/HEAD>, "", 236) = 0
+90    read(3</workspaces/1/.git/refs/heads/3.3>, "cb05763298f081ed17171d704408b647"..., 256) = 41
+90    read(3</workspaces/1/.git/refs/heads/3.3>, "", 215) = 0
+90    read(3</workspaces/1/.git/packed-refs>, "# pack-refs with: peeled fully-p"..., 12352) = 12352
+90    mmap(NULL, 893145, PROT_READ, MAP_PRIVATE, 3</workspaces/1/.git/index>, 0) = 0xffffa9ff5000
+90    mmap(NULL, 1089536, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xffffa9eeb000
+90    mmap(NULL, 8454144, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_STACK, -1, 0) = 0xffffa96db000
+90    mmap(NULL, 8454144, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_STACK, -1, 0) = 0xffffa8ecb000
+91    mmap(NULL, 134217728, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = 0xffffa0e00000
+90    mmap(NULL, 8454144, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_STACK, -1, 0) = 0xffffa37f0000
+92    mmap(NULL, 134217728, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = 0xffff9b600000
+90    mmap(NULL, 8454144, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_STACK, -1, 0) = 0xffffa86bb000
+93    mmap(NULL, 134217728, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = 0xffff94000000
+90    mmap(NULL, 8454144, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_STACK, -1, 0) = 0xffffa2fe0000
+94    mmap(0xffff98000000, 67108864, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = 0xffff98000000
+90    mmap(NULL, 8454144, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_STACK, -1, 0) = 0xffffa27d0000
+90    mmap(NULL, 8454144, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_STACK, -1, 0) = 0xffffa1fc0000
+95    mmap(NULL, 134217728, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = 0xffff8c000000
+90    mmap(NULL, 8454144, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_STACK, -1, 0 <unfinished ...>
+96    mmap(0xffff90000000, 67108864, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0 <unfinished ...>
+90    <... mmap resumed>)               = 0xffffa17b0000
+96    <... mmap resumed>)               = 0xffff90000000
+97    mmap(NULL, 134217728, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = 0xffff84000000
+90    mmap(NULL, 8454144, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_STACK, -1, 0) = 0xffffa0fa0000
+98    mmap(0xffff88000000, 67108864, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = 0xffff88000000
+99    read(3</sys/devices/system/cpu/online>, "0-13\n", 1024) = 5
+99    mmap(NULL, 134217728, PROT_NONE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_NORESERVE, -1, 0) = 0xffff7c000000
+92    +++ exited with 0 +++
+93    +++ exited with 0 +++
+91    +++ exited with 0 +++
+97    +++ exited with 0 +++
+98    +++ exited with 0 +++
+94    +++ exited with 0 +++
+99    +++ exited with 0 +++
+96    +++ exited with 0 +++
+95    +++ exited with 0 +++
+90    read(3</workspaces/1/.git/HEAD>, "ref: refs/heads/3.3\n", 256) = 20
+90    read(3</workspaces/1/.git/HEAD>, "", 236) = 0
+90    read(3</workspaces/1/.git/refs/heads/3.3>, "cb05763298f081ed17171d704408b647"..., 256) = 41
+90    read(3</workspaces/1/.git/refs/heads/3.3>, "", 215) = 0
+90    read(3</workspaces/1/.git/HEAD>, "ref: refs/heads/3.3\n", 256) = 20
+90    read(3</workspaces/1/.git/HEAD>, "", 236) = 0
+90    read(3</workspaces/1/.git/refs/heads/3.3>, "cb05763298f081ed17171d704408b647"..., 256) = 41
+90    read(3</workspaces/1/.git/refs/heads/3.3>, "", 215) = 0
+90    mmap(NULL, 8003276, PROT_READ, MAP_PRIVATE, 3</workspaces/1/.git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.idx>, 0) = 0xffffa9600000
+90    read(3</workspaces/1/.git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack>, "PACK\0\0\0\2\0\4\\a", 12) = 12
+90    pread64(3</workspaces/1/.git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack>, ")Ya\30\2258;L\7\305\5\35>\367[\201\3411Ji", 20, 63198854) = 20
+90    mmap(NULL, 63198874, PROT_READ, MAP_PRIVATE, 3</workspaces/1/.git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack>, 0) = 0xffff80200000
+90    mmap(NULL, 524288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xffffaa050000
+90    read(3</workspaces/1/.git/info/exclude>, "# git ls-files --others --exclud"..., 240) = 240
+90    read(3</workspaces/1/.git/info/exclude>, "# git ls-files --others --exclud"..., 240) = 240
+90    mmap(NULL, 135168, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0xffffaa02f000
+90    read(4</sys/devices/system/cpu/online>, "0-13\n", 1024) = 5
+100   +++ exited with 0 +++
+101   +++ exited with 0 +++
+102   +++ exited with 0 +++
+90    read(4</workspaces/1/.gitignore>, "# maven ignore\ntarget/\n*.jar\n*.w"..., 687) = 687
+90    +++ exited with 0 +++

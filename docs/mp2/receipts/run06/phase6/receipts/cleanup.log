@@ -1,0 +1,7 @@
+{"command": ["run", "--rm", "--name", "mp2-p6-seal", "-v", "mp2-p6-seed:/seed:ro", "-v", "mp2-p6-warm:/warm:ro", "mp2-p6-tools", "bash", "-c", "uname -a; git --version; sha256sum /seed/store/store.sqlite /warm/store/store.sqlite"], "exit": 0, "output": "Linux b998443177b8 7.0.14-orbstack-00380-ga7e0a2dc9535 #1 SMP PREEMPT Fri Aug  7 03:48:40 UTC 2026 aarch64 GNU/Linux\ngit version 2.39.5\n06f90f7eeda8b208456326262fce15eb31136514f70a17a0ee4ee52e1676723a  /seed/store/store.sqlite\n11d000a325bb09ba301926f2285e8b6e2df6e5b88ff730707ebe5de40c8c1778  /warm/store/store.sqlite\n"}
+{"command": ["image", "inspect", "mp2-p6-tools", "--format", "{{.Id}}"], "exit": 0, "output": "sha256:4f5f9495a9a669254888e7e54a4ac7f64afe673f7bd070eeb16862aa5dd10e41\n"}
+{"command": ["volume", "rm", "mp2-p6-seed", "mp2-p6-warm", "mp2-p6-input"], "exit": 0, "output": "mp2-p6-seed\nmp2-p6-warm\nmp2-p6-input\n"}
+{"command": ["image", "rm", "mp2-p6-tools"], "exit": 0, "output": "Untagged: mp2-p6-tools:latest\nDeleted: sha256:4f5f9495a9a669254888e7e54a4ac7f64afe673f7bd070eeb16862aa5dd10e41\n"}
+{"command": ["ps", "-a", "--filter", "name=mp2-p6", "--format", "{{.Names}}"], "exit": 0, "output": ""}
+{"command": ["network", "ls", "--filter", "name=mp2-p6", "--format", "{{.Name}}"], "exit": 0, "output": ""}
+{"command": ["volume", "ls", "--filter", "name=mp2-p6", "--format", "{{.Name}}"], "exit": 0, "output": ""}

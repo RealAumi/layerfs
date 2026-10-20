@@ -790,3 +790,163 @@ Exact commands, identities, per-run accesses, measured RTT and cleanup are in
 [the receipt index](receipts/run05/README.md). All owned containers, networks,
 volumes and the temporary tools image were cleaned up. No push or upstream
 contract-document edits; production LOC remains **106,288 (delta 0)**.
+
+## Phase 6 results
+
+**The revised gate qualifies a Git-refreshed base. Metadata batching reduces
+cold mount + default-policy status at 2 ms RTT from 9.730 s to 1.037 s and from
+about 4,063 Store calls to 53.** The ctime hole also exists in ordinary steady
+state. It is unchanged. Retained-Join reproduces and remains unresolved at the
+FUSE/kernel lifecycle boundary; it is not a Store-connection failure.
+
+### Steady-state oracle and the container's Git
+
+On the imported Dubbo root, ordinary `git status --short` **without**
+`--no-optional-locks` refreshed and wrote the index. Then README.md was changed
+without changing its size (8,526 bytes), and its mtime was explicitly restored.
+Git 2.39.5, with default `core.checkStat`, reported **clean**: oracle a′ misses
+this change. Both SHA-256 and Git's forced blob hash prove different content.
+
+| README stat field | Before edit | After edit + mtime restore |
+| --- | ---: | ---: |
+| mtime ns | 1792484244627118447 | 1792484244627118447 |
+| ctime ns | 1792484244627118447 | 1792484244627118447 |
+| inode / uid / gid / size | 20 / 1000 / 1000 / 8526 | unchanged |
+
+The source is `core/crates/layerfs-fuse/src/attributes.rs::Identity::attributes`:
+it derives `time` from portable mtime and assigns it to both `mtime` and `ctime`.
+Restoring mtime therefore restores the only change timestamp Git sees. This is
+a LayerFS-wide steady-state metadata gap, not a cold-start regression.
+
+The refreshed seed was prepared solely through Git: mount → `git update-index
+--refresh` → Workspace Commit → consistent SQLite backup of the published
+Disposable Store. An independent B2 mounted that root while B1 was still
+mounted. README's saved index device was **83**, while B2 reported **86**;
+inode 20, uid/gid 1000, size and nanosecond mtime/ctime matched. Default-policy
+status returned clean and read only `.gitignore`, not README or other source
+files. Thus this container's actual Git does **not** reject these entries for
+the changed device identity. This is an observed behavior result, not a claim
+about every Git build's `USE_STDEV` setting.
+
+### Refreshed root before batching
+
+Same Dubbo cb05763298f081ed17171d704408b6478cf8fd83, default Git policy; three
+fresh B caches/overlays/mounts and independent A Store copies per RTT. Values
+are medians **[min–max]**. Wall is mount plus status Docker-exec time, excluding
+the intervening counter query. Narrow syscall tracing and server request
+tracing are enabled in **both** timing arms. Daemons/Noise connections are
+ready before mount timing. Server/host OS caches are uncontrolled; “cold” means
+B's application cache and kernel mount. These are diagnostics, not a benchmark
+qualification. Netem ping medians are 0.023 / 2.02 / 20.0 ms before, and
+0.020 / 2.04 / 20.0 ms after; first-probe outliers remain in receipts.
+
+| Added RTT | Mount + status seconds | Store requests | Request classes: metadata / lengths / content / other | Working files read | Oracles a / b / c |
+| --- | ---: | ---: | --- | ---: | --- |
+| 0 ms | 1.244 [1.192–1.295] | 4062 [4062–4063] | 2777 [2777–2778] / 1247 / 36 / 2 | 1 | matches a′ / PASS / PASS |
+| 2 ms | 9.730 [9.614–9.748] | 4063 [4062–4063] | 2778 [2777–2778] / 1247 / 36 / 2 | 1 | same variant oracles |
+| 20 ms | 83.414 [83.410–83.426] | 4062 [4062–4062] | 2777 / 1247 / 36 / 2 | 1 | same variant oracles |
+
+“Other” is Snapshot + serial reservation. Working files exclude `.git/**`;
+the single file is `.gitignore` in all 18 before/after samples. Ordinary source
+files are not rehashed. Metadata plus lengths dominate (~99% of calls), so the
+conditional batching gate is met. Oracles are separate fresh-fixture checks at
+zero added delay, not repeated per timed sample: (a) misses the same-size,
+restored-mtime edit exactly like a′; (b) detects server `fs.write` after remount,
+with `cat` proving visibility; (c) detects an ordinary in-mount edit. Each edit
+also has a forced-hash difference from the index. Qualification is relative to
+steady state, **not native-filesystem ctime correctness**.
+
+### Protocol change and refreshed root after batching
+
+`layerfs-remote-store::metadata` adds a bounded metadata-wave operation to the
+existing Noise Store family (opcode 8). After Snapshot pins an immutable root,
+the client traverses canonical filesystem-root, inode and directory pages in
+windows of **256 objects**, including corresponding regular-file lengths in
+the replies. Existing Content decoders and Store ports supply the data; the
+client verifies canonical object IDs. Attribute trees and symlink targets keep
+their demand path; **no file payload is prefetched**. New opcode support is
+required on both peers; older servers fail explicitly, without fallback/replay.
+
+The traversal frontier is an indexed temporary SQLite table with disk-backed
+temp storage, not a resident whole-tree list. Cache locks are released before
+network I/O. A completed-root marker is recorded only after the frontier drains;
+partial failure never marks it complete. No publication lane is held. The
+existing cache remains nonauthoritative and has no eviction. Explicit opcode
+mutation classification keeps a failed metadata read from being labeled Unknown.
+No daemon, FUSE, local Store or Docker backend code changed.
+
+| Added RTT | Mount + status seconds | Store requests | Request classes: metadata waves / separate lengths / content / other | Working files read | Oracles a / b / c |
+| --- | ---: | ---: | --- | ---: | --- |
+| 0 ms | 0.937 [0.877–0.939] | 53 [53–53] | 15 / 0 / 36 / 2 | 1 | matches a′ / PASS / PASS |
+| 2 ms | **1.037 [1.036–1.042]** | 53 [53–53] | 15 / 0 / 36 / 2 | 1 | same variant oracles |
+| 20 ms | 2.086 [1.985–2.087] | 53 [53–53] | 15 / 0 / 36 / 2 | 1 | same variant oracles |
+
+This deliberately moves work into mount: mount-only medians at 0/2/20 ms grow
+from 0.041/0.056/0.200 s to 0.190/0.235/0.627 s. Whole-generation metadata
+acquisition is proportional to namespace size even if a caller accesses one
+file; this tradeoff is justified for the selected whole-tree status workload,
+not yet qualified for enormous or sparsely accessed namespaces. Live testing
+verified **2,790 cached metadata objects, 4,725 file lengths, no cached payload**,
+and a second Snapshot of the same root used just one request. Framing/corrupt-ID
+tests, Clippy and formatting pass. The product-boundary guard still reports
+57 violations on unchanged upstream files; it is not green. Its 50 tool tests
+pass. Exact commands and limits are in the [receipt index](receipts/run06/phase6/README.md).
+
+### Retained-Join: reproduced, not repaired
+
+Two dual-B checks reproduce the refusal. In the dedicated check, B2 detached
+but returned **Retained / Join** after the unchanged 5 s; B1 then unmounted
+successfully. B2's two `fuser` threads remained blocked in `fuse_dev_do_read`
+(`read` syscall on `/dev/fuse`, fd 17). Per-thread and host mountinfo scans found
+no remaining B2 mount; a host FD/cwd/root scan found no visible mount pin.
+Connection 84 matched B2's device 0:84; fusectl reported zero waiting requests.
+A single, explicitly targeted **cleanup-only** abort of connection 84 released
+both receivers and the mount/fence owners within two seconds, leaving only the
+daemon main thread. This did not retry unmount or relabel its refusal as success.
+
+The wait chain is `layerfs-daemon/src/control/detach.rs::Service::unmount_kernel`
+→ `layerfs-fuse/src/session/drain.rs::KernelSession::detach` /
+`KernelSession::quiesce`. `mount/syscalls.rs::detach` calls `umount2`; the
+subsequent `queue.stop_receive()` fences admission but cannot wake an already
+blocked read. In `core/vendor/fuser-0.18.0/src/channel.rs::Channel::receive`
+and `session.rs::SessionEventLoop::event_loop_started`, receive-loop exit still
+depends on the kernel returning Destroy/ENODEV/error. **The established defect
+is the teardown dependency on detach waking those receivers; it did not.**
+Why this OrbStack kernel retained the detached connection is still unproven;
+the scans rule out visible pins, not all kernel references. A robust fix needs
+an explicit cancellable receive/connection-termination protocol with exact
+active-request drain and custody proof. That is a FUSE lifecycle change, not a
+small Store protocol hook, and is outside this phase's permitted FUSE changes.
+No deadline extension, dropped Join, failed-operation replay or teardown patch.
+
+### Warm-base recommendation
+
+Prepare a warm base with **default Git settings**: perform source setup, mount
+it, run Git's own `git update-index --refresh`, Commit the Workspace including
+`.git/index`, and validate one fresh mount with the intended Git build. Keep
+that refreshed root as the base. There is no need for `core.checkStat=minimal`
+or external index rewriting. With metadata batching this workload meets the
+2 ms target while preserving ordinary and server-edit detection. This replaces
+Phase 5's overly strict device-stability gate; it does not fix the inherited
+ctime hole or imply that every Git build ignores `st_dev`.
+
+### Draft upstream issue text — not filed
+
+**Title: FUSE ctime mirrors mtime and permits missed same-size changes after
+Git refresh.** On a normal LayerFS mount, run ordinary `git status` to refresh
+the index, change a tracked file without changing its size, restore its old
+mtime with `utime`, and run default-policy status again. Content hashes differ
+but status reports clean because `Identity::attributes` returns the restored
+mtime as ctime (both 1792484244627118447 ns in this receipt). This affects warm
+mounts as well as refreshed cold bases. LayerFS should provide mutation-sensitive
+ctime semantics across writes, metadata changes, Commit/install and remount,
+with explicit persistence/identity rules; changing Git policy is not a fix.
+A future upstream fix needs this reproduction plus timestamp/identity and
+server-install regression proofs. No ctime change is included here.
+
+Implementation commit: `6cc16e913` — bounded immutable metadata batches.
+Production LOC is **106,288 → 106,523 (+235)**; raw product diff +246/−6,
+external tests +118 lines. Only the remote-store crate changes. All owned
+containers, networks, volumes and the temporary tools image were removed;
+executable hashes and raw receipts remain under the authorized directories.
+No push, upstream issue/PR, upstream contract edit or Durable execution.

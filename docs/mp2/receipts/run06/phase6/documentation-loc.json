@@ -1,0 +1,14 @@
+{
+  "parent": "6cc16e913956b7b0184672ae8ff02f02e2d7f281",
+  "before": 106523,
+  "after": 106523,
+  "delta": 0,
+  "method": "Identical counted-scope subtrees to the exact implementation snapshot counted in production-loc.json",
+  "subtrees": {
+    "core/crates": "08ade4573fe4d50bcab712c8d51b50ea1fbe36ba",
+    "sdk/js/native/src": "79d28fd5be8748a570c30068d9709d643b4cd57d",
+    "sdk/js/src": "1a68a293316a5cc506d336bb7d985260a1a8deee",
+    "sdk/js/operator": "761873ea5abfaf887917f28338de3581563449fa",
+    "dsh/packages": "6d2bd0cd47896bd5d2aa53ad84b9493eea2b51b7"
+  }
+}

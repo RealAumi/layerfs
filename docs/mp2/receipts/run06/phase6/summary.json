@@ -1,0 +1,707 @@
+{
+  "cohorts": [
+    {
+      "arm": "before",
+      "rtt": 0,
+      "wall_s": {
+        "median": 1.244363334,
+        "min": 1.192178959,
+        "max": 1.295245708
+      },
+      "mount_s": {
+        "median": 0.040849709,
+        "min": 0.03978575,
+        "max": 0.044668417
+      },
+      "requests": {
+        "median": 4062,
+        "min": 4062,
+        "max": 4063
+      },
+      "classes": {
+        "content": {
+          "median": 36,
+          "min": 36,
+          "max": 36
+        },
+        "length": {
+          "median": 1247,
+          "min": 1247,
+          "max": 1247
+        },
+        "metadata": {
+          "median": 2777,
+          "min": 2777,
+          "max": 2778
+        },
+        "other": {
+          "median": 2,
+          "min": 2,
+          "max": 2
+        }
+      },
+      "working_files": [
+        [
+          ".gitignore"
+        ],
+        [
+          ".gitignore"
+        ],
+        [
+          ".gitignore"
+        ]
+      ],
+      "ping_ms": {
+        "median": 0.023,
+        "min": 0.007,
+        "max": 0.072
+      },
+      "exits": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "arm": "before",
+      "rtt": 2,
+      "wall_s": {
+        "median": 9.730287166,
+        "min": 9.613845207,
+        "max": 9.747779667
+      },
+      "mount_s": {
+        "median": 0.056269041,
+        "min": 0.055603333,
+        "max": 0.056331167
+      },
+      "requests": {
+        "median": 4063,
+        "min": 4062,
+        "max": 4063
+      },
+      "classes": {
+        "content": {
+          "median": 36,
+          "min": 36,
+          "max": 36
+        },
+        "length": {
+          "median": 1247,
+          "min": 1247,
+          "max": 1247
+        },
+        "metadata": {
+          "median": 2778,
+          "min": 2777,
+          "max": 2778
+        },
+        "other": {
+          "median": 2,
+          "min": 2,
+          "max": 2
+        }
+      },
+      "working_files": [
+        [
+          ".gitignore"
+        ],
+        [
+          ".gitignore"
+        ],
+        [
+          ".gitignore"
+        ]
+      ],
+      "ping_ms": {
+        "median": 2.02,
+        "min": 2.01,
+        "max": 4.08
+      },
+      "exits": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "arm": "before",
+      "rtt": 20,
+      "wall_s": {
+        "median": 83.414196249,
+        "min": 83.409984875,
+        "max": 83.425779125
+      },
+      "mount_s": {
+        "median": 0.199727334,
+        "min": 0.186023416,
+        "max": 0.199963167
+      },
+      "requests": {
+        "median": 4062,
+        "min": 4062,
+        "max": 4062
+      },
+      "classes": {
+        "content": {
+          "median": 36,
+          "min": 36,
+          "max": 36
+        },
+        "length": {
+          "median": 1247,
+          "min": 1247,
+          "max": 1247
+        },
+        "metadata": {
+          "median": 2777,
+          "min": 2777,
+          "max": 2777
+        },
+        "other": {
+          "median": 2,
+          "min": 2,
+          "max": 2
+        }
+      },
+      "working_files": [
+        [
+          ".gitignore"
+        ],
+        [
+          ".gitignore"
+        ],
+        [
+          ".gitignore"
+        ]
+      ],
+      "ping_ms": {
+        "median": 20.0,
+        "min": 20.0,
+        "max": 40.1
+      },
+      "exits": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "arm": "after",
+      "rtt": 0,
+      "wall_s": {
+        "median": 0.936664083,
+        "min": 0.877229209,
+        "max": 0.938510958
+      },
+      "mount_s": {
+        "median": 0.1903575,
+        "min": 0.189848083,
+        "max": 0.193387416
+      },
+      "requests": {
+        "median": 53,
+        "min": 53,
+        "max": 53
+      },
+      "classes": {
+        "content": {
+          "median": 36,
+          "min": 36,
+          "max": 36
+        },
+        "metadata_batch": {
+          "median": 15,
+          "min": 15,
+          "max": 15
+        },
+        "other": {
+          "median": 2,
+          "min": 2,
+          "max": 2
+        }
+      },
+      "working_files": [
+        [
+          ".gitignore"
+        ],
+        [
+          ".gitignore"
+        ],
+        [
+          ".gitignore"
+        ]
+      ],
+      "ping_ms": {
+        "median": 0.02,
+        "min": 0.011,
+        "max": 0.068
+      },
+      "exits": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "arm": "after",
+      "rtt": 2,
+      "wall_s": {
+        "median": 1.037212583,
+        "min": 1.035635625,
+        "max": 1.042427292
+      },
+      "mount_s": {
+        "median": 0.234738833,
+        "min": 0.224682167,
+        "max": 0.235408958
+      },
+      "requests": {
+        "median": 53,
+        "min": 53,
+        "max": 53
+      },
+      "classes": {
+        "content": {
+          "median": 36,
+          "min": 36,
+          "max": 36
+        },
+        "metadata_batch": {
+          "median": 15,
+          "min": 15,
+          "max": 15
+        },
+        "other": {
+          "median": 2,
+          "min": 2,
+          "max": 2
+        }
+      },
+      "working_files": [
+        [
+          ".gitignore"
+        ],
+        [
+          ".gitignore"
+        ],
+        [
+          ".gitignore"
+        ]
+      ],
+      "ping_ms": {
+        "median": 2.04,
+        "min": 2.01,
+        "max": 4.07
+      },
+      "exits": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "arm": "after",
+      "rtt": 20,
+      "wall_s": {
+        "median": 2.086187208,
+        "min": 1.984880249,
+        "max": 2.086549708
+      },
+      "mount_s": {
+        "median": 0.626507333,
+        "min": 0.608447041,
+        "max": 0.62775725
+      },
+      "requests": {
+        "median": 53,
+        "min": 53,
+        "max": 53
+      },
+      "classes": {
+        "content": {
+          "median": 36,
+          "min": 36,
+          "max": 36
+        },
+        "metadata_batch": {
+          "median": 15,
+          "min": 15,
+          "max": 15
+        },
+        "other": {
+          "median": 2,
+          "min": 2,
+          "max": 2
+        }
+      },
+      "working_files": [
+        [
+          ".gitignore"
+        ],
+        [
+          ".gitignore"
+        ],
+        [
+          ".gitignore"
+        ]
+      ],
+      "ping_ms": {
+        "median": 20.0,
+        "min": 20.0,
+        "max": 40.2
+      },
+      "exits": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "oracles": {
+    "before": [
+      {
+        "kind": "oracle",
+        "case": "restore",
+        "status": {
+          "command": [
+            "/usr/local/bin/docker",
+            "exec",
+            "mp2-p6-b",
+            "timeout",
+            "115",
+            "strace",
+            "-f",
+            "-yy",
+            "-o",
+            "/state/oracle.trace",
+            "-e",
+            "trace=read,pread64,mmap",
+            "git",
+            "-c",
+            "safe.directory=*",
+            "-C",
+            "/workspaces/1",
+            "--no-optional-locks",
+            "status",
+            "--short"
+          ],
+          "exit": 0,
+          "ns": 1184009333,
+          "output": ""
+        },
+        "evidence": {
+          "command": [
+            "/usr/local/bin/docker",
+            "exec",
+            "mp2-p6-b",
+            "python3",
+            "-c",
+            "import os,hashlib,json,sys\np=sys.argv[1];s=os.stat(p);b=open(p,'rb').read();open(p,'wb').write(bytes([b[0]^1])+b[1:])\nif sys.argv[2]=='restore':os.utime(p,ns=(s.st_atime_ns,s.st_mtime_ns))\nt=os.stat(p);print(json.dumps(dict(before={k:getattr(s,k) for k in ['st_ino','st_dev','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns']},after={k:getattr(t,k) for k in ['st_ino','st_dev','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns']},before_sha=hashlib.sha256(b).hexdigest(),after_sha=hashlib.sha256(open(p,'rb').read()).hexdigest())))",
+            "/workspaces/1/README.md",
+            "restore"
+          ],
+          "exit": 0,
+          "ns": 55414416,
+          "output": "{\"before\": {\"st_ino\": 20, \"st_dev\": 83, \"st_uid\": 1000, \"st_gid\": 1000, \"st_size\": 8526, \"st_mtime_ns\": 1792484244627118447, \"st_ctime_ns\": 1792484244627118447}, \"after\": {\"st_ino\": 20, \"st_dev\": 83, \"st_uid\": 1000, \"st_gid\": 1000, \"st_size\": 8526, \"st_mtime_ns\": 1792484244627118447, \"st_ctime_ns\": 1792484244627118447}, \"before_sha\": \"350bd965114cc3ce25002a3f6599d394279bd51b93992dc8706731de38409d97\", \"after_sha\": \"ec971f7a6535ee4cd14a6c40a7beac82fec8cea62d48603e9b0c61ed64e2df2b\"}\n"
+        },
+        "reported": false,
+        "forced_hash": "868cff4e1fd79b42d5338a4740621d4d3e0d57e2",
+        "index_hash": "c2fa196a54c94f244d60854a1b3817b44a98e5fe"
+      },
+      {
+        "kind": "oracle",
+        "case": "server",
+        "status": {
+          "command": [
+            "/usr/local/bin/docker",
+            "exec",
+            "mp2-p6-b",
+            "timeout",
+            "115",
+            "strace",
+            "-f",
+            "-yy",
+            "-o",
+            "/state/oracle.trace",
+            "-e",
+            "trace=read,pread64,mmap",
+            "git",
+            "-c",
+            "safe.directory=*",
+            "-C",
+            "/workspaces/2",
+            "--no-optional-locks",
+            "status",
+            "--short"
+          ],
+          "exit": 0,
+          "ns": 1160302042,
+          "output": " M README.md\n"
+        },
+        "evidence": {
+          "command": [
+            "/usr/local/bin/docker",
+            "exec",
+            "mp2-p6-b",
+            "cat",
+            "/workspaces/2/README.md"
+          ],
+          "exit": 0,
+          "ns": 41689167,
+          "output": "phase six server edit\n"
+        },
+        "reported": true,
+        "forced_hash": "97258d2dd1f6deb9b183a6b22f67efed405e1f95",
+        "index_hash": "c2fa196a54c94f244d60854a1b3817b44a98e5fe"
+      },
+      {
+        "kind": "oracle",
+        "case": "ordinary",
+        "status": {
+          "command": [
+            "/usr/local/bin/docker",
+            "exec",
+            "mp2-p6-b",
+            "timeout",
+            "115",
+            "strace",
+            "-f",
+            "-yy",
+            "-o",
+            "/state/oracle.trace",
+            "-e",
+            "trace=read,pread64,mmap",
+            "git",
+            "-c",
+            "safe.directory=*",
+            "-C",
+            "/workspaces/1",
+            "--no-optional-locks",
+            "status",
+            "--short"
+          ],
+          "exit": 0,
+          "ns": 1211136666,
+          "output": " M README.md\n"
+        },
+        "evidence": {
+          "command": [
+            "/usr/local/bin/docker",
+            "exec",
+            "mp2-p6-b",
+            "python3",
+            "-c",
+            "import os,hashlib,json,sys\np=sys.argv[1];s=os.stat(p);b=open(p,'rb').read();open(p,'wb').write(bytes([b[0]^1])+b[1:])\nif sys.argv[2]=='restore':os.utime(p,ns=(s.st_atime_ns,s.st_mtime_ns))\nt=os.stat(p);print(json.dumps(dict(before={k:getattr(s,k) for k in ['st_ino','st_dev','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns']},after={k:getattr(t,k) for k in ['st_ino','st_dev','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns']},before_sha=hashlib.sha256(b).hexdigest(),after_sha=hashlib.sha256(open(p,'rb').read()).hexdigest())))",
+            "/workspaces/1/README.md",
+            "ordinary"
+          ],
+          "exit": 0,
+          "ns": 52808750,
+          "output": "{\"before\": {\"st_ino\": 20, \"st_dev\": 83, \"st_uid\": 1000, \"st_gid\": 1000, \"st_size\": 8526, \"st_mtime_ns\": 1792484244627118447, \"st_ctime_ns\": 1792484244627118447}, \"after\": {\"st_ino\": 20, \"st_dev\": 83, \"st_uid\": 1000, \"st_gid\": 1000, \"st_size\": 8526, \"st_mtime_ns\": 1792509058935068905, \"st_ctime_ns\": 1792509058935068905}, \"before_sha\": \"350bd965114cc3ce25002a3f6599d394279bd51b93992dc8706731de38409d97\", \"after_sha\": \"ec971f7a6535ee4cd14a6c40a7beac82fec8cea62d48603e9b0c61ed64e2df2b\"}\n"
+        },
+        "reported": true,
+        "forced_hash": "868cff4e1fd79b42d5338a4740621d4d3e0d57e2",
+        "index_hash": "c2fa196a54c94f244d60854a1b3817b44a98e5fe"
+      }
+    ],
+    "after": [
+      {
+        "kind": "oracle",
+        "case": "restore",
+        "status": {
+          "command": [
+            "/usr/local/bin/docker",
+            "exec",
+            "mp2-p6-b",
+            "timeout",
+            "115",
+            "strace",
+            "-f",
+            "-yy",
+            "-o",
+            "/state/oracle.trace",
+            "-e",
+            "trace=read,pread64,mmap",
+            "git",
+            "-c",
+            "safe.directory=*",
+            "-C",
+            "/workspaces/1",
+            "--no-optional-locks",
+            "status",
+            "--short"
+          ],
+          "exit": 0,
+          "ns": 751586291,
+          "output": ""
+        },
+        "evidence": {
+          "command": [
+            "/usr/local/bin/docker",
+            "exec",
+            "mp2-p6-b",
+            "python3",
+            "-c",
+            "import os,hashlib,json,sys\np=sys.argv[1];s=os.stat(p);b=open(p,'rb').read();open(p,'wb').write(bytes([b[0]^1])+b[1:])\nif sys.argv[2]=='restore':os.utime(p,ns=(s.st_atime_ns,s.st_mtime_ns))\nt=os.stat(p);print(json.dumps(dict(before={k:getattr(s,k) for k in ['st_ino','st_dev','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns']},after={k:getattr(t,k) for k in ['st_ino','st_dev','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns']},before_sha=hashlib.sha256(b).hexdigest(),after_sha=hashlib.sha256(open(p,'rb').read()).hexdigest())))",
+            "/workspaces/1/README.md",
+            "restore"
+          ],
+          "exit": 0,
+          "ns": 65220292,
+          "output": "{\"before\": {\"st_ino\": 20, \"st_dev\": 83, \"st_uid\": 1000, \"st_gid\": 1000, \"st_size\": 8526, \"st_mtime_ns\": 1792484244627118447, \"st_ctime_ns\": 1792484244627118447}, \"after\": {\"st_ino\": 20, \"st_dev\": 83, \"st_uid\": 1000, \"st_gid\": 1000, \"st_size\": 8526, \"st_mtime_ns\": 1792484244627118447, \"st_ctime_ns\": 1792484244627118447}, \"before_sha\": \"350bd965114cc3ce25002a3f6599d394279bd51b93992dc8706731de38409d97\", \"after_sha\": \"ec971f7a6535ee4cd14a6c40a7beac82fec8cea62d48603e9b0c61ed64e2df2b\"}\n"
+        },
+        "reported": false,
+        "forced_hash": "868cff4e1fd79b42d5338a4740621d4d3e0d57e2",
+        "index_hash": "c2fa196a54c94f244d60854a1b3817b44a98e5fe"
+      },
+      {
+        "kind": "oracle",
+        "case": "server",
+        "status": {
+          "command": [
+            "/usr/local/bin/docker",
+            "exec",
+            "mp2-p6-b",
+            "timeout",
+            "115",
+            "strace",
+            "-f",
+            "-yy",
+            "-o",
+            "/state/oracle.trace",
+            "-e",
+            "trace=read,pread64,mmap",
+            "git",
+            "-c",
+            "safe.directory=*",
+            "-C",
+            "/workspaces/2",
+            "--no-optional-locks",
+            "status",
+            "--short"
+          ],
+          "exit": 0,
+          "ns": 690865667,
+          "output": " M README.md\n"
+        },
+        "evidence": {
+          "command": [
+            "/usr/local/bin/docker",
+            "exec",
+            "mp2-p6-b",
+            "cat",
+            "/workspaces/2/README.md"
+          ],
+          "exit": 0,
+          "ns": 48261792,
+          "output": "phase six server edit\n"
+        },
+        "reported": true,
+        "forced_hash": "97258d2dd1f6deb9b183a6b22f67efed405e1f95",
+        "index_hash": "c2fa196a54c94f244d60854a1b3817b44a98e5fe"
+      },
+      {
+        "kind": "oracle",
+        "case": "ordinary",
+        "status": {
+          "command": [
+            "/usr/local/bin/docker",
+            "exec",
+            "mp2-p6-b",
+            "timeout",
+            "115",
+            "strace",
+            "-f",
+            "-yy",
+            "-o",
+            "/state/oracle.trace",
+            "-e",
+            "trace=read,pread64,mmap",
+            "git",
+            "-c",
+            "safe.directory=*",
+            "-C",
+            "/workspaces/1",
+            "--no-optional-locks",
+            "status",
+            "--short"
+          ],
+          "exit": 0,
+          "ns": 776045958,
+          "output": " M README.md\n"
+        },
+        "evidence": {
+          "command": [
+            "/usr/local/bin/docker",
+            "exec",
+            "mp2-p6-b",
+            "python3",
+            "-c",
+            "import os,hashlib,json,sys\np=sys.argv[1];s=os.stat(p);b=open(p,'rb').read();open(p,'wb').write(bytes([b[0]^1])+b[1:])\nif sys.argv[2]=='restore':os.utime(p,ns=(s.st_atime_ns,s.st_mtime_ns))\nt=os.stat(p);print(json.dumps(dict(before={k:getattr(s,k) for k in ['st_ino','st_dev','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns']},after={k:getattr(t,k) for k in ['st_ino','st_dev','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns']},before_sha=hashlib.sha256(b).hexdigest(),after_sha=hashlib.sha256(open(p,'rb').read()).hexdigest())))",
+            "/workspaces/1/README.md",
+            "ordinary"
+          ],
+          "exit": 0,
+          "ns": 67098375,
+          "output": "{\"before\": {\"st_ino\": 20, \"st_dev\": 83, \"st_uid\": 1000, \"st_gid\": 1000, \"st_size\": 8526, \"st_mtime_ns\": 1792484244627118447, \"st_ctime_ns\": 1792484244627118447}, \"after\": {\"st_ino\": 20, \"st_dev\": 83, \"st_uid\": 1000, \"st_gid\": 1000, \"st_size\": 8526, \"st_mtime_ns\": 1792510032258458871, \"st_ctime_ns\": 1792510032258458871}, \"before_sha\": \"350bd965114cc3ce25002a3f6599d394279bd51b93992dc8706731de38409d97\", \"after_sha\": \"ec971f7a6535ee4cd14a6c40a7beac82fec8cea62d48603e9b0c61ed64e2df2b\"}\n"
+        },
+        "reported": true,
+        "forced_hash": "868cff4e1fd79b42d5338a4740621d4d3e0d57e2",
+        "index_hash": "c2fa196a54c94f244d60854a1b3817b44a98e5fe"
+      }
+    ]
+  },
+  "device_probe": [
+    ".gitignore"
+  ],
+  "steady": {
+    "kind": "oracle",
+    "case": "restore",
+    "status": {
+      "command": [
+        "/usr/local/bin/docker",
+        "exec",
+        "mp2-p6-b",
+        "timeout",
+        "115",
+        "strace",
+        "-f",
+        "-yy",
+        "-o",
+        "/state/oracle.trace",
+        "-e",
+        "trace=read,pread64,mmap",
+        "git",
+        "-c",
+        "safe.directory=*",
+        "-C",
+        "/workspaces/1",
+        "--no-optional-locks",
+        "status",
+        "--short"
+      ],
+      "exit": 0,
+      "ns": 434466041,
+      "output": ""
+    },
+    "evidence": {
+      "command": [
+        "/usr/local/bin/docker",
+        "exec",
+        "mp2-p6-b",
+        "python3",
+        "-c",
+        "import os,hashlib,json,sys\np=sys.argv[1];s=os.stat(p);b=open(p,'rb').read();open(p,'wb').write(bytes([b[0]^1])+b[1:])\nif sys.argv[2]=='restore':os.utime(p,ns=(s.st_atime_ns,s.st_mtime_ns))\nt=os.stat(p);print(json.dumps(dict(before={k:getattr(s,k) for k in ['st_ino','st_dev','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns']},after={k:getattr(t,k) for k in ['st_ino','st_dev','st_uid','st_gid','st_size','st_mtime_ns','st_ctime_ns']},before_sha=hashlib.sha256(b).hexdigest(),after_sha=hashlib.sha256(open(p,'rb').read()).hexdigest())))",
+        "/workspaces/1/README.md",
+        "restore"
+      ],
+      "exit": 0,
+      "ns": 55952125,
+      "output": "{\"before\": {\"st_ino\": 20, \"st_dev\": 83, \"st_uid\": 1000, \"st_gid\": 1000, \"st_size\": 8526, \"st_mtime_ns\": 1792484244627118447, \"st_ctime_ns\": 1792484244627118447}, \"after\": {\"st_ino\": 20, \"st_dev\": 83, \"st_uid\": 1000, \"st_gid\": 1000, \"st_size\": 8526, \"st_mtime_ns\": 1792484244627118447, \"st_ctime_ns\": 1792484244627118447}, \"before_sha\": \"350bd965114cc3ce25002a3f6599d394279bd51b93992dc8706731de38409d97\", \"after_sha\": \"ec971f7a6535ee4cd14a6c40a7beac82fec8cea62d48603e9b0c61ed64e2df2b\"}\n"
+    },
+    "reported": false,
+    "forced_hash": "868cff4e1fd79b42d5338a4740621d4d3e0d57e2",
+    "index_hash": "c2fa196a54c94f244d60854a1b3817b44a98e5fe"
+  }
+}
