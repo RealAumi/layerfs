@@ -107,3 +107,13 @@ fn deleted_nested_rule_reconciles_a_retained_directory_absent_from_q() {
     ws.commit(&[], &[]);
     assert!(has(&mem.files(ws.published),"local/secret","local only"));
 }
+
+#[test]
+fn kept_write_below_pruned_directory_reaches_next_publication() {
+    let mem = Mem::default();
+    let mut ws = Workspace::new(&mem);
+    ws.commit(&[Write("logs/deep/kept",b"tracked"),Write("logs/deep/private.log",b"private")], &[]);
+    ws.commit(&[], &[Remove("logs")]);
+    ws.commit(&[Write("logs/deep/next",b"next")], &[]);
+    assert!(has(&mem.files(ws.published),"logs/deep/next","next"));
+}
