@@ -1,189 +1,148 @@
 # Git-ignored names stay local
 
 > **Status: mp2 prototype on branch `mp2/ignore`; not a released contract.**
-> Opt-in per remote daemon: `ignore=git` in its setup. A warm-base builder
-> runs without it.
+> Opt-in per remote daemon: `ignore=git`. Warm-base builders run without it.
 
-With `ignore=git`, a remote Commit projects kept changes onto a separate
-published tree and uploads only that tree's reachable local objects. Build
-outputs and dependencies remain visible locally. **This prototype is not a
-confidentiality boundary:** unsupported indexes and incomplete hardlink hints
-can publish ignored bytes; server namespace/rule changes have unresolved
-reconciliation cases below.
+A remote Commit builds the complete local filesystem, projects its kept changes
+onto a separate published tree, and uploads only that tree's reachable local
+objects. Ignored outputs remain visible locally. This is not a confidentiality
+boundary: oversized rule files and incomplete placement at the walk limit retain
+the explicit limitations below.
 
-Paths below are relative to `core/crates/layerfs-store-service/src/store/`.
+Source paths below are relative to `core/crates/layerfs-store-service/src/store/`.
 
-## Two roots per Workspace
+## Two roots and one Commit
 
-Every Commit builds the Workspace's **whole tree** as before. Two roots then
-follow from it:
-
-| Root | Holds | Where its objects live |
+| Root | Contents | Object location |
 | --- | --- | --- |
-| Local base `L` | Everything the sandbox sees | Local object cache only |
-| Published `Q` | `L`'s kept names, plus ignored names it already had | Server |
+| Local base `L` | Everything the Workspace sees | Local cache, including local-only objects |
+| Published `Q` | Kept names and frozen ignored leftovers from earlier publication | Server |
 
-The intended invariant is that the kept names of `L` and `Q` are equal, with
-the same inode serials. The unresolved cases below violate it. Ignored names in `Q` are leftovers from a warm base: published
-as they were, never updated.
+`remote_commit.rs` performs:
 
-One Commit, given the previous local tree `L₀` and the tree just built `L₁`
-(`remote_commit.rs`):
+1. **Project:** replay `L₀ → L₁` onto `Q` with the local rules/index. Pending
+   reconciliation seeds are included even when `L₀ == L₁`.
+2. **Upload:** walk only the candidate's reachable cache objects marked local,
+   children first. LACKING/UPLOAD windows contain at most 512 objects or 4 MiB
+   past the first object (`layerfs-remote-store/src/{cache,client}.rs`).
+3. **Publish:** the server can merge the candidate `P` with a moved head into
+   `M`. Only a known successful publication acknowledges existing pending seeds;
+   project failure, rejected/uncertain publication and an unpublished merge do
+   not clear them.
+4. **Rebase:** replay `P → M` onto `L₁`, preserving local-only names. Record
+   server rule/index changes and retained directories for the next projection.
+5. **Install:** install the rebased local root and retain its published partner
+   in `IgnoreState`. The overlay retires normally, preserving later mutations.
 
-1. **Project.** `P = replay(L₀ → L₁ onto Q, Ignore)` carries the changes Git
-   does not ignore (`ignore/project.rs`). A Commit with nothing left out and
-   no local base publishes `L₁` itself.
-2. **Upload.** Only objects `P` reaches that the cache holds as local are
-   uploaded: a children-first walk from `P`'s root over rows marked
-   `remote=0`, sent in LACKING/UPLOAD windows of at most 512 objects or
-   4 MiB (`layerfs-remote-store/src/{cache,client}.rs`). Objects `L` alone
-   reaches are never sent.
-3. **Publish** `P`. The server may merge it with a moved head into `M`.
-4. **Rebase.** The new local base is `replay(P → M onto L₁, All)`: the head's
-   changes land on the local tree, and local-only names survive. With an
-   unmoved head this is `L₁` itself (`ignore::rebase`).
+The kept views normally agree after Commit. Server rule/index flips can leave
+newly kept local bytes ahead of `Q` until the **next projection**, including a
+no-op Commit. A server deletion can also leave local-only structural directories
+until that projection. No automatic second publication is attempted.
 
-The local base is installed like a published root, so the overlay retires as
-usual and FUSE is unchanged. `BoundWorkspace::{local_root,published_root}`
-(`commit_merge.rs`) keep the two roots apart; `IgnoreState` holds the pair.
+## Replay and pruning
 
-## Replay
+`ignore/replay.rs` discovers changed inodes and directory bindings from canonical
+tree differences. A change applies where the target still agrees with the source;
+otherwise the target's change wins. A kept binding brings missing inodes with
+filtered subtrees, or adopts and reconciles existing inodes. An adopted directory
+loses its actual old published name, including after earlier ignored moves.
 
-`ignore/replay.rs` replays the changes of `from → to` onto a third root,
-name by name. The work follows the change, not the tree:
+Rebase enables a small `Keep::preserve_local` switch in that same replay. When a
+server removal or replacement hits a directory, it prunes bindings shared with
+`P` in postorder and retains bindings present only in `L` (including locally
+rebound names). Empty shared directories disappear; ancestors needed by retained
+names survive. If a replacement collides with such a retained directory, the
+local directory wins. A serial moved elsewhere in `M` is detached and adopted
+without pruning: its local-only descendants travel with it.
 
-- Changed inodes come from the inode-table difference, and changed names from
-  the changed directories among them.
-- A change applies only where `onto` still agrees with `from`; otherwise
-  `onto`'s change wins.
-- A kept name that binds an inode `onto` lacks brings it from `to`, with the
-  kept part of its subtree. Brought inodes keep their serials, so later
-  Commits still find them.
-- A kept name that binds an inode `onto` holds elsewhere **adopts** it. A
-  directory has one name, so an adopted directory loses its old name in
-  `onto`; so does a moved file whose old name was left out.
-- **Reconcile.** While projecting, `L` may hold below a shared inode what `Q`
-  never got, so adopted inodes are reconciled. Their kept names and values
-  are made `L`'s.
+Retained directories become pending seeds too. This lets later kept writes below
+a directory absent from `Q` reach publication. Seeds name directory identities;
+at projection they resolve against the current local tree and impose missing
+ancestors before reconciliation.
 
-## What Git ignores
+## Classification and placement
 
-`ignore/classify.rs` decides name by name, from `L₁` itself, as Git does:
+`ignore/classify.rs` reads `.git/info/exclude`, then applicable `.gitignore`
+files from the root down. Matching is case-sensitive, last matching pattern wins,
+and a nested `!` cannot reinclude a child of an excluded directory. `.git` is
+always kept. A readable index's tracked paths override ignore patterns.
 
-- `.git/info/exclude`, then every `.gitignore` from the root down. The
-  matcher is `ignore/rules.rs`: last match wins, deepest file first, Git's
-  wildmatch with `**` and classes.
-- Below an excluded directory everything is excluded. A path the index tracks
-  (`ignore/index.rs`, versions 2–4) is never ignored, wherever it sits.
-- `.git` itself is never ignored.
-- A name that cannot be placed in the tree is kept, so an unknown never
-  withholds a change.
-- An index that cannot be read publishes the whole built tree. That covers a
-  split index and an index over 256 MiB.
+An unsupported, split, unparseable or over-256-MiB index is treated as an **empty
+tracked set**: patterns still apply and `Projection.unreadable_index` is true.
+Accepted cost: edits to tracked files matching ignore patterns remain local until
+the index is readable again. Recovery compares against an empty previous tracked
+set and reconciles the newly recognized tracked paths. Split-index reading is
+not implemented. Actual provider/read errors still fail the operation.
 
-There are no parent pointers, so names come from the Workspace's `PathHints`:
-bindings the kernel looked up, checked against the tree. A `locate` walk is
-the fallback.
+`layerfs-workspace::PathHints` records LOOKUP and successful kernel create, mkdir,
+symlink, link and rename bindings. Refused/failed mutations record no binding.
+READDIRPLUS is not served: its callback returns `ENOSYS` and no capability is
+negotiated, so there are no READDIRPLUS entries to annotate.
 
-### Flips
+Hints are checked against the tree. Missing or incomplete bindings trigger at
+most **one placement walk of the projection's local tree**, recording every
+visited inode's aliases, including hardlinks. Subsequent placement uses that
+learned map. Rule stacks are resolved only for directories classification needs;
+walking unrelated directories does not read their rules speculatively.
 
-A change of rules or index can make kept what `Q` never got. The classifier
-hands these back to the replay to reconcile:
+## Rule and index flips
 
-- **Newly tracked paths**, from comparing this index with the previous one
-  (`git add -f`, or a checkout that tracks a file that was ignored). Each path
-  is imposed: its first differing name is placed, its inode reconciled, or
-  its stale published binding removed when the path is absent locally.
-- **Changed rule files**, a `.gitignore` or `.git/info/exclude` bound,
-  unbound or rewritten. The directory is reconciled, the root for `exclude`.
-  This walks the kept part of that subtree; it is the one cost that follows
-  the tree, and only on a rule edit.
-- **Moves** out of ignored places are adoptions, above. Detach checks the
-  published directory binding even when earlier ignored moves left it different
-  from the old local name.
-- A changed rule file with no checked hint uses the same location fallback as
-  value classification, including an ignored rule file absent from `Q`.
+Local rule edits and newly tracked paths reconcile their affected kept subtrees.
+A newly tracked path absent locally removes its stale published binding.
 
-A path that becomes ignored needs nothing: `Q` keeps what it had.
+During rebase, rule-file binds, unbinds and rewrites seed their directories;
+a change to `.git/info/exclude` seeds the root, including removal of `.git/info`.
+The index comparison `P → M` seeds newly tracked paths. `IgnoreState` carries
+these seeds to the next projection, where rules and paths are evaluated against
+the then-current local tree. Failed projection leaves the seeds intact.
 
-## Cost
+## Cost and limits
 
-- With checked hints, ordinary projection follows the change, plus one index
-  parse when `.git/index` changed. The parse is cached by content. Missing hints
-  and directory adoptions with unknown published names can require tree walks.
-- A rebase is proportional to what the head added.
-- A rule edit walks the kept subtree below it. Adopting a moved directory
-  reconciles that directory.
+- With complete hints, ordinary classification follows the changes. One missing
+  placement can list the whole local tree once, bounded at 1,048,576 directories.
+  The learned binding map grows with that visited tree. Hardlinks beyond the
+  eight-bindings-per-inode hint cache are completed by this walk.
+- At the walk limit, names still unplaced retain fail-open behavior and increment
+  `unplaced`. Rule files over 1 MiB are treated as empty. These are not secrecy
+  guarantees. Global excludes and `core.ignorecase` are not read.
+- Rule flips/reconciliation walk the affected kept subtree; server pruning walks
+  the removed subtree. Locating an adopted directory's old published name can
+  separately walk `Q`. Index parsing is cached by content for two indexes.
+- Ignored leftovers already in `Q` stay stale. Previously published bytes can
+  move with those leftovers. A kept hardlink legitimately publishes shared bytes.
+- Local roots, hints and pending seeds are memory-only. Restart/remount begins
+  from the published head and loses local-only content. Recovery is not built.
+- Local-only cache objects have no eviction. No ctime, teardown/unmount, metadata
+  batching or post-publication recovery changes are included.
+- Known publication followed by rebase/install failure retains custody and
+  refuses another Commit `InFlight`. Transport upload failure quarantines the
+  write channel. Neither boundary has a recovery protocol.
 
-## Limits
+## Tests
 
-- The local base lives in memory with the bound Workspace. A remount or a
-  daemon restart starts from the published head, and local-only files are
-  gone. Restart recovery is not built.
-- Hints are in memory too (at most eight bindings per inode). Without them,
-  placing a name falls back to a walk, bounded at 1,048,576 directories;
-  unknown placement keeps a change. Rule files over 1 MiB are read as empty.
-- Local-only objects stay in the cache until it is dropped; there is no
-  eviction.
-- Ignored leftovers in `Q` are stale by design. Moving a directory out of an
-  ignored place removes it from there in `Q`.
-- Matching is case-sensitive; `core.ignorecase` is not read. Global excludes
-  (`core.excludesFile`) are not read either, as they live outside the tree.
+`layerfs-store-service/tests/ignore.rs` and `ignore/round4.rs` cover the four
+formerly ignored regressions, unreadable-index withholding/recovery and split
+indexes, incomplete/stale hardlink hints, nested deletion/replacement, moves,
+next-Commit writes below retained directories, nested rule removal, server
+rule/exclude/index flips, and pending seeds surviving projection failure or
+unacknowledged publication. All four design regressions are enabled.
 
-## Review findings
+The independent model runs **200 deterministic seeds × 30 steps**, with real
+Content merge. It includes local writes/removes/moves, rules and index edits,
+server file changes, repeated directory deletion with a private leaf two levels
+down, and server rule flips followed by no-op Commits. It checks complete local
+contents, kept paths/bytes, directory topology and unique ignored-only byte
+provenance. Only the explicitly deferred server-flip comparison and retained
+structural ancestors use the new contract's temporary exceptions. Original
+named seeds 1, 2, 31 and 130 retain their original operation envelope.
 
-All tests below are in `layerfs-store-service/tests/ignore.rs` unless specified. P1 means content
-leak, loss, missing kept content or failed Commit; P2 means stale empty namespace
-or test portability. Open cases retain failing assertions behind explicit
-`#[ignore = "design gap: ..."]`; they are not passes.
+A counting reader checks 1,000 rewrites without hints: the 16 unrelated probe
+directories are read at most once each (previously 16,000 reads). Kernel-visit
+tests exercise all five successful mutation types without LOOKUP. The real
+remote Commit fault tests and authenticated localhost upload/transport tests
+remain; post-publication recovery remains unqualified.
 
-| Severity / status | File::function and concrete scenario | Regression |
-| --- | --- | --- |
-| P1 fixed | `replay.rs::detach`: move `node_modules/x` to an already published `out/x`, then to `vendor/x`; the stale first name gave the directory two parents | `review_move_twice_from_shared_ignored_parents` |
-| P1 fixed | `classify.rs::changed`: rewrite an ignored `logs/.gitignore` without hints to `!keep.log`; kept bytes were missing from publication | `review_ignored_rule_rewrite_without_hints_reconciles` |
-| P2 fixed | `replay.rs::impose`: delete an ignored directory locally, then index-track an absent child; its stale published directory remained kept | `review_seed_1_tracking_a_locally_deleted_directory` |
-| P1 open | `project.rs::IgnoreState::project`: an unsupported index plus `target/secret` publishes the whole local tree | `review_unreadable_index_does_not_publish_ignored_bytes` |
-| P1 open | `classify.rs::Ignore::value`: rewrite a warm file with two ignored hardlinks and no complete hints; the unknown alias makes the new bytes publish | `review_ignored_hardlinks_without_complete_hints_do_not_leak` |
-| P1 open | `project.rs::rebase` / `replay.rs::replay`: server deletes `logs`, which locally also contains ignored `private.log`; installation loses that file | `review_server_delete_preserves_local_ignored_descendants` |
-| P1 open | `project.rs::rebase`: server removes `target/` from the rules during publication; local-only content becomes kept without appearing in `Q` | `review_server_rule_flip_keeps_views_equal` |
-| P2 fixed | `layerfs-remote-store/tests/transport.rs::bounded`: macOS inherits non-blocking mode from the test listener; accepted test sockets now explicitly block. Production `server.rs::serve` uses a blocking listener | Original two transport tests plus `production_style_blocking_listener_returns_blocking_sockets` |
-
-The open cases require an explicit unknown-classification policy, complete alias
-classification, and delete/rule/index conflict semantics across the two roots.
-No recovery, remount persistence, FUSE teardown or metadata batching changes are
-included in this review.
-
-## Tests and failure boundaries
-
-- The in-memory model runs seeds **0–199**, **30 steps each**, with an independent
-  path/byte oracle. It covers file writes/removals, directory creation/removal,
-  file/directory moves, root and nested `!` rules, index add/remove, and separate
-  server-head writes/removes/moves merged by the production Content merge.
-  It checks kept paths/bytes, complete local contents, unique directory parents,
-  readable references, and unique ignored-only byte tokens after every Commit.
-  Previously published bytes may move with stale ignored leftovers. Concurrent
-  edits to the same name and the four open design cases are separate regressions,
-  not included in the passing random envelope.
-- The original round-trip, matcher and index tests remain. Seeds 1, 2, 31 and 130 have
-  named tests; seed 31 also checks the oracle's handling of moved warm leftovers.
-- `layerfs-store-service/tests/ignore/faults.rs` drives the real `BoundWorkspace::commit_remote` through
-  `RemoteStore` / `RemoteBuild` faults. A definite pre-publication refusal leaves
-  `IgnoreState` unchanged and permits a new explicit Commit, preserving local
-  bytes and the projection. Known publication followed by a base-read failure
-  or rebase-output failure retains the capture and old pair; the next Commit is
-  refused `InFlight`, without another publish. Recovery to a successful next
-  Commit is **not implemented**; no stale-pair publish is allowed.
-- Real authenticated localhost transport tests reject the second upload window
-  or drop its reply after one 512-object window was acknowledged. Unreachable
-  private bytes never enter LACKING/UPLOAD, acknowledged objects remain marked
-  remote, all other local objects remain cached, and a later publish performs no
-  RPC on the quarantined channel. This also applies to definite transport-level
-  rejection; it differs from the reusable provider used by the driver unit test.
-- Local receipts, commands, check results and retained failures:
-  [ignore03](receipts/ignore03/README.md). Rust 1.98.1 on this Mac; changes use
-  Rust 1.85-compatible syntax. The remote crate's existing bundled SQLite feature
-  is selected together with Store-service tests; this Mac's system SQLite fails
-  the existing overlay version qualification. No Store profile was changed.
-- No Docker run in this review. Prior two-sandbox evidence remains in
-  [ignore01](receipts/ignore01/) and [ignore02](receipts/ignore02/); those runs do
-  not cover the adversarial cases above. No `cxi-` Docker resources were created.
+Local review evidence and commands: [ignore04](receipts/ignore04/README.md).
+Earlier failures remain in [ignore03](receipts/ignore03/README.md); historical
+Docker runs remain in [ignore01](receipts/ignore01/) and [ignore02](receipts/ignore02/).
+No Docker or remote environment was used for this round.

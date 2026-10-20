@@ -1,5 +1,6 @@
 //! Name bindings this Workspace has seen: every inode the kernel looked up and
-//! every binding a Commit added, as path hints for Commit-time path rules.
+//! every successful kernel name mutation and binding a Commit added, as path
+//! hints for Commit-time path rules. READDIRPLUS is currently unsupported.
 //! A hint is advisory: readers check it against the tree they name.
 use layerfs_content::{compare::BindingHints, filesystem::PathName, ContentResult};
 use std::{collections::HashMap, sync::Mutex};

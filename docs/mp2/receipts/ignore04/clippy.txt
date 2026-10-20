@@ -1,0 +1,23 @@
+    Checking layerfs-telemetry v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-telemetry)
+   Compiling nix v0.31.3
+    Checking layerfs-content v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-content)
+    Checking layerfs-history v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-history)
+    Checking layerfs-storage v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-storage)
+    Checking layerfs-bridge v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-bridge)
+    Checking layerfs-project v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-project)
+    Checking layerfs-overlay v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-overlay)
+    Checking layerfs-persistence v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-persistence)
+    Checking layerfs-sandbox v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-sandbox)
+    Checking layerfs-workspace v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-workspace)
+error: the `Err`-variant returned from this function is very large
+  --> crates/layerfs-workspace/src/workspace/install.rs:57:10
+   |
+57 |     ) -> Result<(), (WorkspaceError, PreparedBase)> {
+   |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the `Err`-variant is at least 336 bytes
+   |
+   = help: try reducing the size of `(workspace::state::WorkspaceError, workspace::install::PreparedBase)`, for example by boxing large elements or replacing it with `Box<(workspace::state::WorkspaceError, workspace::install::PreparedBase)>`
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#result_large_err
+   = note: `-D clippy::result-large-err` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::result_large_err)]`
+
+error: could not compile `layerfs-workspace` (lib) due to 1 previous error

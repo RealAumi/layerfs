@@ -1,0 +1,19 @@
+   Compiling layerfs-store-service v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-store-service)
+warning: method `place` is never used
+   --> crates/layerfs-store-service/src/store/ignore/classify.rs:268:8
+    |
+ 68 | impl<'r> Ignore<'r> {
+    | ------------------- method in this implementation
+...
+268 |     fn place(&mut self, serial: u64) -> ContentResult<Option<(u64, Rc<Dir>, PathName)>> {
+    |        ^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling layerfs-remote-store v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-remote-store)
+   Compiling layerfs-daemon v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-daemon)
+warning: `layerfs-store-service` (lib) generated 1 warning
+   Compiling layerfs-workspace v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-workspace)
+    Finished `test` profile [optimized + debuginfo] target(s) in 4.56s
+  Executable tests/ignore.rs (core/target/debug/deps/ignore-80bc6545bec0bfb4)
+  Executable tests/kernel_visit.rs (core/target/debug/deps/kernel_visit-d2a3616815a86c3e)

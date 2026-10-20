@@ -12,7 +12,7 @@ use layerfs_content::{
     ContentResult, DirectoryUpdate, FilesystemInput, FilesystemObjects, FinalizedConsumer,
     FinalizedObject, InodeUpdate, ObjectId,
 };
-use layerfs_store_service::store::ignore::{rebase, IgnoreState, LocalBase};
+use layerfs_store_service::store::ignore::{IgnoreState, LocalBase};
 use layerfs_telemetry::timer::Timing;
 use layerfs_workspace::PathHints;
 use std::cell::{Cell, RefCell};
@@ -417,8 +417,16 @@ impl<'m> Workspace<'m> {
             assert!(merged.clean(), "generated server changes do not conflict");
             merged.root
         };
-        let installed =
-            rebase(self.mem, &mut Sink(self.mem), [candidate, published, built]).expect("rebase");
+        self.state.published();
+        let installed = self
+            .state
+            .rebase(
+                self.mem,
+                &mut Sink(self.mem),
+                &self.hints,
+                [candidate, published, built],
+            )
+            .expect("rebase");
         self.state.base = (installed != published).then_some(LocalBase {
             local: installed.0,
             published: published.0,
@@ -807,7 +815,7 @@ fn model_apply(files: &mut BTreeMap<String, String>, ops: &[Op<'_>]) {
     }
 }
 
-fn model_seed(seed: u64) {
+fn model_seed_mode(seed: u64, server_cases: bool) {
     let mem = Mem::default();
     let mut ws = Workspace::new(&mem);
     let mut model = mem.files(ws.local());
@@ -843,76 +851,112 @@ fn model_seed(seed: u64) {
         let index_bytes;
         let from;
         let to;
-        let ops = match pick % 10 {
-            0..=3 => vec![Write(path, bytes.as_bytes())],
-            4 => {
-                if model.contains_key(path) {
-                    vec![Remove(path)]
-                } else {
-                    vec![Write(path, bytes.as_bytes())]
-                }
+        let private = format!("private={seed};step={step}");
+        let target_private = format!("target-private={seed};step={step}");
+        let ops = if server_cases && step % 6 < 4 {
+            if step % 6 == 0 {
+                vec![
+                    Write("serverbox/deep/kept", bytes.as_bytes()),
+                    Write("serverbox/deep/private.log", private.as_bytes()),
+                    Write("target/gen", target_private.as_bytes()),
+                ]
+            } else {
+                vec![]
             }
-            5 => vec![Write(".gitignore", rule.as_bytes())],
-            6 => vec![Write(
-                "logs/.gitignore",
-                if pick & 512 == 0 {
-                    b"!keep.log\n"
-                } else {
-                    b"# none\n"
-                },
-            )],
-            7 => {
-                if tracked.iter().any(|p| p == path) {
-                    tracked.retain(|p| p != path);
-                } else {
-                    tracked.push(path.into());
+        } else {
+            match pick % 10 {
+                0..=3 => vec![Write(path, bytes.as_bytes())],
+                4 => {
+                    if model.contains_key(path) {
+                        vec![Remove(path)]
+                    } else {
+                        vec![Write(path, bytes.as_bytes())]
+                    }
                 }
-                index_bytes = index(&tracked.iter().map(String::as_str).collect::<Vec<_>>());
-                vec![Write(".git/index", &index_bytes)]
-            }
-            8 => {
-                // Move files and complete directories, preserving serials.
-                let candidates: Vec<_> = model
-                    .keys()
-                    .filter(|p| {
-                        !p.starts_with('.')
-                            && !p.starts_with("src/server")
-                            && p.as_str() != "src/"
-                            && p.as_str() != "build/"
-                    })
-                    .cloned()
-                    .collect();
-                from = candidates[(pick as usize / 1024) % candidates.len()]
-                    .trim_end_matches('/')
-                    .to_owned();
-                to = format!("{}/m{step}", if pick & 512 == 0 { "out" } else { "vendor" });
-                // Moving a directory into itself is not an ordinary successful operation.
-                if to.starts_with(&format!("{from}/")) {
-                    vec![Write(path, bytes.as_bytes())]
-                } else {
-                    vec![Move(&from, &to)]
+                5 => vec![Write(".gitignore", rule.as_bytes())],
+                6 => vec![Write(
+                    "logs/.gitignore",
+                    if pick & 512 == 0 {
+                        b"!keep.log\n"
+                    } else {
+                        b"# none\n"
+                    },
+                )],
+                7 => {
+                    if tracked.iter().any(|p| p == path) {
+                        tracked.retain(|p| p != path);
+                    } else {
+                        tracked.push(path.into());
+                    }
+                    index_bytes = index(&tracked.iter().map(String::as_str).collect::<Vec<_>>());
+                    vec![Write(".git/index", &index_bytes)]
                 }
-            }
-            _ => {
-                let dirs: Vec<_> = model
-                    .keys()
-                    .filter(|p| p.ends_with('/') && !p.starts_with('.') && !p.starts_with("src/"))
-                    .cloned()
-                    .collect();
-                if dirs.is_empty() {
-                    vec![Write(path, bytes.as_bytes())]
-                } else {
-                    from = dirs[(pick as usize / 1024) % dirs.len()]
+                8 => {
+                    // Move files and complete directories, preserving serials.
+                    let candidates: Vec<_> = model
+                        .keys()
+                        .filter(|p| {
+                            !p.starts_with('.')
+                                && !p.starts_with("src/server")
+                                && (!server_cases || !p.starts_with("serverbox"))
+                                && p.as_str() != "src/"
+                                && p.as_str() != "build/"
+                        })
+                        .cloned()
+                        .collect();
+                    from = candidates[(pick as usize / 1024) % candidates.len()]
                         .trim_end_matches('/')
                         .to_owned();
-                    vec![Remove(&from)]
+                    to = format!("{}/m{step}", if pick & 512 == 0 { "out" } else { "vendor" });
+                    // Moving a directory into itself is not an ordinary successful operation.
+                    if to.starts_with(&format!("{from}/")) {
+                        vec![Write(path, bytes.as_bytes())]
+                    } else {
+                        vec![Move(&from, &to)]
+                    }
+                }
+                _ => {
+                    let dirs: Vec<_> = model
+                        .keys()
+                        .filter(|p| {
+                            p.ends_with('/')
+                                && !p.starts_with('.')
+                                && !p.starts_with("src/")
+                                && (!server_cases || !p.starts_with("serverbox"))
+                        })
+                        .cloned()
+                        .collect();
+                    if dirs.is_empty() {
+                        vec![Write(path, bytes.as_bytes())]
+                    } else {
+                        from = dirs[(pick as usize / 1024) % dirs.len()]
+                            .trim_end_matches('/')
+                            .to_owned();
+                        vec![Remove(&from)]
+                    }
                 }
             }
         };
         let server_path = format!("src/server{}", step % 3);
         let server_bytes = format!("server={seed};step={step}");
         let server_to = format!("src/server-moved-{step}");
-        let server = if pick & 64 != 0 {
+        let server_flip = if model
+            .get(".gitignore")
+            .unwrap()
+            .lines()
+            .any(|r| r == "target/")
+        {
+            b"node_modules/\nbuild/\nout/\n*.log\n".as_slice()
+        } else {
+            b"target/\nnode_modules/\nbuild/\nout/\n*.log\n".as_slice()
+        };
+        let server = if server_cases && step % 6 < 4 {
+            match step % 6 {
+                1 => vec![Remove("serverbox")],
+                2 => vec![Write(".gitignore", server_flip)],
+                _ => vec![],
+            }
+        } else if pick & 64 != 0 {
             vec![]
         } else if pick & 1024 != 0 && model.contains_key(&server_path) {
             vec![Remove(&server_path)]
@@ -923,7 +967,13 @@ fn model_seed(seed: u64) {
         };
         trace.push(format!("{step}: {ops:?}; server={server:?}"));
         model_apply(&mut model, &ops);
-        model_apply(&mut model, &server);
+        if server_cases && step % 6 == 1 {
+            // Server removed the shared name; only the private leaf and its
+            // structural ancestors survive locally under the new policy.
+            model.remove("serverbox/deep/kept");
+        } else {
+            model_apply(&mut model, &server);
+        }
         for (p, b) in &model {
             if model_kept(p, &model, &tracked) {
                 allowed.insert(b.clone());
@@ -936,11 +986,21 @@ fn model_seed(seed: u64) {
         let kept = |files: &BTreeMap<String, String>| {
             files
                 .iter()
-                .filter(|(p, _)| model_kept(p, &model, &tracked))
+                .filter(|(p, _)| {
+                    model_kept(p, &model, &tracked)
+                        && !(server_cases
+                            && step % 6 == 1
+                            && p.starts_with("serverbox/")
+                            && p.ends_with('/'))
+                })
                 .map(|(p, b)| (p.clone(), b.clone()))
                 .collect::<BTreeMap<_, _>>()
         };
-        assert_eq!(kept(&local), kept(&out), "kept seed={seed} step={step}");
+        // A server rule flip is reconciled on the next projection; step 3 is
+        // explicitly a no-op Commit. All local bytes are still checked above.
+        if !server_cases || step % 6 != 2 {
+            assert_eq!(kept(&local), kept(&out), "kept seed={seed} step={step}");
+        }
         for (p, b) in &out {
             assert!(
                 allowed.contains(b),
@@ -953,8 +1013,12 @@ fn model_seed(seed: u64) {
 #[test]
 fn review_model_200_seeds_30_steps() {
     for seed in 0..200 {
-        model_seed(seed);
+        model_seed_mode(seed, true);
     }
+}
+
+fn model_seed(seed: u64) {
+    model_seed_mode(seed, false);
 }
 
 #[test]
@@ -976,7 +1040,10 @@ fn review_server_rule_flip_keeps_views_equal() {
     let published = ws.commit(&[], &[]);
     let next_equal = has(&mem.files(published), "target/private", "local");
     assert!(has(&mem.files(ws.local()), "target/private", "local"));
-    assert!(next_equal, "after server flip={first_equal}; after next Commit={next_equal}");
+    assert!(
+        next_equal,
+        "after server flip={first_equal}; after next Commit={next_equal}"
+    );
 }
 
 #[path = "ignore/faults.rs"]

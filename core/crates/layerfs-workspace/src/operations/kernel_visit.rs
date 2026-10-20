@@ -116,6 +116,7 @@ pub struct KernelReadVisit {
 /// One kernel mutation as one owner job.
 #[derive(Clone)]
 pub struct KernelMutationVisit {
+    hints: Arc<crate::PathHints>,
     request: KernelVisitRequest,
     root: u64,
     resident: BaseView,
@@ -260,6 +261,7 @@ impl Workspace {
             return Err(ContentError::InvalidRecord("mutation reserved serial").into());
         }
         Ok(KernelMutationVisit {
+            hints: self.hints.clone(),
             request,
             root,
             resident: base.with_client(resident),
@@ -330,6 +332,7 @@ impl KernelMutationVisit {
         } = self.request;
         let mut decided = None;
         let mut published = None;
+        let mut bindings = Vec::new();
         let applied = db.mutate_kernel_visit(mount, request, serial, handle, |rows, file| {
             let source = rows.source();
             let Some(operation) = self.request.input.operation(file) else {
@@ -365,6 +368,7 @@ impl KernelMutationVisit {
                     }
                     Ok(Decided::Publish { changes, inode }) => {
                         published = Some(inode);
+                        bindings = changes.directory_entries.clone();
                         return Ok(Some((*changes, effect(&job.operation, job.serial, open))));
                     }
                     Err(WorkspaceError::Overlay(error)) => return Err(error),
@@ -380,6 +384,16 @@ impl KernelMutationVisit {
             (Err(error), _, _) => Err(error.into()),
             (Ok(Some(applied)), _, Some(inode)) => {
                 file = applied.file;
+                for entry in bindings {
+                    if let layerfs_overlay::Binding::Bound { serial, .. } = entry.binding {
+                        if let Some(name) = std::str::from_utf8(&entry.name)
+                            .ok()
+                            .and_then(|n| PathName::new(n).ok())
+                        {
+                            self.hints.record(serial, entry.parent, &name);
+                        }
+                    }
+                }
                 Ok(JobOutcome::Applied {
                     publication: applied.publication,
                     inode,

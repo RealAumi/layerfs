@@ -1,0 +1,44 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.13s
+     Running tests/ignore.rs (core/target/debug/deps/ignore-80bc6545bec0bfb4)
+
+running 35 tests
+test review_ignored_rule_rewrite_without_hints_reconciles ... ok
+test review_move_twice_from_shared_ignored_parents ... ok
+test cleans_stay_local ... ok
+test newly_tracked_paths_are_published ... ok
+test ignored_changes_stay_local ... ok
+test review_ignored_hardlinks_without_complete_hints_do_not_leak ... ok
+test directories_moved_while_ignored_leave_their_old_name_when_kept ... ok
+test moves_out_of_ignored_directories_carry_local_content ... ok
+test review_unreadable_index_does_not_publish_ignored_bytes ... ok
+test review_server_delete_preserves_local_ignored_descendants ... ok
+test review_unignore_after_local_delete_removes_stale_published_name ... ok
+test review_server_rule_flip_keeps_views_equal ... ok
+test round4::deleted_nested_rule_reconciles_a_retained_directory_absent_from_q ... ok
+test moved_heads_rebase_the_local_base ... ok
+test round4::hardlinks_beyond_hint_capacity_are_all_classified ... ok
+test round4::kept_write_below_pruned_directory_reaches_next_publication ... ok
+test round4::server_move_carries_local_only_descendants_without_pruning ... ok
+test round4::split_index_uses_patterns_and_reports_unreadable ... ok
+test round4::server_delete_prunes_two_levels_but_preserves_local_only_file ... ok
+test round4::pending_flips_survive_projection_failure_and_unacknowledged_publish ... ok
+test round4::server_rebind_prunes_old_directory_with_local_only_names ... ok
+test tracked_files_in_ignored_directories ... ok
+test trees_without_ignored_changes_publish_as_built ... ok
+test rule_changes_publish_what_they_unignore ... ok
+test round4::unreadable_index_withholds_tracked_ignored_edits_until_readable ... ok
+test round4::server_nested_rules_exclude_and_index_flip_on_next_noop_commit ... ok
+test review_seed_130_moved_nested_negation ... ok
+test review_seed_1_tracking_a_locally_deleted_directory ... ok
+test review_seed_2_disjoint_server_changes ... ok
+test faults::published_install_read_failure_retains_custody_and_refuses_next_commit ... ok
+test review_seed_31_moved_directory_ignored_values ... ok
+test faults::definite_upload_refusal_preserves_the_next_explicit_commit ... ok
+test faults::published_rebase_write_failure_retains_custody_and_refuses_next_commit ... ok
+PLACEMENT_PROBE_READS=16 files=1000 probe_directories=16
+test round4::missing_hints_for_1000_rewrites_list_probe_directories_once ... ok
+test review_model_200_seeds_30_steps ... ok
+
+test result: ok. 35 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.14s
+
+End of captured output.

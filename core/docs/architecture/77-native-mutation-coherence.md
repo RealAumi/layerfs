@@ -390,3 +390,13 @@ the first backward request boundary far from the actual edit. The external
 uses the exact benchmark fixture and request pattern, verifies every committed
 byte and asserts that original chunks away from the edit remain named. This
 source description is separate from the [issue 319 measurements](../issues/319/PROGRESS.md).
+
+### Advisory Commit path hints (mp2 ignore prototype)
+
+Successful kernel name mutations (create, mkdir, symlink, link and rename)
+record their published bindings in the Workspace's `PathHints`. The recording
+follows successful overlay publication, before returning the mutation outcome;
+refused or failed mutations record nothing. These hints are checked against the
+Commit's immutable tree and confer no namespace authority. READDIRPLUS remains
+unsupported. See [ignore projection](../../../docs/mp2/ignore.md) for the bounded
+single-walk fallback and hardlink classification.

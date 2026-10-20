@@ -86,17 +86,22 @@ impl BoundWorkspace {
                         .unwrap_or_default(),
                 })
                 .map_err(CommitError::Remote)?;
+            if remote.ignore && receipt.published.is_some() {
+                self.ignore_state()?.published();
+            }
             retained.saved = receipt.saved;
             retained.published = receipt.published;
             retained.intent = receipt.intent;
             retained.phase = CommitPhase::Install;
             let installed = if remote.ignore {
-                super::ignore::rebase(
-                    objects.reader(),
-                    &mut Sink(objects.as_ref()),
-                    [candidate, published.root, root],
-                )
-                .map_err(remote_failure)?
+                self.ignore_state()?
+                    .rebase(
+                        objects.reader(),
+                        &mut Sink(objects.as_ref()),
+                        self.workspace.hints(),
+                        [candidate, published.root, root],
+                    )
+                    .map_err(remote_failure)?
             } else {
                 published.root
             };

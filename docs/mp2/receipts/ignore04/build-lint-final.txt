@@ -1,0 +1,3 @@
+   Compiling layerfs-store-service v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-store-service)
+    Finished `test` profile [optimized + debuginfo] target(s) in 1.53s
+  Executable tests/ignore.rs (core/target/debug/deps/ignore-80bc6545bec0bfb4)

@@ -11,18 +11,18 @@
 use super::index::Tracked;
 use super::replay::{Keep, Seed};
 use super::rules::{Rules, Stack};
-use layerfs_content::compare::{locate, BindingHints, TreeTable};
+use layerfs_content::compare::{list_directory, BindingHints, TreeTable};
 use layerfs_content::filesystem::PathName;
 use layerfs_content::inode_leaf::InodeKind;
 use layerfs_content::{read_all_bounded, AuthenticatedObjects, ContentResult, ObjectId};
 use layerfs_telemetry::timer::Timing;
-use std::collections::{BTreeSet, HashMap};
+use std::collections::{BTreeSet, HashMap, VecDeque};
 use std::rc::Rc;
 use std::sync::Arc;
 
 /// Rule files larger than this are read as empty.
 const RULE_BYTES: u64 = 1 << 20;
-/// Directories a fallback walk may list to place one inode.
+/// Directories the single fallback placement walk may list.
 const WALK: usize = 1 << 20;
 /// Bindings one climb follows before it falls back to the walk.
 const DEPTH: usize = 4096;
@@ -53,6 +53,8 @@ pub struct Ignore<'r> {
     newly: Vec<String>,
     /// Directories whose rules changed; the root for `.git/info/exclude`.
     rules: BTreeSet<u64>,
+    walked: bool,
+    pub seeds: Vec<Seed>,
 }
 
 fn join(path: &str, name: &PathName) -> String {
@@ -82,7 +84,24 @@ impl<'r> Ignore<'r> {
             ignored: 0,
             newly,
             rules: BTreeSet::new(),
+            walked: false,
+            seeds: Vec::new(),
         }
+    }
+
+    /// Raw directory identities survive until the next projection's tree is known.
+    pub(super) fn take_flips(&mut self) -> Vec<Seed> {
+        let mut seeds: Vec<Seed> = std::mem::take(&mut self.newly)
+            .into_iter()
+            .map(Seed::Path)
+            .collect();
+        seeds.append(&mut self.seeds);
+        seeds.extend(
+            std::mem::take(&mut self.rules)
+                .into_iter()
+                .map(Seed::Directory),
+        );
+        seeds
     }
 
     /// Notes `name` in `parent` if it is a rule file.
@@ -189,6 +208,9 @@ impl<'r> Ignore<'r> {
 
     /// The checked bindings of `serial`: learned this replay, then hinted.
     fn bindings(&self, serial: u64) -> ContentResult<Vec<(u64, PathName)>> {
+        if self.walked {
+            return Ok(self.learned.get(&serial).cloned().unwrap_or_default());
+        }
         let mut seen = BTreeSet::new();
         let mut checked = Vec::new();
         let learned = self.learned.get(&serial).cloned().unwrap_or_default();
@@ -234,53 +256,85 @@ impl<'r> Ignore<'r> {
         Ok(Some(dir))
     }
 
-    /// Places `serial` by a breadth-first walk; its parent and name.
-    fn place(&mut self, serial: u64) -> ContentResult<Option<(u64, Rc<Dir>, PathName)>> {
-        let wanted = BTreeSet::from([serial]);
-        let Some(path) = locate(self.reader, &self.tree, &wanted, WALK)?.remove(&serial) else {
-            return Ok(None);
-        };
-        let mut parts = path.trim_start_matches('/').split('/').collect::<Vec<_>>();
-        let Some(last) = parts.pop().filter(|last| !last.is_empty()) else {
-            return Ok(None);
-        };
-        let mut current = self.tree.root_serial();
-        let mut dir = match self.dirs.get(&current).cloned().flatten() {
-            Some(dir) => dir,
-            None => self.root()?,
-        };
-        self.dirs.insert(current, Some(dir.clone()));
-        for part in parts {
-            let name = PathName::new(part)?;
-            let Some(child) = self.tree.lookup(self.reader, current, &name)? else {
-                return Ok(None);
-            };
-            dir = match self.dirs.get(&child).cloned().flatten() {
-                Some(known) => known,
-                None => self.descend(&dir, &name, child)?,
-            };
-            self.dirs.insert(child, Some(dir.clone()));
-            current = child;
+    /// At most one complete, bounded placement walk per projection. Every
+    /// alias is recorded, including names not touched by this Commit.
+    fn walk(&mut self) -> ContentResult<()> {
+        if self.walked {
+            return Ok(());
         }
-        Ok(Some((current, dir, PathName::new(last)?)))
+        let mut queue = VecDeque::from([self.tree.root_serial()]);
+        self.learned.clear();
+        for _ in 0..WALK {
+            let Some(parent) = queue.pop_front() else {
+                break;
+            };
+            let value = self.tree.value(self.reader, parent)?.expect("directory");
+            let mut children = Vec::new();
+            list_directory(self.reader, value.content_root, |name, child| {
+                children.push((name.clone(), child));
+                Ok(true)
+            })?;
+            let serials: Vec<_> = children.iter().map(|(_, child)| *child).collect();
+            let values = self.tree.values(self.reader, &serials)?;
+            for ((name, child), value) in children.into_iter().zip(values) {
+                self.learn(parent, &name, child);
+                if value.is_some_and(|v| v.kind == InodeKind::Directory) {
+                    queue.push_back(child);
+                }
+            }
+        }
+        self.walked = true;
+        Ok(())
+    }
+
+    fn complete_bindings(
+        &mut self,
+        serial: u64,
+        count: u64,
+    ) -> ContentResult<Vec<(u64, PathName)>> {
+        let bindings = self.bindings(serial)?;
+        if bindings.len() as u64 >= count {
+            return Ok(bindings);
+        }
+        self.walk()?;
+        self.bindings(serial)
     }
 
     fn walk_to(&mut self, serial: u64) -> ContentResult<Option<Rc<Dir>>> {
-        let placed = match self.place(serial)? {
-            Some((_, parent, name)) => Some(self.descend(&parent, &name, serial)?),
-            None => None,
+        self.walk()?;
+        let mut chain = Vec::new();
+        let mut current = serial;
+        let mut dir = loop {
+            if let Some(Some(dir)) = self.dirs.get(&current) {
+                break dir.clone();
+            }
+            if current == self.tree.root_serial() {
+                break self.root()?;
+            }
+            let Some((parent, name)) = self.bindings(current)?.into_iter().next() else {
+                return Ok(None);
+            };
+            if chain.len() == WALK {
+                return Ok(None);
+            }
+            chain.push((current, name));
+            current = parent;
         };
-        self.dirs.insert(serial, placed.clone());
-        Ok(placed)
+        for (child, name) in chain.into_iter().rev() {
+            dir = self.descend(&dir, &name, child)?;
+            self.dirs.insert(child, Some(dir.clone()));
+        }
+        self.dirs.insert(serial, Some(dir.clone()));
+        Ok(Some(dir))
     }
 }
 
 impl Keep for Ignore<'_> {
     fn learn(&mut self, parent: u64, name: &PathName, child: u64) {
-        self.learned
-            .entry(child)
-            .or_default()
-            .push((parent, name.clone()));
+        let known = self.learned.entry(child).or_default();
+        if !known.iter().any(|(p, n)| *p == parent && n == name) {
+            known.push((parent, name.clone()));
+        }
     }
 
     fn binding(&mut self, parent: u64, name: &PathName, directory: bool) -> ContentResult<bool> {
@@ -301,7 +355,7 @@ impl Keep for Ignore<'_> {
             return Ok(true);
         };
         let mut named = 0u64;
-        for (parent, name) in self.bindings(serial)? {
+        for (parent, name) in self.complete_bindings(serial, value.namespace_ref_count.max(1))? {
             named += 1;
             self.note(parent, &name)?;
             let Some(dir) = self.dir(parent)? else {
@@ -310,15 +364,6 @@ impl Keep for Ignore<'_> {
             };
             if !self.ignores(&dir, &name, false) {
                 return Ok(true);
-            }
-        }
-        if named == 0 {
-            if let Some((parent, dir, name)) = self.place(serial)? {
-                named = 1;
-                self.note(parent, &name)?;
-                if !self.ignores(&dir, &name, false) {
-                    return Ok(true);
-                }
             }
         }
         if named < value.namespace_ref_count.max(1) {
@@ -332,16 +377,12 @@ impl Keep for Ignore<'_> {
     /// Notes a changed rule file by the names it was seen under; a change
     /// to an ignored one counts too, as Git reads it all the same.
     fn changed(&mut self, serial: u64) -> ContentResult<()> {
-        let bindings = self.bindings(serial)?;
-        if bindings.is_empty() {
-            if let Some((parent, _, name)) = self.place(serial)? {
-                self.note(parent, &name)?;
-                self.learn(parent, &name, serial);
-            }
-        } else {
-            for (parent, name) in bindings {
-                self.note(parent, &name)?;
-            }
+        let count = self
+            .tree
+            .value(self.reader, serial)?
+            .map_or(0, |v| v.namespace_ref_count);
+        for (parent, name) in self.complete_bindings(serial, count)? {
+            self.note(parent, &name)?;
         }
         Ok(())
     }
@@ -351,15 +392,16 @@ impl Keep for Ignore<'_> {
     }
 
     fn flipped(&mut self) -> ContentResult<Vec<Seed>> {
-        let mut seeds: Vec<Seed> = std::mem::take(&mut self.newly)
-            .into_iter()
-            .map(Seed::Path)
-            .collect();
-        seeds.extend(
-            std::mem::take(&mut self.rules)
-                .into_iter()
-                .map(Seed::Directory),
-        );
+        let mut seeds = self.take_flips();
+        for seed in &mut seeds {
+            if let Seed::Directory(serial) = seed {
+                if *serial != self.tree.root_serial() {
+                    if let Some(dir) = self.dir(*serial)? {
+                        *seed = Seed::Path(dir.path.clone());
+                    }
+                }
+            }
+        }
         Ok(seeds)
     }
 }
@@ -369,16 +411,25 @@ pub fn index_root(
     reader: &dyn AuthenticatedObjects,
     tree: &TreeTable,
 ) -> ContentResult<Option<ObjectId>> {
-    let Some(git) = tree.lookup(reader, tree.root_serial(), &PathName::new(".git")?)? else {
-        return Ok(None);
-    };
-    let Some(index) = tree.lookup(reader, git, &PathName::new("index")?)? else {
-        return Ok(None);
-    };
+    file_root(reader, tree, &[".git", "index"])
+}
+
+pub(super) fn file_root(
+    reader: &dyn AuthenticatedObjects,
+    tree: &TreeTable,
+    path: &[&str],
+) -> ContentResult<Option<ObjectId>> {
+    let mut serial = tree.root_serial();
+    for name in path {
+        let Some(child) = tree.lookup(reader, serial, &PathName::new(name)?)? else {
+            return Ok(None);
+        };
+        serial = child;
+    }
     Ok(tree
-        .value(reader, index)?
-        .filter(|value| value.kind == InodeKind::RegularFile)
-        .map(|value| value.content_root))
+        .value(reader, serial)?
+        .filter(|v| v.kind == InodeKind::RegularFile)
+        .map(|v| v.content_root))
 }
 
 /// A whole file's bytes, or `None` when it is longer than `maximum`.

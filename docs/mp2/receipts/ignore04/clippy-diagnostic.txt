@@ -1,0 +1,32 @@
+    Checking layerfs-telemetry v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-telemetry)
+    Checking layerfs-sandbox v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-sandbox)
+    Checking layerfs-overlay v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-overlay)
+    Checking layerfs-content v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-content)
+    Checking layerfs-history v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-history)
+    Checking layerfs-storage v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-storage)
+    Checking layerfs-workspace v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-workspace)
+    Checking layerfs-bridge v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-bridge)
+    Checking layerfs-persistence v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-persistence)
+    Checking layerfs-project v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-project)
+    Checking layerfs-store-service v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-store-service)
+    Checking layerfs-fuse v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-fuse)
+    Checking layerfs-remote-store v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-remote-store)
+    Checking layerfs-api v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-api)
+error: called `Iterator::last` on a `DoubleEndedIterator`; this will needlessly iterate the entire iterator
+   --> crates/layerfs-store-service/tests/ignore/round4.rs:297:41
+    |
+297 |             .record(file, parent, &name(path.split('/').last().unwrap()));
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#double_ended_iterator_last
+    = note: `-D clippy::double-ended-iterator-last` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::double_ended_iterator_last)]`
+help: try
+    |
+297 -             .record(file, parent, &name(path.split('/').last().unwrap()));
+297 +             .record(file, parent, &name(path.split('/').next_back().unwrap()));
+    |
+
+    Checking layerfs-daemon v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-daemon)
+error: could not compile `layerfs-store-service` (test "ignore") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

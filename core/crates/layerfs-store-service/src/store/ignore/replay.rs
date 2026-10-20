@@ -41,6 +41,12 @@ pub trait Keep {
     fn changed(&mut self, _serial: u64) -> ContentResult<()> {
         Ok(())
     }
+    /// Server-side removals prune shared names while retaining local-only names.
+    fn preserve_local(&self) -> bool {
+        false
+    }
+    /// A pruned directory retained local-only names and needs future projection.
+    fn retained(&mut self, _serial: u64) {}
     /// Whether `to` may keep, below inodes both roots hold, names and values
     /// `onto` lacks: adopted inodes are then reconciled.
     fn diverges(&self) -> bool {
@@ -65,6 +71,9 @@ pub enum Seed {
 /// Carries every change.
 pub struct All;
 impl Keep for All {
+    fn preserve_local(&self) -> bool {
+        true
+    }
     fn learn(&mut self, _: u64, _: &PathName, _: u64) {}
     fn binding(&mut self, _: u64, _: &PathName, _: bool) -> ContentResult<bool> {
         Ok(true)
@@ -124,7 +133,7 @@ pub fn replay(
         brought: 0,
         skipped: 0,
     };
-    if from == to {
+    if from == to && !keep.diverges() {
         return Ok(unchanged);
     }
     let before = TreeTable::open(reader, from)?;
@@ -214,6 +223,17 @@ pub fn replay(
         {
             replay.skipped += 1;
             continue;
+        }
+        if replay.keep.preserve_local() {
+            if let Some(old) = old {
+                if replay.is_directory(old)?
+                    && replay.after.value(reader, old)?.is_none()
+                    && replay.prune(&before, old)?
+                {
+                    replay.keep.retained(old);
+                    continue;
+                }
+            }
         }
         replay.place(parent, name, new)?;
     }
@@ -462,6 +482,50 @@ impl Replay<'_> {
                 }
             }
         }
+    }
+
+    /// Postorder pruning of names shared with the published candidate. A
+    /// retained child keeps its ancestors; a moved serial is detached here
+    /// without pruning, then adopted at its new name by the ordinary replay.
+    fn prune(&mut self, before: &TreeTable, root: u64) -> ContentResult<bool> {
+        let mut pending = vec![(root, false)];
+        let mut remains = BTreeMap::new();
+        while let Some((serial, visited)) = pending.pop() {
+            let value = self.target.value(self.reader, serial)?.expect("directory");
+            let mut names = Vec::new();
+            list_directory(self.reader, value.content_root, |name, child| {
+                names.push((name.clone(), child));
+                Ok(true)
+            })?;
+            if !visited {
+                pending.push((serial, true));
+            }
+            let mut kept = false;
+            for (name, child) in names {
+                if before.lookup(self.reader, serial, &name)? != Some(child) {
+                    kept = true;
+                    continue;
+                }
+                let directory = self.is_directory(child)?;
+                let descend = directory && self.after.value(self.reader, child)?.is_none();
+                if !visited {
+                    if descend {
+                        pending.push((child, false));
+                    }
+                    continue;
+                }
+                if descend && remains[&child] {
+                    kept = true;
+                } else {
+                    self.keep.binding(serial, &name, directory)?;
+                    self.bind(serial, name, None);
+                }
+            }
+            if visited {
+                remains.insert(serial, kept);
+            }
+        }
+        Ok(remains[&root])
     }
 
     /// Unbinds adopted inodes where `onto` still binds them: at the old

@@ -1,0 +1,9 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.14s
+     Running tests/ignore.rs (core/target/debug/deps/ignore-80bc6545bec0bfb4)
+
+running 1 test
+test round4::hardlinks_beyond_hint_capacity_are_all_classified ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 34 filtered out; finished in 0.00s
+
+End of captured output.

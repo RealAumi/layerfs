@@ -1,10 +1,10 @@
 //! One remote Commit with Git-ignored names kept local: the root it publishes
 //! and the local base it installs.
-use super::classify::{index_root, read_file, Ignore};
+use super::classify::{file_root, index_root, read_file, Ignore};
 use super::index::{self, Tracked};
-use super::replay::{replay, All};
+use super::replay::{replay, All, Keep, Seed};
 use layerfs_content::compare::TreeTable;
-use layerfs_content::filesystem::FilesystemRootId;
+use layerfs_content::filesystem::{FilesystemRootId, PathName};
 use layerfs_content::{AuthenticatedObjects, ContentResult, FinalizedConsumer, ObjectId};
 use layerfs_workspace::PathHints;
 use std::sync::Arc;
@@ -13,7 +13,7 @@ use std::sync::Arc;
 const INDEX_BYTES: u64 = 256 << 20;
 
 /// A local base that is not the published root: the Workspace's tree, and the
-/// published root its kept names equal.
+/// published root it projects onto (pending flips reconcile on the next Commit).
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct LocalBase {
     pub local: ObjectId,
@@ -33,16 +33,17 @@ pub struct Projection {
     pub unplaced: u64,
     /// Paths the index tracks.
     pub tracked: usize,
-    /// The index could not be read, so nothing was left out.
+    /// The index could not be read; only patterns determine what is kept.
     pub unreadable_index: bool,
 }
 
-/// Per-Workspace state: the local base, and the last two indexes read.
+/// Per-Workspace state: local base, pending flips, and the last two indexes read.
 #[derive(Debug, Default)]
 pub struct IgnoreState {
     pub base: Option<LocalBase>,
     index: Vec<(ObjectId, Arc<Tracked>)>,
     pub last: Option<Projection>,
+    pending: Vec<Seed>,
 }
 
 impl IgnoreState {
@@ -82,21 +83,15 @@ impl IgnoreState {
         [published, local, built]: [FilesystemRootId; 3],
     ) -> ContentResult<FilesystemRootId> {
         let tree = TreeTable::open(reader, built)?;
-        let Some(tracked) = self.tracked(reader, &tree)? else {
-            // Never withhold a change on a guess: publish the whole tree.
-            self.last = Some(Projection {
-                unreadable_index: true,
-                ..Projection::default()
-            });
-            return Ok(built);
-        };
-        // A previous index that could not be read published its whole tree,
-        // so nothing it tracked can have been left out.
-        let newly = match self.tracked(reader, &TreeTable::open(reader, local)?)? {
-            Some(before) => tracked.added(&before),
-            None => Vec::new(),
-        };
+        let tracked = self.tracked(reader, &tree)?;
+        let unreadable_index = tracked.is_none();
+        let tracked = tracked.unwrap_or_default();
+        let before = self
+            .tracked(reader, &TreeTable::open(reader, local)?)?
+            .unwrap_or_default();
+        let newly = tracked.added(&before);
         let mut keep = Ignore::new(reader, tree, hints, tracked.clone(), newly);
+        keep.seeds = self.pending.clone();
         let replayed = replay(reader, consumer, [local, built, published], &mut keep)?;
         for (child, bindings) in &keep.learned {
             for (parent, name) in bindings {
@@ -109,14 +104,47 @@ impl IgnoreState {
             conflicting: replayed.skipped.saturating_sub(keep.ignored),
             unplaced: keep.unplaced,
             tracked: tracked.len(),
-            unreadable_index: false,
+            unreadable_index,
         });
         // Nothing left out of a tree with no local-only names: the built tree
         // is the published one, and no local base forms.
-        if replayed.skipped == 0 && local == published {
+        if replayed.skipped == 0 && local == published && self.pending.is_empty() {
             return Ok(built);
         }
         Ok(replayed.root)
+    }
+
+    /// A known publication acknowledges the pending seeds consumed by project.
+    /// Failed or uncertain publication must never call this method.
+    pub fn published(&mut self) {
+        self.pending.clear();
+    }
+
+    /// Rebase after publication, remembering server rule/index flips for the
+    /// next projection. Until then the local kept view may be ahead of Q.
+    pub fn rebase(
+        &mut self,
+        reader: &dyn AuthenticatedObjects,
+        consumer: &mut dyn FinalizedConsumer,
+        hints: &PathHints,
+        [candidate, published, built]: [FilesystemRootId; 3],
+    ) -> ContentResult<FilesystemRootId> {
+        if candidate == published {
+            return Ok(built);
+        }
+        let before = TreeTable::open(reader, candidate)?;
+        let after = TreeTable::open(reader, published)?;
+        let tracked = self.tracked(reader, &after)?.unwrap_or_default();
+        let previous = self.tracked(reader, &before)?.unwrap_or_default();
+        let newly = tracked.added(&previous);
+        let mut keep = ServerChanges(Ignore::new(reader, after, hints, tracked, newly));
+        let exclude = &[".git", "info", "exclude"];
+        if file_root(reader, &before, exclude)? != file_root(reader, &after, exclude)? {
+            keep.0.seeds.push(Seed::Directory(after.root_serial()));
+        }
+        let result = replay(reader, consumer, [candidate, published, built], &mut keep)?.root;
+        self.pending.extend(keep.0.take_flips());
+        Ok(result)
     }
 }
 
@@ -132,4 +160,28 @@ pub fn rebase(
         return Ok(built);
     }
     Ok(replay(reader, consumer, [candidate, published, built], &mut All)?.root)
+}
+
+/// Classify only to observe flips; carry all server changes in this replay.
+struct ServerChanges<'a>(Ignore<'a>);
+impl Keep for ServerChanges<'_> {
+    fn learn(&mut self, parent: u64, name: &PathName, child: u64) {
+        self.0.learn(parent, name, child);
+    }
+    fn binding(&mut self, parent: u64, name: &PathName, directory: bool) -> ContentResult<bool> {
+        self.0.binding(parent, name, directory)?;
+        Ok(true)
+    }
+    fn changed(&mut self, serial: u64) -> ContentResult<()> {
+        self.0.changed(serial)
+    }
+    fn value(&mut self, _: u64) -> ContentResult<bool> {
+        Ok(true)
+    }
+    fn preserve_local(&self) -> bool {
+        true
+    }
+    fn retained(&mut self, serial: u64) {
+        self.0.seeds.push(Seed::Directory(serial));
+    }
 }
