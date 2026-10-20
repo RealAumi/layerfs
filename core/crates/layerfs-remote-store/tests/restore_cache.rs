@@ -10,30 +10,39 @@ use layerfs_content::{
     ConstructionPolicy, ContentResult, FinalizedConsumer, FinalizedObject, ObjectId,
 };
 use layerfs_history::{BranchId, BranchRecord, BranchSnapshot, HistoryName, LayerId, LayerStackId};
-use layerfs_remote_store::{config::hex, Client, Config};
+use layerfs_remote_store::{
+    config::hex,
+    wire::{self, Decode, Encode},
+    Client, Config,
+};
 use layerfs_store_service::store::{
     ignore::{RestorePoint, Seed},
     RemoteBuild, RemoteStore,
 };
 use layerfs_telemetry::timer::Timing;
 use std::{
+    collections::BTreeSet,
     fs,
-    net::TcpListener,
+    net::{Shutdown, TcpListener, TcpStream},
     os::unix::fs::PermissionsExt,
     path::Path,
-    sync::{mpsc, Arc},
+    sync::{mpsc, Arc, Mutex},
     thread,
     time::{Duration, Instant},
 };
 
 struct Peer {
     client: Arc<Client>,
-    stop: mpsc::Sender<()>,
+    stop: Vec<TcpStream>,
+    known: Arc<Mutex<BTreeSet<ObjectId>>>,
+    requests: Arc<Mutex<Vec<Vec<ObjectId>>>>,
     worker: Option<thread::JoinHandle<()>>,
 }
 impl Drop for Peer {
     fn drop(&mut self) {
-        let _ = self.stop.send(());
+        for socket in &self.stop {
+            let _ = socket.shutdown(Shutdown::Both);
+        }
         if let Some(worker) = self.worker.take() {
             worker.join().unwrap();
         }
@@ -57,10 +66,15 @@ fn connect(dir: &Path, n: usize) -> Peer {
     )
     .unwrap();
     fs::set_permissions(&setup, fs::Permissions::from_mode(0o600)).unwrap();
-    let (stop, rx) = mpsc::channel();
+    let (tx, rx) = mpsc::channel();
+    let known = Arc::new(Mutex::new(BTreeSet::new()));
+    let server_known = known.clone();
+    let requests = Arc::new(Mutex::new(Vec::new()));
+    let server_requests = requests.clone();
     let worker = thread::spawn(move || {
         let deadline = Instant::now() + Duration::from_secs(5);
         let mut channels = Vec::new();
+        let mut shutdown = Vec::new();
         while channels.len() != 2 {
             match listener.accept() {
                 Ok((socket, _)) => {
@@ -71,6 +85,7 @@ fn connect(dir: &Path, n: usize) -> Peer {
                     socket
                         .set_write_timeout(Some(Duration::from_secs(3)))
                         .unwrap();
+                    shutdown.push(socket.try_clone().unwrap());
                     channels.push(duplex::accept(socket, &server.private, token.public).unwrap());
                 }
                 Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {
@@ -80,11 +95,28 @@ fn connect(dir: &Path, n: usize) -> Peer {
                 Err(e) => panic!("{e}"),
             }
         }
-        let _ = rx.recv_timeout(Duration::from_secs(30));
+        tx.send(shutdown).unwrap();
+        while let Ok(bytes) = wire::receive(&mut channels[0]) {
+            let mut input = Decode(&bytes);
+            let request = input.number().unwrap();
+            assert_eq!(input.byte().unwrap(), wire::LACKING);
+            let ids = wire::ids(&mut input).unwrap();
+            input.finish().unwrap();
+            server_requests.lock().unwrap().push(ids.clone());
+            let mut out = Encode::new();
+            out.number(request);
+            out.byte(0);
+            for id in ids {
+                out.byte(u8::from(!server_known.lock().unwrap().contains(&id)));
+            }
+            wire::send(&mut channels[0], &out.0).unwrap();
+        }
     });
     Peer {
         client: Client::connect(&Config::read(&setup).unwrap()).unwrap(),
-        stop,
+        stop: rx.recv_timeout(Duration::from_secs(5)).unwrap(),
+        known,
+        requests,
         worker: Some(worker),
     }
 }
@@ -284,6 +316,7 @@ fn remote_objects_are_not_required_in_manifest_and_corruption_has_reason() {
     let peer = connect(&dir, 1);
     let (point, leaf) = point(&peer.client, 41);
     let db = rusqlite::Connection::open(dir.join("cache.sqlite")).unwrap();
+    peer.known.lock().unwrap().insert(leaf);
     db.execute(
         "UPDATE objects SET remote=1 WHERE id=?",
         [leaf.as_bytes().as_slice()],
@@ -395,4 +428,28 @@ fn cache_uses_a_process_crash_safe_journal() {
     drop(peer);
     fs::remove_dir_all(dir).unwrap();
     assert_eq!(mode, "wal");
+}
+#[test]
+fn absent_local_references_are_resolved_in_one_batch() {
+    let dir = temp("absence-batch");
+    let peer = connect(&dir, 1);
+    let (point, _) = point(&peer.client, 61);
+    peer.client.save_restore("key", &point).unwrap();
+    let db = rusqlite::Connection::open(dir.join("cache.sqlite")).unwrap();
+    let removed = db
+        .execute("DELETE FROM objects WHERE remote=0 AND role IN (1,2,7)", [])
+        .unwrap();
+    assert!(removed >= 2);
+    assert!(peer
+        .client
+        .restore(&point.binding, "key")
+        .unwrap()
+        .is_none());
+    assert_eq!(peer.client.restore_status(), "missing-local-objects");
+    let queries = peer.requests.lock().unwrap().clone();
+    assert_eq!(queries.len(), 1);
+    assert_eq!(queries[0].len(), removed);
+    drop(db);
+    drop(peer);
+    fs::remove_dir_all(dir).unwrap();
 }

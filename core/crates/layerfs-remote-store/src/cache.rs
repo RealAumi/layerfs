@@ -10,6 +10,7 @@ impl Cache {
         let db = Connection::open(path).map_err(error)?;
         db.execute_batch("PRAGMA journal_mode=MEMORY; PRAGMA synchronous=OFF; PRAGMA mmap_size=0; PRAGMA cache_size=-2048;
             CREATE TABLE IF NOT EXISTS objects(id BLOB PRIMARY KEY, body BLOB NOT NULL, role INTEGER, remote INTEGER NOT NULL DEFAULT 1);
+            CREATE INDEX IF NOT EXISTS object_presence ON objects(id,remote,role);
             CREATE TABLE IF NOT EXISTS lengths(id BLOB PRIMARY KEY, value INTEGER NOT NULL);
             CREATE TABLE IF NOT EXISTS restore_points(scope BLOB, branch BLOB, key TEXT, body BLOB NOT NULL, PRIMARY KEY(scope,branch,key));").map_err(error)?;
         Ok(Self(Mutex::new(db)))
@@ -183,6 +184,19 @@ impl Cache {
             )
             .map_err(error)?;
         Ok(())
+    }
+    /// Covering index lookup: do not pull payload overflow pages into memory.
+    pub fn presence(&self, id: ObjectId) -> Result<Option<(bool, Option<u8>)>> {
+        self.0
+            .lock()
+            .map_err(error)?
+            .query_row(
+                "SELECT remote,role FROM objects INDEXED BY object_presence WHERE id=?",
+                [id.as_bytes().as_slice()],
+                |r| Ok((r.get(0)?, r.get(1)?)),
+            )
+            .optional()
+            .map_err(error)
     }
     /// A local object's role and bytes; `None` for one the Store has or
     /// this cache never held.

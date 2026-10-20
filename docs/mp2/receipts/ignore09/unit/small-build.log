@@ -1,0 +1,23 @@
+   Compiling layerfs-store-service v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-store-service)
+   Compiling layerfs-remote-store v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-remote-store)
+   Compiling layerfs-api v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-api)
+error[E0308]: mismatched types
+   --> crates/layerfs-remote-store/src/restore.rs:91:29
+    |
+ 85 |                         FinalizedObject::admit(
+    |                         ---------------------- arguments to this function are incorrect
+...
+ 91 |                             t,
+    |                             ^ expected `TimingScope<'_>`, found `&TimingScope<'_, Active>`
+    |
+    = note: expected struct `TimingScope<'_, layerfs_telemetry::timer::Pending>`
+            found reference `&TimingScope<'_, Active>`
+note: associated function defined here
+   --> crates/layerfs-content/src/object/output.rs:121:12
+    |
+121 |     pub fn admit(
+    |            ^^^^^
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `layerfs-remote-store` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

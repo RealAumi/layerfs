@@ -151,7 +151,15 @@ impl RemoteStore for Client {
         key: &str,
         point: &layerfs_store_service::store::ignore::RestorePoint,
     ) -> Result<()> {
-        self.keep_restore(key, point)
+        let result = self.keep_restore(key, point);
+        if result.is_err() {
+            *self
+                .0
+                .restore_status
+                .lock()
+                .unwrap_or_else(|e| e.into_inner()) = "save-failed";
+        }
+        result
     }
     fn policy(&self) -> StoragePolicy {
         StoragePolicy::frozen_default()

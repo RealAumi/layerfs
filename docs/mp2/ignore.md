@@ -114,21 +114,29 @@ head that moved while down. Pending rule flips reconcile on that next projection
 even for a no-op Commit. The table uses `CREATE TABLE IF NOT EXISTS`; existing
 cache files require no migration or version bump. Hints/index caches rebuild.
 
-A manifest captures all reachable local-only object IDs using the upload closure
-walk. Before selecting `L`, creation checks each object's presence and canonical
-identity directly in SQLite. This detects a missing leaf or `L`, without a server
-round trip. Server-known subtrees are omitted and remain demand fetchable.
+Each Commit writes only that small record: no local-tree walk or manifest rewrite.
+Creation walks from `L` once. A covering SQLite index answers presence/role queries;
+file-content leaves, symlinks and directory leaves need no body read because they
+have no references. Reference-bearing local metadata is read and authenticated.
+Server-known subtrees stop the walk. Absent IDs are resolved in a single batched
+LACKING phase (4096-ID protocol windows); any server-missing ID rejects the record.
+Remote objects remain demand fetchable. Payload authenticity is checked on demand,
+not by reading all ignored bytes at restore. Old manifest-bearing records remain
+readable, but their manifest suffix is ignored in favor of the current graph.
 `operator.remote.stats.restore` reports the latest keyed creation decision:
 `restored`, `not-found`, `missing-local-objects`, `invalid-local-objects`, or
-`invalid-record`; before any keyed request it is `not-requested`. Missing/invalid
+`invalid-record`, or `validation-unavailable`; before any keyed request it is
+`not-requested`. A failed record write reports `save-failed` and keeps the
+previous record while the installed Commit remains successful and usable. Missing/invalid
 records fall back to the current published head with empty ignore state: no
 rejected seeds survive. Errors reading the record itself still return their original database error.
 
 Only the last successful Commit is restored. Later edits and the overlay are
 not recovered. Restart supplies fresh disposable overlay and mount paths while
 retaining the cache; the existing `AlreadyExists` refusals are unchanged.
-A failed post-install record write uses existing Commit failure custody and
-leaves the previous record; no publication recovery protocol is added. SQLite's
+A failed post-install record write leaves the previous record. Its original
+binding lets the next restored Commit merge any newer head; ignored changes
+after that older checkpoint may be lost. No publication recovery protocol is added. SQLite's
 existing cache profile is unchanged; this is not a power-loss durability claim.
 
 ## Cost and limits
@@ -145,9 +153,9 @@ existing cache profile is unchanged; this is not a power-loss durability claim.
   separately walk `Q`. Index parsing is cached by content for two indexes.
 - Ignored leftovers already in `Q` stay stale. Previously published bytes can
   move with those leftovers. A kept hardlink legitimately publishes shared bytes.
-- Keyed restore scans the local-only closure when saving and validates its
-  manifest when binding. The manifest grows with that closure; objects have no
-  eviction/GC. Without a key, restart/remount still loses local-only content.
+- Keyed Commit persistence costs the binding and pending seeds, independent of
+  ignored-tree size. Restore alone walks local metadata and object IDs; objects
+  have no eviction/GC. Without a key, restart/remount still loses local-only content.
 - Local-only cache objects have no eviction. No ctime, teardown/unmount, metadata
   batching or post-publication recovery changes are included.
 - Known publication followed by rebase/install failure retains custody and
@@ -184,8 +192,8 @@ Docker runs remain in [ignore01](receipts/ignore01/) and [ignore02](receipts/ign
 Restore tests cover the real Commit/install/bind path (remount, fresh owner,
 moved head, pending rule flip, same-key last writer, absent key and ignore-off),
 and the real SQLite cache (reopen, atomic records, scope/Branch keys, missing
-leaf/root, corruption, and omitted remote objects). The manifest requires no
-network reads or uploads. See [ignore08](receipts/ignore08/README.md) for current
+leaf/root, corruption, and omitted remote objects). Present local graphs require no network calls; absent references use LACKING
+without uploading ignored objects. See [ignore08](receipts/ignore08/README.md) for current
 checks and the first/only full Docker run (11 scenarios, 185 checks passed); [ignore07](receipts/ignore07/README.md) retains
 the failing baseline and startup-path diagnostics. The existing corrected
 [ignore06 e2e](receipts/ignore06/README.txt) remains unchanged.
