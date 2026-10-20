@@ -1,0 +1,11 @@
+info: downloading component 'clippy'
+info: installing component 'clippy'
+   Compiling nix v0.31.3
+    Checking layerfs-overlay v0.1.7 (/work/core/crates/layerfs-overlay)
+    Checking layerfs-persistence v0.1.7 (/work/core/crates/layerfs-persistence)
+    Checking layerfs-sandbox v0.1.7 (/work/core/crates/layerfs-sandbox)
+    Checking layerfs-workspace v0.1.7 (/work/core/crates/layerfs-workspace)
+    Checking layerfs-store-service v0.1.7 (/work/core/crates/layerfs-store-service)
+    Checking layerfs-remote-store v0.1.7 (/work/core/crates/layerfs-remote-store)
+    Checking layerfs-api v0.1.7 (/work/core/crates/layerfs-api)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 4.15s

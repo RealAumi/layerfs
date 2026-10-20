@@ -1,0 +1,20 @@
+feat(remote-store): expose opt-in canonical read diagnostics
+
+Log read opcode and canonical IDs when LAYERFS_REMOTE_TRACE_READS is set.
+Keep tracing disabled during timing. Add an external, ignored diagnostic that
+maps immutable object IDs to namespace owners through the existing readers.
+No read policy, wire framing, FUSE behavior, or retry semantics change.
+
+Validation on remote-host arm64: locked build/no-run; transport 2 PASS;
+request_paths 1 PASS after preparing its overlay directory; scoped all-target
+Clippy PASS; formatting PASS; core-tool tests 50 PASS. Boundary guard retains
+57 upstream violations. Initial helper compilation and missing-directory
+failures are retained in Phase-4 receipts. No tests deleted.
+
+Production LOC: 106,285 -> 106,288 (delta +3)
+Scopes: core 98,115 -> 98,118; SDK 2,861 and dsh 5,309 unchanged.
+Counter tools/production_loc.py blob e6d94d1a731b402ccc9159f49cef1eba5a74cfe0;
+same comment/inline-test exclusions, minus 739 scripted mock lines.
+Exact parent/index product comparison: server.rs 376 -> 379; no other product
+blob differs. Global scan agrees. Staged tree 317c7ab06b35a8faf7553b7c2e5289f8d8d49fb4.
+Reference absent (retired R9c; last counted 65,417 at tree 498dd1917812).

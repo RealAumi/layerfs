@@ -1,0 +1,8 @@
+{
+  "final_commit": "06a781cfceb61af32a967cae0d7af0c0142f7b82",
+  "measured_base": "68f5dd3d6c5d33b6367199f4b0b633f091241670",
+  "measured_server_sha256": "49a5cb5ece7c01650e7697294d88c906ae4bebe1d5a3fa4230db516c8c4b5623",
+  "final_server_sha256": "fa89b65ce499a6c04314532f094a8d26bd08119bf3e5d5643140dd31248eed71",
+  "difference": "rustfmt only: split if condition collapsed; no semantic change",
+  "daemon": "unchanged Phase 3; hashes in seed identity receipt"
+}

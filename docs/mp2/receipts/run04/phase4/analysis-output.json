@@ -1,0 +1,290 @@
+{
+  "requests": {
+    "metadata": 2772,
+    "length": 1247,
+    "whole-content": 4701,
+    "chunked-content": 157
+  },
+  "objects": {
+    "2:7": 2629,
+    "2:6": 149,
+    "3:1": 4702,
+    "3:5": 7,
+    "2:1": 4701,
+    "2:5": 5,
+    "2:3": 14,
+    "2:2": 748,
+    "2:9": 1,
+    "2:4": 2
+  },
+  "git_read_paths": 4799,
+  "git_mmap_paths": [
+    ".git/index",
+    ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.idx",
+    ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack",
+    "CHANGES.md",
+    "docs/threat-model.md",
+    "dubbo-cluster/src/test/java/org/apache/dubbo/rpc/cluster/router/condition/ConditionStateRouterTest.java",
+    "dubbo-cluster/src/test/java/org/apache/dubbo/rpc/cluster/support/wrapper/MockClusterInvokerTest.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/common/URL.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/common/extension/ExtensionLoader.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/common/url/component/URLParam.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/common/utils/NetUtils.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/common/utils/PojoUtils.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/common/utils/ReflectUtils.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/common/utils/StringUtils.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/config/AbstractConfig.java",
+    "dubbo-common/src/test/java/org/apache/dubbo/common/URLTest.java",
+    "dubbo-common/src/test/java/org/apache/dubbo/common/extension/ExtensionLoaderTest.java",
+    "dubbo-common/src/test/java/org/apache/dubbo/common/utils/PojoUtilsTest.java",
+    "dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/ReferenceConfig.java",
+    "dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/ServiceConfig.java",
+    "dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/deploy/DefaultApplicationDeployer.java",
+    "dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/utils/ConfigValidationUtils.java",
+    "dubbo-config/dubbo-config-api/src/test/java/org/apache/dubbo/config/AbstractConfigTest.java",
+    "dubbo-config/dubbo-config-api/src/test/java/org/apache/dubbo/config/ReferenceConfigTest.java",
+    "dubbo-config/dubbo-config-api/src/test/java/org/apache/dubbo/config/bootstrap/MultiInstanceTest.java",
+    "dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/util/AnnotationUtils.java",
+    "dubbo-config/dubbo-config-spring/src/main/resources/META-INF/compat/dubbo.xsd",
+    "dubbo-config/dubbo-config-spring/src/main/resources/META-INF/dubbo.xsd",
+    "dubbo-config/dubbo-config-spring/src/test/java/org/apache/dubbo/config/spring/ConfigTest.java",
+    "dubbo-dependencies-bom/pom.xml",
+    "dubbo-distribution/dubbo-all-shaded/pom.xml",
+    "dubbo-distribution/dubbo-all/pom.xml",
+    "dubbo-distribution/dubbo-core-spi/pom.xml",
+    "dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/MetadataInfo.java",
+    "dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/MetadataInfoV2.java",
+    "dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/OpenAPIRequest.java",
+    "dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/ServiceInfoV2.java",
+    "dubbo-metadata/dubbo-metadata-definition-protobuf/src/test/java/org/apache/dubbo/metadata/definition/protobuf/model/GooglePB.java",
+    "dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/ServiceDiscoveryRegistryDirectory.java",
+    "dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/integration/RegistryDirectory.java",
+    "dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/integration/RegistryProtocol.java",
+    "dubbo-registry/dubbo-registry-api/src/test/java/org/apache/dubbo/registry/client/event/listener/ServiceInstancesChangedListenerTest.java",
+    "dubbo-registry/dubbo-registry-api/src/test/java/org/apache/dubbo/registry/client/event/listener/ServiceInstancesChangedListenerWithoutEmptyProtectTest.java",
+    "dubbo-registry/dubbo-registry-nacos/src/main/java/org/apache/dubbo/registry/nacos/NacosRegistry.java",
+    "dubbo-registry/dubbo-registry-nacos/src/test/java/org/apache/dubbo/registry/nacos/NacosNamingServiceWrapperTest.java",
+    "dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/buffer/ChannelBuffer.java",
+    "dubbo-remoting/dubbo-remoting-api/src/test/java/org/apache/dubbo/remoting/buffer/AbstractChannelBufferTest.java",
+    "dubbo-remoting/dubbo-remoting-zookeeper-curator5/src/test/java/org/apache/dubbo/remoting/zookeeper/curator5/Curator5ZookeeperClientTest.java",
+    "dubbo-rpc/dubbo-rpc-triple/src/main/java/org/apache/dubbo/rpc/protocol/tri/rest/argument/GeneralTypeConverter.java",
+    "dubbo-spring-boot-project/dubbo-spring-boot-actuator/JMX_HealthEndpoint.png",
+    "dubbo-spring-boot-project/dubbo-spring-boot-autoconfigure/config-popup-window.png",
+    "dubbo-spring-boot-project/dubbo-spring-boot-autoconfigure/mconfig-popup-window.png",
+    "dubbo-test/dubbo-test-modules/src/test/java/org/apache/dubbo/dependency/FileTest.java",
+    "pom.xml"
+  ],
+  "cold": [
+    {
+      "rtt": 0,
+      "complete": true,
+      "exits": [
+        0,
+        0,
+        0
+      ],
+      "observed_wall_s": {
+        "median": 2.493424875,
+        "min": 2.404601209,
+        "max": 2.500916001
+      },
+      "requests": {
+        "median": 8884,
+        "min": 8884,
+        "max": 8887
+      }
+    },
+    {
+      "rtt": 2,
+      "complete": true,
+      "exits": [
+        0,
+        0,
+        0
+      ],
+      "observed_wall_s": {
+        "median": 20.47133525,
+        "min": 20.363268332,
+        "max": 20.584687875
+      },
+      "requests": {
+        "median": 8885,
+        "min": 8885,
+        "max": 8885
+      }
+    },
+    {
+      "rtt": 20,
+      "complete": false,
+      "exits": [
+        124,
+        124,
+        124
+      ],
+      "observed_wall_s": {
+        "median": 115.248923834,
+        "min": 115.236164667,
+        "max": 115.281345292
+      },
+      "requests": {
+        "median": 5666,
+        "min": 5665,
+        "max": 5666
+      }
+    }
+  ],
+  "node": [
+    {
+      "rtt": 2,
+      "kind": "full",
+      "wall_s": {
+        "median": 14.252405239,
+        "min": 14.241009534,
+        "max": 14.335550915
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 186,
+          "min": 186,
+          "max": 186
+        },
+        "uploadedObjects": {
+          "median": 42903,
+          "min": 42903,
+          "max": 42903
+        },
+        "uploadedBytes": {
+          "median": 198832210,
+          "min": 198832210,
+          "max": 198832210
+        }
+      },
+      "growth": {
+        "pack_bytes": {
+          "median": 48791195,
+          "min": 48791195,
+          "max": 48791195
+        },
+        "occupied_bytes": {
+          "median": 57430016,
+          "min": 57430016,
+          "max": 57430016
+        }
+      }
+    },
+    {
+      "rtt": 2,
+      "kind": "delta",
+      "wall_s": {
+        "median": 0.312444756,
+        "min": 0.305004301,
+        "max": 0.340717787
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 5,
+          "min": 5,
+          "max": 5
+        },
+        "uploadedObjects": {
+          "median": 702,
+          "min": 702,
+          "max": 702
+        },
+        "uploadedBytes": {
+          "median": 5985194,
+          "min": 5985194,
+          "max": 5985194
+        }
+      },
+      "growth": {
+        "pack_bytes": {
+          "median": 1010991,
+          "min": 1010991,
+          "max": 1010991
+        },
+        "occupied_bytes": {
+          "median": 1196032,
+          "min": 1196032,
+          "max": 1196032
+        }
+      }
+    },
+    {
+      "rtt": 20,
+      "kind": "full",
+      "wall_s": {
+        "median": 18.254576084,
+        "min": 18.211855892,
+        "max": 18.464520543
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 186,
+          "min": 186,
+          "max": 186
+        },
+        "uploadedObjects": {
+          "median": 42903,
+          "min": 42903,
+          "max": 42903
+        },
+        "uploadedBytes": {
+          "median": 198832210,
+          "min": 198832210,
+          "max": 198832210
+        }
+      },
+      "growth": {
+        "pack_bytes": {
+          "median": 48791195,
+          "min": 48791195,
+          "max": 48791195
+        },
+        "occupied_bytes": {
+          "median": 57430016,
+          "min": 57430016,
+          "max": 57430016
+        }
+      }
+    },
+    {
+      "rtt": 20,
+      "kind": "delta",
+      "wall_s": {
+        "median": 0.542743244,
+        "min": 0.541005328,
+        "max": 0.544220035
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 5,
+          "min": 5,
+          "max": 5
+        },
+        "uploadedObjects": {
+          "median": 702,
+          "min": 702,
+          "max": 702
+        },
+        "uploadedBytes": {
+          "median": 5985194,
+          "min": 5985194,
+          "max": 5985194
+        }
+      },
+      "growth": {
+        "pack_bytes": {
+          "median": 1010991,
+          "min": 1010991,
+          "max": 1010991
+        },
+        "occupied_bytes": {
+          "median": 1196032,
+          "min": 1196032,
+          "max": 1196032
+        }
+      }
+    }
+  ]
+}

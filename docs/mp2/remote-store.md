@@ -502,3 +502,166 @@ churn is **33 lines (+29/−4, net +25)**; total production is **106,285**.
 Fixture/harness/aggregation additions are about **227 non-comment code lines**,
 within the requested harness budget. Counter/method and mock exclusions are
 unchanged from Phase 2. No tests deleted; no push or upstream doc edits.
+
+## Phase 4 results
+
+**Content dominates the cold status; no batching optimization was shipped.**
+The owner's conditional stop applies. The 2 ms target remains **FAIL** at
+20.47 s. Added only opt-in `LAYERFS_REMOTE_TRACE_READS` in
+`layerfs-remote-store/src/server.rs` (opcode + canonical IDs, no payloads), plus
+an ignored external `tests/request_paths.rs` diagnostic that maps immutable IDs
+to paths through existing Content readers. No protocol, cache, FUSE, Git policy,
+retry or publication behavior changed. Local implementation commit:
+`06a781cfceb61af32a967cae0d7af0c0142f7b82` — opt-in canonical-read diagnostics.
+
+### Cold request attribution
+
+A fresh, traced 0 ms mount used **7 requests**; subsequent status used **8,877**
+(the earlier 8,878 is reproduced in the untraced 2 ms cohort). Tracing was off for
+all timed samples. Canonical roles come from A's object-location catalog;
+namespace owners come from a separate, untimed traversal of an independent copy
+of the same sealed Store. Git's actual reads/mappings come from `strace`.
+
+| Status demand | Requests | Objects / roots requested |
+| --- | ---: | ---: |
+| Whole-file content | 4,701 | 4,701 |
+| Chunked content, including its extent/file-state pages | 157 | 769: 748 chunks, 16 extent pages, 5 file states |
+| Directory/inode metadata | 2,772 | 2,629 directory pages + 150 inode-table pages |
+| File lengths for lookup/getattr | 1,247 | 4,709 file roots |
+| **Total** | **8,877** | **54.7% of requests fetch content** |
+
+Length batching already exists in Workspace
+`base/view.rs::provide_sibling_lengths`; the remote client preserves those
+batches. It is not one length request per file. The metadata objects are needed
+by lookup/readdir/getattr and shared across those operations; object traces do
+not uniquely assign a shared page to one kernel opcode.
+
+Examples of exclusive top-level ownership (shared objects are counted
+separately, not charged repeatedly):
+
+| Paths | Content requests | Metadata requests | Length requests |
+| --- | ---: | ---: | ---: |
+| `dubbo-common/**` | 962 | 237 | 201 |
+| `dubbo-plugin/**` | 581 | 477 | 165 |
+| `dubbo-rpc/**` | 610 | 198 | 107 |
+| `dubbo-config/**` | 537 | 213 | 134 |
+| `dubbo-remoting/**` | 462 | 206 | 91 |
+
+[Every request and its owner paths](receipts/run04/phase4/requests-by-path.jsonl.gz),
+[per-path request/read counts](receipts/run04/phase4/path-totals.jsonl.gz), and
+[aggregate breakdown](receipts/run04/phase4/summary.json) retain the full detail.
+A shared request can touch several paths, so per-path counts are not additive.
+Inode-table pages are explicitly generation-shared. Git read bytes from **4,799
+paths**, and also mapped `.git/index`, Git pack/index files and larger working
+files; the syscall receipt names them all.
+
+The imported index contains native-host stat identities. For `README.md`, its
+cached uid/gid/inode are **502/20/70491307**, while FUSE reports
+**1000/1000/20**, with matching size and timestamps. This explains the working
+file rehash, rather than a pure metadata walk. `--no-optional-locks` also prevents
+the usual optional index refresh from being saved. Even perfect elimination of
+all metadata/length requests leaves **4,858 × 2 ms = 9.716 s** of serialized
+content RTT alone. Metadata batching cannot meet 3 s for this cold workload.
+
+The next experiment should address the transplanted Git stat cache: validate a
+Git stat-check policy or an index-refresh lifecycle that remains correct across
+mounts and server edits, with changed-file/racy-timestamp oracles. Keeping a
+Workspace and its refreshed index alive can amortize the first rehash; it does
+not establish a cold-mount guarantee. Do not silently weaken stat checks or
+rewrite index stat fields to claim success. Once unnecessary rehashing is
+removed, metadata batching would be the next transport improvement. Content
+prefetch was explicitly excluded and was not built.
+
+Three independent samples per condition; seconds are median **[min–max]**,
+including Docker-exec wall for mount and status. “After” is deliberately N/A:
+the content-dominant stop selected no new read treatment.
+
+| RTT | Before: cold mount + status | Store requests, median [range] | After |
+| --- | ---: | ---: | --- |
+| No added delay | 2.493 [2.405–2.501] | 8,884 [8,884–8,887] | N/A |
+| 2 ms | 20.471 [20.363–20.585] | 8,885 [8,885–8,885] | N/A; target unmet |
+| 20 ms | **INCOMPLETE: all three status runs capped at 115 s** | 5,666 [5,665–5,666], partial | N/A |
+
+No completed median is claimed for 20 ms. A 240 s diagnostic exception was
+requested because the request-latency floor is about 178 s; none was received,
+so the runs retained a cutoff below the repository's 120 s test ceiling.
+These are bounded diagnostic observations, not frozen-family qualifications.
+
+### node_modules Commit cost
+
+A single network-disabled `npm ci --offline --ignore-scripts` attempt using an
+existing lockfile and copied npm cache failed with `ENOTCACHED` for
+`yocto-queue-0.1.0.tgz`. No package download was attempted. The fallback uses
+**real file bytes and paths**, sampled deterministically from the existing
+`~/work/mp2/node_modules` on remote-host: the lowest SHA-256 relative-path values
+select 30,000 regular files out of 151,271 eligible files, excluding the added
+dependency. Symlinks are omitted; this is a synthetic sparse installation shape,
+not an executable install. The original Bun version-store directory structure
+is retained, so this is not a claim about a flat npm layout.
+
+Full tree: **211,730,666 bytes**, median file 820 B, p90 7,124 B, p99 73,770 B,
+maximum 8,532,944 B; directory depth 5–15 including the `node_modules` component. Incremental:
+add the complete existing **Zod 4.6.5** package under a new dependency path,
+**840 files / 6,140,311 bytes**. This measures one dependency addition, not all
+possible upgrades, removals or lifecycle-script output. Manifests and the
+[shape summary](receipts/run04/phase4/node-shape.json) pin every selected byte.
+
+| RTT | Commit | Seconds, median [min–max] | Uploaded bytes | Objects | Requests | New stored bytes |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| 2 ms | Full | **14.252 [14.241–14.336]** | 198,832,210 | 42,903 | 186 | 48,791,195 |
+| 2 ms | Add dependency | **0.312 [0.305–0.341]** | 5,985,194 | 702 | 5 | 1,010,991 |
+| 20 ms | Full | **18.255 [18.212–18.465]** | 198,832,210 | 42,903 | 186 | 48,791,195 |
+| 20 ms | Add dependency | **0.543 [0.541–0.544]** | 5,985,194 | 702 | 5 | 1,010,991 |
+
+All non-time metrics were identical across all six samples. Upload bytes count
+acknowledged canonical payload, not TCP framing. New stored bytes independently
+match A's increase in `sum(pack.length)` and the Commit Save statistics.
+SQLite occupied-page growth was **57,430,016 B full / 1,196,032 B incremental**;
+it includes indexes/catalog overhead and is not the same metric as stored pack
+bytes or SQLite/WAL file lengths. Six server-side SDK readbacks of the added
+package manifest passed after publication.
+
+### Conditions, conclusions and checks
+
+Each sample cloned the same closed Disposable Store into A. B had a fresh
+SQLite object cache, overlay and FUSE mount, with **no Store volume/path**.
+A and B had separate private networks plus one shared link. The Phase-3 proxy,
+B-egress netem and low-priority CPU-0 yielding process were reused; no parallel
+build/measurement ran during timing. Ping packet medians were **0.023 / 2.03 /
+20.0 ms**; first-probe outliers reached 4.10 ms and 40.1 ms. Exact probes are in
+command receipts. Host/server OS caches were not dropped; only B's application
+cache and new mount are cold. Commit follows ordinary FUSE copies, so overlay
+payload is warm; preparation/copy/install time is excluded. There was no prior
+`git status` warming for the node_modules samples. Construction used one worker;
+Commit retained its 25 s command bound. These are diagnostics, not a benchmark
+or cloud-sandbox qualification.
+
+**Per-task decision:** the measured common incremental cases cost roughly
+**0.27–0.31 s at 2 ms** and **0.38–0.54 s at 20 ms** for Maven leaf output or one
+JS dependency addition. Those are plausible costs after each task. Fresh output
+is materially different: Maven target costs **5.19 / 7.93 s**, and this 30k-file
+node_modules shape costs **14.25 / 18.25 s**, at 2 / 20 ms respectively, plus
+115 / 199 MB uploaded. Paying that after every short task is unattractive;
+keeping ignored paths local would avoid that publication cost but also lose
+shared/restorable output. These results support avoiding repeated fresh-output
+publication, not a blanket rule excluding all ignored paths. Larger installs,
+core-module rebuilds and future rebuild/read savings remain unmeasured; no such
+feature was implemented.
+
+Validation: locked arm64 build/no-run PASS; transport **2 PASS**; offline owner
+mapping **1 PASS**; scoped all-target Clippy PASS; changed Rust formatting PASS;
+core-tool tests **50 PASS**. The boundary guard reports the **same 57 upstream
+violations**, compared after normalizing line numbers. Initial diagnostic-helper
+compile errors and a missing overlay-directory failure are retained, followed by
+corrected preparation and passing checks. No tests deleted. No FUSE changes,
+content prefetch, recovery/replay, cache policy, Durable run or upstream-doc edits.
+Source/binary identities, the measured trace patch and its subsequent
+format-only difference are recorded; the daemon binaries are unchanged Phase 3.
+See the [receipt index](receipts/run04/phase4/README.md) for exact commands,
+limits, failures, cleanup and retained executable custody.
+
+Production LOC: **106,285 → 106,288 (+3)**; implementation churn **+3/−0**,
+plus **95 external diagnostic test lines**. The measurement/analysis scripts
+reuse the Phase-3 topology: **165 added non-comment lines**, within the
+approximately 200-line harness budget. The docs/receipt commit leaves production LOC unchanged. The cold-start
+target and complete 20 ms cold timings remain unresolved; no speedup is claimed.

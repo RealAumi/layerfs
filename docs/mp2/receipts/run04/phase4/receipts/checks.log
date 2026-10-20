@@ -1,0 +1,82 @@
+   Compiling layerfs-remote-store v0.1.7 (/work/core/crates/layerfs-remote-store)
+error[E0432]: unresolved import `layerfs_content::filesystem::InodeKind`
+ --> crates/layerfs-remote-store/tests/request_paths.rs:3:34
+  |
+3 |     filesystem::{FilesystemRead, InodeKind, LogicalPath},
+  |                                  ^^^^^^^^^ no `InodeKind` in `filesystem`
+  |
+  = help: consider importing this enum instead:
+          layerfs_content::inode_leaf::InodeKind
+
+error[E0277]: the trait bound `Arc<StorePorts>: AuthenticatedObjects` is not satisfied
+  --> crates/layerfs-remote-store/tests/request_paths.rs:45:38
+   |
+45 |     let mut fs = FilesystemRead::new(&ports, snapshot.effective_root).unwrap();
+   |                                      ^^^^^^ the trait `AuthenticatedObjects` is not implemented for `Arc<StorePorts>`
+   |
+   = help: the following other types implement trait `AuthenticatedObjects`:
+             Cached<'_>
+             Memo<'_>
+             StorePorts
+             Traced<'_>
+             layerfs_storage::read::provider::Reader<'_>
+             layerfs_storage::save::operation::Save<'_>
+             layerfs_workspace::base::client::CanonicalClient
+   = note: required for the cast from `&Arc<StorePorts>` to `&dyn AuthenticatedObjects`
+
+error[E0308]: mismatched types
+  --> crates/layerfs-remote-store/tests/request_paths.rs:45:46
+   |
+45 |     let mut fs = FilesystemRead::new(&ports, snapshot.effective_root).unwrap();
+   |                  -------------------         ^^^^^^^^^^^^^^^^^^^^^^^ expected `FilesystemRootId`, found `ObjectId`
+   |                  |
+   |                  arguments to this function are incorrect
+   |
+note: associated function defined here
+  --> /work/core/crates/layerfs-content/src/filesystem/read.rs:82:12
+   |
+82 |     pub fn new(
+   |            ^^^
+help: try wrapping the expression in `layerfs_content::filesystem::FilesystemRootId`
+   |
+45 |     let mut fs = FilesystemRead::new(&ports, layerfs_content::filesystem::FilesystemRootId(snapshot.effective_root)).unwrap();
+   |                                              ++++++++++++++++++++++++++++++++++++++++++++++                       +
+
+error[E0277]: the trait bound `Arc<StorePorts>: AuthenticatedObjects` is not satisfied
+  --> crates/layerfs-remote-store/tests/request_paths.rs:50:21
+   |
+50 |             reader: &ports,
+   |                     ^^^^^^ the trait `AuthenticatedObjects` is not implemented for `Arc<StorePorts>`
+   |
+   = help: the following other types implement trait `AuthenticatedObjects`:
+             Cached<'_>
+             Memo<'_>
+             StorePorts
+             Traced<'_>
+             layerfs_storage::read::provider::Reader<'_>
+             layerfs_storage::save::operation::Save<'_>
+             layerfs_workspace::base::client::CanonicalClient
+   = note: required for the cast from `&Arc<StorePorts>` to `&dyn AuthenticatedObjects`
+
+error[E0308]: mismatched types
+  --> crates/layerfs-remote-store/tests/request_paths.rs:67:63
+   |
+67 |                 let mut traced = FilesystemRead::new(&reader, snapshot.effective_root).unwrap();
+   |                                  -------------------          ^^^^^^^^^^^^^^^^^^^^^^^ expected `FilesystemRootId`, found `ObjectId`
+   |                                  |
+   |                                  arguments to this function are incorrect
+   |
+note: associated function defined here
+  --> /work/core/crates/layerfs-content/src/filesystem/read.rs:82:12
+   |
+82 |     pub fn new(
+   |            ^^^
+help: try wrapping the expression in `layerfs_content::filesystem::FilesystemRootId`
+   |
+67 |                 let mut traced = FilesystemRead::new(&reader, layerfs_content::filesystem::FilesystemRootId(snapshot.effective_root)).unwrap();
+   |                                                               ++++++++++++++++++++++++++++++++++++++++++++++                       +
+
+Some errors have detailed explanations: E0277, E0308, E0432.
+For more information about an error, try `rustc --explain E0277`.
+error: could not compile `layerfs-remote-store` (test "request_paths") due to 5 previous errors
+warning: build failed, waiting for other jobs to finish...

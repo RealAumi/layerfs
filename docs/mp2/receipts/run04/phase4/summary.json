@@ -1,0 +1,782 @@
+{
+  "requests": {
+    "metadata": 2772,
+    "length": 1247,
+    "whole-content": 4701,
+    "chunked-content": 157
+  },
+  "objects": {
+    "2:7": 2629,
+    "2:6": 149,
+    "3:1": 4702,
+    "3:5": 7,
+    "2:1": 4701,
+    "2:5": 5,
+    "2:3": 14,
+    "2:2": 748,
+    "2:9": 1,
+    "2:4": 2
+  },
+  "top_level": [
+    {
+      "path": ".artifacts",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": ".asf.yaml",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": ".editorconfig",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": ".git",
+      "kind": "chunked-content",
+      "requests": 149
+    },
+    {
+      "path": ".git",
+      "kind": "length",
+      "requests": 5
+    },
+    {
+      "path": ".git",
+      "kind": "metadata",
+      "requests": 8
+    },
+    {
+      "path": ".git",
+      "kind": "whole-content",
+      "requests": 5
+    },
+    {
+      "path": ".gitattributes",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": ".github",
+      "kind": "length",
+      "requests": 4
+    },
+    {
+      "path": ".github",
+      "kind": "metadata",
+      "requests": 4
+    },
+    {
+      "path": ".github",
+      "kind": "whole-content",
+      "requests": 11
+    },
+    {
+      "path": ".gitignore",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": ".licenserc.yaml",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": ".mvn",
+      "kind": "length",
+      "requests": 2
+    },
+    {
+      "path": ".mvn",
+      "kind": "metadata",
+      "requests": 2
+    },
+    {
+      "path": ".mvn",
+      "kind": "whole-content",
+      "requests": 2
+    },
+    {
+      "path": "<shared across top-level paths>",
+      "kind": "length",
+      "requests": 25
+    },
+    {
+      "path": "<shared across top-level paths>",
+      "kind": "whole-content",
+      "requests": 72
+    },
+    {
+      "path": "<shared inode table/root>",
+      "kind": "metadata",
+      "requests": 143
+    },
+    {
+      "path": "AGENTS.md",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "CHANGES.md",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "CODE_OF_CONDUCT.md",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "Jenkinsfile",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "Jenkinsfile.sonar",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "LICENSE",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "NOTICE",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "README.md",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "SECURITY.md",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "build",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "build.cmd",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "codecov.yml",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "codestyle",
+      "kind": "length",
+      "requests": 1
+    },
+    {
+      "path": "codestyle",
+      "kind": "metadata",
+      "requests": 1
+    },
+    {
+      "path": "codestyle",
+      "kind": "whole-content",
+      "requests": 5
+    },
+    {
+      "path": "docs",
+      "kind": "length",
+      "requests": 1
+    },
+    {
+      "path": "docs",
+      "kind": "metadata",
+      "requests": 1
+    },
+    {
+      "path": "docs",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "dubbo-cluster",
+      "kind": "length",
+      "requests": 82
+    },
+    {
+      "path": "dubbo-cluster",
+      "kind": "metadata",
+      "requests": 108
+    },
+    {
+      "path": "dubbo-cluster",
+      "kind": "whole-content",
+      "requests": 329
+    },
+    {
+      "path": "dubbo-common",
+      "kind": "length",
+      "requests": 201
+    },
+    {
+      "path": "dubbo-common",
+      "kind": "metadata",
+      "requests": 237
+    },
+    {
+      "path": "dubbo-common",
+      "kind": "whole-content",
+      "requests": 962
+    },
+    {
+      "path": "dubbo-compatible",
+      "kind": "length",
+      "requests": 53
+    },
+    {
+      "path": "dubbo-compatible",
+      "kind": "metadata",
+      "requests": 89
+    },
+    {
+      "path": "dubbo-compatible",
+      "kind": "whole-content",
+      "requests": 170
+    },
+    {
+      "path": "dubbo-config",
+      "kind": "length",
+      "requests": 134
+    },
+    {
+      "path": "dubbo-config",
+      "kind": "metadata",
+      "requests": 213
+    },
+    {
+      "path": "dubbo-config",
+      "kind": "whole-content",
+      "requests": 537
+    },
+    {
+      "path": "dubbo-configcenter",
+      "kind": "length",
+      "requests": 20
+    },
+    {
+      "path": "dubbo-configcenter",
+      "kind": "metadata",
+      "requests": 95
+    },
+    {
+      "path": "dubbo-configcenter",
+      "kind": "whole-content",
+      "requests": 30
+    },
+    {
+      "path": "dubbo-demo",
+      "kind": "length",
+      "requests": 35
+    },
+    {
+      "path": "dubbo-demo",
+      "kind": "metadata",
+      "requests": 121
+    },
+    {
+      "path": "dubbo-demo",
+      "kind": "whole-content",
+      "requests": 52
+    },
+    {
+      "path": "dubbo-dependencies-bom",
+      "kind": "length",
+      "requests": 1
+    },
+    {
+      "path": "dubbo-dependencies-bom",
+      "kind": "metadata",
+      "requests": 1
+    },
+    {
+      "path": "dubbo-dependencies-bom",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "dubbo-distribution",
+      "kind": "length",
+      "requests": 6
+    },
+    {
+      "path": "dubbo-distribution",
+      "kind": "metadata",
+      "requests": 8
+    },
+    {
+      "path": "dubbo-distribution",
+      "kind": "whole-content",
+      "requests": 7
+    },
+    {
+      "path": "dubbo-maven-plugin",
+      "kind": "length",
+      "requests": 6
+    },
+    {
+      "path": "dubbo-maven-plugin",
+      "kind": "metadata",
+      "requests": 14
+    },
+    {
+      "path": "dubbo-maven-plugin",
+      "kind": "whole-content",
+      "requests": 28
+    },
+    {
+      "path": "dubbo-metadata",
+      "kind": "chunked-content",
+      "requests": 4
+    },
+    {
+      "path": "dubbo-metadata",
+      "kind": "length",
+      "requests": 39
+    },
+    {
+      "path": "dubbo-metadata",
+      "kind": "metadata",
+      "requests": 134
+    },
+    {
+      "path": "dubbo-metadata",
+      "kind": "whole-content",
+      "requests": 126
+    },
+    {
+      "path": "dubbo-metrics",
+      "kind": "length",
+      "requests": 102
+    },
+    {
+      "path": "dubbo-metrics",
+      "kind": "metadata",
+      "requests": 257
+    },
+    {
+      "path": "dubbo-metrics",
+      "kind": "whole-content",
+      "requests": 230
+    },
+    {
+      "path": "dubbo-plugin",
+      "kind": "length",
+      "requests": 165
+    },
+    {
+      "path": "dubbo-plugin",
+      "kind": "metadata",
+      "requests": 477
+    },
+    {
+      "path": "dubbo-plugin",
+      "kind": "whole-content",
+      "requests": 581
+    },
+    {
+      "path": "dubbo-registry",
+      "kind": "length",
+      "requests": 52
+    },
+    {
+      "path": "dubbo-registry",
+      "kind": "metadata",
+      "requests": 135
+    },
+    {
+      "path": "dubbo-registry",
+      "kind": "whole-content",
+      "requests": 212
+    },
+    {
+      "path": "dubbo-remoting",
+      "kind": "length",
+      "requests": 91
+    },
+    {
+      "path": "dubbo-remoting",
+      "kind": "metadata",
+      "requests": 206
+    },
+    {
+      "path": "dubbo-remoting",
+      "kind": "whole-content",
+      "requests": 462
+    },
+    {
+      "path": "dubbo-rpc",
+      "kind": "length",
+      "requests": 107
+    },
+    {
+      "path": "dubbo-rpc",
+      "kind": "metadata",
+      "requests": 198
+    },
+    {
+      "path": "dubbo-rpc",
+      "kind": "whole-content",
+      "requests": 610
+    },
+    {
+      "path": "dubbo-serialization",
+      "kind": "length",
+      "requests": 17
+    },
+    {
+      "path": "dubbo-serialization",
+      "kind": "metadata",
+      "requests": 70
+    },
+    {
+      "path": "dubbo-serialization",
+      "kind": "whole-content",
+      "requests": 57
+    },
+    {
+      "path": "dubbo-spring-boot-project",
+      "kind": "chunked-content",
+      "requests": 4
+    },
+    {
+      "path": "dubbo-spring-boot-project",
+      "kind": "length",
+      "requests": 71
+    },
+    {
+      "path": "dubbo-spring-boot-project",
+      "kind": "metadata",
+      "requests": 189
+    },
+    {
+      "path": "dubbo-spring-boot-project",
+      "kind": "whole-content",
+      "requests": 131
+    },
+    {
+      "path": "dubbo-test",
+      "kind": "length",
+      "requests": 27
+    },
+    {
+      "path": "dubbo-test",
+      "kind": "metadata",
+      "requests": 61
+    },
+    {
+      "path": "dubbo-test",
+      "kind": "whole-content",
+      "requests": 57
+    },
+    {
+      "path": "licenseCheck.sh",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "mvnw",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "mvnw.cmd",
+      "kind": "whole-content",
+      "requests": 1
+    },
+    {
+      "path": "pom.xml",
+      "kind": "whole-content",
+      "requests": 1
+    }
+  ],
+  "git_read_paths": 4799,
+  "git_mmap_paths": [
+    ".git/index",
+    ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.idx",
+    ".git/objects/pack/pack-2959611895383b4c07c5051d3ef75b81e1314a69.pack",
+    "CHANGES.md",
+    "docs/threat-model.md",
+    "dubbo-cluster/src/test/java/org/apache/dubbo/rpc/cluster/router/condition/ConditionStateRouterTest.java",
+    "dubbo-cluster/src/test/java/org/apache/dubbo/rpc/cluster/support/wrapper/MockClusterInvokerTest.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/common/URL.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/common/extension/ExtensionLoader.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/common/url/component/URLParam.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/common/utils/NetUtils.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/common/utils/PojoUtils.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/common/utils/ReflectUtils.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/common/utils/StringUtils.java",
+    "dubbo-common/src/main/java/org/apache/dubbo/config/AbstractConfig.java",
+    "dubbo-common/src/test/java/org/apache/dubbo/common/URLTest.java",
+    "dubbo-common/src/test/java/org/apache/dubbo/common/extension/ExtensionLoaderTest.java",
+    "dubbo-common/src/test/java/org/apache/dubbo/common/utils/PojoUtilsTest.java",
+    "dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/ReferenceConfig.java",
+    "dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/ServiceConfig.java",
+    "dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/deploy/DefaultApplicationDeployer.java",
+    "dubbo-config/dubbo-config-api/src/main/java/org/apache/dubbo/config/utils/ConfigValidationUtils.java",
+    "dubbo-config/dubbo-config-api/src/test/java/org/apache/dubbo/config/AbstractConfigTest.java",
+    "dubbo-config/dubbo-config-api/src/test/java/org/apache/dubbo/config/ReferenceConfigTest.java",
+    "dubbo-config/dubbo-config-api/src/test/java/org/apache/dubbo/config/bootstrap/MultiInstanceTest.java",
+    "dubbo-config/dubbo-config-spring/src/main/java/org/apache/dubbo/config/spring/util/AnnotationUtils.java",
+    "dubbo-config/dubbo-config-spring/src/main/resources/META-INF/compat/dubbo.xsd",
+    "dubbo-config/dubbo-config-spring/src/main/resources/META-INF/dubbo.xsd",
+    "dubbo-config/dubbo-config-spring/src/test/java/org/apache/dubbo/config/spring/ConfigTest.java",
+    "dubbo-dependencies-bom/pom.xml",
+    "dubbo-distribution/dubbo-all-shaded/pom.xml",
+    "dubbo-distribution/dubbo-all/pom.xml",
+    "dubbo-distribution/dubbo-core-spi/pom.xml",
+    "dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/MetadataInfo.java",
+    "dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/MetadataInfoV2.java",
+    "dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/OpenAPIRequest.java",
+    "dubbo-metadata/dubbo-metadata-api/src/main/java/org/apache/dubbo/metadata/ServiceInfoV2.java",
+    "dubbo-metadata/dubbo-metadata-definition-protobuf/src/test/java/org/apache/dubbo/metadata/definition/protobuf/model/GooglePB.java",
+    "dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/client/ServiceDiscoveryRegistryDirectory.java",
+    "dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/integration/RegistryDirectory.java",
+    "dubbo-registry/dubbo-registry-api/src/main/java/org/apache/dubbo/registry/integration/RegistryProtocol.java",
+    "dubbo-registry/dubbo-registry-api/src/test/java/org/apache/dubbo/registry/client/event/listener/ServiceInstancesChangedListenerTest.java",
+    "dubbo-registry/dubbo-registry-api/src/test/java/org/apache/dubbo/registry/client/event/listener/ServiceInstancesChangedListenerWithoutEmptyProtectTest.java",
+    "dubbo-registry/dubbo-registry-nacos/src/main/java/org/apache/dubbo/registry/nacos/NacosRegistry.java",
+    "dubbo-registry/dubbo-registry-nacos/src/test/java/org/apache/dubbo/registry/nacos/NacosNamingServiceWrapperTest.java",
+    "dubbo-remoting/dubbo-remoting-api/src/main/java/org/apache/dubbo/remoting/buffer/ChannelBuffer.java",
+    "dubbo-remoting/dubbo-remoting-api/src/test/java/org/apache/dubbo/remoting/buffer/AbstractChannelBufferTest.java",
+    "dubbo-remoting/dubbo-remoting-zookeeper-curator5/src/test/java/org/apache/dubbo/remoting/zookeeper/curator5/Curator5ZookeeperClientTest.java",
+    "dubbo-rpc/dubbo-rpc-triple/src/main/java/org/apache/dubbo/rpc/protocol/tri/rest/argument/GeneralTypeConverter.java",
+    "dubbo-spring-boot-project/dubbo-spring-boot-actuator/JMX_HealthEndpoint.png",
+    "dubbo-spring-boot-project/dubbo-spring-boot-autoconfigure/config-popup-window.png",
+    "dubbo-spring-boot-project/dubbo-spring-boot-autoconfigure/mconfig-popup-window.png",
+    "dubbo-test/dubbo-test-modules/src/test/java/org/apache/dubbo/dependency/FileTest.java",
+    "pom.xml"
+  ],
+  "cold": [
+    {
+      "rtt": 0,
+      "complete": true,
+      "exits": [
+        0,
+        0,
+        0
+      ],
+      "observed_wall_s": {
+        "median": 2.493424875,
+        "min": 2.404601209,
+        "max": 2.500916001
+      },
+      "requests": {
+        "median": 8884,
+        "min": 8884,
+        "max": 8887
+      }
+    },
+    {
+      "rtt": 2,
+      "complete": true,
+      "exits": [
+        0,
+        0,
+        0
+      ],
+      "observed_wall_s": {
+        "median": 20.47133525,
+        "min": 20.363268332,
+        "max": 20.584687875
+      },
+      "requests": {
+        "median": 8885,
+        "min": 8885,
+        "max": 8885
+      }
+    },
+    {
+      "rtt": 20,
+      "complete": false,
+      "exits": [
+        124,
+        124,
+        124
+      ],
+      "observed_wall_s": {
+        "median": 115.248923834,
+        "min": 115.236164667,
+        "max": 115.281345292
+      },
+      "requests": {
+        "median": 5666,
+        "min": 5665,
+        "max": 5666
+      }
+    }
+  ],
+  "node": [
+    {
+      "rtt": 2,
+      "kind": "full",
+      "wall_s": {
+        "median": 14.252405239,
+        "min": 14.241009534,
+        "max": 14.335550915
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 186,
+          "min": 186,
+          "max": 186
+        },
+        "uploadedObjects": {
+          "median": 42903,
+          "min": 42903,
+          "max": 42903
+        },
+        "uploadedBytes": {
+          "median": 198832210,
+          "min": 198832210,
+          "max": 198832210
+        }
+      },
+      "growth": {
+        "pack_bytes": {
+          "median": 48791195,
+          "min": 48791195,
+          "max": 48791195
+        },
+        "occupied_bytes": {
+          "median": 57430016,
+          "min": 57430016,
+          "max": 57430016
+        }
+      }
+    },
+    {
+      "rtt": 2,
+      "kind": "delta",
+      "wall_s": {
+        "median": 0.312444756,
+        "min": 0.305004301,
+        "max": 0.340717787
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 5,
+          "min": 5,
+          "max": 5
+        },
+        "uploadedObjects": {
+          "median": 702,
+          "min": 702,
+          "max": 702
+        },
+        "uploadedBytes": {
+          "median": 5985194,
+          "min": 5985194,
+          "max": 5985194
+        }
+      },
+      "growth": {
+        "pack_bytes": {
+          "median": 1010991,
+          "min": 1010991,
+          "max": 1010991
+        },
+        "occupied_bytes": {
+          "median": 1196032,
+          "min": 1196032,
+          "max": 1196032
+        }
+      }
+    },
+    {
+      "rtt": 20,
+      "kind": "full",
+      "wall_s": {
+        "median": 18.254576084,
+        "min": 18.211855892,
+        "max": 18.464520543
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 186,
+          "min": 186,
+          "max": 186
+        },
+        "uploadedObjects": {
+          "median": 42903,
+          "min": 42903,
+          "max": 42903
+        },
+        "uploadedBytes": {
+          "median": 198832210,
+          "min": 198832210,
+          "max": 198832210
+        }
+      },
+      "growth": {
+        "pack_bytes": {
+          "median": 48791195,
+          "min": 48791195,
+          "max": 48791195
+        },
+        "occupied_bytes": {
+          "median": 57430016,
+          "min": 57430016,
+          "max": 57430016
+        }
+      }
+    },
+    {
+      "rtt": 20,
+      "kind": "delta",
+      "wall_s": {
+        "median": 0.542743244,
+        "min": 0.541005328,
+        "max": 0.544220035
+      },
+      "metrics": {
+        "roundTrips": {
+          "median": 5,
+          "min": 5,
+          "max": 5
+        },
+        "uploadedObjects": {
+          "median": 702,
+          "min": 702,
+          "max": 702
+        },
+        "uploadedBytes": {
+          "median": 5985194,
+          "min": 5985194,
+          "max": 5985194
+        }
+      },
+      "growth": {
+        "pack_bytes": {
+          "median": 1010991,
+          "min": 1010991,
+          "max": 1010991
+        },
+        "occupied_bytes": {
+          "median": 1196032,
+          "min": 1196032,
+          "max": 1196032
+        }
+      }
+    }
+  ]
+}

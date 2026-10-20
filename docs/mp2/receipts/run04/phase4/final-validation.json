@@ -1,0 +1,15 @@
+{
+  "arithmetic": "PASS",
+  "six_sdk_readbacks": "PASS",
+  "phase4_links": "PASS",
+  "python_parse": "PASS",
+  "harness_nonblank_noncomment_lines": {
+    "docs/mp2/phase4-diagnostics.py": 58,
+    "docs/mp2/phase4-shape.py": 19,
+    "docs/mp2/phase4-cleanup.py": 16,
+    "docs/mp2/phase4-prepare.sh": 8,
+    "docs/mp2/phase4-analysis.py": 51
+  },
+  "harness_total": 152,
+  "reused_phase3_new_lines": 13
+}

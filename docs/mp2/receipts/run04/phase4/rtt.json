@@ -1,0 +1,32 @@
+{
+  "cold-0": {
+    "median": 0.023,
+    "min": 0.01,
+    "max": 0.078,
+    "packets": 15
+  },
+  "cold-2": {
+    "median": 2.03,
+    "min": 2.01,
+    "max": 4.1,
+    "packets": 15
+  },
+  "node-2": {
+    "median": 2.03,
+    "min": 2.01,
+    "max": 4.09,
+    "packets": 15
+  },
+  "node-20": {
+    "median": 20.0,
+    "min": 20.0,
+    "max": 40.1,
+    "packets": 15
+  },
+  "cold-20": {
+    "median": 20.0,
+    "min": 20.0,
+    "max": 40.1,
+    "packets": 15
+  }
+}

@@ -1,0 +1,6 @@
+{"command": ["volume", "rm", "mp2-p4-seed"], "exit": 0, "output": "mp2-p4-seed\n"}
+{"command": ["volume", "rm", "mp2-p4-input"], "exit": 0, "output": "mp2-p4-input\n"}
+{"command": ["image", "rm", "mp2-p4-tools"], "exit": 0, "output": "Untagged: mp2-p4-tools:latest\nDeleted: sha256:18be29f3a211e0038c457d909d97b43fce7e6d685ea5759d38b40238b084ad60\n"}
+{"command": ["ps", "-a", "--filter", "name=mp2-p4", "--format", "{{.Names}}"], "exit": 0, "output": ""}
+{"command": ["network", "ls", "--filter", "name=mp2-p4", "--format", "{{.Name}}"], "exit": 0, "output": ""}
+{"command": ["volume", "ls", "--filter", "name=mp2-p4", "--format", "{{.Name}}"], "exit": 0, "output": ""}

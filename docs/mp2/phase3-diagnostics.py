@@ -2,11 +2,13 @@
 """Owned Linux-container diagnostics; phase is seed, cycles, or measure."""
 import hashlib, json, os, pathlib, re, shutil, subprocess, sys, time
 ROOT=pathlib.Path.home()/'lfs-remote/mp2-remote-store'
-HOME=ROOT/'phase3'; HOME.mkdir(exist_ok=True)
+CAMPAIGN=os.environ.get('LFS_CAMPAIGN','phase3')
+PREFIX=os.environ.get('LFS_RESOURCE_PREFIX','mp2-p3')
+HOME=ROOT/CAMPAIGN; HOME.mkdir(exist_ok=True)
 PHASE=sys.argv[1]; MODE=PHASE.split('-')[0]; OUT=HOME/PHASE; OUT.mkdir() # never overwrite a receipt
-D='/usr/local/bin/docker'; IMAGE='mp2-p3-tools'
-A,B='mp2-p3-a','mp2-p3-b'; NA,NB,LINK='mp2-p3-a-net','mp2-p3-b-net','mp2-p3-link'
-SEED='mp2-p3-seed'; INPUT='mp2-p3-input'; VA,VB='mp2-p3-a-data','mp2-p3-b-data'
+D='/usr/local/bin/docker'; IMAGE=PREFIX+'-tools'
+A,B=PREFIX+'-a',PREFIX+'-b'; NA,NB,LINK=PREFIX+'-a-net',PREFIX+'-b-net',PREFIX+'-link'
+SEED=PREFIX+'-seed'; INPUT=PREFIX+'-input'; VA,VB=PREFIX+'-a-data',PREFIX+'-b-data'
 BIN=HOME/'bin'; BIN.mkdir(exist_ok=True); CFG=HOME/'config'; CFG.mkdir(exist_ok=True)
 REPORT=OUT/'commands.jsonl'; RESULTS=OUT/'results.jsonl'
 def record(path,value):
@@ -50,11 +52,11 @@ def cleanup():
 def startup(native,delay):
     for n in [NA,NB,LINK]:docker('network','create','--internal',n)
     for v in [VA,VB]:docker('volume','create',v)
-    docker('run','--rm','--name','mp2-p3-clone','-v',SEED+':/seed:ro','-v',VA+':/a','-v',VB+':/b','-v',str(CFG)+':/cfg:ro',IMAGE,'bash','-c','cp -a /seed/. /a/; chmod 700 /a /b; cp /cfg/b1.setup /b/control.setup')
+    docker('run','--rm','--name',PREFIX+'-clone','-v',SEED+':/seed:ro','-v',VA+':/a','-v',VB+':/b','-v',str(CFG)+':/cfg:ro',IMAGE,'bash','-c','cp -a /seed/. /a/; chmod 700 /a /b; cp /cfg/b1.setup /b/control.setup')
     # A owns the only remote Store. B receives it solely for the native baseline.
     if native:
-        docker('run','--rm','--name','mp2-p3-native-clone','-v',SEED+':/seed:ro','-v',VB+':/state','-v',str(CFG)+':/cfg:ro',IMAGE,'bash','-c','cp -a /seed/store /state/; chmod 700 /state/store; chmod 600 /state/store/store.sqlite; cp /cfg/native.setup /state/native.setup')
-    docker('run','-d','--name',A,'--network',NA,'--cap-add','NET_ADMIN','-v',VA+':/state','-v',str(BIN)+':/bin-lfs:ro','-e','LAYERFS_CONSTRUCTION_WORKERS=1',IMAGE,'bash','-c','exec /bin-lfs/layerfs-store --config /state/server.setup > /state/daemon.log 2>&1')
+        docker('run','--rm','--name',PREFIX+'-native-clone','-v',SEED+':/seed:ro','-v',VB+':/state','-v',str(CFG)+':/cfg:ro',IMAGE,'bash','-c','cp -a /seed/store /state/; chmod 700 /state/store; chmod 600 /state/store/store.sqlite; cp /cfg/native.setup /state/native.setup')
+    docker('run','-d','--name',A,'--network',NA,'--cap-add','NET_ADMIN','-v',VA+':/state','-v',str(BIN)+':/bin-lfs:ro','-e','LAYERFS_CONSTRUCTION_WORKERS=1','-e','LAYERFS_REMOTE_TRACE_READS',IMAGE,'bash','-c','exec /bin-lfs/layerfs-store --config /state/server.setup > /state/daemon.log 2>&1')
     docker('network','connect','--alias','store',LINK,A);ready(A,'/state/daemon.log','REMOTE_STORE_READY')
     address=json.loads(docker('inspect',A)['output'])[0]['NetworkSettings']['Networks'][LINK]['IPAddress']
     docker('run','-d','--name',B,'--init','--network',LINK,'--device','/dev/fuse','--cap-add','SYS_ADMIN','--cap-add','SYS_PTRACE','--cap-add','NET_ADMIN','--security-opt','apparmor=unconfined','--security-opt','no-new-privileges=true','-v',VB+':/state','-v',INPUT+':/input:ro','-v',str(BIN)+':/bin-lfs:ro','-e','LAYERFS_CONSTRUCTION_WORKERS=1',IMAGE,'sleep','infinity')
@@ -75,14 +77,15 @@ PROBE='''import os,glob,json
 p='/proc/'+open('/state/pid').read().strip()
 print(json.dumps(dict(threads=len(glob.glob(p+'/task/*')),fds=sorted(os.readlink(f) for f in glob.glob(p+'/fd/*')))))'''
 try:
-    if MODE=='seed':
+    if MODE=='library':pass
+    elif MODE=='seed':
         for name in ['layerfs-store','layerfs-remote','layerfs-remote-daemon','layerfs-daemon']:
             shutil.copy2(ROOT/'source/target-remote/debug'/name,BIN/name)
         shutil.copy2(ROOT/'source/docs/mp2/tcp-cut.py',BIN/'tcp-cut.py')
         shutil.copy2(ROOT/'source/target-remote/debug/deps'/(ROOT/'driver-path').read_text().strip(),BIN/'driver')
         for v in [SEED,INPUT]:docker('volume','create',v)
-        docker('run','--rm','--name','mp2-p3-seed','-v',str(BIN)+':/bin-lfs:ro','-v',str(CFG)+':/out','-v',SEED+':/state','-v','lfs-src:/original:ro','-e','LFS_MODE=init','-e','LFS_SOURCE=/original/dubbo','-e','LAYERFS_CONSTRUCTION_WORKERS=1',IMAGE,'timeout','120','/bin-lfs/driver','--ignored','--exact','drive','--nocapture')
-        docker('run','--rm','--name','mp2-p3-input','-v',INPUT+':/input','-v',str(ROOT/'phase3-work')+':/work:ro',IMAGE,'bash','-c','cp -a /work/full /work/delta /input/')
+        docker('run','--rm','--name',PREFIX+'-seed','-v',str(BIN)+':/bin-lfs:ro','-v',str(CFG)+':/out','-v',SEED+':/state','-v','lfs-src:/original:ro','-e','LFS_MODE=init','-e','LFS_SOURCE=/original/dubbo','-e','LAYERFS_CONSTRUCTION_WORKERS=1',IMAGE,'timeout','120','/bin-lfs/driver','--ignored','--exact','drive','--nocapture')
+        docker('run','--rm','--name',PREFIX+'-input','-v',INPUT+':/input','-v',str(ROOT/'phase3-work')+':/work:ro',IMAGE,'bash','-c','cp -a /work/full /work/delta /input/')
         for p in BIN.iterdir():
             saved=HOME/'artifacts'/hashlib.sha256(p.read_bytes()).hexdigest()/p.name
             saved.parent.mkdir(parents=True,exist_ok=True)

@@ -1,0 +1,16 @@
+{
+  "parent": "68f5dd3d6c5d33b6367199f4b0b633f091241670",
+  "staged_tree": "317c7ab06b35a8faf7553b7c2e5289f8d8d49fb4",
+  "counter_blob": "e6d94d1a731b402ccc9159f49cef1eba5a74cfe0",
+  "scope": "core + SDK + dsh excluding 739 scripted mock lines; inline tests excluded",
+  "changed_product_path": "core/crates/layerfs-remote-store/src/server.rs",
+  "path_before": 376,
+  "path_after": 379,
+  "before": 106285,
+  "after": 106288,
+  "delta": 3,
+  "staged_paths": [
+    "core/crates/layerfs-remote-store/src/server.rs",
+    "core/crates/layerfs-remote-store/tests/request_paths.rs"
+  ]
+}
