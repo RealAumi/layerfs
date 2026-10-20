@@ -19,6 +19,7 @@ enum Fault {
     Upload,
     InstallRead,
     RebaseWrite,
+    SaveRestore,
 }
 #[derive(Debug)]
 struct State {
@@ -67,6 +68,9 @@ impl RemoteStore for Remote {
         key: &str,
         point: &layerfs_store_service::store::ignore::RestorePoint,
     ) -> Result<(), BackendError> {
+        if self.0.lock().unwrap().fault == Fault::SaveRestore {
+            return Err(failure());
+        }
         self.0
             .lock()
             .unwrap()

@@ -322,3 +322,77 @@ fn remote_objects_are_not_required_in_manifest_and_corruption_has_reason() {
     drop(peer);
     fs::remove_dir_all(dir).unwrap();
 }
+
+#[test]
+fn saving_restore_does_not_read_the_unchanged_object_graph() {
+    let dir = temp("constant-save");
+    let peer = connect(&dir, 1);
+    let (point, _) = point(&peer.client, 51);
+    let db = rusqlite::Connection::open(dir.join("cache.sqlite")).unwrap();
+    // A record write owns no canonical-object reads, including the root.
+    db.execute(
+        "UPDATE objects SET body=X'00' WHERE id=?",
+        [point.local.as_bytes().as_slice()],
+    )
+    .unwrap();
+    let saved = peer.client.save_restore("key", &point);
+    drop(db);
+    drop(peer);
+    fs::remove_dir_all(dir).unwrap();
+    assert!(
+        saved.is_ok(),
+        "record save read the old local tree: {saved:?}"
+    );
+}
+#[test]
+fn restore_presence_does_not_materialize_file_payload_leaves() {
+    let dir = temp("leaf-presence");
+    let peer = connect(&dir, 1);
+    let (point, leaf) = point(&peer.client, 52);
+    peer.client.save_restore("key", &point).unwrap();
+    let db = rusqlite::Connection::open(dir.join("cache.sqlite")).unwrap();
+    db.execute(
+        "UPDATE objects SET body=X'00' WHERE id=?",
+        [leaf.as_bytes().as_slice()],
+    )
+    .unwrap();
+    let restored = peer.client.restore(&point.binding, "key").unwrap();
+    // Content authentication remains on demand; restore checks leaf presence.
+    assert!(peer.client.objects(&[leaf]).is_err());
+    drop(db);
+    drop(peer);
+    fs::remove_dir_all(dir).unwrap();
+    assert_eq!(restored, Some(point));
+}
+#[test]
+fn save_failure_preserves_previous_record_and_exposes_status() {
+    let dir = temp("save-failure");
+    let peer = connect(&dir, 1);
+    let (point, _) = point(&peer.client, 53);
+    peer.client.save_restore("key", &point).unwrap();
+    let db = rusqlite::Connection::open(dir.join("cache.sqlite")).unwrap();
+    db.execute_batch("CREATE TRIGGER refuse_restore BEFORE INSERT ON restore_points BEGIN SELECT RAISE(ABORT,'injected record failure'); END;").unwrap();
+    let mut later = point.clone();
+    later.seeds.clear();
+    assert!(peer.client.save_restore("key", &later).is_err());
+    let status = peer.client.restore_status();
+    let restored = peer.client.restore(&point.binding, "key").unwrap();
+    drop(db);
+    drop(peer);
+    fs::remove_dir_all(dir).unwrap();
+    assert_eq!(restored, Some(point));
+    assert_eq!(status, "save-failed");
+}
+#[test]
+fn cache_uses_a_process_crash_safe_journal() {
+    let dir = temp("journal");
+    let peer = connect(&dir, 1);
+    let db = rusqlite::Connection::open(dir.join("cache.sqlite")).unwrap();
+    let mode: String = db
+        .query_row("PRAGMA journal_mode", [], |r| r.get(0))
+        .unwrap();
+    drop(db);
+    drop(peer);
+    fs::remove_dir_all(dir).unwrap();
+    assert_eq!(mode, "wal");
+}

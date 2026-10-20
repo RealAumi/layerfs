@@ -1,0 +1,20 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.04s
+     Running tests/restore_cache.rs (core/target/debug/deps/restore_cache-fcc99b9679fe2199)
+
+running 1 test
+
+thread 'cache_uses_a_process_crash_safe_journal' (8275644) panicked at crates/layerfs-remote-store/tests/restore_cache.rs:397:5:
+assertion `left == right` failed
+  left: "delete"
+ right: "wal"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test cache_uses_a_process_crash_safe_journal ... FAILED
+
+failures:
+
+failures:
+    cache_uses_a_process_crash_safe_journal
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 7 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p layerfs-remote-store --test restore_cache`

@@ -312,3 +312,30 @@ fn absent_key_and_ignore_off_do_not_restore_or_save() {
         off.close().unwrap();
     });
 }
+
+#[test]
+fn failed_record_write_leaves_commit_successful_and_workspace_usable() {
+    with_owner("failed-save", |remote, owner| {
+        let ws = bind(remote, owner, 3, Some("key"));
+        file(&ws, &["target", "old.class"], Some(b"private-one"));
+        ws.commit_captured(&CommitOptions::default()).unwrap();
+        let original = remote.0.lock().unwrap().records["key"].clone();
+        file(&ws, &["target", "old.class"], Some(b"private-two"));
+        file(&ws, &["src", "A.java"], Some(b"tracked-two"));
+        remote.0.lock().unwrap().fault = Fault::SaveRestore;
+        let result = ws.commit_captured(&CommitOptions::default());
+        assert!(
+            result.is_ok(),
+            "published and installed Commit must succeed: {result:?}"
+        );
+        assert_eq!(remote.0.lock().unwrap().records["key"], original);
+        assert!(has(
+            &remote.mem().files(remote.root()),
+            "src/A.java",
+            "tracked-two"
+        ));
+        remote.0.lock().unwrap().fault = Fault::None;
+        ws.commit_captured(&CommitOptions::default()).unwrap();
+        ws.close().unwrap();
+    });
+}

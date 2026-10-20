@@ -1,0 +1,36 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.05s
+     Running tests/restore_cache.rs (core/target/debug/deps/restore_cache-fcc99b9679fe2199)
+
+running 7 tests
+
+thread 'saving_restore_does_not_read_the_unchanged_object_graph' (8273088) panicked at crates/layerfs-remote-store/tests/restore_cache.rs:342:5:
+record save read the old local tree: Err(BackendError { detail: "cache identity mismatch", unknown: false })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test saving_restore_does_not_read_the_unchanged_object_graph ... FAILED
+
+thread 'save_failure_preserves_previous_record_and_exposes_status' (8273087) panicked at crates/layerfs-remote-store/tests/restore_cache.rs:384:5:
+assertion `left == right` failed
+  left: "not-requested"
+ right: "save-failed"
+test save_failure_preserves_previous_record_and_exposes_status ... FAILED
+
+thread 'restore_presence_does_not_materialize_file_payload_leaves' (8273086) panicked at crates/layerfs-remote-store/tests/restore_cache.rs:365:5:
+assertion `left == right` failed
+  left: None
+ right: Some(RestorePoint { binding: BranchSnapshot { branch: BranchRecord { id: BranchId(1101010101010101010101010101010101), stack: LayerStackId(3102020202020202020202020202020202), name: HistoryName("main"), base_layer: LayerId(323232323232323232323232323232323232323232323232323232323232323232), head_commit: None, forked_from: None }, head_root: None, base_root: ObjectId("47199bd3888c617b44739c981802ec9b634e6807b8ae55249307a4b01986a62e"), effective_root: ObjectId("47199bd3888c617b44739c981802ec9b634e6807b8ae55249307a4b01986a62e"), scope: ObjectId("140395b4965194aca0e32bb08cc0d7a477f31e883798f4539798b6355fc01b64"), profile: ObjectId("d9bc397d578dab71b49f0816eb2d4f3bc5699cfd755addef915a303b35748ee0") }, local: ObjectId("47199bd3888c617b44739c981802ec9b634e6807b8ae55249307a4b01986a62e"), published: ObjectId("570eede86d39e0276d876c45face7a2ea0ea6bda8196c2b7dfaae2c8b473a5d5"), seeds: [Directory(52), Path("nested/52")] })
+test restore_presence_does_not_materialize_file_payload_leaves ... FAILED
+test remote_objects_are_not_required_in_manifest_and_corruption_has_reason ... ok
+test missing_local_leaf_rejects_record ... ok
+test missing_local_root_rejects_record ... ok
+test restart_atomic_last_writer_and_scoped_keys ... ok
+
+failures:
+
+failures:
+    restore_presence_does_not_materialize_file_payload_leaves
+    save_failure_preserves_previous_record_and_exposes_status
+    saving_restore_does_not_read_the_unchanged_object_graph
+
+test result: FAILED. 4 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `-p layerfs-remote-store --test restore_cache`

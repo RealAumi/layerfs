@@ -48,7 +48,10 @@ fn read(service: &StoreService, path: &str) -> String {
         service,
         "fs.read",
         vec![
-            ("branch", SdkValue::text("work")),
+            (
+                "branch",
+                SdkValue::text(std::env::var("LFS_BRANCH").unwrap_or_else(|_| "work".into())),
+            ),
             ("path", SdkValue::text(path)),
         ],
     )
@@ -111,7 +114,10 @@ fn drive() {
             call(
                 &service,
                 "branch.fork",
-                vec![("name", SdkValue::text("work"))],
+                vec![(
+                    "name",
+                    SdkValue::text(std::env::var("LFS_BRANCH").unwrap_or_else(|_| "work".into())),
+                )],
             );
             let branch = BranchId::named(
                 LayerStackId::from_authority([23; 16]),
@@ -163,12 +169,33 @@ fn drive() {
         mode => {
             let service = open();
             match mode {
+                "fork" => {
+                    let name = std::env::var("LFS_BRANCH").unwrap();
+                    call(
+                        &service,
+                        "branch.fork",
+                        vec![("name", SdkValue::text(&name))],
+                    );
+                    println!(
+                        "BRANCH {}",
+                        hex(&BranchId::named(
+                            LayerStackId::from_authority([23; 16]),
+                            &HistoryName::new(&name).unwrap()
+                        )
+                        .to_bytes())
+                    );
+                }
                 "write" => {
                     call(
                         &service,
                         "fs.write",
                         vec![
-                            ("branch", SdkValue::text("work")),
+                            (
+                                "branch",
+                                SdkValue::text(
+                                    std::env::var("LFS_BRANCH").unwrap_or_else(|_| "work".into()),
+                                ),
+                            ),
                             ("path", SdkValue::text(std::env::var("LFS_PATH").unwrap())),
                             (
                                 "content",
@@ -188,7 +215,12 @@ fn drive() {
                     let value = call(
                         &service,
                         "branch.list_commits",
-                        vec![("branch", SdkValue::text("work"))],
+                        vec![(
+                            "branch",
+                            SdkValue::text(
+                                std::env::var("LFS_BRANCH").unwrap_or_else(|_| "work".into()),
+                            ),
+                        )],
                     );
                     let Some(SdkValue::List(items)) = value.get("items") else {
                         panic!("history items: {value:?}")
