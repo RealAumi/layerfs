@@ -1,0 +1,21 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.05s
+     Running tests/kernel_visit.rs (core/target/debug/deps/kernel_visit-d2a3616815a86c3e)
+
+running 1 test
+test successful_kernel_names_record_hints_without_lookup ... FAILED
+
+failures:
+
+---- successful_kernel_names_record_hints_without_lookup stdout ----
+
+thread 'successful_kernel_names_record_hints_without_lookup' (7498556) panicked at crates/layerfs-workspace/tests/kernel_visit.rs:1111:9:
+missing hint for created
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    successful_kernel_names_record_hints_without_lookup
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p layerfs-workspace --test kernel_visit`

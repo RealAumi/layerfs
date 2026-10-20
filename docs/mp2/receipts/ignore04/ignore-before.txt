@@ -1,0 +1,98 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.04s
+     Running tests/ignore.rs (core/target/debug/deps/ignore-80bc6545bec0bfb4)
+
+running 30 tests
+test review_move_twice_from_shared_ignored_parents ... ok
+test newly_tracked_paths_are_published ... ok
+test directories_moved_while_ignored_leave_their_old_name_when_kept ... ok
+test ignored_changes_stay_local ... ok
+test moved_heads_rebase_the_local_base ... ok
+test cleans_stay_local ... ok
+test review_ignored_rule_rewrite_without_hints_reconciles ... ok
+test review_ignored_hardlinks_without_complete_hints_do_not_leak ... FAILED
+test moves_out_of_ignored_directories_carry_local_content ... ok
+test review_server_delete_preserves_local_ignored_descendants ... FAILED
+test review_unreadable_index_does_not_publish_ignored_bytes ... FAILED
+test review_unignore_after_local_delete_removes_stale_published_name ... ok
+test review_server_rule_flip_keeps_views_equal ... FAILED
+test round4::server_move_carries_local_only_descendants_without_pruning ... ok
+test round4::server_rebind_prunes_old_directory_with_local_only_names ... FAILED
+test round4::unreadable_index_withholds_tracked_ignored_edits_until_readable ... FAILED
+test round4::server_delete_prunes_two_levels_but_preserves_local_only_file ... FAILED
+test tracked_files_in_ignored_directories ... ok
+test trees_without_ignored_changes_publish_as_built ... ok
+test round4::server_nested_rules_exclude_and_index_flip_on_next_noop_commit ... FAILED
+test rule_changes_publish_what_they_unignore ... ok
+test review_seed_1_tracking_a_locally_deleted_directory ... ok
+test review_seed_130_moved_nested_negation ... ok
+test review_seed_2_disjoint_server_changes ... ok
+test review_seed_31_moved_directory_ignored_values ... ok
+test faults::published_install_read_failure_retains_custody_and_refuses_next_commit ... ok
+test faults::published_rebase_write_failure_retains_custody_and_refuses_next_commit ... ok
+test faults::definite_upload_refusal_preserves_the_next_explicit_commit ... ok
+test round4::missing_hints_for_1000_rewrites_list_probe_directories_once ... FAILED
+test review_model_200_seeds_30_steps ... ok
+
+failures:
+
+---- review_ignored_hardlinks_without_complete_hints_do_not_leak stdout ----
+
+thread 'review_ignored_hardlinks_without_complete_hints_do_not_leak' (7496550) panicked at crates/layerfs-store-service/tests/ignore.rs:994:5:
+assertion failed: has(&mem.files(published), "target/old.class", "old")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- review_server_delete_preserves_local_ignored_descendants stdout ----
+
+thread 'review_server_delete_preserves_local_ignored_descendants' (7496558) panicked at crates/layerfs-store-service/tests/ignore.rs:719:5:
+assertion failed: has(&mem.files(workspace.local()), "logs/private.log", "private")
+
+---- review_unreadable_index_does_not_publish_ignored_bytes stdout ----
+
+thread 'review_unreadable_index_does_not_publish_ignored_bytes' (7496561) panicked at crates/layerfs-store-service/tests/ignore.rs:704:5:
+assertion failed: !mem.files(published).contains_key("target/secret")
+
+---- review_server_rule_flip_keeps_views_equal stdout ----
+
+thread 'review_server_rule_flip_keeps_views_equal' (7496559) panicked at crates/layerfs-store-service/tests/ignore.rs:979:5:
+after server flip=false; after next Commit=false
+
+---- round4::server_rebind_prunes_old_directory_with_local_only_names stdout ----
+
+thread 'round4::server_rebind_prunes_old_directory_with_local_only_names' (7496566) panicked at crates/layerfs-store-service/tests/ignore/round4.rs:35:5:
+assertion failed: has(&local, "logs/private.log", "local")
+
+---- round4::unreadable_index_withholds_tracked_ignored_edits_until_readable stdout ----
+
+thread 'round4::unreadable_index_withholds_tracked_ignored_edits_until_readable' (7496567) panicked at crates/layerfs-store-service/tests/ignore/round4.rs:9:5:
+assertion failed: has(&mem.files(ws.published), "build/keep.txt", "keep v1")
+
+---- round4::server_delete_prunes_two_levels_but_preserves_local_only_file stdout ----
+
+thread 'round4::server_delete_prunes_two_levels_but_preserves_local_only_file' (7496563) panicked at crates/layerfs-store-service/tests/ignore/round4.rs:22:5:
+assertion failed: has(&local, "logs/deep/private.log", "local")
+
+---- round4::server_nested_rules_exclude_and_index_flip_on_next_noop_commit stdout ----
+
+thread 'round4::server_nested_rules_exclude_and_index_flip_on_next_noop_commit' (7496565) panicked at crates/layerfs-store-service/tests/ignore/round4.rs:66:9:
+variant=0
+
+---- round4::missing_hints_for_1000_rewrites_list_probe_directories_once stdout ----
+
+thread 'round4::missing_hints_for_1000_rewrites_list_probe_directories_once' (7496562) panicked at crates/layerfs-store-service/tests/ignore/round4.rs:96:5:
+probe listings=16000, expected at most one walk
+
+
+failures:
+    review_ignored_hardlinks_without_complete_hints_do_not_leak
+    review_server_delete_preserves_local_ignored_descendants
+    review_server_rule_flip_keeps_views_equal
+    review_unreadable_index_does_not_publish_ignored_bytes
+    round4::missing_hints_for_1000_rewrites_list_probe_directories_once
+    round4::server_delete_prunes_two_levels_but_preserves_local_only_file
+    round4::server_nested_rules_exclude_and_index_flip_on_next_noop_commit
+    round4::server_rebind_prunes_old_directory_with_local_only_names
+    round4::unreadable_index_withholds_tracked_ignored_edits_until_readable
+
+test result: FAILED. 21 passed; 9 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.97s
+
+error: test failed, to rerun pass `-p layerfs-store-service --test ignore`

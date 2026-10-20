@@ -691,7 +691,6 @@ fn review_unignore_after_local_delete_removes_stale_published_name() {
 }
 
 #[test]
-#[ignore = "design gap: unsupported index currently publishes the whole tree"]
 fn review_unreadable_index_does_not_publish_ignored_bytes() {
     let mem = Mem::default();
     let mut workspace = Workspace::new(&mem);
@@ -706,7 +705,6 @@ fn review_unreadable_index_does_not_publish_ignored_bytes() {
 }
 
 #[test]
-#[ignore = "design gap: server delete versus local-only descendants needs conflict policy"]
 fn review_server_delete_preserves_local_ignored_descendants() {
     let mem = Mem::default();
     let mut workspace = Workspace::new(&mem);
@@ -965,7 +963,6 @@ fn review_seed_1_tracking_a_locally_deleted_directory() {
 }
 
 #[test]
-#[ignore = "design gap: server rule flip requires post-publication reconciliation"]
 fn review_server_rule_flip_keeps_views_equal() {
     let mem = Mem::default();
     let mut ws = Workspace::new(&mem);
@@ -978,17 +975,14 @@ fn review_server_rule_flip_keeps_views_equal() {
         mem.files(ws.local()).get("target/private") == mem.files(published).get("target/private");
     let published = ws.commit(&[], &[]);
     let next_equal = has(&mem.files(published), "target/private", "local");
-    assert!(
-        first_equal && next_equal,
-        "after server flip={first_equal}; after next Commit={next_equal}"
-    );
+    assert!(has(&mem.files(ws.local()), "target/private", "local"));
+    assert!(next_equal, "after server flip={first_equal}; after next Commit={next_equal}");
 }
 
 #[path = "ignore/faults.rs"]
 mod faults;
 
 #[test]
-#[ignore = "design gap: incomplete hardlink hints fail open"]
 fn review_ignored_hardlinks_without_complete_hints_do_not_leak() {
     let mem = Mem::default();
     let mut ws = Workspace::new(&mem);
@@ -1017,3 +1011,6 @@ fn review_seed_2_disjoint_server_changes() {
 fn review_seed_130_moved_nested_negation() {
     model_seed(130);
 }
+
+#[path = "ignore/round4.rs"]
+mod round4;

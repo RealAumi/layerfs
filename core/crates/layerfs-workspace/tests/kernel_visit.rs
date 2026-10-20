@@ -1079,3 +1079,36 @@ fn a_resident_client_answers_only_from_memory_and_only_small_objects() {
     );
     assert_eq!(memory.read_canonical_batch(&[absent]).unwrap().len(), 1);
 }
+
+#[test]
+fn successful_kernel_names_record_hints_without_lookup() {
+    use layerfs_content::compare::BindingHints;
+    use layerfs_content::filesystem::SymlinkTarget;
+    let b = Bench::new("cxi-kernel-hints");
+    let mount = b.overlay.create_kernel_mount(1).unwrap();
+    let file = b.workspace.next_serial(&b.allocator).unwrap();
+    let directory = b.workspace.next_serial(&b.allocator).unwrap();
+    let link = b.workspace.next_serial(&b.allocator).unwrap();
+    let ops = [
+        (create(1,"created"),Some(file),file,"created"),
+        (mkdir(1,"directory"),Some(directory),directory,"directory"),
+        (Operation::Symlink { parent: 1,name:name("symlink-new"),target:SymlinkTarget::new(b"target".to_vec()).unwrap() },Some(link),link,"symlink-new"),
+        (Operation::Link { serial:file,parent:1,name:name("alias") },None,file,"alias"),
+        (Operation::Rename { parent:1,name:name("created"),new_parent:1,new_name:name("renamed"),replace:false,destination_path:None },None,file,"renamed"),
+    ];
+    for (i,(operation,fresh,serial,entry)) in ops.into_iter().enumerate() {
+        let mut facts = VisitFacts::default();
+        let mut done = false;
+        for _ in 0..8 {
+            let outcome = mutate(&b,resident(&b),named(mount,100+i as u64,operation.clone(),fresh,T1,&facts));
+            match outcome.result.unwrap() {
+                JobOutcome::Needs(needs) => facts.supply(&b.workspace.base().unwrap(),&needs,None).unwrap(),
+                JobOutcome::Applied { publication,.. } => { b.overlay.reply_attempted(publication).unwrap();done=true;break; }
+                other => panic!("{other:?}"),
+            }
+        }
+        assert!(done);
+        assert!(b.workspace.hints().bindings_of(serial).unwrap().contains(&(1,name(entry))),"missing hint for {entry}");
+    }
+    b.overlay.revoke_kernel_mount(mount).unwrap();
+}

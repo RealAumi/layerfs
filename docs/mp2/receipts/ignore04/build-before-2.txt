@@ -1,0 +1,4 @@
+   Compiling layerfs-workspace v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-workspace)
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.89s
+  Executable tests/ignore.rs (core/target/debug/deps/ignore-80bc6545bec0bfb4)
+  Executable tests/kernel_visit.rs (core/target/debug/deps/kernel_visit-d2a3616815a86c3e)
