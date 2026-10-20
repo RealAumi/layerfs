@@ -300,13 +300,21 @@ impl<FS: Filesystem> SessionRunner<FS> {
                     }
                 };
                 #[cfg(target_os = "linux")]
-                if let Err(error) = super::receive_stop::ReceiveStop::prepare(&channel) {
-                    startup_error = Some(error.into());
-                    break;
-                }
+                let receive_stop = match shared
+                    .receive_stop
+                    .as_ref()
+                    .expect("prepared stop pipe")
+                    .prepare(&channel)
+                {
+                    Ok(wait) => Some(wait),
+                    Err(error) => {
+                        startup_error = Some(error.into());
+                        break;
+                    }
+                };
                 let event_loop = SessionEventLoop {
                     #[cfg(target_os = "linux")]
-                    receive_stop: shared.receive_stop.clone(),
+                    receive_stop,
                     thread_name: format!("fuser-{index}"),
                     filesystem: filesystem.clone(),
                     ch: channel,

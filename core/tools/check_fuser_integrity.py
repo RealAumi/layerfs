@@ -36,6 +36,10 @@ STOP_RECORD = Path("docs/mp2/fuser-receive-stop")
 STOP_PROVENANCE_CHECKSUM = "747fd2331a28b527db6606f6c3afafab83e758a3ac5d132a684e4947d718390c"
 STOP_PATCH_CHECKSUM = "d1e42547dccaa651a1b5f915b705a77e613e3277f3a9a4ad4297a4b42fc368ac"
 STOP_FILES = {"src/session.rs", "src/session/lifecycle.rs", "src/session/receive_stop.rs"}
+EXCLUSIVE_RECORD = Path("docs/mp2/fuser-receive-exclusive")
+EXCLUSIVE_PROVENANCE_CHECKSUM = "bd02321ad6f773457956112396536e788f1432d03481f7d6f272045e2a7d5ce0"
+EXCLUSIVE_PATCH_CHECKSUM = "6a4754200d479d736c3dad76b453814c6068e56c050da2d2f9b00bdb5dc5f562"
+EXCLUSIVE_FILES = {"Cargo.toml", "src/session.rs", "src/session/lifecycle.rs", "src/session/receive_stop.rs"}
 PATCH_MANIFESTS = {
     "core/Cargo.toml": "vendor/fuser-0.18.0",
     "core/benchmark/cluster-two/platform/Cargo.toml": "../../../vendor/fuser-0.18.0",
@@ -199,6 +203,21 @@ def patched_package_errors(root: Path):
         expected |= stop["files"]
         if len(expected) != 87:
             return ["fuser receive-stop inventory is incomplete"]
+        exclusive_record = root / EXCLUSIVE_RECORD
+        exclusive_raw = (exclusive_record / "provenance.json").read_bytes()
+        if hashlib.sha256(exclusive_raw).hexdigest() != EXCLUSIVE_PROVENANCE_CHECKSUM:
+            return ["fuser receive-exclusive provenance changed"]
+        exclusive = json.loads(exclusive_raw)
+        if (exclusive["receive_stop_provenance_sha256"] != STOP_PROVENANCE_CHECKSUM
+                or set(exclusive["files"]) != EXCLUSIVE_FILES):
+            return ["fuser receive-exclusive delta has an unauthorized base or file scope"]
+        if (exclusive["patch_sha256"] != EXCLUSIVE_PATCH_CHECKSUM
+                or hashlib.sha256((exclusive_record / "receive-exclusive.patch").read_bytes()).hexdigest()
+                != EXCLUSIVE_PATCH_CHECKSUM):
+            return ["fuser receive-exclusive diff changed"]
+        expected |= exclusive["files"]
+        if len(expected) != 87:
+            return ["fuser receive-exclusive inventory is incomplete"]
         errors = []
         actual = set()
         for path in source.rglob("*"):

@@ -1,0 +1,139 @@
+diff --git a/core/vendor/fuser-0.18.0/Cargo.toml b/core/vendor/fuser-0.18.0/Cargo.toml
+index 8e755145d..b291fb154 100644
+--- a/core/vendor/fuser-0.18.0/Cargo.toml
++++ b/core/vendor/fuser-0.18.0/Cargo.toml
+@@ -121,6 +121,7 @@ version = "2.7.2"
+ [dependencies.nix]
+ version = "0.31.0"
+ features = [
++    "event",
+     "fs",
+     "user",
+     "poll",
+diff --git a/core/vendor/fuser-0.18.0/src/session.rs b/core/vendor/fuser-0.18.0/src/session.rs
+index 0c9105f2f..c55067a8a 100644
+--- a/core/vendor/fuser-0.18.0/src/session.rs
++++ b/core/vendor/fuser-0.18.0/src/session.rs
+@@ -537,7 +537,7 @@ impl SessionUnmounter {
+ 
+ pub(crate) struct SessionEventLoop<FS: Filesystem> {
+     #[cfg(target_os = "linux")]
+-    receive_stop: Option<Arc<receive_stop::ReceiveStop>>,
++    receive_stop: Option<receive_stop::ReceiveWait>,
+     /// Cache thread name for faster `debug!`.
+     pub(crate) thread_name: String,
+     pub(crate) ch: Channel,
+diff --git a/core/vendor/fuser-0.18.0/src/session/lifecycle.rs b/core/vendor/fuser-0.18.0/src/session/lifecycle.rs
+index a9a39a23c..bffed2338 100644
+--- a/core/vendor/fuser-0.18.0/src/session/lifecycle.rs
++++ b/core/vendor/fuser-0.18.0/src/session/lifecycle.rs
+@@ -300,13 +300,21 @@ impl<FS: Filesystem> SessionRunner<FS> {
+                     }
+                 };
+                 #[cfg(target_os = "linux")]
+-                if let Err(error) = super::receive_stop::ReceiveStop::prepare(&channel) {
+-                    startup_error = Some(error.into());
+-                    break;
+-                }
++                let receive_stop = match shared
++                    .receive_stop
++                    .as_ref()
++                    .expect("prepared stop pipe")
++                    .prepare(&channel)
++                {
++                    Ok(wait) => Some(wait),
++                    Err(error) => {
++                        startup_error = Some(error.into());
++                        break;
++                    }
++                };
+                 let event_loop = SessionEventLoop {
+                     #[cfg(target_os = "linux")]
+-                    receive_stop: shared.receive_stop.clone(),
++                    receive_stop,
+                     thread_name: format!("fuser-{index}"),
+                     filesystem: filesystem.clone(),
+                     ch: channel,
+diff --git a/core/vendor/fuser-0.18.0/src/session/receive_stop.rs b/core/vendor/fuser-0.18.0/src/session/receive_stop.rs
+index 1d77e7512..20b0ef416 100644
+--- a/core/vendor/fuser-0.18.0/src/session/receive_stop.rs
++++ b/core/vendor/fuser-0.18.0/src/session/receive_stop.rs
+@@ -1,9 +1,9 @@
+ //! Explicit Linux receive cancellation; no detach, abort or request replay.
+-use std::os::fd::{AsFd, OwnedFd};
++use std::os::fd::OwnedFd;
+ 
+ use nix::errno::Errno;
+ use nix::fcntl::{FcntlArg, OFlag, fcntl};
+-use nix::poll::{PollFd, PollFlags, PollTimeout, poll};
++use nix::sys::epoll::{Epoll, EpollCreateFlags, EpollEvent, EpollFlags, EpollTimeout};
+ use nix::unistd::{pipe2, read};
+ use parking_lot::Mutex;
+ 
+@@ -27,39 +27,44 @@ impl ReceiveStop {
+     pub(super) fn stop(&self) {
+         drop(self.write.lock().take());
+     }
+-    pub(super) fn prepare(channel: &Channel) -> nix::Result<()> {
++    pub(super) fn prepare(&self, channel: &Channel) -> nix::Result<ReceiveWait> {
+         let flags = OFlag::from_bits_retain(fcntl(channel, FcntlArg::F_GETFL)?);
+         fcntl(channel, FcntlArg::F_SETFL(flags | OFlag::O_NONBLOCK))?;
+-        Ok(())
++        let wait = Epoll::new(EpollCreateFlags::EPOLL_CLOEXEC)?;
++        // Each receiver registers separately. Exclusive device wakeups avoid
++        // waking all readers for one frame; stop remains a broadcast to all.
++        wait.add(
++            channel,
++            EpollEvent::new(EpollFlags::EPOLLIN | EpollFlags::EPOLLEXCLUSIVE, 0),
++        )?;
++        wait.add(&self.read, EpollEvent::new(EpollFlags::EPOLLIN, 1))?;
++        Ok(ReceiveWait(wait))
+     }
++}
++/// The event loop owns its channel and its monitor keeps the stop pipe alive.
++#[derive(Debug)]
++pub(super) struct ReceiveWait(Epoll);
++impl ReceiveWait {
+     pub(super) fn receive(
+         &self,
+         channel: &Channel,
+         buffer: &mut [u8],
+     ) -> nix::Result<Option<usize>> {
+         loop {
+-            let mut fds = [
+-                PollFd::new(channel.as_fd(), PollFlags::POLLIN),
+-                PollFd::new(self.read.as_fd(), PollFlags::POLLIN),
+-            ];
+-            match poll(&mut fds, PollTimeout::NONE) {
+-                Ok(_) => (),
++            let mut events = [EpollEvent::empty(); 2];
++            let count = match self.0.wait(&mut events, EpollTimeout::NONE) {
++                Ok(count) => count,
+                 Err(Errno::EINTR) => continue,
+                 Err(error) => return Err(error),
+-            }
+-            if fds.iter().any(|fd| {
+-                fd.revents()
+-                    .unwrap_or(PollFlags::empty())
+-                    .contains(PollFlags::POLLNVAL)
+-            }) {
+-                return Err(Errno::EBADF);
+-            }
+-            if fds[1]
+-                .revents()
+-                .unwrap_or(PollFlags::empty())
+-                .contains(PollFlags::POLLHUP)
+-            {
+-                return Ok(None);
++            };
++            for event in &events[..count] {
++                if event.data() == 1 {
++                    return if event.events().contains(EpollFlags::EPOLLHUP) {
++                        Ok(None)
++                    } else {
++                        Err(Errno::EIO)
++                    };
++                }
+             }
+             // Another receiver may have consumed the readable request. The
+             // descriptor must be nonblocking or that race defeats cancellation.

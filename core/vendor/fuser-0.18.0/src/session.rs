@@ -537,7 +537,7 @@ impl SessionUnmounter {
 
 pub(crate) struct SessionEventLoop<FS: Filesystem> {
     #[cfg(target_os = "linux")]
-    receive_stop: Option<Arc<receive_stop::ReceiveStop>>,
+    receive_stop: Option<receive_stop::ReceiveWait>,
     /// Cache thread name for faster `debug!`.
     pub(crate) thread_name: String,
     pub(crate) ch: Channel,
