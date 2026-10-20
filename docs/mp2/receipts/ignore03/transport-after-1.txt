@@ -1,0 +1,11 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.15s
+     Running tests/transport.rs (core/target/debug/deps/transport-1f2b5f5d79bb1d92)
+
+running 3 tests
+test fragments_cross_noise_records_and_reject_a_bad_offset ... ok
+test wrong_canonical_identity_is_not_cached_or_replayed ... ok
+test upload_window_failure_keeps_local_objects_and_never_sends_unreachable_bytes ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+Command exit: 0

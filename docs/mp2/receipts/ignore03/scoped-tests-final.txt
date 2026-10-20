@@ -1,0 +1,113 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.15s
+     Running unittests src/lib.rs (core/target/debug/deps/layerfs_remote_store-e4f37911921060b9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/layerfs-remote.rs (core/target/debug/deps/layerfs_remote-b7bcd3a28561e727)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/bin/layerfs-store.rs (core/target/debug/deps/layerfs_store-c7f1997d75a5d9f3)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/metadata.rs (core/target/debug/deps/metadata-08e23654f7913ec4)
+
+running 2 tests
+test remote_generation_is_verified_metadata_only_and_reused ... ignored, owned two-container server and private /state/control.setup required
+test inode_wave_separates_lengths_from_namespace_children ... ok
+
+test result: ok. 1 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/remote_driver.rs (core/target/debug/deps/remote_driver-c0c8f934c61c2531)
+
+running 1 test
+test drive ... ignored, run explicitly by docs/mp2 two-container script
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/request_paths.rs (core/target/debug/deps/request_paths-8b9ee7c3dfd3575f)
+
+running 1 test
+test request_paths ... ignored, explicit offline diagnostic on an owned Store copy
+
+test result: ok. 0 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/transport.rs (core/target/debug/deps/transport-1f2b5f5d79bb1d92)
+
+running 5 tests
+test production_style_blocking_listener_returns_blocking_sockets ... ok
+test fragments_cross_noise_records_and_reject_a_bad_offset ... ok
+test wrong_canonical_identity_is_not_cached_or_replayed ... ok
+test upload_lost_ack_keeps_local_objects_and_quarantines_without_replay ... ok
+test upload_window_failure_keeps_local_objects_and_never_sends_unreachable_bytes ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.04s
+
+     Running unittests src/lib.rs (core/target/debug/deps/layerfs_store_service-ad197b475ed2508b)
+
+running 5 tests
+test store::ignore::index::tests::a_split_index_is_not_read ... ok
+test store::ignore::index::tests::version_two_and_four_paths_and_prefixes ... ok
+test store::ignore::rules::tests::classes_escapes_and_trailing_spaces ... ok
+test store::ignore::rules::tests::names_match_at_any_depth_and_slashes_anchor ... ok
+test store::ignore::rules::tests::double_stars_negation_and_nested_files ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/ignore.rs (core/target/debug/deps/ignore-1c5653cdc3a7ad94)
+
+running 22 tests
+test review_ignored_hardlinks_without_complete_hints_do_not_leak ... ignored, design gap: incomplete hardlink hints fail open
+test directories_moved_while_ignored_leave_their_old_name_when_kept ... ok
+test cleans_stay_local ... ok
+test review_move_twice_from_shared_ignored_parents ... ok
+test review_server_delete_preserves_local_ignored_descendants ... ignored, design gap: server delete versus local-only descendants needs conflict policy
+test review_server_rule_flip_keeps_views_equal ... ignored, design gap: server rule flip requires post-publication reconciliation
+test review_unreadable_index_does_not_publish_ignored_bytes ... ignored, design gap: unsupported index currently publishes the whole tree
+test moved_heads_rebase_the_local_base ... ok
+test newly_tracked_paths_are_published ... ok
+test ignored_changes_stay_local ... ok
+test review_ignored_rule_rewrite_without_hints_reconciles ... ok
+test tracked_files_in_ignored_directories ... ok
+test moves_out_of_ignored_directories_carry_local_content ... ok
+test trees_without_ignored_changes_publish_as_built ... ok
+test review_unignore_after_local_delete_removes_stale_published_name ... ok
+test rule_changes_publish_what_they_unignore ... ok
+test review_seed_1_tracking_a_locally_deleted_directory ... ok
+test review_seed_31_moved_directory_ignored_values ... ok
+test faults::published_rebase_write_failure_retains_custody_and_refuses_next_commit ... ok
+test faults::published_install_read_failure_retains_custody_and_refuses_next_commit ... ok
+test faults::definite_upload_refusal_preserves_the_next_explicit_commit ... ok
+test review_model_200_seeds_30_steps ... ok
+
+test result: ok. 18 passed; 0 failed; 4 ignored; 0 measured; 0 filtered out; finished in 1.00s
+
+     Running tests/kept_plans.rs (core/target/debug/deps/kept_plans-06dda89dc1c0a931)
+
+running 1 test
+test a_full_walk_answer_is_kept_like_a_plan_and_let_go_like_one ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/kernel_guard.rs (core/target/debug/deps/kernel_guard-94d7131a0b869bd5)
+
+running 1 test
+test direct_access_is_unsupported_off_linux ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/sdk_root_batches.rs (core/target/debug/deps/sdk_root_batches-ce00ba4bfc0ca2d3)
+
+running 1 test
+test batches_stay_within_their_bounds ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+Command exit: 0

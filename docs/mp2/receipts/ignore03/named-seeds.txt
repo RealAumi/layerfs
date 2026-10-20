@@ -1,0 +1,12 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.14s
+     Running tests/ignore.rs (core/target/debug/deps/ignore-1c5653cdc3a7ad94)
+
+running 4 tests
+test review_seed_130_moved_nested_negation ... ok
+test review_seed_1_tracking_a_locally_deleted_directory ... ok
+test review_seed_31_moved_directory_ignored_values ... ok
+test review_seed_2_disjoint_server_changes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 20 filtered out; finished in 0.02s
+
+Command exit: 0

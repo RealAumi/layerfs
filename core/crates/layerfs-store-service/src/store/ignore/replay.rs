@@ -351,6 +351,14 @@ impl Replay<'_> {
         while let Some(part) = parts.next() {
             let name = PathName::new(part)?;
             let Some(child) = self.after.lookup(self.reader, parent, &name)? else {
+                // Newly tracked paths can be absent locally after an ignored
+                // deletion. Remove the stale published binding at that frontier.
+                if let Some(old) = self.bound(parent, &name)? {
+                    let kind = self.target.value(self.reader, old)?;
+                    if self.keep.binding(parent, &name, directory(kind.as_ref()))? {
+                        self.bind(parent, name, None);
+                    }
+                }
                 return Ok(());
             };
             self.keep.learn(parent, &name, child);
@@ -457,21 +465,23 @@ impl Replay<'_> {
     }
 
     /// Unbinds adopted inodes where `onto` still binds them: at the old
-    /// names this replay saw, and for a directory whose old name it did not
-    /// see, wherever a walk of `onto` finds it.
+    /// names this replay saw, and for a directory whose published binding
+    /// differs from those local names, wherever a walk of `onto` finds it.
     fn detach(&mut self, olds: &HashMap<u64, Vec<(u64, PathName)>>) -> ContentResult<()> {
         for child in self.adopted.clone() {
             if self.fresh.contains(&child) {
                 continue;
             }
             let seen = olds.get(&child).cloned().unwrap_or_default();
-            let unseen = seen.is_empty() && self.is_directory(child)?;
+            let directory = self.is_directory(child)?;
+            let mut located = false;
             for (parent, name) in seen {
+                located |= self.target.lookup(self.reader, parent, &name)? == Some(child);
                 if self.bound(parent, &name)? == Some(child) {
                     self.bind(parent, name, None);
                 }
             }
-            if !unseen {
+            if !directory || located {
                 continue;
             }
             let wanted = BTreeSet::from([child]);
@@ -484,7 +494,9 @@ impl Replay<'_> {
             while let Some(part) = parts.next() {
                 let name = PathName::new(part)?;
                 if parts.peek().is_none() {
-                    if self.bound(parent, &name)? == Some(child) {
+                    if self.bound(parent, &name)? == Some(child)
+                        && self.after.lookup(self.reader, parent, &name)? != Some(child)
+                    {
                         self.bind(parent, name, None);
                     }
                     break;

@@ -1,0 +1,44 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.19s
+     Running tests/ignore.rs (core/target/debug/deps/ignore-1c5653cdc3a7ad94)
+
+running 4 tests
+test review_unreadable_index_does_not_publish_ignored_bytes ... FAILED
+test review_ignored_hardlinks_without_complete_hints_do_not_leak ... FAILED
+test review_server_delete_preserves_local_ignored_descendants ... FAILED
+test review_server_rule_flip_keeps_views_equal ... FAILED
+
+failures:
+
+---- review_unreadable_index_does_not_publish_ignored_bytes stdout ----
+
+thread 'review_unreadable_index_does_not_publish_ignored_bytes' (7414656) panicked at crates/layerfs-store-service/tests/ignore.rs:705:5:
+assertion failed: !mem.files(published).contains_key("target/secret")
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- review_ignored_hardlinks_without_complete_hints_do_not_leak stdout ----
+
+thread 'review_ignored_hardlinks_without_complete_hints_do_not_leak' (7414653) panicked at crates/layerfs-store-service/tests/ignore.rs:998:5:
+assertion failed: has(&mem.files(published), "target/old.class", "old")
+
+---- review_server_delete_preserves_local_ignored_descendants stdout ----
+
+thread 'review_server_delete_preserves_local_ignored_descendants' (7414654) panicked at crates/layerfs-store-service/tests/ignore.rs:721:5:
+assertion failed: has(&mem.files(workspace.local()), "logs/private.log", "private")
+
+---- review_server_rule_flip_keeps_views_equal stdout ----
+
+thread 'review_server_rule_flip_keeps_views_equal' (7414655) panicked at crates/layerfs-store-service/tests/ignore.rs:977:5:
+assertion `left == right` failed
+  left: Some("local")
+ right: None
+
+
+failures:
+    review_ignored_hardlinks_without_complete_hints_do_not_leak
+    review_server_delete_preserves_local_ignored_descendants
+    review_server_rule_flip_keeps_views_equal
+    review_unreadable_index_does_not_publish_ignored_bytes
+
+test result: FAILED. 0 passed; 4 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p layerfs-store-service --test ignore`

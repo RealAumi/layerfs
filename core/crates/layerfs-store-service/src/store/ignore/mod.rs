@@ -8,8 +8,6 @@ mod index;
 mod project;
 mod replay;
 mod rules;
-#[cfg(test)]
-mod tests;
 
 pub use project::{rebase, IgnoreState, LocalBase, Projection};
 pub use replay::{replay, All, Keep, Replayed, Seed};

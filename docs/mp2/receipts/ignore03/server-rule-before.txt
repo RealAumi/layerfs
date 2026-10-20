@@ -1,0 +1,20 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.16s
+     Running unittests src/lib.rs (core/target/debug/deps/layerfs_store_service-ef9c13d9e78554d6)
+
+running 1 test
+
+thread 'store::ignore::tests::review_server_rule_flip_keeps_views_equal' (7314767) panicked at crates/layerfs-store-service/src/store/ignore/tests.rs:766:5:
+assertion `left == right` failed
+  left: Some("local")
+ right: None
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test store::ignore::tests::review_server_rule_flip_keeps_views_equal ... FAILED
+
+failures:
+
+failures:
+    store::ignore::tests::review_server_rule_flip_keeps_views_equal
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 21 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p layerfs-store-service --lib`

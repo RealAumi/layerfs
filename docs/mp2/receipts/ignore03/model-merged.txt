@@ -1,0 +1,26 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.15s
+     Running unittests src/lib.rs (core/target/debug/deps/layerfs_remote_store-e4f37911921060b9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (core/target/debug/deps/layerfs_store_service-ad197b475ed2508b)
+
+running 1 test
+
+thread 'store::ignore::tests::review_model_200_seeds_30_steps' (7364107) panicked at crates/layerfs-store-service/src/store/ignore/tests.rs:776:9:
+assertion `left == right` failed: local model seed=2 step=17
+  left: {".git/": "", ".git/HEAD": "ref: refs/heads/main\n", ".git/index": "DIRC\0\0\0\u{2}\0\0\0\u{4}\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\n.gitignore\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\u{e}build/keep.txt\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\u{17}node_modules/x/index.js\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\nsrc/A.java\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", ".gitignore": "target/\nnode_modules/\nbuild/\nout/\n*.log\n", "build/": "", "build/keep.txt": "seed=2;step=9", "logs/": "", "logs/drop.log": "seed=2;step=13", "out/": "", "out/m12/": "", "out/m6": "old", "src/": "", "src/A.java": "v1", "src/random": "seed=2;step=0", "src/server0": "server=2;step=15", "src/server1": "server=2;step=10", "target/": "", "target/gen": "seed=2;step=8", "vendor/": "", "vendor/m15": "# none\n", "vendor/m16": "x", "vendor/m17": "server=2;step=17", "vendor/m5/": ""}
+ right: {".git/": "", ".git/HEAD": "ref: refs/heads/main\n", ".git/index": "DIRC\0\0\0\u{2}\0\0\0\u{4}\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\n.gitignore\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\u{e}build/keep.txt\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\u{17}node_modules/x/index.js\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\nsrc/A.java\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", ".gitignore": "target/\nnode_modules/\nbuild/\nout/\n*.log\n", "build/": "", "build/keep.txt": "seed=2;step=9", "logs/": "", "logs/drop.log": "seed=2;step=13", "out/": "", "out/m12/": "", "out/m6": "old", "src/": "", "src/A.java": "v1", "src/random": "seed=2;step=0", "src/server0": "server=2;step=15", "src/server1": "server=2;step=10", "src/server2": "server=2;step=17", "target/": "", "target/gen": "seed=2;step=8", "vendor/": "", "vendor/m15": "# none\n", "vendor/m16": "x", "vendor/m17": "server=2;step=5", "vendor/m5/": ""}
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test store::ignore::tests::review_model_200_seeds_30_steps ... FAILED
+
+failures:
+
+failures:
+    store::ignore::tests::review_model_200_seeds_30_steps
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 25 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p layerfs-store-service --lib`

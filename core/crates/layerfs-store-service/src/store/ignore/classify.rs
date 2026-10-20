@@ -332,11 +332,14 @@ impl Keep for Ignore<'_> {
     /// Notes a changed rule file by the names it was seen under; a change
     /// to an ignored one counts too, as Git reads it all the same.
     fn changed(&mut self, serial: u64) -> ContentResult<()> {
-        let learned = self.learned.get(&serial).cloned().unwrap_or_default();
-        for (parent, name) in learned.into_iter().chain(self.hints.bindings_of(serial)?) {
-            if matches!(name.as_str(), ".gitignore" | "exclude")
-                && self.tree.lookup(self.reader, parent, &name)? == Some(serial)
-            {
+        let bindings = self.bindings(serial)?;
+        if bindings.is_empty() {
+            if let Some((parent, _, name)) = self.place(serial)? {
+                self.note(parent, &name)?;
+                self.learn(parent, &name, serial);
+            }
+        } else {
+            for (parent, name) in bindings {
                 self.note(parent, &name)?;
             }
         }

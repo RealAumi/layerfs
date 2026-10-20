@@ -1,0 +1,15 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.15s
+     Running unittests src/lib.rs (core/target/debug/deps/layerfs_store_service-ef9c13d9e78554d6)
+
+running 7 tests
+test store::ignore::tests::review_server_delete_preserves_local_ignored_descendants ... ignored, design gap: server delete versus local-only descendants needs conflict policy
+test store::ignore::tests::review_unreadable_index_does_not_publish_ignored_bytes ... ignored, design gap: unsupported index currently publishes the whole tree
+test store::ignore::tests::review_unignore_after_local_delete_removes_stale_published_name ... ok
+test store::ignore::tests::review_ignored_rule_rewrite_without_hints_reconciles ... ok
+test store::ignore::tests::review_move_twice_from_shared_ignored_parents ... ok
+test store::ignore::tests::review_seed_1_tracking_a_locally_deleted_directory ... ok
+test store::ignore::tests::review_model_200_seeds_30_steps ... ok
+
+test result: ok. 5 passed; 0 failed; 2 ignored; 0 measured; 14 filtered out; finished in 0.71s
+
+Command exit: 0

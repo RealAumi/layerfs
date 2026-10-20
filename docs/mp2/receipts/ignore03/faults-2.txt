@@ -1,0 +1,17 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.10s
+     Running unittests src/lib.rs (core/target/debug/deps/layerfs_remote_store-e4f37911921060b9)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/lib.rs (core/target/debug/deps/layerfs_store_service-ad197b475ed2508b)
+
+running 3 tests
+test store::ignore::tests::faults::published_install_read_failure_retains_custody_and_refuses_next_commit ... ok
+test store::ignore::tests::faults::published_rebase_write_failure_retains_custody_and_refuses_next_commit ... ok
+test store::ignore::tests::faults::definite_upload_refusal_preserves_the_next_explicit_commit ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.01s
+
+Command exit: 0

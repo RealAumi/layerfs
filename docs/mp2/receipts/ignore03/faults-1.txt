@@ -1,0 +1,28 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (core/target/debug/deps/layerfs_store_service-ef9c13d9e78554d6)
+
+running 3 tests
+
+thread 'store::ignore::tests::faults::definite_upload_refusal_preserves_the_next_explicit_commit' (7334399) panicked at crates/layerfs-store-service/src/store/ignore/tests/faults.rs:111:125:
+called `Result::unwrap()` on an `Err` value: Overlay(Invalid("unqualified SQLite physical growth profile"))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'store::ignore::tests::faults::published_install_read_failure_retains_custody_and_refuses_next_commit' (7334400) panicked at crates/layerfs-store-service/src/store/ignore/tests/faults.rs:111:125:
+called `Result::unwrap()` on an `Err` value: Overlay(Invalid("unqualified SQLite physical growth profile"))
+
+thread 'store::ignore::tests::faults::published_rebase_write_failure_retains_custody_and_refuses_next_commit' (7334401) panicked at crates/layerfs-store-service/src/store/ignore/tests/faults.rs:111:125:
+called `Result::unwrap()` on an `Err` value: Overlay(Invalid("unqualified SQLite physical growth profile"))
+test store::ignore::tests::faults::published_rebase_write_failure_retains_custody_and_refuses_next_commit ... FAILED
+test store::ignore::tests::faults::published_install_read_failure_retains_custody_and_refuses_next_commit ... FAILED
+test store::ignore::tests::faults::definite_upload_refusal_preserves_the_next_explicit_commit ... FAILED
+
+failures:
+
+failures:
+    store::ignore::tests::faults::definite_upload_refusal_preserves_the_next_explicit_commit
+    store::ignore::tests::faults::published_install_read_failure_retains_custody_and_refuses_next_commit
+    store::ignore::tests::faults::published_rebase_write_failure_retains_custody_and_refuses_next_commit
+
+test result: FAILED. 0 passed; 3 failed; 0 ignored; 0 measured; 22 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p layerfs-store-service --lib`

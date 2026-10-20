@@ -1,0 +1,21 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.14s
+     Running tests/ignore.rs (core/target/debug/deps/ignore-1c5653cdc3a7ad94)
+
+running 1 test
+test review_server_rule_flip_keeps_views_equal ... FAILED
+
+failures:
+
+---- review_server_rule_flip_keeps_views_equal stdout ----
+
+thread 'review_server_rule_flip_keeps_views_equal' (7433383) panicked at crates/layerfs-store-service/tests/ignore.rs:981:5:
+after server flip=false; after next Commit=false
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    review_server_rule_flip_keeps_views_equal
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 23 filtered out; finished in 0.01s
+
+error: test failed, to rerun pass `-p layerfs-store-service --test ignore`
