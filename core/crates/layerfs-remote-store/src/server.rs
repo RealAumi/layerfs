@@ -124,6 +124,7 @@ fn dispatch(
 ) -> Result<Encode> {
     let mut out = Encode::new();
     match opcode {
+        wire::METADATA => return crate::metadata::serve(store, input),
         wire::SNAPSHOT => {
             let branch = BranchId::from_bytes(input.array()?).map_err(error)?;
             finish(input)?;

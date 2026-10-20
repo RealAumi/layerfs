@@ -21,6 +21,81 @@ impl Cache {
             CREATE INDEX IF NOT EXISTS emission_order ON emitted(attempt,sequence);").map_err(error)?;
         Ok(Self(Mutex::new(db)))
     }
+    pub fn metadata_start(&self, root: ObjectId) -> Result<bool> {
+        let db = self.0.lock().map_err(error)?;
+        db.execute_batch("PRAGMA temp_store=FILE;
+            CREATE TABLE IF NOT EXISTS metadata_roots(id BLOB PRIMARY KEY);
+            CREATE TEMP TABLE IF NOT EXISTS metadata_queue(id BLOB PRIMARY KEY,kind INTEGER NOT NULL,done INTEGER NOT NULL DEFAULT 0);
+            CREATE INDEX IF NOT EXISTS temp.metadata_pending ON metadata_queue(done,id);").map_err(error)?;
+        let done: bool = db
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM metadata_roots WHERE id=?)",
+                [root.as_bytes().as_slice()],
+                |r| r.get(0),
+            )
+            .map_err(error)?;
+        if done {
+            return Ok(false);
+        }
+        db.execute("DELETE FROM metadata_queue", [])
+            .map_err(error)?;
+        db.execute(
+            "INSERT INTO metadata_queue(id,kind) VALUES(?,?)",
+            params![root.as_bytes().as_slice(), crate::metadata::ROOT],
+        )
+        .map_err(error)?;
+        Ok(true)
+    }
+    pub fn metadata_page(&self) -> Result<Vec<crate::metadata::Demand>> {
+        let db = self.0.lock().map_err(error)?;
+        let mut q = db
+            .prepare("SELECT kind,id FROM metadata_queue WHERE done=0 ORDER BY id LIMIT 256")
+            .map_err(error)?;
+        let mut rows = q.query([]).map_err(error)?;
+        let mut out = Vec::new();
+        while let Some(row) = rows.next().map_err(error)? {
+            let id: Vec<u8> = row.get(1).map_err(error)?;
+            out.push((
+                row.get(0).map_err(error)?,
+                ObjectId::from_bytes(&id).map_err(error)?,
+            ));
+        }
+        Ok(out)
+    }
+    pub fn metadata_advance(
+        &self,
+        done: &[crate::metadata::Demand],
+        next: &[crate::metadata::Demand],
+    ) -> Result<()> {
+        let mut db = self.0.lock().map_err(error)?;
+        let tx = db.transaction().map_err(error)?;
+        for (_, id) in done {
+            tx.execute(
+                "UPDATE metadata_queue SET done=1 WHERE id=?",
+                [id.as_bytes().as_slice()],
+            )
+            .map_err(error)?;
+        }
+        for (kind, id) in next {
+            tx.execute(
+                "INSERT OR IGNORE INTO metadata_queue(id,kind) VALUES(?,?)",
+                params![id.as_bytes().as_slice(), kind],
+            )
+            .map_err(error)?;
+        }
+        tx.commit().map_err(error)
+    }
+    pub fn metadata_complete(&self, root: ObjectId) -> Result<()> {
+        self.0
+            .lock()
+            .map_err(error)?
+            .execute(
+                "INSERT OR IGNORE INTO metadata_roots VALUES(?)",
+                [root.as_bytes().as_slice()],
+            )
+            .map_err(error)?;
+        Ok(())
+    }
     pub fn get(&self, id: ObjectId) -> Result<Option<Vec<u8>>> {
         let db = self.0.lock().map_err(error)?;
         let bytes: Option<Vec<u8>> = db

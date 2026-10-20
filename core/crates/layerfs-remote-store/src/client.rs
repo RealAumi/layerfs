@@ -27,15 +27,16 @@ struct Channel {
     connection: Option<Connection>,
     next: u64,
 }
-struct Shared {
+pub(crate) struct Shared {
     read: Mutex<Channel>,
     write: Mutex<Channel>,
-    cache: Cache,
+    pub(crate) cache: Cache,
+    pub(crate) metadata: Mutex<()>,
     calls: AtomicU64,
     uploaded_objects: AtomicU64,
     uploaded_bytes: AtomicU64,
 }
-pub struct Client(Arc<Shared>);
+pub struct Client(pub(crate) Arc<Shared>);
 impl Client {
     pub fn connect(config: &Config) -> Result<Arc<Self>> {
         let connect = || {
@@ -60,6 +61,7 @@ impl Client {
             read: Mutex::new(connect()?),
             write: Mutex::new(connect()?),
             cache: Cache::open(Path::new(config.get("cache")?))?,
+            metadata: Mutex::new(()),
             calls: AtomicU64::new(0),
             uploaded_objects: AtomicU64::new(0),
             uploaded_bytes: AtomicU64::new(0),
@@ -75,7 +77,7 @@ impl Client {
             self.0.uploaded_bytes.load(Ordering::Relaxed),
         )
     }
-    fn call(&self, write: bool, opcode: u8, body: Encode) -> Result<Vec<u8>> {
+    pub(crate) fn call(&self, write: bool, opcode: u8, body: Encode) -> Result<Vec<u8>> {
         let channel = if write { &self.0.write } else { &self.0.read };
         self.exchange(&mut *channel.lock().map_err(error)?, opcode, body)
     }
@@ -99,7 +101,7 @@ impl Client {
             Ok(b) => b,
             Err(mut e) => {
                 channel.connection = None;
-                e.unknown = opcode >= wire::RESERVE;
+                e.unknown = wire::mutates(opcode);
                 return Err(e);
             }
         };
@@ -125,7 +127,7 @@ impl Client {
             Ok(answer) => answer,
             Err(mut failure) => {
                 channel.connection = None;
-                failure.unknown = opcode >= wire::RESERVE;
+                failure.unknown = wire::mutates(opcode);
                 Err(failure)
             }
         }
@@ -147,6 +149,7 @@ impl RemoteStore for Client {
         }
         let snapshot = layerfs_bridge::snapshot::decode(input.blob(8192)?).map_err(error)?;
         input.finish()?;
+        self.warm_metadata(snapshot.effective_root)?;
         Ok(snapshot)
     }
     fn objects(&self, ids: &[ObjectId]) -> Result<Vec<Vec<u8>>> {

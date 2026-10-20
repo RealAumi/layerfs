@@ -13,6 +13,10 @@ pub const RESERVE: u8 = 4;
 pub const LACKING: u8 = 5;
 pub const UPLOAD: u8 = 6;
 pub const COMMIT: u8 = 7;
+pub const METADATA: u8 = 8;
+pub fn mutates(opcode: u8) -> bool {
+    matches!(opcode, RESERVE | UPLOAD | COMMIT)
+}
 pub fn error(e: impl Display) -> BackendError {
     BackendError {
         detail: e.to_string(),
