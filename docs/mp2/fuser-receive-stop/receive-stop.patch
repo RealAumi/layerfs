@@ -1,0 +1,242 @@
+diff --git a/core/vendor/fuser-0.18.0/src/session.rs b/core/vendor/fuser-0.18.0/src/session.rs
+index d33972126..0c9105f2f 100644
+--- a/core/vendor/fuser-0.18.0/src/session.rs
++++ b/core/vendor/fuser-0.18.0/src/session.rs
+@@ -6,6 +6,8 @@
+ //! for filesystem operations under its mount point.
+ 
+ pub(crate) mod lifecycle;
++#[cfg(target_os = "linux")]
++mod receive_stop;
+ 
+ use std::borrow::Cow;
+ use std::fs::File;
+@@ -311,6 +313,8 @@ impl<FS: Filesystem> Session<FS> {
+         for (i, ch) in channels.into_iter().enumerate() {
+             let thread_name = format!("fuser-{i}");
+             let event_loop = SessionEventLoop {
++                #[cfg(target_os = "linux")]
++                receive_stop: None,
+                 thread_name: thread_name.clone(),
+                 filesystem: filesystem.clone(),
+                 ch,
+@@ -532,6 +536,8 @@ impl SessionUnmounter {
+ }
+ 
+ pub(crate) struct SessionEventLoop<FS: Filesystem> {
++    #[cfg(target_os = "linux")]
++    receive_stop: Option<Arc<receive_stop::ReceiveStop>>,
+     /// Cache thread name for faster `debug!`.
+     pub(crate) thread_name: String,
+     pub(crate) ch: Channel,
+@@ -555,8 +561,15 @@ impl<FS: Filesystem> SessionEventLoop<FS> {
+         loop {
+             // Read the next request from the given channel to kernel driver
+             // The kernel driver makes sure that we get exactly one request per read
+-            match self.ch.receive_retrying(buf) {
+-                Ok(size) => match RequestWithSender::new(self.ch.sender(), &buf[..size]) {
++            #[cfg(target_os = "linux")]
++            let received = match &self.receive_stop {
++                Some(stop) => stop.receive(&self.ch, buf),
++                None => self.ch.receive_retrying(buf).map(Some),
++            };
++            #[cfg(not(target_os = "linux"))]
++            let received = self.ch.receive_retrying(buf).map(Some);
++            match received {
++                Ok(Some(size)) => match RequestWithSender::new(self.ch.sender(), &buf[..size]) {
+                     // Dispatch request
+                     Some(req) => {
+                         if let Ok(Operation::Destroy(_)) = req.request.operation() {
+@@ -574,7 +587,7 @@ impl<FS: Filesystem> SessionEventLoop<FS> {
+                         ));
+                     }
+                 },
+-                Err(nix::errno::Errno::ENODEV) => return Ok(()),
++                Ok(None) | Err(nix::errno::Errno::ENODEV) => return Ok(()),
+                 Err(err) => return Err(err.into()),
+             }
+         }
+diff --git a/core/vendor/fuser-0.18.0/src/session/lifecycle.rs b/core/vendor/fuser-0.18.0/src/session/lifecycle.rs
+index 24119306b..a9a39a23c 100644
+--- a/core/vendor/fuser-0.18.0/src/session/lifecycle.rs
++++ b/core/vendor/fuser-0.18.0/src/session/lifecycle.rs
+@@ -55,6 +55,8 @@ struct State {
+ 
+ #[derive(Debug)]
+ struct Shared {
++    #[cfg(target_os = "linux")]
++    receive_stop: Option<Arc<super::receive_stop::ReceiveStop>>,
+     state: Mutex<State>,
+     changed: Condvar,
+ }
+@@ -90,6 +92,16 @@ impl Shared {
+ pub struct SessionMonitor(Arc<Shared>);
+ 
+ impl SessionMonitor {
++    /// Stop future receives after the caller establishes its terminal admission
++    /// fence. A request already read still dispatches and retains its outcome.
++    /// This neither unmounts nor aborts the connection and is not join evidence.
++    #[cfg(target_os = "linux")]
++    pub fn stop_receivers(&self) {
++        if let Some(stop) = &self.0.receive_stop {
++            stop.stop();
++        }
++    }
++
+     /// Observe current lifecycle state without changing it.
+     pub fn snapshot(&self) -> SessionSnapshot {
+         self.0.state.lock().snapshot
+@@ -196,11 +208,21 @@ impl SessionOutcome {
+ pub struct SessionRunner<FS: Filesystem> {
+     session: Session<FS>,
+     monitor: SessionMonitor,
++    startup_error: Option<io::Error>,
+ }
+ 
+ impl<FS: Filesystem> SessionRunner<FS> {
+     pub(super) fn new(session: Session<FS>) -> Self {
++        #[cfg(target_os = "linux")]
++        let (receive_stop, startup_error) = match super::receive_stop::ReceiveStop::new() {
++            Ok(stop) => (Some(Arc::new(stop)), None),
++            Err(error) => (None, Some(io::Error::from(error))),
++        };
++        #[cfg(not(target_os = "linux"))]
++        let startup_error = None;
+         let monitor = SessionMonitor(Arc::new(Shared {
++            #[cfg(target_os = "linux")]
++            receive_stop,
+             state: Mutex::new(State {
+                 snapshot: SessionSnapshot {
+                     phase: SessionPhase::Prepared,
+@@ -215,7 +237,11 @@ impl<FS: Filesystem> SessionRunner<FS> {
+             }),
+             changed: Condvar::new(),
+         }));
+-        Self { session, monitor }
++        Self {
++            session,
++            monitor,
++            startup_error,
++        }
+     }
+ 
+     /// Retain a monitor before transferring the runner to its session owner.
+@@ -226,7 +252,11 @@ impl<FS: Filesystem> SessionRunner<FS> {
+     /// Run once, retain every created receiver and consume every original join.
+     /// No error path automatically detaches, aborts or retries the connection.
+     pub fn run(self) -> SessionOutcome {
+-        let Self { session, monitor } = self;
++        let Self {
++            session,
++            monitor,
++            mut startup_error,
++        } = self;
+         let Session {
+             filesystem,
+             ch,
+@@ -246,10 +276,9 @@ impl<FS: Filesystem> SessionRunner<FS> {
+         }
+         let mut filesystem = Arc::new(filesystem);
+         let mut threads = Vec::new();
+-        let mut startup_error = None;
+         if n == 0 || (!cfg!(target_os = "linux") && n != 1) {
+             startup_error = Some(io::Error::other("unsupported receiver count"));
+-        } else {
++        } else if startup_error.is_none() {
+             for index in 0..n {
+                 let channel = if config.clone_fd && index + 1 != n {
+                     #[cfg(target_os = "linux")]
+@@ -270,7 +299,14 @@ impl<FS: Filesystem> SessionRunner<FS> {
+                         break;
+                     }
+                 };
++                #[cfg(target_os = "linux")]
++                if let Err(error) = super::receive_stop::ReceiveStop::prepare(&channel) {
++                    startup_error = Some(error.into());
++                    break;
++                }
+                 let event_loop = SessionEventLoop {
++                    #[cfg(target_os = "linux")]
++                    receive_stop: shared.receive_stop.clone(),
+                     thread_name: format!("fuser-{index}"),
+                     filesystem: filesystem.clone(),
+                     ch: channel,
+diff --git a/core/vendor/fuser-0.18.0/src/session/receive_stop.rs b/core/vendor/fuser-0.18.0/src/session/receive_stop.rs
+new file mode 100644
+index 000000000..1d77e7512
+--- /dev/null
++++ b/core/vendor/fuser-0.18.0/src/session/receive_stop.rs
+@@ -0,0 +1,73 @@
++//! Explicit Linux receive cancellation; no detach, abort or request replay.
++use std::os::fd::{AsFd, OwnedFd};
++
++use nix::errno::Errno;
++use nix::fcntl::{FcntlArg, OFlag, fcntl};
++use nix::poll::{PollFd, PollFlags, PollTimeout, poll};
++use nix::unistd::{pipe2, read};
++use parking_lot::Mutex;
++
++use crate::channel::Channel;
++
++#[derive(Debug)]
++pub(super) struct ReceiveStop {
++    read: OwnedFd,
++    // Closing the sole writer is a persistent broadcast HUP. No receiver
++    // consumes the signal, so all receivers observe it even if not yet polling.
++    write: Mutex<Option<OwnedFd>>,
++}
++impl ReceiveStop {
++    pub(super) fn new() -> nix::Result<Self> {
++        let (read, write) = pipe2(OFlag::O_CLOEXEC | OFlag::O_NONBLOCK)?;
++        Ok(Self {
++            read,
++            write: Mutex::new(Some(write)),
++        })
++    }
++    pub(super) fn stop(&self) {
++        drop(self.write.lock().take());
++    }
++    pub(super) fn prepare(channel: &Channel) -> nix::Result<()> {
++        let flags = OFlag::from_bits_retain(fcntl(channel, FcntlArg::F_GETFL)?);
++        fcntl(channel, FcntlArg::F_SETFL(flags | OFlag::O_NONBLOCK))?;
++        Ok(())
++    }
++    pub(super) fn receive(
++        &self,
++        channel: &Channel,
++        buffer: &mut [u8],
++    ) -> nix::Result<Option<usize>> {
++        loop {
++            let mut fds = [
++                PollFd::new(channel.as_fd(), PollFlags::POLLIN),
++                PollFd::new(self.read.as_fd(), PollFlags::POLLIN),
++            ];
++            match poll(&mut fds, PollTimeout::NONE) {
++                Ok(_) => (),
++                Err(Errno::EINTR) => continue,
++                Err(error) => return Err(error),
++            }
++            if fds.iter().any(|fd| {
++                fd.revents()
++                    .unwrap_or(PollFlags::empty())
++                    .contains(PollFlags::POLLNVAL)
++            }) {
++                return Err(Errno::EBADF);
++            }
++            if fds[1]
++                .revents()
++                .unwrap_or(PollFlags::empty())
++                .contains(PollFlags::POLLHUP)
++            {
++                return Ok(None);
++            }
++            // Another receiver may have consumed the readable request. The
++            // descriptor must be nonblocking or that race defeats cancellation.
++            match read(channel, buffer) {
++                Ok(size) => return Ok(Some(size)),
++                Err(Errno::ENOENT | Errno::EINTR | Errno::EAGAIN) => continue,
++                Err(error) => return Err(error),
++            }
++        }
++    }
++}

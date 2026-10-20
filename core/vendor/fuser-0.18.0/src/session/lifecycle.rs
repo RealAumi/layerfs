@@ -55,6 +55,8 @@ struct State {
 
 #[derive(Debug)]
 struct Shared {
+    #[cfg(target_os = "linux")]
+    receive_stop: Option<Arc<super::receive_stop::ReceiveStop>>,
     state: Mutex<State>,
     changed: Condvar,
 }
@@ -90,6 +92,16 @@ impl Shared {
 pub struct SessionMonitor(Arc<Shared>);
 
 impl SessionMonitor {
+    /// Stop future receives after the caller establishes its terminal admission
+    /// fence. A request already read still dispatches and retains its outcome.
+    /// This neither unmounts nor aborts the connection and is not join evidence.
+    #[cfg(target_os = "linux")]
+    pub fn stop_receivers(&self) {
+        if let Some(stop) = &self.0.receive_stop {
+            stop.stop();
+        }
+    }
+
     /// Observe current lifecycle state without changing it.
     pub fn snapshot(&self) -> SessionSnapshot {
         self.0.state.lock().snapshot
@@ -196,11 +208,21 @@ impl SessionOutcome {
 pub struct SessionRunner<FS: Filesystem> {
     session: Session<FS>,
     monitor: SessionMonitor,
+    startup_error: Option<io::Error>,
 }
 
 impl<FS: Filesystem> SessionRunner<FS> {
     pub(super) fn new(session: Session<FS>) -> Self {
+        #[cfg(target_os = "linux")]
+        let (receive_stop, startup_error) = match super::receive_stop::ReceiveStop::new() {
+            Ok(stop) => (Some(Arc::new(stop)), None),
+            Err(error) => (None, Some(io::Error::from(error))),
+        };
+        #[cfg(not(target_os = "linux"))]
+        let startup_error = None;
         let monitor = SessionMonitor(Arc::new(Shared {
+            #[cfg(target_os = "linux")]
+            receive_stop,
             state: Mutex::new(State {
                 snapshot: SessionSnapshot {
                     phase: SessionPhase::Prepared,
@@ -215,7 +237,11 @@ impl<FS: Filesystem> SessionRunner<FS> {
             }),
             changed: Condvar::new(),
         }));
-        Self { session, monitor }
+        Self {
+            session,
+            monitor,
+            startup_error,
+        }
     }
 
     /// Retain a monitor before transferring the runner to its session owner.
@@ -226,7 +252,11 @@ impl<FS: Filesystem> SessionRunner<FS> {
     /// Run once, retain every created receiver and consume every original join.
     /// No error path automatically detaches, aborts or retries the connection.
     pub fn run(self) -> SessionOutcome {
-        let Self { session, monitor } = self;
+        let Self {
+            session,
+            monitor,
+            mut startup_error,
+        } = self;
         let Session {
             filesystem,
             ch,
@@ -246,10 +276,9 @@ impl<FS: Filesystem> SessionRunner<FS> {
         }
         let mut filesystem = Arc::new(filesystem);
         let mut threads = Vec::new();
-        let mut startup_error = None;
         if n == 0 || (!cfg!(target_os = "linux") && n != 1) {
             startup_error = Some(io::Error::other("unsupported receiver count"));
-        } else {
+        } else if startup_error.is_none() {
             for index in 0..n {
                 let channel = if config.clone_fd && index + 1 != n {
                     #[cfg(target_os = "linux")]
@@ -270,7 +299,14 @@ impl<FS: Filesystem> SessionRunner<FS> {
                         break;
                     }
                 };
+                #[cfg(target_os = "linux")]
+                if let Err(error) = super::receive_stop::ReceiveStop::prepare(&channel) {
+                    startup_error = Some(error.into());
+                    break;
+                }
                 let event_loop = SessionEventLoop {
+                    #[cfg(target_os = "linux")]
+                    receive_stop: shared.receive_stop.clone(),
                     thread_name: format!("fuser-{index}"),
                     filesystem: filesystem.clone(),
                     ch: channel,

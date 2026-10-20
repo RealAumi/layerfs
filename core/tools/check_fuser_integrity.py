@@ -4,7 +4,7 @@
 This is a focused dependency check, not an aggregate pre-push/CI wrapper.
 Registry packages are checked against their locked archive checksum and every
 archived file. The owner-authorized timestamp, receive-loop lifecycle and
-receive-buffer patches have separate pinned identities; all other fuser
+receive-buffer and receive-stop patches have separate pinned identities; all other fuser
 overrides remain rejected.
 """
 from __future__ import annotations
@@ -32,6 +32,10 @@ LIFECYCLE_FILES = {"CHANGELOG.md", "src/lib.rs", "src/session.rs", "src/session/
 BUFFER_PROVENANCE_CHECKSUM = "f3c129457d4eadaf41574c2c1b8da40fb80724e5f42602d3766ab140fdd6d39a"
 BUFFER_PATCH_CHECKSUM = "7af34aeed231619f4757e40614c13b5f5393aa966bd8545a169f1e9fa746303f"
 BUFFER_FILES = {"src/read_buf.rs", "src/session.rs", "src/session/lifecycle.rs"}
+STOP_RECORD = Path("docs/mp2/fuser-receive-stop")
+STOP_PROVENANCE_CHECKSUM = "747fd2331a28b527db6606f6c3afafab83e758a3ac5d132a684e4947d718390c"
+STOP_PATCH_CHECKSUM = "d1e42547dccaa651a1b5f915b705a77e613e3277f3a9a4ad4297a4b42fc368ac"
+STOP_FILES = {"src/session.rs", "src/session/lifecycle.rs", "src/session/receive_stop.rs"}
 PATCH_MANIFESTS = {
     "core/Cargo.toml": "vendor/fuser-0.18.0",
     "core/benchmark/cluster-two/platform/Cargo.toml": "../../../vendor/fuser-0.18.0",
@@ -128,7 +132,7 @@ def lock_errors(document, approved=APPROVED_REVISIONS, patched=False):
 
 
 def patched_package_errors(root: Path):
-    """Verify the complete archive copy and the three separately authorized deltas."""
+    """Verify the complete archive copy and the separately authorized deltas."""
     record = root / PATCH_RECORD
     source = root / PATCH_PACKAGE
     try:
@@ -180,6 +184,21 @@ def patched_package_errors(root: Path):
         expected |= buffer["files"]
         if len(expected) != 86:
             return ["fuser receive-buffer inventory is incomplete"]
+        stop_record = root / STOP_RECORD
+        stop_raw = (stop_record / "provenance.json").read_bytes()
+        if hashlib.sha256(stop_raw).hexdigest() != STOP_PROVENANCE_CHECKSUM:
+            return ["fuser receive-stop provenance changed"]
+        stop = json.loads(stop_raw)
+        if (stop["receive_buffer_provenance_sha256"] != BUFFER_PROVENANCE_CHECKSUM
+                or set(stop["files"]) != STOP_FILES):
+            return ["fuser receive-stop delta has an unauthorized base or file scope"]
+        if (stop["patch_sha256"] != STOP_PATCH_CHECKSUM
+                or hashlib.sha256((stop_record / "receive-stop.patch").read_bytes()).hexdigest()
+                != STOP_PATCH_CHECKSUM):
+            return ["fuser receive-stop diff changed"]
+        expected |= stop["files"]
+        if len(expected) != 87:
+            return ["fuser receive-stop inventory is incomplete"]
         errors = []
         actual = set()
         for path in source.rglob("*"):

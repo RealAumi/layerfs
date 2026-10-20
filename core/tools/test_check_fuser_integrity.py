@@ -9,7 +9,7 @@ import tomllib
 
 from check_fuser_integrity import (OFFICIAL_GIT, config_errors, lock_errors,
                                    manifest_errors, package_errors, patched_package_errors,
-                                   PATCH_PACKAGE, PATCH_RECORD, PATCH_MANIFESTS)
+                                   PATCH_PACKAGE, PATCH_RECORD, PATCH_MANIFESTS, STOP_RECORD)
 
 REV = "e48279fab0ddbe4a6e22aefad3cbfdf796d0b0b7"
 
@@ -75,10 +75,11 @@ class FuserIntegrityTests(unittest.TestCase):
         with TemporaryDirectory() as directory:
             root = Path(directory)
             shutil.copytree(repository / PATCH_RECORD, root / PATCH_RECORD)
+            shutil.copytree(repository / STOP_RECORD, root / STOP_RECORD)
             shutil.copytree(repository / PATCH_PACKAGE, root / PATCH_PACKAGE)
             self.assertFalse(patched_package_errors(root))
             for name in ['src/time.rs', 'src/session.rs', 'src/session/lifecycle.rs', 'src/lib.rs', 'CHANGELOG.md',
-                         'src/read_buf.rs']:
+                         'src/read_buf.rs', 'src/session/receive_stop.rs']:
                 path = root / PATCH_PACKAGE / name
                 original = path.read_bytes()
                 path.write_bytes(original + b'// unauthorized edit\n')
@@ -101,11 +102,30 @@ class FuserIntegrityTests(unittest.TestCase):
         with TemporaryDirectory() as directory:
             root = Path(directory)
             shutil.copytree(repository / PATCH_RECORD, root / PATCH_RECORD)
+            shutil.copytree(repository / STOP_RECORD, root / STOP_RECORD)
             shutil.copytree(repository / PATCH_PACKAGE, root / PATCH_PACKAGE)
             self.assertFalse(patched_package_errors(root))
             for name in ['lifecycle-provenance.json', 'session-lifecycle.patch',
                          'receive-buffer-provenance.json', 'receive-buffer.patch']:
                 path = root / PATCH_RECORD / name
+                original = path.read_bytes()
+                path.write_bytes(original + b'\n')
+                self.assertTrue(patched_package_errors(root))
+                path.unlink()
+                self.assertTrue(patched_package_errors(root))
+                path.write_bytes(original)
+                self.assertFalse(patched_package_errors(root))
+
+    def test_receive_stop_provenance_and_diff_are_required_and_exact(self):
+        repository = Path(__file__).resolve().parents[2]
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            shutil.copytree(repository / PATCH_RECORD, root / PATCH_RECORD)
+            shutil.copytree(repository / STOP_RECORD, root / STOP_RECORD)
+            shutil.copytree(repository / PATCH_PACKAGE, root / PATCH_PACKAGE)
+            self.assertFalse(patched_package_errors(root))
+            for name in ['provenance.json', 'receive-stop.patch']:
+                path = root / STOP_RECORD / name
                 original = path.read_bytes()
                 path.write_bytes(original + b'\n')
                 self.assertTrue(patched_package_errors(root))

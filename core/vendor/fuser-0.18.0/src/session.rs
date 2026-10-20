@@ -6,6 +6,8 @@
 //! for filesystem operations under its mount point.
 
 pub(crate) mod lifecycle;
+#[cfg(target_os = "linux")]
+mod receive_stop;
 
 use std::borrow::Cow;
 use std::fs::File;
@@ -311,6 +313,8 @@ impl<FS: Filesystem> Session<FS> {
         for (i, ch) in channels.into_iter().enumerate() {
             let thread_name = format!("fuser-{i}");
             let event_loop = SessionEventLoop {
+                #[cfg(target_os = "linux")]
+                receive_stop: None,
                 thread_name: thread_name.clone(),
                 filesystem: filesystem.clone(),
                 ch,
@@ -532,6 +536,8 @@ impl SessionUnmounter {
 }
 
 pub(crate) struct SessionEventLoop<FS: Filesystem> {
+    #[cfg(target_os = "linux")]
+    receive_stop: Option<Arc<receive_stop::ReceiveStop>>,
     /// Cache thread name for faster `debug!`.
     pub(crate) thread_name: String,
     pub(crate) ch: Channel,
@@ -555,8 +561,15 @@ impl<FS: Filesystem> SessionEventLoop<FS> {
         loop {
             // Read the next request from the given channel to kernel driver
             // The kernel driver makes sure that we get exactly one request per read
-            match self.ch.receive_retrying(buf) {
-                Ok(size) => match RequestWithSender::new(self.ch.sender(), &buf[..size]) {
+            #[cfg(target_os = "linux")]
+            let received = match &self.receive_stop {
+                Some(stop) => stop.receive(&self.ch, buf),
+                None => self.ch.receive_retrying(buf).map(Some),
+            };
+            #[cfg(not(target_os = "linux"))]
+            let received = self.ch.receive_retrying(buf).map(Some);
+            match received {
+                Ok(Some(size)) => match RequestWithSender::new(self.ch.sender(), &buf[..size]) {
                     // Dispatch request
                     Some(req) => {
                         if let Ok(Operation::Destroy(_)) = req.request.operation() {
@@ -574,7 +587,7 @@ impl<FS: Filesystem> SessionEventLoop<FS> {
                         ));
                     }
                 },
-                Err(nix::errno::Errno::ENODEV) => return Ok(()),
+                Ok(None) | Err(nix::errno::Errno::ENODEV) => return Ok(()),
                 Err(err) => return Err(err.into()),
             }
         }

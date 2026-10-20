@@ -76,6 +76,10 @@ impl KernelSession {
             }
         }
         if let (Some(monitor), true) = (&self.monitor, self.owner.is_some()) {
+            // Detach fenced admission and active callbacks have quiesced. Wake
+            // idle receivers without depending on deferred kernel disconnect.
+            // Their original joins and the final request check remain required.
+            monitor.stop_receivers();
             let mut loops = monitor.snapshot();
             while loops.phase != SessionPhase::Joined {
                 let remaining = deadline.saturating_duration_since(Instant::now());
