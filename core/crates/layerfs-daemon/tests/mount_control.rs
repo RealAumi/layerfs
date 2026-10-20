@@ -401,6 +401,7 @@ fn product_control_commit_captures_the_frontier_releases_its_owners_and_is_then_
     let success = f
         .service
         .execute_control(&Request::Mount {
+            restore_key: None,
             workspace: identity(87),
             branch,
         })
@@ -499,6 +500,7 @@ fn product_control_commit_captures_the_frontier_releases_its_owners_and_is_then_
     let other = match f
         .service
         .execute_control(&Request::Mount {
+            restore_key: None,
             workspace: identity(88),
             branch,
         })

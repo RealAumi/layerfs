@@ -96,6 +96,41 @@ The index comparison `P → M` seeds newly tracked paths. `IgnoreState` carries
 these seeds to the next projection, where rules and paths are evaluated against
 the then-current local tree. Failed projection leaves the seeds intact.
 
+## Restore after remount or restart
+
+Remote creation accepts optional `restore_key` on the control `Mount` request:
+`layerfs-remote <config> mount <branch-id> [restore-key]`. Choose a stable identity
+for the caller's local sandbox. Keys are scoped by cache file, canonical Store
+scope and Branch. **One live sandbox per key is the caller's responsibility**;
+there is no lease or refusal. Sequential successful Commits sharing a key replace
+its entire record, so the last record wins without mixing roots or seeds.
+Absent keys and ignore-off preserve the previous behavior and write no record.
+
+After a known successful publication and installation, the Commit writes one
+transaction to `restore_points` in the existing cache SQLite. The record contains
+local `L`, its published partner, pending seeds, and the **original BranchSnapshot**.
+Creation restores that old snapshot, so the next Commit still merges a server
+head that moved while down. Pending rule flips reconcile on that next projection,
+even for a no-op Commit. The table uses `CREATE TABLE IF NOT EXISTS`; existing
+cache files require no migration or version bump. Hints/index caches rebuild.
+
+A manifest captures all reachable local-only object IDs using the upload closure
+walk. Before selecting `L`, creation checks each object's presence and canonical
+identity directly in SQLite. This detects a missing leaf or `L`, without a server
+round trip. Server-known subtrees are omitted and remain demand fetchable.
+`operator.remote.stats.restore` reports the latest keyed creation decision:
+`restored`, `not-found`, `missing-local-objects`, `invalid-local-objects`, or
+`invalid-record`; before any keyed request it is `not-requested`. Missing/invalid
+records fall back to the current published head with empty ignore state: no
+rejected seeds survive. Database access failures still return their original error.
+
+Only the last successful Commit is restored. Later edits and the overlay are
+not recovered. Restart supplies fresh disposable overlay and mount paths while
+retaining the cache; the existing `AlreadyExists` refusals are unchanged.
+A failed post-install record write uses existing Commit failure custody and
+leaves the previous record; no publication recovery protocol is added. SQLite's
+existing cache profile is unchanged; this is not a power-loss durability claim.
+
 ## Cost and limits
 
 - With complete hints, ordinary classification follows the changes. One missing
@@ -110,12 +145,9 @@ the then-current local tree. Failed projection leaves the seeds intact.
   separately walk `Q`. Index parsing is cached by content for two indexes.
 - Ignored leftovers already in `Q` stay stale. Previously published bytes can
   move with those leftovers. A kept hardlink legitimately publishes shared bytes.
-- Local roots, hints and pending seeds are memory-only. Remount, or restart
-  with fresh disposable overlay/mount paths, begins from the published head and
-  loses local-only content from even a successful Commit. There is no restore
-  key, restore table or fallback status yet. Reusing the old process paths can
-  instead refuse startup or attachment with `AlreadyExists`. See the retained
-  [restart baseline and budget stop](receipts/ignore07/README.md).
+- Keyed restore scans the local-only closure when saving and validates its
+  manifest when binding. The manifest grows with that closure; objects have no
+  eviction/GC. Without a key, restart/remount still loses local-only content.
 - Local-only cache objects have no eviction. No ctime, teardown/unmount, metadata
   batching or post-publication recovery changes are included.
 - Known publication followed by rebase/install failure retains custody and
@@ -149,10 +181,11 @@ remain; post-publication recovery remains unqualified.
 Local review evidence and commands: [ignore04](receipts/ignore04/README.md).
 Earlier failures remain in [ignore03](receipts/ignore03/README.md); historical
 Docker runs remain in [ignore01](receipts/ignore01/) and [ignore02](receipts/ignore02/).
-The [ignore06 e2e](receipts/ignore06/README.txt) passed the corrected server-flip
-and deletion scenarios on `42f8a5ebb`. [ignore07](receipts/ignore07/README.md)
-adds a failing remount/restart scenario on those same binaries: tracked bytes
-survive, committed ignored bytes disappear. Its initial startup/attachment
-failures are retained separately. Restore implementation stopped at the owner's
-250-line budget gate; its estimated 350–450 production-line design is in that
-receipt. No restore acceptance or ignore08 result is claimed.
+Restore tests cover the real Commit/install/bind path (remount, fresh owner,
+moved head, pending rule flip, same-key last writer, absent key and ignore-off),
+and the real SQLite cache (reopen, atomic records, scope/Branch keys, missing
+leaf/root, corruption, and omitted remote objects). The manifest requires no
+network reads or uploads. See [ignore08](receipts/ignore08/README.md) for current
+checks and the full Docker run; [ignore07](receipts/ignore07/README.md) retains
+the failing baseline and startup-path diagnostics. The existing corrected
+[ignore06 e2e](receipts/ignore06/README.txt) remains unchanged.

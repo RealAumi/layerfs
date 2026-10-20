@@ -17,6 +17,7 @@ pub struct BoundWorkspace {
     pub(super) pending: Mutex<Option<super::commit_merge::PendingMerge>>,
     /// Git-ignored names kept local: the local base and the last index read.
     pub(super) ignore: Mutex<super::ignore::IgnoreState>,
+    pub(super) restore_key: Option<String>,
 }
 pub struct StoreOperation {
     workspace: Workspace,

@@ -44,6 +44,8 @@ pub enum Request {
         workspace: WorkspaceId,
         /// Selected Branch.
         branch: BranchId,
+        /// Optional local restore identity; caller coordinates live users of a key.
+        restore_key: Option<String>,
     },
     /// One SDK call answered by a value or a typed SDK refusal.
     Sdk(crate::control_sdk::SdkCall),

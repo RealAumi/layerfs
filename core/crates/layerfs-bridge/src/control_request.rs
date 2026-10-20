@@ -33,10 +33,17 @@ impl Call {
                 out.byte(7)?;
                 crate::daemon_wire::put_request(&mut out, value)?;
             }
-            Request::Mount { workspace, branch } => {
-                out.byte(1)?;
+            Request::Mount {
+                workspace,
+                branch,
+                restore_key,
+            } => {
+                out.byte(if restore_key.is_some() { 22 } else { 1 })?;
                 out.put(&workspace.to_bytes())?;
                 out.put(&branch.to_bytes())?;
+                if let Some(key) = restore_key {
+                    out.blob(key.as_bytes())?;
+                }
             }
             Request::Sdk(value) => {
                 out.byte(20)?;
@@ -147,9 +154,14 @@ impl Call {
             13 => Request::Cleanup(token(&mut input)?),
             8 => Request::EndSession,
             7 => Request::Hello(crate::daemon_wire::request(&mut input)?),
-            1 => Request::Mount {
+            tag @ (1 | 22) => Request::Mount {
                 workspace: history(WorkspaceId::from_authority(input.array()?))?,
                 branch: history(BranchId::from_bytes(input.array()?))?,
+                restore_key: if tag == 22 {
+                    Some(input.text(u16::MAX as usize)?)
+                } else {
+                    None
+                },
             },
             2 => Request::Commit(crate::control_merge::commit_control(&mut input)?),
             20 => Request::Sdk(crate::control_sdk::call(&mut input)?),

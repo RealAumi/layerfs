@@ -190,6 +190,7 @@ fn published(harness: &Harness, fresh: &Cell<u8>, root: ObjectId) -> Flat {
     let bound = harness
         .service
         .execute_control(&Request::Mount {
+            restore_key: None,
             workspace: WorkspaceId::from_authority([tag; 32]).unwrap(),
             branch: harness.branch,
         })

@@ -1,0 +1,5 @@
+    Checking layerfs-remote-store v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-remote-store)
+    Checking layerfs-api v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-api)
+    Checking layerfs-store-service v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-store-service)
+    Checking layerfs-daemon v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-daemon)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.27s

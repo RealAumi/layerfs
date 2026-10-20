@@ -1,0 +1,8 @@
+   Compiling layerfs-bridge v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-bridge)
+   Compiling layerfs-store-service v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-store-service)
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.86s
+  Executable tests/control_records.rs (core/target/debug/deps/control_records-18b0fc20e15b826d)
+  Executable tests/mount_control.rs (core/target/debug/deps/mount_control-22709347c652e0d4)
+  Executable tests/restore_cache.rs (core/target/debug/deps/restore_cache-d97041f28ac7af92)
+  Executable tests/transport.rs (core/target/debug/deps/transport-d83bac2c174bfcf6)
+  Executable tests/ignore.rs (core/target/debug/deps/ignore-80bc6545bec0bfb4)

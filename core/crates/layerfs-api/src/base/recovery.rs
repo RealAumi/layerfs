@@ -12,7 +12,11 @@ impl WorkspaceApi<'_> {
         workspace: WorkspaceId,
         branch: BranchId,
     ) -> Result<BoundWorkspace, Box<OperationFailure>> {
-        let request = Request::Mount { workspace, branch };
+        let request = Request::Mount {
+            workspace,
+            branch,
+            restore_key: None,
+        };
         match self.exchange(request.clone())? {
             Reply::Bound { token, binding } => Ok(BoundWorkspace { token, binding }),
             reply => Err(OperationFailure::unexpected(request, reply)),

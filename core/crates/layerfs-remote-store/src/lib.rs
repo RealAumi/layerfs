@@ -4,6 +4,7 @@ mod cache;
 pub mod client;
 pub mod config;
 pub mod metadata;
+mod restore;
 pub mod server;
 pub mod wire;
 pub use client::Client;

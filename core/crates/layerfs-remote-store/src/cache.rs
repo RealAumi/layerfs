@@ -10,8 +10,34 @@ impl Cache {
         let db = Connection::open(path).map_err(error)?;
         db.execute_batch("PRAGMA journal_mode=MEMORY; PRAGMA synchronous=OFF; PRAGMA mmap_size=0; PRAGMA cache_size=-2048;
             CREATE TABLE IF NOT EXISTS objects(id BLOB PRIMARY KEY, body BLOB NOT NULL, role INTEGER, remote INTEGER NOT NULL DEFAULT 1);
-            CREATE TABLE IF NOT EXISTS lengths(id BLOB PRIMARY KEY, value INTEGER NOT NULL);").map_err(error)?;
+            CREATE TABLE IF NOT EXISTS lengths(id BLOB PRIMARY KEY, value INTEGER NOT NULL);
+            CREATE TABLE IF NOT EXISTS restore_points(scope BLOB, branch BLOB, key TEXT, body BLOB NOT NULL, PRIMARY KEY(scope,branch,key));").map_err(error)?;
         Ok(Self(Mutex::new(db)))
+    }
+    pub fn restore(&self, scope: ObjectId, branch: &[u8], key: &str) -> Result<Option<Vec<u8>>> {
+        self.0
+            .lock()
+            .map_err(error)?
+            .query_row(
+                "SELECT body FROM restore_points WHERE scope=? AND branch=? AND key=?",
+                params![scope.as_bytes().as_slice(), branch, key],
+                |r| r.get(0),
+            )
+            .optional()
+            .map_err(error)
+    }
+    pub fn save_restore(
+        &self,
+        scope: ObjectId,
+        branch: &[u8],
+        key: &str,
+        body: &[u8],
+    ) -> Result<()> {
+        let mut db = self.0.lock().map_err(error)?;
+        let tx = db.transaction().map_err(error)?;
+        tx.execute("INSERT INTO restore_points VALUES(?,?,?,?) ON CONFLICT(scope,branch,key) DO UPDATE SET body=excluded.body",
+            params![scope.as_bytes().as_slice(), branch, key, body]).map_err(error)?;
+        tx.commit().map_err(error)
     }
     pub fn metadata_start(&self, root: ObjectId) -> Result<bool> {
         let db = self.0.lock().map_err(error)?;

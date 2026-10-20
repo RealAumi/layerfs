@@ -143,6 +143,23 @@ impl BoundWorkspace {
                     local: installed.0,
                     published: published.root.0,
                 });
+            if let Some(key) = &self.restore_key {
+                // A conflicted merge has no successful publication to restore.
+                if retained.published.is_some() {
+                    remote
+                        .source
+                        .save_restore(
+                            key,
+                            &super::ignore::RestorePoint {
+                                binding: self.snapshot().map_err(CommitError::Workspace)?,
+                                local: installed.0,
+                                published: published.root.0,
+                                seeds: self.ignore_state()?.pending.clone(),
+                            },
+                        )
+                        .map_err(CommitError::Remote)?;
+                }
+            }
             outcome = Some((published.merge, published.replaced));
             Ok(())
         })();

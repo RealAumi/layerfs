@@ -336,6 +336,7 @@ impl Fx {
             .harness
             .service
             .execute_control(&Request::Mount {
+                restore_key: None,
                 workspace: WorkspaceId::from_authority([tag; 32]).unwrap(),
                 branch: self.harness.branch,
             })

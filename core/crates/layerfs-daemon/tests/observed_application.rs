@@ -347,7 +347,7 @@ fn diagnostic_sink_failure_does_not_repeat_or_hide_successful_bind() {
         bound.token
     );
     assert!(
-        matches!(observer.call(Request::Mount { workspace, branch:f.project.branch.branch.id }).unwrap(),
+        matches!(observer.call(Request::Mount { restore_key: None, workspace, branch:f.project.branch.branch.id }).unwrap(),
         Reply::Refused(refusal) if refusal.code == ControlCode::Busy)
     );
     assert_eq!(

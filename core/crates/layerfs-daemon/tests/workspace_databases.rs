@@ -24,6 +24,7 @@ fn terminal_unmount_deletes_only_its_file_after_retained_requests_release() {
     let mount = |tag| {
         f.service
             .execute_control(&Request::Mount {
+                restore_key: None,
                 workspace: WorkspaceId::from_authority([tag; 32]).unwrap(),
                 branch,
             })
@@ -100,6 +101,7 @@ fn a_replaced_terminal_path_is_retained_and_never_deleted_on_a_guess() {
     let bound = f
         .service
         .execute_control(&Request::Mount {
+            restore_key: None,
             workspace: WorkspaceId::from_authority([117; 32]).unwrap(),
             branch,
         })
@@ -129,6 +131,7 @@ fn a_replaced_terminal_path_is_retained_and_never_deleted_on_a_guess() {
     let other = f
         .service
         .execute_control(&Request::Mount {
+            restore_key: None,
             workspace: WorkspaceId::from_authority([118; 32]).unwrap(),
             branch,
         })

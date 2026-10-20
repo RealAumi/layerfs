@@ -38,6 +38,7 @@ pub(crate) struct Shared {
     calls: AtomicU64,
     uploaded_objects: AtomicU64,
     uploaded_bytes: AtomicU64,
+    pub(crate) restore_status: Mutex<&'static str>,
 }
 pub struct Client(pub(crate) Arc<Shared>);
 impl Client {
@@ -68,6 +69,7 @@ impl Client {
             calls: AtomicU64::new(0),
             uploaded_objects: AtomicU64::new(0),
             uploaded_bytes: AtomicU64::new(0),
+            restore_status: Mutex::new("not-requested"),
         }))))
     }
     pub fn round_trips(&self) -> u64 {
@@ -137,6 +139,20 @@ impl Client {
     }
 }
 impl RemoteStore for Client {
+    fn restore(
+        &self,
+        head: &BranchSnapshot,
+        key: &str,
+    ) -> Result<Option<layerfs_store_service::store::ignore::RestorePoint>> {
+        self.load_restore(head, key)
+    }
+    fn save_restore(
+        &self,
+        key: &str,
+        point: &layerfs_store_service::store::ignore::RestorePoint,
+    ) -> Result<()> {
+        self.keep_restore(key, point)
+    }
     fn policy(&self) -> StoragePolicy {
         StoragePolicy::frozen_default()
     }
@@ -256,9 +272,9 @@ impl RemoteStore for Client {
         }))
     }
 }
-struct Build {
-    client: Client,
-    failure: Mutex<Option<BackendError>>,
+pub(crate) struct Build {
+    pub(crate) client: Client,
+    pub(crate) failure: Mutex<Option<BackendError>>,
 }
 impl std::fmt::Debug for Build {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
@@ -268,7 +284,11 @@ impl std::fmt::Debug for Build {
 impl Build {
     /// The local objects `root` reaches, children before parents. An object
     /// the Store has, or that this cache never held, ends the walk there.
-    fn closure(&self, root: ObjectId, scope: InodeScope) -> Result<Vec<(ObjectId, usize)>> {
+    pub(crate) fn closure(
+        &self,
+        root: ObjectId,
+        scope: InodeScope,
+    ) -> Result<Vec<(ObjectId, usize)>> {
         let policy = self.client.policy().construction();
         let (mut order, mut seen, mut stack) = (Vec::new(), HashSet::new(), vec![(root, 0)]);
         while let Some((id, size)) = stack.pop() {

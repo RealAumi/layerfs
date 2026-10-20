@@ -808,6 +808,7 @@ fn bind_on(rig: &Rig, tag: u8, branch: BranchId) -> (WorkspaceToken, BranchSnaps
         .harness
         .service
         .execute_control(&Request::Mount {
+            restore_key: None,
             workspace: WorkspaceId::from_authority([tag; 32]).unwrap(),
             branch,
         })

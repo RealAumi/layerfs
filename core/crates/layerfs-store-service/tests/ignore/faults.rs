@@ -28,6 +28,7 @@ struct State {
     published: bool,
     calls: usize,
     hit: usize,
+    records: BTreeMap<String, layerfs_store_service::store::ignore::RestorePoint>,
 }
 #[derive(Clone, Debug)]
 struct Remote(Arc<Mutex<State>>);
@@ -54,6 +55,25 @@ impl AuthenticatedObjects for Remote {
     }
 }
 impl RemoteStore for Remote {
+    fn restore(
+        &self,
+        _: &BranchSnapshot,
+        key: &str,
+    ) -> Result<Option<layerfs_store_service::store::ignore::RestorePoint>, BackendError> {
+        Ok(self.0.lock().unwrap().records.get(key).cloned())
+    }
+    fn save_restore(
+        &self,
+        key: &str,
+        point: &layerfs_store_service::store::ignore::RestorePoint,
+    ) -> Result<(), BackendError> {
+        self.0
+            .lock()
+            .unwrap()
+            .records
+            .insert(key.into(), point.clone());
+        Ok(())
+    }
     fn policy(&self) -> StoragePolicy {
         StoragePolicy::frozen_default()
     }
@@ -120,6 +140,13 @@ impl RemoteBuild for Remote {
         let moved = self.0.lock().unwrap().fault == Fault::RebaseWrite;
         let root = if moved {
             mem.edit(Some(input.root), &[Write("src/server", b"server")])
+        } else if input.binding.effective_root != self.root().0 {
+            restore::merge(
+                &mem,
+                FilesystemRootId(input.binding.effective_root),
+                input.root,
+                self.root(),
+            )
         } else {
             input.root
         };
@@ -224,6 +251,7 @@ fn scenario(fault: Fault) {
         published: false,
         calls: 0,
         hit: 0,
+        records: Default::default(),
     })));
     let dir = std::env::temp_dir().join(format!("cxi-fault-{}-{fault:?}", std::process::id()));
     std::fs::create_dir(&dir).unwrap();

@@ -235,6 +235,7 @@ fn mounted_writes(
     let bound = fixture
         .service
         .execute_control(&Request::Mount {
+            restore_key: None,
             workspace: WorkspaceId::from_authority([id; 32]).unwrap(),
             branch: BranchId::named(
                 LayerStackId::from_authority([23; 16]),

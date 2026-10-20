@@ -48,6 +48,12 @@ fn commands_are_bounded_exact_and_reject_every_truncated_prefix() {
     let token = token();
     let commands = [
         Request::Mount {
+            restore_key: None,
+            workspace: token.workspace,
+            branch: binding.branch.id,
+        },
+        Request::Mount {
+            restore_key: Some("caller-stable-key".into()),
             workspace: token.workspace,
             branch: binding.branch.id,
         },

@@ -114,6 +114,7 @@ pub fn run(path: &Path) -> Result<()> {
                                 ),
                                 ("uploadedObjects", SdkValue::Int(client.uploaded().0 as i64)),
                                 ("uploadedBytes", SdkValue::Int(client.uploaded().1 as i64)),
+                                ("restore", SdkValue::text(client.restore_status())),
                             ])))
                         }
                         _ => None,

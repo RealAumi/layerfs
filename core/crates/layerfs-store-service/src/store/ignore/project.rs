@@ -37,13 +37,22 @@ pub struct Projection {
     pub unreadable_index: bool,
 }
 
+/// Last installed local view and the original history binding for its next merge.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct RestorePoint {
+    pub binding: layerfs_history::BranchSnapshot,
+    pub local: ObjectId,
+    pub published: ObjectId,
+    pub seeds: Vec<Seed>,
+}
+
 /// Per-Workspace state: local base, pending flips, and the last two indexes read.
 #[derive(Debug, Default)]
 pub struct IgnoreState {
     pub base: Option<LocalBase>,
     index: Vec<(ObjectId, Arc<Tracked>)>,
     pub last: Option<Projection>,
-    pending: Vec<Seed>,
+    pub pending: Vec<Seed>,
 }
 
 impl IgnoreState {

@@ -93,6 +93,7 @@ impl Store {
                     producer: Default::default(),
                     pending: std::sync::Mutex::new(None),
                     ignore: Default::default(),
+                    restore_key: None,
                 },
             })
         })();

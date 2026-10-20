@@ -9,5 +9,5 @@ mod project;
 mod replay;
 mod rules;
 
-pub use project::{rebase, IgnoreState, LocalBase, Projection};
+pub use project::{rebase, IgnoreState, LocalBase, Projection, RestorePoint};
 pub use replay::{replay, All, Keep, Replayed, Seed};

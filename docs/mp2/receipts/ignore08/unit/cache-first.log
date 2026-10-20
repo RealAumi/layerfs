@@ -1,0 +1,11 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.10s
+     Running tests/restore_cache.rs (core/target/debug/deps/restore_cache-fcc99b9679fe2199)
+
+running 4 tests
+test remote_objects_are_not_required_in_manifest_and_corruption_has_reason ... ok
+test missing_local_leaf_rejects_record ... ok
+test missing_local_root_rejects_record ... ok
+test restart_atomic_last_writer_and_scoped_keys ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+

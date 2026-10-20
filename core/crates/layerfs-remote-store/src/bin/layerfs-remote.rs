@@ -20,7 +20,7 @@ use std::{
 fn run() -> Result<()> {
     let args: Vec<_> = std::env::args().collect();
     if args.len() < 3 {
-        return Err(error("usage: layerfs-remote <config> mount <branch-id> | commit/unmount <workspace-id> <namespace> | stats"));
+        return Err(error("usage: layerfs-remote <config> mount <branch-id> [restore-key] | commit/unmount <workspace-id> <namespace> | stats"));
     }
     let config = Config::read(Path::new(&args[1]))?;
     let address = config.get("control")?.parse().map_err(error)?;
@@ -75,7 +75,11 @@ fn run() -> Result<()> {
             let workspace =
                 WorkspaceId::from_authority(duplex::generate_keypair().map_err(error)?.public)
                     .map_err(error)?;
-            let token = match call(Request::Mount { workspace, branch })? {
+            let token = match call(Request::Mount {
+                workspace,
+                branch,
+                restore_key: args.get(4).cloned(),
+            })? {
                 Reply::Bound { token, .. } => token,
                 other => return Err(error(format!("mount: {other:?}"))),
             };

@@ -273,9 +273,12 @@ fn matches_reply(request: &Request, reply: &Reply) -> bool {
         (Request::Hello(request), Reply::Hello(status)) => request
             .expected_instance
             .is_none_or(|expected| expected == status.instance),
-        (Request::Mount { workspace, branch }, Reply::Bound { token, binding }) => {
-            token.workspace == *workspace && binding.branch.id == *branch
-        }
+        (
+            Request::Mount {
+                workspace, branch, ..
+            },
+            Reply::Bound { token, binding },
+        ) => token.workspace == *workspace && binding.branch.id == *branch,
         (
             Request::Commit(_),
             Reply::Committed(_) | Reply::MergeCommitted(_) | Reply::Conflict(_),

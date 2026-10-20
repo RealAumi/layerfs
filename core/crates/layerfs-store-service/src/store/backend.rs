@@ -1,4 +1,5 @@
 //! Workspace-facing boundary. Physical Store providers never cross it.
+use super::ignore::{IgnoreState, LocalBase, RestorePoint};
 use super::publish::{CandidateInput, Publication, PublishedCandidate};
 use super::{BindRequest, BindSuccess, BoundWorkspace, PortError, Recognizer, Store, StorePorts};
 use layerfs_content::{AuthenticatedObjects, FinalizedObject, ObjectId};
@@ -31,6 +32,19 @@ pub trait RemoteBuild: Send + Sync + std::fmt::Debug {
 }
 /// Canonical/semantic operations only, with one attempted call and exact failure.
 pub trait RemoteStore: Send + Sync {
+    fn restore(
+        &self,
+        _head: &BranchSnapshot,
+        _key: &str,
+    ) -> Result<Option<RestorePoint>, BackendError> {
+        Ok(None)
+    }
+    fn save_restore(&self, _key: &str, _point: &RestorePoint) -> Result<(), BackendError> {
+        Err(BackendError {
+            detail: "restore unsupported".into(),
+            unknown: false,
+        })
+    }
     fn policy(&self) -> StoragePolicy;
     fn snapshot(&self, branch: BranchId) -> Result<BranchSnapshot, BackendError>;
     fn objects(&self, ids: &[ObjectId]) -> Result<Vec<Vec<u8>>, BackendError>;
@@ -99,6 +113,15 @@ impl WorkspaceBackend {
         owner: crate::OwnerClient,
         request: BindRequest,
     ) -> Result<BindSuccess, super::BindRefusal> {
+        self.bind_restore(owner, request, None)
+    }
+    /// Opt-in remote restore; the caller owns single-writer discipline for a key.
+    pub fn bind_restore(
+        &self,
+        owner: crate::OwnerClient,
+        request: BindRequest,
+        restore_key: Option<String>,
+    ) -> Result<BindSuccess, super::BindRefusal> {
         if let Self::Local(store) = self {
             return store.bind(owner, request);
         }
@@ -108,14 +131,34 @@ impl WorkspaceBackend {
         let mut phase = super::BindPhase::Snapshot;
         let mut snapshot = None;
         let result = (|| {
-            let binding = remote
+            let mut binding = remote
                 .source
                 .snapshot(request.branch)
                 .map_err(|e| super::BindError::Read(Arc::new(PortError::Remote(e))))?;
+            let mut ignore = IgnoreState::default();
+            let restore_key = restore_key.filter(|_| remote.ignore);
+            if let Some(key) = &restore_key {
+                if let Some(point) = remote
+                    .source
+                    .restore(&binding, key)
+                    .map_err(|e| super::BindError::Read(Arc::new(PortError::Remote(e))))?
+                {
+                    binding = point.binding;
+                    ignore.base = Some(LocalBase {
+                        local: point.local,
+                        published: point.published,
+                    });
+                    ignore.pending = point.seeds;
+                }
+            }
             snapshot = Some(binding.clone());
+            let mut local = binding.clone();
+            if let Some(base) = ignore.base {
+                local.effective_root = base.local;
+            }
             phase = super::BindPhase::Root;
             let ports = self.ports_for(binding.scope, request.workspace);
-            let base = super::bind::checked_base(ports.client(), &binding).map_err(|error| {
+            let base = super::bind::checked_base(ports.client(), &local).map_err(|error| {
                 super::BindError::Content {
                     error,
                     provider: ports.failure().ok().flatten(),
@@ -126,7 +169,7 @@ impl WorkspaceBackend {
                 .open(
                     None,
                     request.workspace.to_bytes(),
-                    binding.effective_root.to_bytes(),
+                    local.effective_root.to_bytes(),
                 )
                 .map_err(super::BindError::Owner)?;
             let owner = owner
@@ -142,7 +185,8 @@ impl WorkspaceBackend {
                     committing: Default::default(),
                     producer: Default::default(),
                     pending: Mutex::new(None),
-                    ignore: Default::default(),
+                    ignore: Mutex::new(ignore),
+                    restore_key,
                 },
             })
         })();

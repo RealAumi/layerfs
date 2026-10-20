@@ -183,6 +183,7 @@ fn lost_bind_and_attach_acknowledgements_are_located_without_replay() {
     let bound = match lost(
         &h,
         Request::Mount {
+            restore_key: None,
             workspace,
             branch: h.branch,
         },

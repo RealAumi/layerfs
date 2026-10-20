@@ -1,0 +1,13 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.10s
+     Running tests/ignore.rs (core/target/debug/deps/ignore-1c5653cdc3a7ad94)
+
+running 6 tests
+test faults::restore::remount_restores_last_successful_commit ... ok
+test faults::restore::pending_server_rule_flip_survives_and_next_noop_publishes ... ok
+test faults::restore::restored_old_binding_merges_head_moved_while_down ... ok
+test faults::restore::absent_key_and_ignore_off_do_not_restore_or_save ... ok
+test faults::restore::restart_restores_last_successful_commit ... ok
+test faults::restore::same_key_last_commit_replaces_root_snapshot_and_seeds_together ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 35 filtered out; finished in 0.05s
+

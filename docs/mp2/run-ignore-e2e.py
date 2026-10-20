@@ -74,13 +74,21 @@ CARGO_COMMON = ['--manifest-path', 'core/Cargo.toml', '--locked']
 
 def cargo_container(name, *cargo):
     """cargo inside the rust image; source read-only, target dir in cxi-target."""
-    args = ['run', '--rm', '--name', name, '-v', f'{REPO}:/work:ro', '-v', f'{V_TARGET}:/target',
+    args = ['run', '--rm', '--name', name, '--network', 'cxi-build-net', '-v', f'{REPO}:/work:ro', '-v', f'{V_TARGET}:/target',
             '-w', '/work', '-e', 'CARGO_HOME=/target/cargo-home', '-e', 'CARGO_TARGET_DIR=/target/cargo',
-            '-e', 'CARGO_TERM_COLOR=never']
+            '-e', 'CARGO_TERM_COLOR=never', '-e', 'CARGO_BUILD_JOBS=2']
     return [*args, IMAGE, 'cargo', *cargo]
 
 
 def build():
+    docker('network', 'create', 'cxi-build-net')
+    try:
+        _build()
+    finally:
+        docker('network', 'rm', 'cxi-build-net')
+
+
+def _build():
     docker('volume', 'create', V_TARGET)
     build_dir = RECEIPTS / 'build'
     build_dir.mkdir(exist_ok=True)
@@ -119,7 +127,7 @@ def build():
             driver = msg['executable']
     assert driver, 'remote_driver executable not found in cargo output'
     say(f'BUILD driver: ok in {time.monotonic() - t:.0f}s: {driver}')
-    docker('run', '--rm', '--name', 'cxi-collect', '-v', f'{V_TARGET}:/target:ro', '-v', f'{BIN}:/out', IMAGE,
+    docker('run', '--rm', '--name', 'cxi-collect', '--network', 'none', '-v', f'{V_TARGET}:/target:ro', '-v', f'{BIN}:/out', IMAGE,
            'bash', '-c', 'set -e; for n in layerfs-store layerfs-remote layerfs-remote-daemon; do cp /target/cargo/debug/$n /out/$n; done; cp "$1" /out/remote_driver',
            'bash', driver)
     shutil.copy2(REPO / 'docs/mp2/tcp-cut.py', BIN / 'tcp-cut.py')
@@ -166,8 +174,9 @@ def ctl(b, op, *args, expected=0):
     return docker('exec', b, 'timeout', '300', '/opt/lfs/layerfs-remote', '/state/daemon.setup', op, *args, expected=expected, wall=320)
 
 
-def mount(b):
-    text = ctl(b, 'mount', (SEED / 'branch').read_text().strip()).stdout
+def mount(b, restore_key=None):
+    text = ctl(b, 'mount', (SEED / 'branch').read_text().strip(),
+               *([restore_key] if restore_key is not None else [])).stdout
     m = re.search(r'path=(\S+) workspace=(\S+) namespace=(\d+)', text)
     assert m, text
     return Mount(b, *m.groups())
@@ -757,7 +766,7 @@ def s10_restart():
     # Independent preludes: remount failure must not remove restart's input.
     modes = ['restart'] if os.environ.get('IGN_RESTART_ONLY') == '1' else ['remount', 'restart']
     for mode in modes:
-        m = mount(B1)
+        m = mount(B1, 'restart-regression')
         for rel, content in paths.items():
             put(m, rel, content)
         put(m, 'src/restart.txt', 'tracked before edit\n')
@@ -792,9 +801,42 @@ def s10_restart():
             docker('cp', f'{B1}:/state/daemon.previous.log', str(RECEIPTS / 'cxi-b1-killed-daemon.log'))
             docker('start', B1)
             ready(B1, 'REMOTE_DAEMON_READY', '/state/daemon.log')
-        restored = mount(B1)
+        restored = mount(B1, 'restart-regression')
         inventory(restored, f'{mode}: after')
         try_unmount(s, restored, discard=True)
+
+    for missing in ['leaf', 'root']:
+        m = mount(B1, 'restart-regression')
+        for rel, content in paths.items():
+            put(m, rel, content)
+        commit(m)
+        if not try_unmount(s, m):
+            raise AssertionError('fallback precondition: unmount refused')
+        script = (
+            'import sqlite3,sys\n'
+            'c=sqlite3.connect("/state/cache/objects.sqlite")\n'
+            'body=c.execute("SELECT body FROM restore_points WHERE key=?",("restart-regression",)).fetchone()[0]\n'
+            'if sys.argv[1]=="root":\n'
+            ' n=int.from_bytes(body[:8],"big"); oid=body[8+n:8+n+32]\n'
+            'else:\n'
+            ' oid=c.execute("SELECT id FROM objects WHERE remote=0 AND instr(body,?)>0",(b"local build output\\n",)).fetchone()[0]\n'
+            'n=c.execute("DELETE FROM objects WHERE id=? AND remote=0",(oid,)).rowcount\n'
+            'assert n==1,n\n'
+            'c.commit();print(oid.hex())\n'
+        )
+        deleted = execute(B1, 'python3', '-c', script, missing).stdout.strip()
+        fallback = mount(B1, 'restart-regression')
+        check(s, f'missing {missing}: reason exposed',
+              'missing-local-objects' in ctl(B1, 'stats').stdout, deleted)
+        check(s, f'missing {missing}: creation falls back to head',
+              cat(fallback, 'src/restart.txt') == paths['src/restart.txt']
+              and not exists(fallback, 'target/restart.bin')
+              and not exists(fallback, 'node_modules/restart/index.js'))
+        commit(fallback)
+        check(s, f'missing {missing}: next Commit publishes no ignored content',
+              server_read('/target/restart.bin') is None
+              and server_read('/node_modules/restart/index.js') is None)
+        try_unmount(s, fallback)
 
 
 def e2e(restart_only=False):
@@ -828,10 +870,19 @@ def e2e(restart_only=False):
 
 
 def transport():
+    docker('network', 'create', 'cxi-build-net')
+    try:
+        _transport()
+    finally:
+        docker('network', 'rm', 'cxi-build-net')
+
+
+def _transport():
     s = '7 platform check (Linux transport tests)'
     docker('volume', 'create', V_TARGET)
     t = time.monotonic()
-    p = docker(*cargo_container('cxi-transport', 'test', *CARGO_COMMON, '-p', 'layerfs-remote-store', '--test', 'transport'), expected=None, wall=3000)
+    docker(*cargo_container('cxi-transport-build', 'test', *CARGO_COMMON, '-p', 'layerfs-remote-store', '--test', 'transport', '--no-run'), wall=3000)
+    p = docker(*cargo_container('cxi-transport', 'test', *CARGO_COMMON, '-p', 'layerfs-remote-store', '--test', 'transport'), expected=None, wall=120)
     (RECEIPTS / 'transport-tests.log').write_text(p.stdout)
     tail = '\n'.join(p.stdout.strip().splitlines()[-25:])
     say(f'=== {s}: exit {p.returncode} in {time.monotonic() - t:.0f}s\n{tail}')

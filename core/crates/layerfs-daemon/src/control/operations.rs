@@ -93,9 +93,9 @@ impl Service {
                 ControlCode::Invalid,
                 "daemon Hello requires application startup owner",
             )),
-            Request::Mount { workspace, branch } => {
+            Request::Mount { workspace, branch, restore_key } => {
                 crate::telemetry::timed("sandbox.mount.bind", |timing| {
-                    self.mount(*workspace, *branch, timing)
+                    self.mount(*workspace, *branch, restore_key.clone(), timing)
                 })
             }
             Request::Status(token) => self.status(*token),
@@ -125,6 +125,7 @@ impl Service {
         &self,
         workspace: WorkspaceId,
         branch: BranchId,
+        restore_key: Option<String>,
         timing: &layerfs_telemetry::timer::TimingScope<'_, layerfs_telemetry::timer::Active>,
     ) -> Result<Success, Failure> {
         {
@@ -155,8 +156,11 @@ impl Service {
             entries.insert(workspace, Entry::Binding);
         }
         let bound = match crate::telemetry::phase(timing, "store.bind", || {
-            self.store
-                .bind(self.owner.clone(), BindRequest { workspace, branch })
+            self.store.bind_restore(
+                self.owner.clone(),
+                BindRequest { workspace, branch },
+                restore_key,
+            )
         }) {
             Ok(value) => value,
             Err(value) => {
