@@ -31,6 +31,7 @@ pub enum CommitPhase {
 #[derive(Debug)]
 pub enum CommitError {
     InFlight,
+    Remote(super::BackendError),
     Context(&'static str),
     Storage(StorageError),
     Construction {
@@ -153,6 +154,7 @@ pub struct CommitFailure {
     pub locally_settled: bool,
     /// The product constructor's receipt, when its closure ran.
     pub namespace: Option<CapturedConstruction>,
+    pub remote: Option<Box<dyn super::RemoteBuild>>,
 }
 impl CommitFailure {
     pub(super) fn new(error: CommitError, workspace: WorkspaceId, route: Route) -> Self {
@@ -171,6 +173,7 @@ impl CommitFailure {
             local_error: None,
             locally_settled: false,
             namespace: None,
+            remote: None,
         }
     }
 }
@@ -184,6 +187,7 @@ impl std::error::Error for CommitFailure {}
 impl CommitError {
     pub fn uncertain(&self) -> bool {
         match self {
+            Self::Remote(error) => error.unknown,
             Self::Storage(error) => error.is_unknown_outcome(),
             Self::Construction { original, storage } => {
                 storage.is_unknown_outcome()
@@ -200,6 +204,7 @@ impl CommitError {
                 |e| match e.as_ref() {
                     PortError::Storage(e) => e.is_unknown_outcome(),
                     PortError::History(e) => e.unknown(),
+                    PortError::Remote(e) => e.unknown,
                     PortError::Poisoned => true,
                     PortError::ConcurrentDemand => false,
                     PortError::ReadAdmission(error) => {

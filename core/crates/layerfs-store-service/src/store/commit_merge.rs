@@ -7,12 +7,13 @@ use layerfs_content::ObjectId;
 use layerfs_content::{
     compare::{binding_changes, inode_changes, root_changes, DifferenceWork, TreeTable},
     filesystem::FilesystemRootId,
-    merge::{merge_roots, paths_with_markers, MergeInput, RulesFrom, Side},
+    merge::{merge_roots, MergeInput, RulesFrom, Side},
     ContentError, ContentResult,
 };
 use layerfs_history::BranchSnapshot;
 use layerfs_storage::Save;
 use layerfs_workspace::{InodeSerials, WorkspaceError};
+use std::sync::Arc;
 
 /// Serials one reservation takes while a merge needs fresh ones.
 const MERGE_SERIALS: u64 = 64;
@@ -53,40 +54,15 @@ impl BoundWorkspace {
             .as_ref()
             .map(|pending| pending.conflicted.clone()))
     }
+}
 
-    /// Refuses a candidate whose previously conflicted files still hold a
-    /// complete marker block.
-    pub(super) fn refuse_markers(
-        &self,
-        save: &Save<'_>,
-        candidate: FilesystemRootId,
-    ) -> Result<(), CommitError> {
-        let conflicted = match self
-            .pending
-            .lock()
-            .map_err(|_| CommitError::Workspace(WorkspaceError::BindingPoisoned))?
-            .as_ref()
-        {
-            Some(pending) => pending.conflicted.clone(),
-            None => return Ok(()),
-        };
-        let marked = crate::telemetry::timed("markers", |timing| {
-            paths_with_markers(save, candidate, &conflicted, timing)
-        });
-        let marked = marked.map_err(content)?;
-        if marked.is_empty() {
-            Ok(())
-        } else {
-            Err(CommitError::Markers(marked))
-        }
-    }
-
+impl super::Store {
     /// Merges the candidate (ours) into the current head (theirs) against
     /// the history root this Workspace is bound to. Merged files and the
     /// merged root go into the same Save. Runs before the publication lane;
     /// its build state goes to merge records in the Store file.
     pub(super) fn merge_candidate(
-        &self,
+        self: &Arc<Self>,
         save: &Save<'_>,
         bound: &BranchSnapshot,
         current: &BranchSnapshot,
@@ -100,7 +76,7 @@ impl BoundWorkspace {
     /// are merged into `result`, in memory and without merge records. More
     /// than [`LANE_MERGE_PATHS`] changed serials to decide is refused `LaneMerge`.
     pub(super) fn merge_in_lane(
-        &self,
+        self: &Arc<Self>,
         save: &Save<'_>,
         merged_with: &BranchSnapshot,
         current: &BranchSnapshot,
@@ -116,8 +92,8 @@ impl BoundWorkspace {
             Some(LANE_MERGE_PATHS),
         );
         match &merged {
-            Ok((_, report)) => self.store.note_lane(report.lane_paths),
-            Err(CommitError::LaneMerge { .. }) => self.store.note_lane(None),
+            Ok((_, report)) => self.note_lane(report.lane_paths),
+            Err(CommitError::LaneMerge { .. }) => self.note_lane(None),
             Err(_) => {}
         }
         merged
@@ -129,7 +105,7 @@ impl BoundWorkspace {
     /// the result is built on the head with merge records. `shown` is the
     /// Workspace's candidate, against which written paths are listed.
     fn merge_stage(
-        &self,
+        self: &Arc<Self>,
         save: &Save<'_>,
         bound: &BranchSnapshot,
         current: &BranchSnapshot,
@@ -137,7 +113,7 @@ impl BoundWorkspace {
         shown: FilesystemRootId,
         lane: Option<usize>,
     ) -> Result<(FilesystemRootId, MergeReport), CommitError> {
-        let ports = self.store.ports(bound.scope);
+        let ports = self.ports(bound.scope);
         let mut range = (0u64, 0u64);
         let mut refused = None;
         let mut fresh = || -> ContentResult<u64> {
@@ -157,9 +133,9 @@ impl BoundWorkspace {
             Some(head) => format!("{}@{head}", current.branch.name.as_str()),
             None => current.branch.name.as_str().to_owned(),
         };
-        let policy = self.store.policy().construction();
+        let policy = self.policy().construction();
         let capacities = policy.capacities();
-        let hints = super::CatalogHints::new(&*self.store.history);
+        let hints = super::CatalogHints::new(&*self.history);
         let input = MergeInput {
             base: FilesystemRootId(bound.effective_root),
             ours,
@@ -184,7 +160,7 @@ impl BoundWorkspace {
                 ))
             }),
             None => crate::telemetry::timed("merge", |timing| {
-                self.store.merge_records(|records| {
+                self.merge_records(|records| {
                     merge_roots(
                         save,
                         &mut save.sink(),
@@ -199,7 +175,7 @@ impl BoundWorkspace {
         let (merged, scratch) = merged.map_err(|error| CommitError::Storage(error.into()))?;
         let merged = match (merged, refused) {
             (Ok(merged), _) => {
-                self.store.note_merge(&merged);
+                self.note_merge(&merged);
                 merged
             }
             (Err(_), Some(error)) => return Err(CommitError::Workspace(error)),

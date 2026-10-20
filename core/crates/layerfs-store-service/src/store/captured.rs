@@ -11,7 +11,7 @@ use layerfs_content::{
     FinalizedObject,
 };
 use layerfs_overlay::Capture;
-use layerfs_storage::{Save, SaveSink};
+use layerfs_storage::SaveSink;
 use layerfs_workspace::{
     CapturedNamespace, CapturedNamespaceAttempt, ConstructedObjects, WorkspaceError,
 };
@@ -49,6 +49,12 @@ impl BoundWorkspace {
         options: &CommitOptions,
         via: layerfs_history::CommitVia,
     ) -> Result<CommitSuccess, Box<CommitFailure>> {
+        let store = match &self.store {
+            super::WorkspaceBackend::Remote(context) => {
+                return self.commit_remote(context, options, via)
+            }
+            super::WorkspaceBackend::Local(store) => store,
+        };
         let mut admission = self.admit_commit()?;
         let held = RefCell::new(None);
         // What construction staged for the shared cache. It is placed there
@@ -58,12 +64,18 @@ impl BoundWorkspace {
             self.commit_admitted(
                 |save, capture, _| {
                     let mut slot = held.borrow_mut();
-                    let mut staged = self.store.cache.constructed().ok();
+                    let mut staged = store.cache.constructed().ok();
+                    let mut sink = Staging {
+                        sink: save.sink(),
+                        constructed: staged.as_mut(),
+                    };
+                    let digests = super::digests::StoreDigests(&*store.history);
                     let root = self.construct_captured(
                         save,
+                        &mut sink,
                         capture,
                         slot.insert(CapturedConstruction::default()),
-                        staged.as_mut(),
+                        Some(&digests),
                     )?;
                     *constructed.borrow_mut() = staged;
                     Ok(root)
@@ -71,7 +83,7 @@ impl BoundWorkspace {
                 || {
                     if let Some(staged) = constructed.borrow_mut().take() {
                         // Cache policy can lose a hit, never fail a known Commit.
-                        let _ = self.store.cache.admit_constructed(staged);
+                        let _ = store.cache.admit_constructed(staged);
                     }
                 },
                 options,
@@ -106,12 +118,13 @@ impl BoundWorkspace {
     }
     /// The closure body. Acquired owners go to `held` before any later step
     /// can fail, and nothing here releases them.
-    fn construct_captured(
+    pub(super) fn construct_captured(
         &self,
-        save: &Save<'_>,
+        objects: &dyn layerfs_content::AuthenticatedObjects,
+        sink: &mut dyn FinalizedConsumer,
         capture: Capture,
         held: &mut CapturedConstruction,
-        constructed: Option<&mut ConstructedObjects>,
+        digests: Option<&dyn layerfs_workspace::FileDigests>,
     ) -> Result<FilesystemRootId, CommitError> {
         let operation = self.operation().map_err(CommitError::Workspace)?;
         // Only Commit acquires these owners, one capture at a time, so the
@@ -133,23 +146,20 @@ impl BoundWorkspace {
             .map_err(CommitError::Owner)?;
         held.operation = Some(owner);
         let policy = self.store.policy().construction();
-        let mut sink = Staging {
-            sink: save.sink(),
-            constructed,
-        };
-        let digests = super::digests::StoreDigests(&*self.store.history);
         let attempt = crate::telemetry::timed("captured.namespace", |scope| {
-            Ok::<_, std::convert::Infallible>(
-                CapturedNamespace::new(operation.workspace(), operation.overlay(), reader, owner)
-                    .with_digests(&digests)
-                    .construct(
-                        policy,
-                        &policy.capacities(),
-                        save,
-                        &mut sink,
-                        scope.child("construct"),
-                    ),
-            )
+            let builder =
+                CapturedNamespace::new(operation.workspace(), operation.overlay(), reader, owner);
+            let builder = match digests {
+                Some(digests) => builder.with_digests(digests),
+                None => builder,
+            };
+            Ok::<_, std::convert::Infallible>(builder.construct(
+                policy,
+                &policy.capacities(),
+                objects,
+                sink,
+                scope.child("construct"),
+            ))
         });
         let CapturedNamespaceAttempt {
             result,
@@ -187,7 +197,7 @@ impl BoundWorkspace {
     /// then the operation owner. A release that is refused or fails stops the
     /// sequence; what it did not release stays named in the receipt. A done
     /// release's receipt is dropped at once.
-    fn release_captured(&self, held: &mut CapturedConstruction) {
+    pub(super) fn release_captured(&self, held: &mut CapturedConstruction) {
         held.custody = None;
         if let Some(reader) = held.reader {
             if !self.released(

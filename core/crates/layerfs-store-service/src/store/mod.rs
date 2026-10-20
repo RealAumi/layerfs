@@ -10,6 +10,7 @@ pub mod open;
 pub mod operation;
 pub mod ports;
 pub mod producer;
+pub mod publish;
 pub mod read_handle;
 pub mod read_service;
 pub mod recognizer;
@@ -34,3 +35,7 @@ pub use recognizer::{Recognizer, RecognizerWork, RECOGNIZER_SLOTS};
 pub use types::{BindError, BindPhase, BindRefusal, BindRequest, BindSuccess, CloseError};
 
 pub use commit_types::owner_uncertain;
+
+pub mod backend;
+pub use backend::{BackendError, RemoteBuild, RemoteStore, WorkspaceBackend};
+mod remote_commit;

@@ -1,12 +1,12 @@
 //! Fresh operation custody over shared Workspace identity, base and serial ranges.
-use super::{Store, StorePorts};
+use super::StorePorts;
 use crate::OwnerClient;
 use layerfs_history::{BranchSnapshot, WorkspaceId};
 use layerfs_workspace::{CanonicalClient, Workspace, WorkspaceResult};
 use std::sync::{atomic::AtomicBool, Arc, Mutex};
 
 pub struct BoundWorkspace {
-    pub(super) store: Arc<Store>,
+    pub(super) store: super::WorkspaceBackend,
     pub(super) owner: OwnerClient,
     pub(super) snapshot: Mutex<BranchSnapshot>,
     pub(super) identity: WorkspaceId,
@@ -29,10 +29,13 @@ impl BoundWorkspace {
         self.owner
             .close(self.route())
             .map_err(super::CloseError::Owner)?;
-        self.producer.hand_to(&self.store.idle_producer);
-        self.store
-            .close_reader(self.identity)
-            .map_err(super::CloseError::Reader)
+        if let Some(store) = self.store.local() {
+            self.producer.hand_to(&store.idle_producer);
+            store
+                .close_reader(self.identity)
+                .map_err(super::CloseError::Reader)?;
+        }
+        Ok(())
     }
     pub fn operation(&self) -> WorkspaceResult<StoreOperation> {
         let ports = self.store.ports_for(self.snapshot()?.scope, self.identity);

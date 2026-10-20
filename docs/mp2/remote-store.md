@@ -338,3 +338,16 @@ remote directory/container. One dependency acquisition/build was interrupted
 after crates.io timeout diagnostics; rsproxy then supplied locked dependencies
 with retries disabled. Raw logs are retained under `~/lfs-remote/mp2-remote-store/`.
 Remote transport, two-container proofs and RTT diagnostics are not yet run.
+
+Shared publisher/backend checkpoint: `Store::publish_candidate` now owns the
+existing two-stage merge/publication algorithm; local capture/install stays in
+`BoundWorkspace`. Daemon changes route the backend and classify remote errors.
+After extraction, the mounted refresh/root test passed again (1 test, 0.03 s),
+and `lane_merge` passed all 4 cases (0.22 s). Its incidental timing output is not
+promoted to performance evidence. Commands, once each at this checkpoint:
+
+```sh
+timeout 120 cargo test --manifest-path core/Cargo.toml --locked -j 2 -p layerfs-daemon --test remote_refresh_gate --test lane_merge --no-run
+timeout 120 cargo test --manifest-path core/Cargo.toml --locked -j 2 -p layerfs-daemon --test remote_refresh_gate -- --nocapture
+timeout 120 cargo test --manifest-path core/Cargo.toml --locked -j 2 -p layerfs-daemon --test lane_merge -- --nocapture
+```

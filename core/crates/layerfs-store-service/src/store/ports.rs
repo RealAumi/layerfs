@@ -22,6 +22,7 @@ pub enum PortError {
     Poisoned,
     ConcurrentDemand,
     ReadAdmission(ReadAdmissionError),
+    Remote(super::BackendError),
 }
 impl fmt::Display for PortError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -34,15 +35,15 @@ impl std::error::Error for PortError {
             Self::Storage(e) => Some(e),
             Self::History(e) => Some(e),
             Self::ReadAdmission(e) => Some(e),
+            Self::Remote(e) => Some(e),
             Self::Poisoned | Self::ConcurrentDemand => None,
         }
     }
 }
 /// Fresh demand custody for one operation, never stored in the immutable cache.
 pub struct StorePorts {
-    store: Arc<Store>,
+    source: Source,
     scope: ObjectId,
-    reader: Result<Arc<ReadSession>, ReadAdmissionError>,
     failure: Mutex<Option<Arc<PortError>>>,
     attempting: AtomicBool,
 }
@@ -59,29 +60,55 @@ impl Store {
         workspace: Option<WorkspaceId>,
     ) -> Arc<StorePorts> {
         Arc::new(StorePorts {
-            store: self.clone(),
+            source: Source::Local(self.clone(), self.reader(workspace)),
             scope,
-            reader: self.reader(workspace),
             failure: Mutex::new(None),
             attempting: AtomicBool::new(false),
         })
     }
 }
+#[derive(Clone)]
+enum Source {
+    Local(Arc<Store>, Result<Arc<ReadSession>, ReadAdmissionError>),
+    Remote(Arc<super::backend::RemoteContext>),
+}
 impl StorePorts {
+    pub(super) fn remote(
+        context: Arc<super::backend::RemoteContext>,
+        scope: ObjectId,
+    ) -> Arc<Self> {
+        Arc::new(Self {
+            source: Source::Remote(context),
+            scope,
+            failure: Mutex::new(None),
+            attempting: AtomicBool::new(false),
+        })
+    }
+    fn cache(&self) -> Arc<layerfs_workspace::CanonicalCache> {
+        match &self.source {
+            Source::Local(s, _) => s.cache.clone(),
+            Source::Remote(s) => s.cache.clone(),
+        }
+    }
     pub fn resident(&self) -> Arc<CanonicalClient> {
-        self.store.resident.clone()
+        match &self.source {
+            Source::Local(s, _) => s.resident.clone(),
+            Source::Remote(s) => s.resident.clone(),
+        }
     }
     /// The daemon's write-recognizer slots.
     pub fn recognizer(&self) -> &super::Recognizer {
-        &self.store.recognizer
+        match &self.source {
+            Source::Local(s, _) => &s.recognizer,
+            Source::Remote(s) => &s.recognizer,
+        }
     }
     /// Fresh demand custody over the same scope and opened reader. A failure in
     /// it stays there and never becomes this operation's.
     pub fn fresh(&self) -> Arc<Self> {
         Arc::new(Self {
-            store: self.store.clone(),
+            source: self.source.clone(),
             scope: self.scope,
-            reader: self.reader.clone(),
             failure: Mutex::new(None),
             attempting: AtomicBool::new(false),
         })
@@ -90,7 +117,7 @@ impl StorePorts {
         Arc::new(CanonicalClient::with_cache(
             self.clone(),
             Some(self.clone()),
-            self.store.cache.clone(),
+            self.cache(),
         ))
     }
     /// The first exact failure; poison is itself an explicit refusal.
@@ -128,23 +155,35 @@ impl StorePorts {
         &self,
         workspace: &Workspace,
     ) -> WorkspaceResult<(u64, Option<WorkspaceError>)> {
-        let low_water = self.store.serial_low_water.load(Ordering::Relaxed);
+        let low_water = match &self.source {
+            Source::Local(s, _) => s.serial_low_water.load(Ordering::Relaxed),
+            Source::Remote(s) => s.low_water.load(Ordering::Relaxed),
+        };
         workspace.next_serial_with_low_water(self, &EarlyRefill(self), low_water)
     }
     fn reader(&self) -> Result<&Arc<ReadSession>, Arc<PortError>> {
-        self.store
+        let Source::Local(store, reader) = &self.source else {
+            return Err(Arc::new(PortError::Remote(super::BackendError {
+                detail: "remote has no SQL reader".into(),
+                unknown: false,
+            })));
+        };
+        store
             .readers
             .admit()
             .map_err(|e| Arc::new(PortError::ReadAdmission(e)))?;
-        self.reader
+        reader
             .as_ref()
             .map_err(|e| Arc::new(PortError::ReadAdmission(*e)))
     }
     /// Bounded grouped metadata demand, with original cardinality/order.
     pub fn file_lengths(&self, ids: &[ObjectId]) -> Result<Vec<u64>, Arc<PortError>> {
-        self.attempt(|| {
-            let reader = self.reader()?;
-            reader.file_lengths(ids)
+        self.attempt(|| match &self.source {
+            Source::Local(_, _) => self.reader()?.file_lengths(ids),
+            Source::Remote(s) => s
+                .source
+                .lengths(ids)
+                .map_err(|e| Arc::new(PortError::Remote(e))),
         })
     }
 }
@@ -156,14 +195,23 @@ impl StorePorts {
         cache: &mut layerfs_storage::ReadCache,
         ids: &[ObjectId],
     ) -> Result<Vec<Vec<u8>>, Arc<PortError>> {
-        self.attempt(|| self.reader()?.objects_with(cache, ids))
+        self.attempt(|| match &self.source {
+            Source::Local(_, _) => self.reader()?.objects_with(cache, ids),
+            Source::Remote(s) => s
+                .source
+                .objects(ids)
+                .map_err(|e| Arc::new(PortError::Remote(e))),
+        })
     }
 }
 impl AuthenticatedObjects for StorePorts {
     fn read_canonical_batch(&self, ids: &[ObjectId]) -> ContentResult<Vec<Vec<u8>>> {
-        self.attempt(|| {
-            let reader = self.reader()?;
-            reader.objects(ids)
+        self.attempt(|| match &self.source {
+            Source::Local(_, _) => self.reader()?.objects(ids),
+            Source::Remote(s) => s
+                .source
+                .objects(ids)
+                .map_err(|e| Arc::new(PortError::Remote(e))),
         })
         .map_err(|error| match error.as_ref() {
             PortError::Storage(StorageError::ObjectMissing(_)) => ContentError::MissingObject,
@@ -216,8 +264,10 @@ impl StorePorts {
     /// their own windows ([`InodeSerials::reserve`]). One attempt; serials
     /// stay consumed whether used or not, as every reservation's do.
     pub fn reserve_pooled(&self, count: u64) -> WorkspaceResult<(u64, u64)> {
-        if let Some(range) = self.store.pooled_serials(self.scope, count) {
-            return Ok(range);
+        if let Source::Local(store, _) = &self.source {
+            if let Some(range) = store.pooled_serials(self.scope, count) {
+                return Ok(range);
+            }
         }
         self.reserve_block(count, count.max(POOL_BLOCK))
     }
@@ -225,9 +275,17 @@ impl StorePorts {
     /// answer and any rest becomes the Store's pool for this scope.
     fn reserve_block(&self, count: u64, block: u64) -> WorkspaceResult<(u64, u64)> {
         self.attempt(|| {
-            self.store.counts.serials.fetch_add(1, Ordering::Relaxed);
-            let range = self
-                .store
+            let store = match &self.source {
+                Source::Remote(s) => {
+                    return s
+                        .source
+                        .reserve(self.scope, count)
+                        .map_err(|e| Arc::new(PortError::Remote(e)))
+                }
+                Source::Local(s, _) => s,
+            };
+            store.counts.serials.fetch_add(1, Ordering::Relaxed);
+            let range = store
                 .history
                 .reserve_inodes(&ReserveRequest {
                     scope: self.scope,
@@ -243,8 +301,7 @@ impl StorePorts {
                 .end()
                 .map_err(|error| Arc::new(PortError::History(error)))?;
             if block > count {
-                self.store
-                    .pool_serials(self.scope, range.start + count, end);
+                store.pool_serials(self.scope, range.start + count, end);
             }
             Ok((range.start, count))
         })

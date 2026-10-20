@@ -4,7 +4,7 @@ use super::{
     Failure,
 };
 use crate::{
-    store::{BoundWorkspace, Store},
+    store::{BoundWorkspace, WorkspaceBackend},
     Owner, OwnerClient,
 };
 use layerfs_bridge::control::{Activity, ControlCode, WorkspaceToken};
@@ -27,7 +27,7 @@ pub(super) enum Entry {
 }
 /// One daemon's kernel control owner. Whole operations run outside its registry mutex.
 pub struct Service {
-    pub(crate) store: Arc<Store>,
+    pub(crate) store: WorkspaceBackend,
     pub(super) owner: OwnerClient,
     pub(super) capacity: usize,
     pub(super) entries: Mutex<BTreeMap<WorkspaceId, Entry>>,
@@ -36,9 +36,9 @@ pub struct Service {
 }
 impl Service {
     /// Binds control to the already initialized owner and its configured capacity.
-    pub fn new(store: Arc<Store>, owner: &Owner) -> Self {
+    pub fn new(store: impl Into<WorkspaceBackend>, owner: &Owner) -> Self {
         Self {
-            store,
+            store: store.into(),
             owner: owner.client(),
             capacity: owner.configuration().namespaces,
             entries: Mutex::new(BTreeMap::new()),
@@ -46,7 +46,7 @@ impl Service {
         }
     }
     /// Binds control and kernel serving to the same Store and overlay owner.
-    pub fn with_kernel(store: Arc<Store>, owner: &Owner, kernel: Arc<KernelServing>) -> Self {
+    pub fn with_kernel(store: impl Into<WorkspaceBackend>, owner: &Owner, kernel: Arc<KernelServing>) -> Self {
         Self {
             kernel: Some(kernel),
             ..Self::new(store, owner)

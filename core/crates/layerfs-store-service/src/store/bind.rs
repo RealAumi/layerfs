@@ -84,7 +84,7 @@ impl Store {
             .map_err(BindError::Owner)?;
             Ok(BindSuccess {
                 workspace: BoundWorkspace {
-                    store: self.clone(),
+                    store: self.clone().into(),
                     owner,
                     snapshot: std::sync::Mutex::new(captured),
                     identity: request.workspace,

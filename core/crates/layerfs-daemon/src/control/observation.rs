@@ -31,8 +31,8 @@ impl Service {
             ))
     }
 
-    pub(crate) fn observed_store(&self) -> Arc<crate::store::Store> {
-        self.store.clone()
+    pub(crate) fn observed_store(&self) -> Option<Arc<crate::store::Store>> {
+        self.store.local()
     }
     pub(crate) fn observed_overlay(
         &self,

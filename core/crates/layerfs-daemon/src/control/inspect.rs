@@ -62,7 +62,10 @@ impl Service {
                 }
             })
             .collect::<Vec<_>>();
-        match operator::snapshot(&self.store, &call.args, &views) {
+        let Some(store) = self.store.local() else {
+            return Reply::SdkRefused(SdkRefusal { code: "Unsupported".into(), message: "remote Store diagnostics are server-side".into(), detail: SdkValue::Null });
+        };
+        match operator::snapshot(&store, &call.args, &views) {
             Ok(value) => Reply::Sdk(value),
             Err(refusal) => Reply::SdkRefused(refusal),
         }
