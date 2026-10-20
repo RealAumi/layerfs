@@ -1100,3 +1100,191 @@ were removed. The sole retained Docker resource is **`cx7-target`**, the Cargo
 cache/target volume permitted by the task. Binary copies and their hashes remain
 under `target/cx7/bin-before` and `target/cx7/bin-after`; receipts remain in
 `docs/mp2/receipts/run07/`. No other container, image or volume was changed.
+
+## Phase 8 results
+
+Status: local OrbStack diagnostics on Linux arm64 7.2.9, Git 2.39.5. Original
+arms are the retained binaries for `6394865a4` and `524862598`; only the daemon
+varies, with the same 524 Store server/CLI, fixture and harness. Source and binary
+seals, full commands, every failure and cache policy are in the
+[run08 receipt index](receipts/run08/README.md). No SSH or real environments.
+Other jobs' CPU/OS-cache effects are uncontrolled. Stores are Disposable;
+construction workers=1. No ignored-path, warm-up, ownership or ctime change.
+
+### 1. Warm receive-path cost
+
+Dubbo is pinned at `cb05763298f081ed17171d704408b6478cf8fd83`, 4,846 tracked
+files. Each already-mounted sample has explicit untimed preparation; Store
+objects and metadata are warm. Read samples evict only the FUSE file data pages
+so they still exercise receives. **Every valid timed sample has zero Store
+requests**. Ten samples per arm/case, alternating AB/BA, no outliers discarded.
+Times below are seconds, **median [min–max]**. “Fixed” is `c73497e2c`, measured in
+a second prospectively selected matched cohort; its own baseline is shown,
+not substituted into the original comparison.
+
+| Workload | Parent, original cohort | 524 patch | Delta | Parent, correction cohort | Fixed | Delta |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Hot status ×20 | 4.4230 [4.2696–4.6476] | 4.1634 [4.0271–4.2376] | -5.87% | 4.4292 [4.3111–4.6398] | 4.1459 [3.9935–4.2526] | -6.40% |
+| find/count | 0.1636 [0.1483–0.2193] | 0.1694 [0.1608–0.1883] | +3.56% | 0.1742 [0.1585–0.2377] | 0.1554 [0.1437–0.1876] | -10.74% |
+| stat every file | 0.0453 [0.0426–0.0525] | 0.0576 [0.0530–0.0653] | +27.15% | 0.0453 [0.0432–0.1472] | 0.0412 [0.0382–0.0427] | -8.90% |
+| Read 5,000 ×1 KiB | 0.2515 [0.2244–0.3909] | 0.2561 [0.2435–0.2914] | +1.84% | 0.2311 [0.2180–0.2753] | 0.2230 [0.2167–0.2907] | -3.49% |
+| Read 256 MiB | 0.5359 [0.5214–0.6676] | 0.5269 [0.5090–0.6280] | -1.68% | 0.5377 [0.5185–0.6913] | 0.5262 [0.5091–0.6583] | -2.15% |
+
+Status means 20 sequential `git --no-optional-locks status --short` calls;
+find/stat cover 4,869 regular files, including Git internals. FUSE completed
+requests per sample are approximately 263,148 for status, exactly 14,900 for
+find, normally 4,869 for stat, 20,000 for small reads and 2,690–2,691 for sequential
+read. Correction-cohort baseline stat sample 1 made 11,227 requests and took 147.23 ms;
+it remains in the 10-run median/spread. Extra opcode identities were not captured.
+The 60 s entry TTL (`request/reply.rs::TTL`) can add revalidation despite warm Store
+objects; that explanation is inferred. Strict equal-request-rate
+qualification for this cohort is **INCOMPLETE**. Every original corrected stat sample made exactly 4,869 requests.
+Optional commons-lang Maven compile is **NOT_RUN**: no local source checkout
+and only a partial Maven cache, so it was not cheap to set up offline.
+
+The initial stat command used an empty printf format and did not perform per-file stat
+work: 19 samples issued zero FUSE requests and one issued 60. All 20 results remain in `hot/`, marked INELIGIBLE. Only stat was
+corrected (`--cached=never --printf=%s\n`) and rerun in `hot-stat/`; its **27.15%**
+regression is the failing-first result. The other four original workloads have
+no >5% median regression. The full corrected cohort has none either.
+
+Mechanism: Phase 7's `session/receive_stop.rs::ReceiveStop::receive` rebuilt a
+two-descriptor ppoll wait on every receive, with nonexclusive device wakeups.
+A separate count-only trace for 4,869 stat requests shows **4,869 reads** at the
+parent, versus **5,586 ppolls +5,586 reads, 717 EAGAIN** at 524. The small repair
+registers one epoll instance per receiver once in `ReceiveStop::prepare`, with
+exclusive device readiness and **nonexclusive stop-pipe readiness**. Corrected
+trace: **5,045 epoll waits +5,045 reads, 176 EAGAIN**. This reduces raced reads
+and per-wait registration work; it does not eliminate races or the wait syscall.
+Tracing is separate from timing; its idle-inclusive durations are not compared.
+The observed faster medians are local diagnostics, not a universal speed claim.
+
+`ReceiveWait::receive` still uses a nonblocking device, prioritizes persistent
+pipe HUP, and dispatches any frame already read. Closing the sole pipe writer
+wakes every receiver, including one not yet waiting. Known detach and active
+request quiescence remain prerequisites to signaling; every original Join,
+final request proof and namespace/backing release remains mandatory. No abort,
+timeout extension, dropped Join or replay. The existing nix dependency only
+enables its event feature. [Additional provenance](fuser-receive-exclusive/README.md)
+pins the exact delta without modifying Phase 7's record.
+
+Custody revalidation uses the unchanged Phase 7 cycle harness except its receipt
+root: **0/40 Retained(Join), 40 clean Git cycles**, plus **0/1 Retained** for plain
+writes. Phase 7's accepted result was also 0/40 after its original fix; the older
+28/40 failure receipts remain unchanged. Every normal syscall is `umount2(...,0)`
+returning 0, including nine split strace entries correlated by TID. Post-unmount
+inventories show no fuser/mount/fence threads; the daemon service main thread is
+expected to remain. A deliberately held file returns **Busy/EBUSY in 0.482 ms**;
+the file fd and mount remain, with both receivers in epoll wait. It is neither
+forced success nor a Join bypass. Native failures would retain the same full
+proc/namespace evidence; the held-case evidence is retained. These are diagnostic
+rates, not universal kernel qualification.
+
+### 2. Metadata warm-up versus namespace size
+
+Both published roots have an index refreshed by Git inside a mount and then
+LayerFS-committed. The larger adds an ignored synthetic node_modules with
+**30,000 files, 211,730,666 bytes and 9,470 directories**, retaining Phase 4's
+real-derived names, sizes, depths and duplicate groups. Payloads are synthetic;
+this is a namespace diagnostic, not a real package installation. One selected
+sample per cell, **original 524 binary**; fresh B object cache/overlay, unchanged
+host/server OS cache. Times include Docker exec/CLI overhead. A cache-count
+query between mount/status inspects metadata already populated by mount.
+
+| Added delay | Root | Mount s | Mount Store requests | Cached metadata objects | Cached file lengths | First status s | Status Store requests |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 0 ms | Dubbo | 0.187 | 17 | 2,783 | 4,721 | 0.469 | 28 |
+| 0 ms | +node_modules | 1.104 | 57 | 13,092 | 32,060 | 0.507 | 29 |
+| 2 ms | Dubbo | 0.254 | 17 | 2,783 | 4,721 | 0.592 | 28 |
+| 2 ms | +node_modules | 1.228 | 57 | 13,092 | 32,060 | 0.615 | 29 |
+| 20 ms | Dubbo | 0.838 | 17 | 2,783 | 4,721 | 1.185 | 28 |
+| 20 ms | +node_modules | 2.534 | 57 | 13,092 | 32,060 | 1.332 | 29 |
+
+The configured 0/2/20 ms netem delays are not exact end-to-end RTTs. Five ping
+probes per cell measured plain/large averages **0.302/0.100**, **5.168/4.673**,
+**30.615/29.178 ms**, with substantial scheduler jitter; raw min/max remain in
+receipts. No replacements or retuning. Both first statuses were clean in all
+conditions. Cached canonical metadata bodies are 950,981 versus 5,604,292 bytes.
+
+Adding the ignored tree costs **10,309 metadata objects and 40 mount requests**;
+extra mount wall time is **0.92/0.97/1.70 s** across these scenarios, while status
+adds only **0.04/0.02/0.15 s**. Skipping initial warm-up of `node_modules/`, including
+its `.bun` package directories, would therefore matter more at mount than at
+status. This is an opportunity, not a measured implementation saving:
+`metadata.rs::expand` currently traverses a global inode table, requests lengths
+for all regular inodes and queues every directory. Merely skipping directory
+pages would still pay that global scan; a selective policy would need to defer
+unvisited inode/length work while preserving later demand reads. `.git/` and
+tracked source remain useful for status. **No warm-up change was made.**
+
+### 3. Ownership-preserving copies
+
+Every destination inode reports configured owner/group **1000:1000**, including
+root-created files. Source fixtures contain two files and a nested directory,
+owned wholly by 0:0 or 1000:1000. All 12 runs retain syscall traces, stderr and
+content/mode/ownership readbacks. The table gives tool exit and preservation
+outcome; EPERM is errno 1.
+
+| Source owner | Caller | `cp -a` | `tar -xpf` | `rsync -a` |
+| --- | --- | --- | --- | --- |
+| 0:0 | root | Exit **1**, `fchown(fd,0,0)` and fallback `fchown(fd,-1,0)` → EPERM; preservation warning | Exit **2**, `fchown(fd,0,0)` → EPERM; cannot change ownership | Exit **23**, `fchownat(AT_FDCWD,".",0,0,AT_SYMLINK_NOFOLLOW)` (also files) → EPERM; partial-transfer warning |
+| 0:0 | uid1000 | Exit **0**, the same chowns fail EPERM but are tolerated; owner is not preserved | Exit **0**, no failed ownership syscall; owner restoration skipped | Exit **0**, no failed ownership syscall; owner restoration skipped |
+| 1000:1000 | root | Exit **0**, bytes/owner preserved | Exit **0**, bytes/owner preserved | Exit **0**, bytes/owner preserved |
+| 1000:1000 | uid1000 | Exit **0**, bytes/owner preserved | Exit **0**, bytes/owner preserved | Exit **0**, bytes/owner preserved |
+
+The proposed minimum “same configured owner as a no-op” **already exists** in
+`layerfs-fuse/src/operations/unsupported.rs::ownership`, called by
+`operations/write.rs::set_attributes`. A direct `chown(1000,1000)` passes;
+`chown(0,0)` returns EPERM. Other ownership is not stored. Kernel permission
+checks may reject an unprivileged caller before this adapter; the traces prove
+the syscall result, not where every individual rejection occurred.
+
+Smallest honest semantics are to retain that rule and select copy options that
+do not request unsupported ownership: `cp -a --no-preserve=ownership`,
+`tar --no-same-owner -xpf`, or `rsync -a --no-owner --no-group` (proposals, not
+additional tested cases). Silently accepting root ownership as an alias would
+make successful chown disagree with subsequent stat. True arbitrary ownership
+would require persistent inode ownership and permission semantics, beyond this
+prototype. A successful unprivileged copy alone is not a preservation oracle.
+No ownership implementation was changed.
+
+### 4. ctime gap, status only
+
+One oracle a′ on **524862598**, imported index and default Git stat policy:
+ordinary status first refreshed/wrote the index, then README.md was changed
+without changing its size and its mtime was explicitly restored.
+
+| Observation | Before edit | After edit + mtime restore |
+| --- | --- | --- |
+| Size | 8,526 bytes | 8,526 bytes |
+| Reported mtime ns | 1792516007467733512 | 1792516007467733512 |
+| Reported ctime ns | 1792516007467733512 | 1792516007467733512 |
+| Git content object | `c2fa196a54c94f244d60854a1b3817b44a98e5fe` (index) | `868cff4e1fd79b42d5338a4740621d4d3e0d57e2` (forced hash) |
+| Git status | Clean after refresh | **Clean despite changed content: detection FAIL, unchanged gap** |
+
+`layerfs-fuse/src/attributes.rs::Identity::attributes` assigns `ctime` from the
+same `ViewStat` modified time used for mtime. Thus restoring mtime also restores
+reported ctime. Full SHA-256 byte hashes and Git hashes are in `ctime/`; the
+Phase 6 draft issue remains the proposal. No ctime fix or issue was made.
+
+### Verification, size and remaining limits
+
+Locked build/`--no-run`, 8 Fuse tests, 2 daemon custody tests, scoped Clippy and
+formatting, vendor integrity and 52 guard tests pass. All actual tests have
+explicit <=120 s child bounds. A duplicate Clippy flag was rejected and corrected;
+its receipt is retained. Workspace formatting and the boundary guard still fail
+on unchanged paths (57 boundary findings), independently checked against Phase 7.
+The [receipt index](receipts/run08/README.md) lists exact commands, skipped Maven,
+invalid stat cohort, expected ownership failures and ctime failure. No test was
+deleted, no receipt replaced, and no failed operation replayed.
+
+Commit **`c73497e2c`** corrects receive wait registration. First-party Production
+LOC **106,524 →106,524 (delta 0)**; separately counted vendor runtime **880→890
+(+10)** in three files (raw runtime diff +43/−30). Existing nix event feature only.
+The documentation/test commit has production delta 0. Exact counter/scope and
+snapshot proofs are in `setup/fix-production-loc.json`; reference remains absent
+(retired R9c, last 65,417). No content prefetch, ignore, ownership, ctime, recovery,
+eviction or Durable behavior was built. Exact OrbStack kernel shutdown trigger,
+other kernels, precise 2/20 ms end-to-end timing and Maven cost remain unqualified.
+Cleanup leaves only the permitted **cx7-target** Cargo volume; no other job's
+containers, images, networks or volumes were touched.

@@ -1,0 +1,15 @@
+{"command": ["docker", "volume", "ls", "--format", "{{.Name}}", "--filter", "name=cx7-"], "exit": 0, "ns": 116189333, "output": "cx7-p8-input\ncx7-p8-raw-hot\ncx7-p8-raw-large\ncx7-p8-raw-plain\ncx7-p8-seed-hot\ncx7-p8-seed-large\ncx7-p8-seed-plain\ncx7-seed\ncx7-target\n"}
+{"command": ["docker", "volume", "rm", "cx7-p8-input"], "exit": 0, "ns": 1093269292, "output": "cx7-p8-input\n"}
+{"command": ["docker", "volume", "rm", "cx7-p8-raw-hot"], "exit": 0, "ns": 49814000, "output": "cx7-p8-raw-hot\n"}
+{"command": ["docker", "volume", "rm", "cx7-p8-raw-large"], "exit": 0, "ns": 30525167, "output": "cx7-p8-raw-large\n"}
+{"command": ["docker", "volume", "rm", "cx7-p8-raw-plain"], "exit": 0, "ns": 26830875, "output": "cx7-p8-raw-plain\n"}
+{"command": ["docker", "volume", "rm", "cx7-p8-seed-hot"], "exit": 0, "ns": 25722458, "output": "cx7-p8-seed-hot\n"}
+{"command": ["docker", "volume", "rm", "cx7-p8-seed-large"], "exit": 0, "ns": 25181125, "output": "cx7-p8-seed-large\n"}
+{"command": ["docker", "volume", "rm", "cx7-p8-seed-plain"], "exit": 0, "ns": 23914875, "output": "cx7-p8-seed-plain\n"}
+{"command": ["docker", "volume", "rm", "cx7-seed"], "exit": 0, "ns": 27488458, "output": "cx7-seed\n"}
+{"command": ["docker", "image", "rm", "cx7-tools"], "exit": 0, "ns": 90966500, "output": "Untagged: cx7-tools:latest\nDeleted: sha256:46516caab74bec6ed2df9f9e9f3ef28fdd069fd878e25b7e5183cbfe04ec94eb\n"}
+{"command": ["docker", "image", "rm", "cx7-p8-tools"], "exit": 0, "ns": 74154166, "output": "Untagged: cx7-p8-tools:latest\nDeleted: sha256:f2ce2e789cf7f94081ae305ec5e9017672d026c45e719f085e6620b4c1743492\n"}
+{"command": ["docker", "ps", "-a", "--format", "{{.Names}}", "--filter", "name=cx7-"], "exit": 0, "ns": 24673333, "output": ""}
+{"command": ["docker", "network", "ls", "--format", "{{.Name}}", "--filter", "name=cx7-"], "exit": 0, "ns": 22616041, "output": ""}
+{"command": ["docker", "images", "--format", "{{.Repository}}", "--filter", "reference=cx7-*"], "exit": 0, "ns": 24537000, "output": ""}
+{"command": ["docker", "volume", "ls", "--format", "{{.Name}}", "--filter", "name=cx7-"], "exit": 0, "ns": 23439417, "output": "cx7-target\n"}

@@ -1,0 +1,3 @@
+   Compiling layerfs-remote-store v0.1.7 (/work/core/crates/layerfs-remote-store)
+    Finished `test` profile [optimized + debuginfo] target(s) in 3.01s
+  Executable tests/receive_observe.rs (/target/cargo/debug/deps/receive_observe-e4ac5d4acf92f7c4)

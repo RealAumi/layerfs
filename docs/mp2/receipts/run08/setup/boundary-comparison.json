@@ -1,0 +1,7 @@
+{
+  "equal": true,
+  "distinct_normalized": 38,
+  "raw_reported": 57,
+  "old": "run07/setup/checks.log.gz",
+  "new": "fix-checks.log"
+}

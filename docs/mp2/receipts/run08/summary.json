@@ -1,0 +1,413 @@
+{
+  "receive": {
+    "status": {
+      "original_before": {
+        "median": 4.4230039925,
+        "min": 4.269611785,
+        "max": 4.647638177,
+        "requests": 0,
+        "fuse_min": 263142,
+        "fuse_max": 263154
+      },
+      "original_after": {
+        "median": 4.163443121,
+        "min": 4.027064459,
+        "max": 4.23762077,
+        "requests": 0,
+        "fuse_min": 263144,
+        "fuse_max": 263155
+      },
+      "original_delta": -5.868429509449502,
+      "fixed_control": {
+        "median": 4.429204432500001,
+        "min": 4.311091391,
+        "max": 4.63982432,
+        "requests": 0,
+        "fuse_min": 263141,
+        "fuse_max": 263155
+      },
+      "fixed": {
+        "median": 4.145887441,
+        "min": 3.993510958,
+        "max": 4.252648788,
+        "requests": 0,
+        "fuse_min": 263139,
+        "fuse_max": 263150
+      },
+      "fixed_delta": -6.396566151273497
+    },
+    "find": {
+      "original_before": {
+        "median": 0.1635838895,
+        "min": 0.148303444,
+        "max": 0.219252061,
+        "requests": 0,
+        "fuse_min": 14900,
+        "fuse_max": 14900
+      },
+      "original_after": {
+        "median": 0.169405308,
+        "min": 0.160772326,
+        "max": 0.188307546,
+        "requests": 0,
+        "fuse_min": 14900,
+        "fuse_max": 14900
+      },
+      "original_delta": 3.558674706777909,
+      "fixed_control": {
+        "median": 0.1741596135,
+        "min": 0.158465736,
+        "max": 0.237678542,
+        "requests": 0,
+        "fuse_min": 14900,
+        "fuse_max": 14900
+      },
+      "fixed": {
+        "median": 0.155447673,
+        "min": 0.143745275,
+        "max": 0.187602824,
+        "requests": 0,
+        "fuse_min": 14900,
+        "fuse_max": 14900
+      },
+      "fixed_delta": -10.744132996138045
+    },
+    "stat": {
+      "original_before": {
+        "median": 0.0453331435,
+        "min": 0.042580461,
+        "max": 0.052453191,
+        "requests": 0,
+        "fuse_min": 4869,
+        "fuse_max": 4869
+      },
+      "original_after": {
+        "median": 0.057642536,
+        "min": 0.053011274,
+        "max": 0.065266125,
+        "requests": 0,
+        "fuse_min": 4869,
+        "fuse_max": 4869
+      },
+      "original_delta": 27.153185395140312,
+      "fixed_control": {
+        "median": 0.045256924500000004,
+        "min": 0.043203633,
+        "max": 0.147226984,
+        "requests": 0,
+        "fuse_min": 4869,
+        "fuse_max": 11227
+      },
+      "fixed": {
+        "median": 0.041228694999999996,
+        "min": 0.03820534,
+        "max": 0.042715841,
+        "requests": 0,
+        "fuse_min": 4869,
+        "fuse_max": 4869
+      },
+      "fixed_delta": -8.90080257221192
+    },
+    "small": {
+      "original_before": {
+        "median": 0.251512514,
+        "min": 0.224362438,
+        "max": 0.390859308,
+        "requests": 0,
+        "fuse_min": 20000,
+        "fuse_max": 20000
+      },
+      "original_after": {
+        "median": 0.2561316825,
+        "min": 0.243485989,
+        "max": 0.291405053,
+        "requests": 0,
+        "fuse_min": 20000,
+        "fuse_max": 20000
+      },
+      "original_delta": 1.836556132550915,
+      "fixed_control": {
+        "median": 0.23107881149999998,
+        "min": 0.217965039,
+        "max": 0.275327382,
+        "requests": 0,
+        "fuse_min": 20000,
+        "fuse_max": 20000
+      },
+      "fixed": {
+        "median": 0.2230107265,
+        "min": 0.216699996,
+        "max": 0.290658009,
+        "requests": 0,
+        "fuse_min": 20000,
+        "fuse_max": 20000
+      },
+      "fixed_delta": -3.4914862802122304
+    },
+    "large": {
+      "original_before": {
+        "median": 0.5358795839999999,
+        "min": 0.521367786,
+        "max": 0.667611021,
+        "requests": 0,
+        "fuse_min": 2690,
+        "fuse_max": 2691
+      },
+      "original_after": {
+        "median": 0.5268842055,
+        "min": 0.508957863,
+        "max": 0.628017335,
+        "requests": 0,
+        "fuse_min": 2690,
+        "fuse_max": 2691
+      },
+      "original_delta": -1.6786193705785712,
+      "fixed_control": {
+        "median": 0.5377196565,
+        "min": 0.518511049,
+        "max": 0.691312788,
+        "requests": 0,
+        "fuse_min": 2690,
+        "fuse_max": 2691
+      },
+      "fixed": {
+        "median": 0.5261563215,
+        "min": 0.509144089,
+        "max": 0.658299365,
+        "requests": 0,
+        "fuse_min": 2691,
+        "fuse_max": 2691
+      },
+      "fixed_delta": -2.1504393339952133
+    }
+  },
+  "cold": [
+    {
+      "variant": "plain",
+      "delay": 0,
+      "mount": 0.187194083,
+      "status": 0.468721458,
+      "mount_requests": 17,
+      "status_requests": 28,
+      "cache": {
+        "objects": 2783,
+        "lengths": 4721,
+        "bytes": 950981
+      }
+    },
+    {
+      "variant": "large",
+      "delay": 0,
+      "mount": 1.103736958,
+      "status": 0.506843875,
+      "mount_requests": 57,
+      "status_requests": 29,
+      "cache": {
+        "objects": 13092,
+        "lengths": 32060,
+        "bytes": 5604292
+      }
+    },
+    {
+      "variant": "plain",
+      "delay": 2,
+      "mount": 0.2539005,
+      "status": 0.592414625,
+      "mount_requests": 17,
+      "status_requests": 28,
+      "cache": {
+        "objects": 2783,
+        "lengths": 4721,
+        "bytes": 950981
+      }
+    },
+    {
+      "variant": "large",
+      "delay": 2,
+      "mount": 1.227656042,
+      "status": 0.615495,
+      "mount_requests": 57,
+      "status_requests": 29,
+      "cache": {
+        "objects": 13092,
+        "lengths": 32060,
+        "bytes": 5604292
+      }
+    },
+    {
+      "variant": "plain",
+      "delay": 20,
+      "mount": 0.837705417,
+      "status": 1.185245334,
+      "mount_requests": 17,
+      "status_requests": 28,
+      "cache": {
+        "objects": 2783,
+        "lengths": 4721,
+        "bytes": 950981
+      }
+    },
+    {
+      "variant": "large",
+      "delay": 20,
+      "mount": 2.534266208,
+      "status": 1.331638167,
+      "mount_requests": 57,
+      "status_requests": 29,
+      "cache": {
+        "objects": 13092,
+        "lengths": 32060,
+        "bytes": 5604292
+      }
+    }
+  ],
+  "receive_limit": "Correction-cohort baseline stat sample1 has11227 FUSE calls; all other stat samples4869. Raw10-run medians retained; not a strict equal-request-rate qualification.",
+  "ownership": [
+    {
+      "case": "cp-user0-owner0",
+      "exit": 1,
+      "owners": [
+        [
+          1000,
+          1000
+        ]
+      ]
+    },
+    {
+      "case": "tar-user0-owner0",
+      "exit": 2,
+      "owners": [
+        [
+          1000,
+          1000
+        ]
+      ]
+    },
+    {
+      "case": "rsync-user0-owner0",
+      "exit": 23,
+      "owners": [
+        [
+          1000,
+          1000
+        ]
+      ]
+    },
+    {
+      "case": "cp-user1000-owner0",
+      "exit": 0,
+      "owners": [
+        [
+          1000,
+          1000
+        ]
+      ]
+    },
+    {
+      "case": "tar-user1000-owner0",
+      "exit": 0,
+      "owners": [
+        [
+          1000,
+          1000
+        ]
+      ]
+    },
+    {
+      "case": "rsync-user1000-owner0",
+      "exit": 0,
+      "owners": [
+        [
+          1000,
+          1000
+        ]
+      ]
+    },
+    {
+      "case": "cp-user0-owner1000",
+      "exit": 0,
+      "owners": [
+        [
+          1000,
+          1000
+        ]
+      ]
+    },
+    {
+      "case": "tar-user0-owner1000",
+      "exit": 0,
+      "owners": [
+        [
+          1000,
+          1000
+        ]
+      ]
+    },
+    {
+      "case": "rsync-user0-owner1000",
+      "exit": 0,
+      "owners": [
+        [
+          1000,
+          1000
+        ]
+      ]
+    },
+    {
+      "case": "cp-user1000-owner1000",
+      "exit": 0,
+      "owners": [
+        [
+          1000,
+          1000
+        ]
+      ]
+    },
+    {
+      "case": "tar-user1000-owner1000",
+      "exit": 0,
+      "owners": [
+        [
+          1000,
+          1000
+        ]
+      ]
+    },
+    {
+      "case": "rsync-user1000-owner1000",
+      "exit": 0,
+      "owners": [
+        [
+          1000,
+          1000
+        ]
+      ]
+    }
+  ],
+  "ctime": {
+    "evidence": {
+      "before": {
+        "st_size": 8526,
+        "st_mtime_ns": 1792516007467733512,
+        "st_ctime_ns": 1792516007467733512
+      },
+      "after": {
+        "st_size": 8526,
+        "st_mtime_ns": 1792516007467733512,
+        "st_ctime_ns": 1792516007467733512
+      },
+      "before_sha": "350bd965114cc3ce25002a3f6599d394279bd51b93992dc8706731de38409d97",
+      "after_sha": "ec971f7a6535ee4cd14a6c40a7beac82fec8cea62d48603e9b0c61ed64e2df2b"
+    },
+    "detected": false,
+    "index": "c2fa196a54c94f244d60854a1b3817b44a98e5fe",
+    "actual": "868cff4e1fd79b42d5338a4740621d4d3e0d57e2"
+  },
+  "custody": {
+    "git": 40,
+    "git_retained": 0,
+    "plain": 1,
+    "plain_retained": 0,
+    "held": "Refused(Busy)/EBUSY"
+  }
+}

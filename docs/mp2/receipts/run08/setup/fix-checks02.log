@@ -1,0 +1,1582 @@
+info: downloading component 'clippy'
+info: installing component 'clippy'
+info: downloading component 'rustfmt'
+info: installing component 'rustfmt'
+    Checking typenum v1.20.1
+   Compiling generic-array v0.14.7
+    Checking getrandom v0.2.17
+    Checking rand_core v0.6.4
+   Compiling blake3 v1.8.5
+    Checking crypto-common v0.1.7
+    Checking subtle v2.6.1
+    Checking layerfs-content v0.1.7 (/work/core/crates/layerfs-content)
+   Compiling libsqlite3-sys v0.38.2
+    Checking zeroize v1.9.0
+    Checking inout v0.1.4
+    Checking cipher v0.4.4
+    Checking universal-hash v0.5.1
+    Checking hybrid-array v0.4.15
+    Checking rusqlite v0.40.2
+    Checking cpufeatures v0.2.17
+    Checking opaque-debug v0.3.1
+    Checking crypto-common v0.2.2
+    Checking layerfs-overlay v0.1.7 (/work/core/crates/layerfs-overlay)
+    Checking block-buffer v0.12.1
+    Checking block-buffer v0.10.4
+   Compiling zstd-sys v2.0.16+zstd.1.5.7
+    Checking const-oid v0.10.2
+    Checking digest v0.11.3
+    Checking layerfs-workspace v0.1.7 (/work/core/crates/layerfs-workspace)
+    Checking digest v0.10.7
+    Checking polyval v0.6.2
+    Checking aead v0.5.2
+    Checking cpufeatures v0.3.1
+    Checking sha2 v0.11.0
+   Compiling curve25519-dalek v4.1.3
+    Checking ghash v0.5.1
+    Checking poly1305 v0.8.0
+    Checking aes v0.8.4
+    Checking chacha20 v0.9.1
+    Checking ctr v0.9.2
+    Checking layerfs-history v0.1.7 (/work/core/crates/layerfs-history)
+   Compiling snow v0.9.6
+    Checking aes-gcm v0.10.3
+    Checking chacha20poly1305 v0.10.1
+    Checking blake2 v0.10.6
+    Checking sha2 v0.10.9
+    Checking layerfs-bridge v0.1.7 (/work/core/crates/layerfs-bridge)
+    Checking layerfs-sandbox v0.1.7 (/work/core/crates/layerfs-sandbox)
+    Checking fuser v0.18.0 (/work/core/vendor/fuser-0.18.0)
+    Checking layerfs-fuse v0.1.7 (/work/core/crates/layerfs-fuse)
+    Checking layerfs-storage v0.1.7 (/work/core/crates/layerfs-storage)
+    Checking layerfs-persistence v0.1.7 (/work/core/crates/layerfs-persistence)
+    Checking layerfs-project v0.1.7 (/work/core/crates/layerfs-project)
+    Checking layerfs-store-service v0.1.7 (/work/core/crates/layerfs-store-service)
+    Checking layerfs-remote-store v0.1.7 (/work/core/crates/layerfs-remote-store)
+    Checking layerfs-api v0.1.7 (/work/core/crates/layerfs-api)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 13.48s
+Diff in /work/core/crates/layerfs-api/tests/merge_units.rs:138:
+ 
+ fn read(fixture: &Fixture, branch: &str, path: &str) -> Option<String> {
+     fixture
+-        .try_call("fs.read", vec![("branch", text(branch)), ("path", text(path))])
++        .try_call(
++            "fs.read",
++            vec![("branch", text(branch)), ("path", text(path))],
++        )
+         .ok()
+         .map(|reply| reply.get_text("text").unwrap().to_owned())
+ }
+Diff in /work/core/crates/layerfs-api/tests/merge_units.rs:156:
+     let united = merge(&fixture, "united", Some(bare(&["nm"]))).unwrap();
+     assert_eq!(plain.get_text("root"), united.get_text("root"));
+     assert!(units_of(&united).is_empty());
+-    assert_eq!(read(&fixture, "united", "/nm/a").as_deref(), Some("a, ours\n"));
+-    assert_eq!(read(&fixture, "united", "/src/t").as_deref(), Some("t, theirs\n"));
++    assert_eq!(
++        read(&fixture, "united", "/nm/a").as_deref(),
++        Some("a, ours\n")
++    );
++    assert_eq!(
++        read(&fixture, "united", "/src/t").as_deref(),
++        Some("t, theirs\n")
++    );
+     // Neither side changed `src`; theirs alone changed `nm/lib`'s unit.
+     let other = merge(&fixture, "other", Some(bare(&["src/s", "lib"]))).unwrap();
+     assert_eq!(plain.get_text("root"), other.get_text("root"));
+Diff in /work/core/crates/layerfs-api/tests/merge_units.rs:233:
+     let reply = merge(&fixture, "m", Some(bare(&["nm"]))).unwrap();
+     let units = units_of(&reply);
+     assert_eq!(units[0].get_text("kept"), Some("ours"), "{reply:?}");
+-    assert!(units[0].get_text("keptTime").unwrap().starts_with("1970-01-01T00:02:03"));
++    assert!(units[0]
++        .get_text("keptTime")
++        .unwrap()
++        .starts_with("1970-01-01T00:02:03"));
+     assert_eq!(read(&fixture, "m", "/nm/a").as_deref(), Some("L\n"));
+     assert_eq!(read(&fixture, "m", "/nm/b").as_deref(), Some("b\n"));
+     fixture.cleanup();
+Diff in /work/core/crates/layerfs-api/tests/merge_units.rs:249:
+         ("l", vec![rm("/nm")]),
+     );
+     let reply = merge(&fixture, "m", Some(bare(&["nm"]))).unwrap();
+-    assert_eq!(units_of(&reply)[0].get_text("kept"), Some("ours"), "{reply:?}");
++    assert_eq!(
++        units_of(&reply)[0].get_text("kept"),
++        Some("ours"),
++        "{reply:?}"
++    );
+     let merged = view(&fixture, reply.get_text("root").unwrap());
+     assert!(under(&merged, "/nm").is_empty(), "{merged:?}");
+     fixture.cleanup();
+Diff in /work/core/crates/layerfs-api/tests/merge_units.rs:261:
+         ("l", vec![rm("/nm"), write("/nm", "a file now\n")]),
+     );
+     let reply = merge(&fixture, "m", Some(bare(&["nm"]))).unwrap();
+-    assert_eq!(units_of(&reply)[0].get_text("kept"), Some("ours"), "{reply:?}");
++    assert_eq!(
++        units_of(&reply)[0].get_text("kept"),
++        Some("ours"),
++        "{reply:?}"
++    );
+     assert_eq!(read(&fixture, "m", "/nm").as_deref(), Some("a file now\n"));
+     fixture.cleanup();
+     // Theirs, later, keeps the directory it changed: ours' file is dropped.
+Diff in /work/core/crates/layerfs-api/tests/merge_units.rs:355:
+     let decided = &units_of(&reply)[0];
+     assert_eq!(decided.get_text("unit"), Some("build"));
+     assert_eq!(decided.get_text("kept"), Some("ours"));
+-    assert_eq!(read(&fixture, "m", "/lib/i.js").as_deref(), Some("i, ours\n"));
+-    assert_eq!(read(&fixture, "m", "/p.tsbuildinfo").as_deref(), Some("p\n"));
++    assert_eq!(
++        read(&fixture, "m", "/lib/i.js").as_deref(),
++        Some("i, ours\n")
++    );
++    assert_eq!(
++        read(&fixture, "m", "/p.tsbuildinfo").as_deref(),
++        Some("p\n")
++    );
+     // As two units, each side's change stands.
+     let apart = merge(&fixture, "apart", Some(bare(&["lib", "*.tsbuildinfo"]))).unwrap();
+     assert!(units_of(&apart).is_empty());
+Diff in /work/core/crates/layerfs-api/tests/merge_units.rs:363:
+-    assert_eq!(read(&fixture, "apart", "/p.tsbuildinfo").as_deref(), Some("p, theirs\n"));
++    assert_eq!(
++        read(&fixture, "apart", "/p.tsbuildinfo").as_deref(),
++        Some("p, theirs\n")
++    );
+     fixture.cleanup();
+ }
+ 
+Diff in /work/core/crates/layerfs-api/tests/merge_units.rs:379:
+     // `**/lib` first: each unit one side changed.
+     let second = merge(&fixture, "second", Some(bare(&["**/lib", "nm"]))).unwrap();
+     assert!(units_of(&second).is_empty());
+-    assert_eq!(read(&fixture, "second", "/nm/lib/x").as_deref(), Some("x, ours\n"));
+-    assert_eq!(read(&fixture, "second", "/nm/a").as_deref(), Some("a, theirs\n"));
++    assert_eq!(
++        read(&fixture, "second", "/nm/lib/x").as_deref(),
++        Some("x, ours\n")
++    );
++    assert_eq!(
++        read(&fixture, "second", "/nm/a").as_deref(),
++        Some("a, theirs\n")
++    );
+     fixture.cleanup();
+ }
+ 
+Diff in /work/core/crates/layerfs-api/tests/merge_units.rs:407:
+     } else {
+         // The write replaced the outside name: no shared serial is left.
+         assert!(units_of(&reply).is_empty(), "{reply:?}");
+-        assert_eq!(read(&fixture, "m", "/out/hl").as_deref(), Some("edited outside\n"));
++        assert_eq!(
++            read(&fixture, "m", "/out/hl").as_deref(),
++            Some("edited outside\n")
++        );
+     }
+     fixture.cleanup();
+ }
+Diff in /work/core/crates/layerfs-api/tests/merge_units.rs:425:
+     sides(
+         &fixture,
+         ("r", vec![write("/out.gen", "o, theirs\n")]),
+-        ("l", vec![write("/nm/x.gen", "x, ours\n"), write("/out.gen", "o, ours\n")]),
++        (
++            "l",
++            vec![
++                write("/nm/x.gen", "x, ours\n"),
++                write("/out.gen", "o, ours\n"),
++            ],
++        ),
+     );
+     // Theirs changes the unit last.
+     fixture.apply("r", vec![write("/nm/y", "y, theirs\n")]);
+Diff in /work/core/crates/layerfs-api/tests/merge_units.rs:433:
+     assert_eq!(units_of(&reply)[0].get_text("kept"), Some("theirs"));
+     assert_eq!(read(&fixture, "m", "/nm/x.gen").as_deref(), Some("x\n"));
+     // Outside the unit the rule decided, newer wins.
+-    assert_eq!(read(&fixture, "m", "/out.gen").as_deref(), Some("o, ours\n"));
++    assert_eq!(
++        read(&fixture, "m", "/out.gen").as_deref(),
++        Some("o, ours\n")
++    );
+     let lww = match reply.get("lww") {
+         Some(SdkValue::List(lww)) => lww,
+         other => panic!("lww: {other:?}"),
+Diff in /work/core/crates/layerfs-api/tests/merge_units.rs:460:
+     sides(&fixture, ("l", edits("ours")), ("r", edits("theirs")));
+     let units = SdkValue::List(
+         (0..UNITS)
+-            .map(|unit| group(&format!("{unit:02}{}", "n".repeat(300)), &[&format!("/u{unit:02}")]))
++            .map(|unit| {
++                group(
++                    &format!("{unit:02}{}", "n".repeat(300)),
++                    &[&format!("/u{unit:02}")],
++                )
++            })
+             .collect(),
+     );
+     let reply = merge(&fixture, "m", Some(units)).unwrap();
+Diff in /work/core/crates/layerfs-api/tests/merge_units.rs:474:
+ #[test]
+ fn malformed_units_are_refused_before_any_work() {
+     let fixture = seeded("f057-admission");
+-    sides(&fixture, ("l", vec![write("/nm/a", "l\n")]), ("r", vec![write("/nm/b", "r\n")]));
++    sides(
++        &fixture,
++        ("l", vec![write("/nm/a", "l\n")]),
++        ("r", vec![write("/nm/b", "r\n")]),
++    );
+     for units in [
+         bare(&[""]),
+         bare(&["#nm"]),
+Diff in /work/core/crates/layerfs-api/tests/merge_units.rs:485:
+         text("nm"),
+     ] {
+         let refused = merge(&fixture, "m", Some(units.clone())).expect_err("refused");
+-        assert!(format!("{refused:?}").contains("InvalidInput"), "{units:?}: {refused:?}");
++        assert!(
++            format!("{refused:?}").contains("InvalidInput"),
++            "{units:?}: {refused:?}"
++        );
+     }
+-    assert!(read(&fixture, "m", "/nm/a").is_none(), "nothing was created");
++    assert!(
++        read(&fixture, "m", "/nm/a").is_none(),
++        "nothing was created"
++    );
+     fixture.cleanup();
+ }
+ 
+Diff in /work/core/crates/layerfs-api/tests/merge_units.rs:496:
+     let fixture = seeded("f057-golden");
+     sides(
+         &fixture,
+-        ("l", vec![write("/src/s", "1, ours\n2\n3\n"), mv("/nm/a", "/nm/a2")]),
+-        ("r", vec![write("/src/s", "1\n2\n3, theirs\n"), rm("/top.txt")]),
++        (
++            "l",
++            vec![write("/src/s", "1, ours\n2\n3\n"), mv("/nm/a", "/nm/a2")],
++        ),
++        (
++            "r",
++            vec![write("/src/s", "1\n2\n3, theirs\n"), rm("/top.txt")],
++        ),
+     );
+     let plain = merge(&fixture, "plain", None).unwrap();
+     for (name, units) in [
+Diff in /work/core/crates/layerfs-content/examples/filesystem_primitives_candidate.rs:74:
+         kind: InodeKind::RegularFile,
+         namespace_ref_count: 1,
+         content_root: synthetic(&format!("component/content-{serial:05}")),
+-        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic("component/meta")),
++        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic(
++            "component/meta",
++        )),
+     }
+ }
+ 
+Diff in /work/core/crates/layerfs-content/examples/filesystem_primitives_candidate.rs:131:
+                 kind: InodeKind::Directory,
+                 namespace_ref_count: 0,
+                 content_root: directory.0,
+-                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic("component/root-meta")),
++                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic(
++                    "component/root-meta",
++                )),
+             }),
+         ))];
+         rows.extend((1..=files as u64).map(|serial| Ok((serial + 1, Some(record(serial))))));
+Diff in /work/core/crates/layerfs-content/examples/filesystem_primitives_candidate.rs:205:
+                     kind: InodeKind::Directory,
+                     namespace_ref_count: 0,
+                     content_root: updated.0,
+-                    metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic("component/root-meta")),
++                    metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                        synthetic("component/root-meta"),
++                    ),
+                 }),
+             )));
+             rows.sort_by_key(|row| row.as_ref().map(|row| row.0).unwrap_or(0));
+Diff in /work/core/crates/layerfs-content/examples/filesystem_timing_c1.rs:72:
+         kind: InodeKind::RegularFile,
+         namespace_ref_count: 0,
+         content_root: synthetic(content),
+-        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic("example/meta")),
++        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic(
++            "example/meta",
++        )),
+     }
+ }
+ 
+Diff in /work/core/crates/layerfs-content/examples/filesystem_timing_c1.rs:81:
+         kind: InodeKind::Directory,
+         namespace_ref_count: 0,
+         content_root: synthetic("example/unused"),
+-        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic("example/dir-meta")),
++        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic(
++            "example/dir-meta",
++        )),
+     }
+ }
+ 
+Diff in /work/core/crates/layerfs-content/examples/filesystem_timing_c1.rs:251:
+         bag.objects.extend(attribute_sink.objects);
+         for update in &mut inodes {
+             if update.serial == 1 {
+-                update.value.metadata_root = layerfs_content::object::inode_leaf::InodeMetadata::Root(metadata_root);
++                update.value.metadata_root =
++                    layerfs_content::object::inode_leaf::InodeMetadata::Root(metadata_root);
+             }
+         }
+         stored_attribute_tree = Some(metadata_root);
+Diff in /work/core/crates/layerfs-content/examples/fingerprint_collision_search.rs:33:
+         kind: InodeKind::RegularFile,
+         namespace_ref_count: 1,
+         content_root: content,
+-        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(ObjectId::from_bytes(&[0xA5; 32]).expect("32-byte identity")),
++        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++            ObjectId::from_bytes(&[0xA5; 32]).expect("32-byte identity"),
++        ),
+     })
+ }
+ 
+Diff in /work/core/crates/layerfs-content/src/compare/tree.rs:111:
+     if left.kind != right.kind || left.content_root != right.content_root {
+         return Ok(false);
+     }
+-    Ok(crate::filesystem::attributes::read_portable(
+-        reader,
+-        left.metadata_root,
+-        left.kind,
+-        work,
+-    )? == crate::filesystem::attributes::read_portable(
+-        reader,
+-        right.metadata_root,
+-        right.kind,
+-        work,
+-    )?)
++    Ok(
++        crate::filesystem::attributes::read_portable(reader, left.metadata_root, left.kind, work)?
++            == crate::filesystem::attributes::read_portable(
++                reader,
++                right.metadata_root,
++                right.kind,
++                work,
++            )?,
++    )
+ }
+ 
+ /// Whether two metadata fields decode to the same portable value, with the
+Diff in /work/core/crates/layerfs-content/src/compare/tree.rs:137:
+     if left == right {
+         return Ok(true);
+     }
+-    Ok(crate::filesystem::attributes::read_portable(reader, left, kind, work)?
+-        == crate::filesystem::attributes::read_portable(reader, right, kind, work)?)
++    Ok(
++        crate::filesystem::attributes::read_portable(reader, left, kind, work)?
++            == crate::filesystem::attributes::read_portable(reader, right, kind, work)?,
++    )
+ }
+ 
+ /// Every inode whose value differs between two roots, in serial order.
+Diff in /work/core/crates/layerfs-content/src/compare/tree.rs:510:
+     for entry in entries.into_values() {
+         let keep = match (entry.left, entry.right) {
+             (Some(a), Some(b)) => {
+-                a.serial != b.serial
+-                    || !same_inode(reader, &a.value, &b.value, &mut metadata)?
++                a.serial != b.serial || !same_inode(reader, &a.value, &b.value, &mut metadata)?
+             }
+             _ => true,
+         };
+Diff in /work/core/crates/layerfs-content/src/merge/mod.rs:24:
+ pub use markers::paths_with_markers;
+ pub use revert::{revert_units, RevertInput, Reverted};
+ pub use text::{has_markers, merge3, Hunk, TextMerge};
+-pub use units::{decide_units, unit_changes, MergeUnit, UnitChange, UnitReport, Units};
+ pub use types::{Conflict, ConflictKind, LwwDecision, MergeInput, MergeOutcome, RulesFrom, Side};
++pub use units::{decide_units, unit_changes, MergeUnit, UnitChange, UnitReport, Units};
+ 
+Diff in /work/core/crates/layerfs-content/src/merge/revert.rs:114:
+         let (path, b, s) = &pair;
+         let name = PathName::new(path.rsplit('/').next().unwrap_or_default())?;
+         let parent = frames.last_mut().expect("the root frame");
+-        let current = if parent.rebuilt { None } else { s.map(|s| s.serial) };
+-        let lost = input
+-            .units
+-            .unit_of(path)
+-            .filter(|unit| input.lost[*unit]);
++        let current = if parent.rebuilt {
++            None
++        } else {
++            s.map(|s| s.serial)
++        };
++        let lost = input.units.unit_of(path).filter(|unit| input.lost[*unit]);
+         let Some(unit) = lost else {
+             // Outside a lost unit: the side's entry, below which a lost
+             // unit may still lie.
+Diff in /work/core/crates/layerfs-content/src/merge/units.rs:67:
+             if admitted.iter().any(|(name, _)| *name == unit.name) {
+                 return Err(format!("unit {:?} is listed twice", unit.name));
+             }
+-            if !unit.patterns.iter().any(|pattern| !pattern.starts_with('!')) {
++            if !unit
++                .patterns
++                .iter()
++                .any(|pattern| !pattern.starts_with('!'))
++            {
+                 return Err(format!("unit {:?} has no pattern to match", unit.name));
+             }
+             for pattern in &unit.patterns {
+Diff in /work/core/crates/layerfs-content/src/object/inode_leaf.rs:131:
+     }
+ 
+     /// The attribute keys an inline value logically carries.
+-    pub fn inline_keys(&self) -> ContentResult<Vec<crate::filesystem::attributes::keys::AttributeKey>>
+-    {
++    pub fn inline_keys(
++        &self,
++    ) -> ContentResult<Vec<crate::filesystem::attributes::keys::AttributeKey>> {
+         use crate::filesystem::attributes::keys::AttributeKey;
+         match self {
+             Self::Root(_) => Ok(Vec::new()),
+Diff in /work/core/crates/layerfs-content/tests/filesystem_attributes.rs:222:
+     .expect("portable metadata");
+     let reader = store.clone();
+     let mut work = AttributeReadWork::default();
+-    let observed =
+-        read_portable(
+-            &reader,
+-            layerfs_content::object::inode_leaf::InodeMetadata::Root(root),
+-            InodeKind::RegularFile,
+-            &mut work,
+-        ).expect("reads portable");
++    let observed = read_portable(
++        &reader,
++        layerfs_content::object::inode_leaf::InodeMetadata::Root(root),
++        InodeKind::RegularFile,
++        &mut work,
++    )
++    .expect("reads portable");
+     assert_eq!(observed, metadata);
+     assert_eq!(work.values_read, 2);
+     // The value ropes stay extent-only: each is a file state over an extent leaf.
+Diff in /work/core/crates/layerfs-content/tests/filesystem_attributes.rs:518:
+                 kind: InodeKind::Directory,
+                 namespace_ref_count: 0,
+                 content_root: synthetic("root-content"),
+-                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic("root-meta")),
++                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic(
++                    "root-meta",
++                )),
+             },
+         },
+         InodeUpdate {
+Diff in /work/core/crates/layerfs-content/tests/filesystem_attributes.rs:527:
+                 kind: InodeKind::RegularFile,
+                 namespace_ref_count: 0,
+                 content_root: synthetic("file-content"),
+-                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(attribute_root),
++                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                    attribute_root,
++                ),
+             },
+         },
+     ];
+Diff in /work/core/crates/layerfs-content/tests/filesystem_attributes.rs:890:
+         mtime_nanoseconds: 9,
+     };
+     let root = with_objects(&mut store, |objects| {
+-        let mode = emit_value(objects, &portable.mode_bytes(InodeKind::RegularFile).unwrap()).unwrap();
++        let mode = emit_value(
++            objects,
++            &portable.mode_bytes(InodeKind::RegularFile).unwrap(),
++        )
++        .unwrap();
+         let time = emit_value(objects, &portable.mtime_bytes().unwrap()).unwrap();
+         build_attribute_tree(
+             objects,
+Diff in /work/core/crates/layerfs-content/tests/filesystem_attributes.rs:909:
+         .map(|(root, _)| root)
+     })
+     .unwrap();
+-    let (rooted, inlined) = (
+-        InodeMetadata::Root(root),
+-        InodeMetadata::Inline(portable),
+-    );
++    let (rooted, inlined) = (InodeMetadata::Root(root), InodeMetadata::Inline(portable));
+     let mut work = AttributeReadWork::default();
+-    assert!(same_metadata(
+-        &store,
+-        InodeKind::RegularFile,
+-        rooted,
+-        inlined,
+-        &mut work
+-    )
+-    .unwrap());
++    assert!(same_metadata(&store, InodeKind::RegularFile, rooted, inlined, &mut work).unwrap());
+     let content = ObjectId::for_bytes(b"content");
+     let (a, b) = (
+         InodeValue {
+Diff in /work/core/crates/layerfs-content/tests/filesystem_codec.rs:48:
+         kind,
+         namespace_ref_count: count,
+         content_root: synthetic(content),
+-        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic(metadata)),
++        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic(
++            metadata,
++        )),
+     }
+ }
+ 
+Diff in /work/core/crates/layerfs-content/tests/filesystem_ordering.rs:51:
+             kind: InodeKind::RegularFile,
+             namespace_ref_count: 2,
+             content_root: synthetic("ordering/golden-content"),
+-            metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic("ordering/golden-meta")),
++            metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic(
++                "ordering/golden-meta",
++            )),
+         }),
+         count: 2,
+     };
+Diff in /work/core/crates/layerfs-content/tests/filesystem_parent_lookup.rs:207:
+             let stat = read
+                 .stat(&LogicalPath::new(path).unwrap())
+                 .expect("supplied parent");
+-            assert_eq!(stat.metadata_root.root().unwrap(), synthetic("supplied-meta"));
++            assert_eq!(
++                stat.metadata_root.root().unwrap(),
++                synthetic("supplied-meta")
++            );
+             assert_eq!(stat.namespace_ref_count, 1);
+         }
+         assert!(matches!(
+Diff in /work/core/crates/layerfs-content/tests/filesystem_qualify.rs:140:
+         kind,
+         namespace_ref_count: declared,
+         content_root,
+-        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic("qualify/metadata")),
++        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic(
++            "qualify/metadata",
++        )),
+     }
+ }
+ fn crafted_root(store: &mut TreeStore, table: ObjectId, root_serial: u64) -> ObjectId {
+Diff in /work/core/crates/layerfs-content/tests/filesystem_references_backed.rs:1140:
+         .map(|serial| InodeUpdate {
+             serial,
+             value: InodeValue {
+-                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic("references/late-final-new")),
++                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic(
++                    "references/late-final-new",
++                )),
+                 ..typed(InodeKind::RegularFile)
+             },
+         })
+Diff in /work/core/crates/layerfs-content/tests/filesystem_sorted_localized.rs:79:
+             kind: InodeKind::RegularFile,
+             namespace_ref_count: 1 + payload % 3,
+             content_root: synthetic(&format!("localized/content/{payload}")),
+-            metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic(&format!("localized/metadata/{}", payload % 5))),
++            metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic(
++                &format!("localized/metadata/{}", payload % 5),
++            )),
+         }
+     }
+     fn apply(
+Diff in /work/core/crates/layerfs-content/tests/filesystem_topology_backed.rs:226:
+     let value = inode(&store, result.root, base.h).expect("h");
+     assert_eq!(
+         (value.content_root, value.metadata_root),
+-        (supplied.content_root, layerfs_content::object::inode_leaf::InodeMetadata::Root(metadata)),
++        (
++            supplied.content_root,
++            layerfs_content::object::inode_leaf::InodeMetadata::Root(metadata)
++        ),
+         "without a header the supplied value is the whole statement"
+     );
+     assert_eq!(value.namespace_ref_count, 1);
+Diff in /work/core/crates/layerfs-content/tests/filesystem_topology_counts.rs:287:
+         Rowset::new().value(
+             base.file,
+             InodeValue {
+-                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic("counts/changed-metadata")),
++                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic(
++                    "counts/changed-metadata",
++                )),
+                 ..base.tree.stored(base.file)
+             },
+         )
+Diff in /work/core/crates/layerfs-content/tests/filesystem_topology_counts.rs:556:
+         Rowset::new().value(
+             base.file,
+             InodeValue {
+-                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic("counts/changed-metadata")),
++                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(synthetic(
++                    "counts/changed-metadata",
++                )),
+                 ..base.tree.stored(base.file)
+             },
+         )
+Diff in /work/core/crates/layerfs-content/tests/inode_decode_cost.rs:106:
+                             kind: InodeKind::RegularFile,
+                             namespace_ref_count: 1,
+                             content_root: ObjectId::for_bytes(b"count-content"),
+-                            metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(ObjectId::for_bytes(b"count-metadata")),
++                            metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                                ObjectId::for_bytes(b"count-metadata"),
++                            ),
+                         },
+                     )
+                 })
+Diff in /work/core/crates/layerfs-content/tests/merge_units.rs:95:
+     let theirs = [UnitChange::default(), change(4, 6), change(1, 7)];
+     let reports = decide_units(&units, &ours, &theirs);
+     assert_eq!(reports.len(), 2);
+-    assert_eq!((reports[0].name.as_str(), reports[0].kept), ("b", Side::Theirs));
++    assert_eq!(
++        (reports[0].name.as_str(), reports[0].kept),
++        ("b", Side::Theirs)
++    );
+     assert_eq!((reports[0].kept_time, reports[0].dropped), ((6, 0), 1));
+-    assert_eq!((reports[1].name.as_str(), reports[1].kept), ("c", Side::Ours));
++    assert_eq!(
++        (reports[1].name.as_str(), reports[1].kept),
++        ("c", Side::Ours)
++    );
+     assert_eq!((reports[1].changed_ours, reports[1].changed_theirs), (3, 1));
+     assert_eq!(reports[1].dropped, 1);
+ }
+Diff in /work/core/crates/layerfs-content/tests/object_admission.rs:104:
+                             kind: InodeKind::Directory,
+                             namespace_ref_count: 0,
+                             content_root: a,
+-                            metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(b),
++                            metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                                b,
++                            ),
+                         },
+                     ),
+                     (
+Diff in /work/core/crates/layerfs-content/tests/object_admission.rs:113:
+                             kind: InodeKind::RegularFile,
+                             namespace_ref_count: 2,
+                             content_root: b,
+-                            metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(a),
++                            metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                                a,
++                            ),
+                         },
+                     ),
+                 ],
+Diff in /work/core/crates/layerfs-daemon/tests/f046_fork_reference.rs:34:
+ 
+ fn pipe() -> (OwnedFd, OwnedFd) {
+     let mut ends = [0 as RawFd; 2];
+-    assert_eq!(unsafe { libc::pipe2(ends.as_mut_ptr(), libc::O_CLOEXEC) }, 0);
++    assert_eq!(
++        unsafe { libc::pipe2(ends.as_mut_ptr(), libc::O_CLOEXEC) },
++        0
++    );
+     unsafe { (OwnedFd::from_raw_fd(ends[0]), OwnedFd::from_raw_fd(ends[1])) }
+ }
+ /// One bounded read of the forked child's pid; the child writes it from
+Diff in /work/core/crates/layerfs-daemon/tests/f046_fork_reference.rs:45:
+         events: libc::POLLIN,
+         revents: 0,
+     };
+-    assert_eq!(unsafe { libc::poll(&mut poll, 1, 10_000) }, 1, "fork signal");
++    assert_eq!(
++        unsafe { libc::poll(&mut poll, 1, 10_000) },
++        1,
++        "fork signal"
++    );
+     let mut pid = [0u8; 4];
+     let read = unsafe { libc::read(from.as_raw_fd(), pid.as_mut_ptr().cast(), 4) };
+     assert_eq!(read, 4);
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:10:
+ use layerfs_history::{BranchId, WorkspaceId};
+ use nix::unistd::{Gid, Uid};
+ use std::{
++    cell::Cell,
+     fs,
+     os::unix::fs::PermissionsExt,
+     path::{Path, PathBuf},
+Diff in /work/core/crates/layerfs-daemon/tests/support/mounted.rs:16:
+-    cell::Cell,
+     sync::{Arc, Condvar, Mutex},
+     time::{Duration, Instant},
+ };
+Diff in /work/core/crates/layerfs-overlay/tests/indexed_operation_record_entries.rs:34:
+ }
+ type Rows = Vec<([u8; 32], Vec<u8>)>;
+ /// Every (key, value) of one kind, a window at a time, with the window sizes.
+-fn walk(
+-    db: &Overlay,
+-    scope: IndexedOperationRecordScope,
+-    kind: u32,
+-) -> (Rows, Vec<usize>) {
++fn walk(db: &Overlay, scope: IndexedOperationRecordScope, kind: u32) -> (Rows, Vec<usize>) {
+     let (mut all, mut sizes, mut after) = (Vec::new(), Vec::new(), None);
+     loop {
+         let (window, ended) = db
+Diff in /work/core/crates/layerfs-persistence/tests/acquisition_disposal.rs:44:
+         },
+         position: Some(0),
+         kind: InodeKind::Directory,
+-        metadata: layerfs_content::filesystem::attributes::PortableMetadata { mode: 0o644, mtime_seconds: 0, mtime_nanoseconds: 0 },
++        metadata: layerfs_content::filesystem::attributes::PortableMetadata {
++            mode: 0o644,
++            mtime_seconds: 0,
++            mtime_nanoseconds: 0,
++        },
+         target_root: None,
+         host_path: Some(b"/source".to_vec()),
+         host: None,
+Diff in /work/core/crates/layerfs-persistence/tests/acquisition_disposal.rs:59:
+         },
+         position: Some(position),
+         kind: InodeKind::RegularFile,
+-        metadata: layerfs_content::filesystem::attributes::PortableMetadata { mode: 0o644, mtime_seconds: 0, mtime_nanoseconds: 0 },
++        metadata: layerfs_content::filesystem::attributes::PortableMetadata {
++            mode: 0o644,
++            mtime_seconds: 0,
++            mtime_nanoseconds: 0,
++        },
+         target_root: None,
+         host_path: Some(format!("/source/f{position}").into_bytes()),
+         host: Some(HostIdentity {
+Diff in /work/core/crates/layerfs-persistence/tests/acquisition_reads.rs:154:
+         // The portable grammar (checked at write since #360 item 2): a
+         // symlink's mode is 0o777.
+         metadata: layerfs_content::filesystem::attributes::PortableMetadata {
+-            mode: if kind == InodeKind::Symlink { 0o777 } else { 0o644 },
++            mode: if kind == InodeKind::Symlink {
++                0o777
++            } else {
++                0o644
++            },
+             mtime_seconds: position as i64,
+             mtime_nanoseconds: 0,
+         },
+Diff in /work/core/crates/layerfs-persistence/tests/concurrent_pooled_saves.rs:21:
+                     kind: InodeKind::RegularFile,
+                     namespace_ref_count: 1,
+                     content_root: ObjectId::for_bytes(&value.to_le_bytes()),
+-                    metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(ObjectId::for_bytes(b"concurrent-pooled-metadata")),
++                    metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                        ObjectId::for_bytes(b"concurrent-pooled-metadata"),
++                    ),
+                 }),
+             }],
+         }
+Diff in /work/core/crates/layerfs-persistence/tests/immutable_reads_under_reclamation.rs:114:
+                 position: Some(position),
+                 kind: InodeKind::RegularFile,
+                 metadata: layerfs_content::filesystem::attributes::portable::PortableMetadata {
+-            mode: 0o644,
+-            mtime_seconds: 1_700_000_000,
+-            mtime_nanoseconds: 0,
+-        },
++                    mode: 0o644,
++                    mtime_seconds: 1_700_000_000,
++                    mtime_nanoseconds: 0,
++                },
+                 target_root: None,
+                 host_path: Some(vec![b'p'; 3500]),
+                 host: Some(HostIdentity {
+Diff in /work/core/crates/layerfs-persistence/tests/semantic_admission.rs:108:
+                     kind: InodeKind::Directory,
+                     namespace_ref_count: 0,
+                     content_root: directory,
+-                    metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(metadata),
++                    metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                        metadata,
++                    ),
+                 },
+             ),
+             (
+Diff in /work/core/crates/layerfs-persistence/tests/semantic_admission.rs:117:
+                     kind: InodeKind::RegularFile,
+                     namespace_ref_count: 1,
+                     content_root: file,
+-                    metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(metadata),
++                    metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                        metadata,
++                    ),
+                 },
+             ),
+             (
+Diff in /work/core/crates/layerfs-persistence/tests/semantic_admission.rs:126:
+                     kind: InodeKind::Symlink,
+                     namespace_ref_count: 1,
+                     content_root: link,
+-                    metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(metadata),
++                    metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                        metadata,
++                    ),
+                 },
+             ),
+         ],
+Diff in /work/core/crates/layerfs-persistence/tests/sqlite_group_rows_indexed.rs:133:
+                 |r| r.get(0),
+             )
+             .unwrap();
+-        assert_eq!(index, i64::from(layout == SqlitePackLayout::GroupRowsIndexed));
++        assert_eq!(
++            index,
++            i64::from(layout == SqlitePackLayout::GroupRowsIndexed)
++        );
+     }
+ }
+ #[test]
+Diff in /work/core/crates/layerfs-persistence/tests/sqlite_inode_values.rs:38:
+         kind: InodeKind::RegularFile,
+         namespace_ref_count: 1,
+         content_root: ObjectId::for_bytes(&seed.to_le_bytes()),
+-        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(ObjectId::for_bytes(b"metadata")),
++        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++            ObjectId::for_bytes(b"metadata"),
++        ),
+     })
+ }
+ fn rows(ordinals: impl IntoIterator<Item = u32>) -> Vec<InodeValueRow> {
+Diff in /work/core/crates/layerfs-persistence/tests/sqlite_ordinal_lookahead.rs:32:
+                 kind: InodeKind::RegularFile,
+                 namespace_ref_count: 1,
+                 content_root: ObjectId::for_bytes(&value.to_le_bytes()),
+-                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(ObjectId::for_bytes(b"metadata")),
++                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                    ObjectId::for_bytes(b"metadata"),
++                ),
+             }),
+         })
+         .collect::<Vec<_>>();
+Diff in /work/core/crates/layerfs-project/examples/history_support/producer.rs:266:
+                 kind: InodeKind::Directory,
+                 namespace_ref_count: 0,
+                 content_root: ObjectId::for_bytes(b"layerfs/history/dir/root"),
+-                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(empty_metadata_root()),
++                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                    empty_metadata_root(),
++                ),
+             },
+         });
+         new_inodes.push(ROOT_SERIAL);
+Diff in /work/core/crates/layerfs-project/examples/history_support/producer.rs:319:
+                     content_root: ObjectId::for_bytes(
+                         format!("layerfs/history/dir/{}", hex(directory)).as_bytes(),
+                     ),
+-                    metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(empty_metadata_root()),
++                    metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                        empty_metadata_root(),
++                    ),
+                 },
+             });
+             new_inodes.push(serial);
+Diff in /work/core/crates/layerfs-project/examples/history_support/producer.rs:366:
+                         kind: kind_of(changed.mode),
+                         namespace_ref_count: 1,
+                         content_root,
+-                        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(empty_metadata_root()),
++                        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                            empty_metadata_root(),
++                        ),
+                     },
+                 });
+                 bindings
+Diff in /work/core/crates/layerfs-project/examples/cause_support/namespace.rs:237:
+                         kind,
+                         namespace_ref_count: 0,
+                         content_root,
+-                        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(metadata_root),
++                        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                            metadata_root,
++                        ),
+                     },
+                 });
+             }
+Diff in /work/core/crates/layerfs-project/examples/history_support/producer.rs:266:
+                 kind: InodeKind::Directory,
+                 namespace_ref_count: 0,
+                 content_root: ObjectId::for_bytes(b"layerfs/history/dir/root"),
+-                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(empty_metadata_root()),
++                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                    empty_metadata_root(),
++                ),
+             },
+         });
+         new_inodes.push(ROOT_SERIAL);
+Diff in /work/core/crates/layerfs-project/examples/history_support/producer.rs:319:
+                     content_root: ObjectId::for_bytes(
+                         format!("layerfs/history/dir/{}", hex(directory)).as_bytes(),
+                     ),
+-                    metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(empty_metadata_root()),
++                    metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                        empty_metadata_root(),
++                    ),
+                 },
+             });
+             new_inodes.push(serial);
+Diff in /work/core/crates/layerfs-project/examples/history_support/producer.rs:366:
+                         kind: kind_of(changed.mode),
+                         namespace_ref_count: 1,
+                         content_root,
+-                        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(empty_metadata_root()),
++                        metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                            empty_metadata_root(),
++                        ),
+                     },
+                 });
+                 bindings
+Diff in /work/core/crates/layerfs-project/examples/verify_namespace.rs:21:
+ const VERIFY_WORKERS: usize = 4;
+ const SAMPLE_TARGET: usize = 64;
+ const SAMPLE_POLICY: &str = "stride64-size-log2-endpoints-v1";
+-type MetadataMemo = Option<((layerfs_content::object::inode_leaf::InodeMetadata, InodeKind), PortableMetadata)>;
++type MetadataMemo = Option<(
++    (
++        layerfs_content::object::inode_leaf::InodeMetadata,
++        InodeKind,
++    ),
++    PortableMetadata,
++)>;
+ 
+ #[derive(Clone)]
+ struct Expected {
+Diff in /work/core/crates/layerfs-project/tests/backed_acquisition.rs:181:
+                 namespace_ref_count: 0,
+                 // The constructor must derive every directory root and count.
+                 content_root: match value.kind {
+-                    InodeKind::Directory => value.metadata_root.root().unwrap_or(value.content_root),
++                    InodeKind::Directory => {
++                        value.metadata_root.root().unwrap_or(value.content_root)
++                    }
+                     _ => value.content_root,
+                 },
+                 ..*value
+Diff in /work/core/crates/layerfs-storage/tests/delta_depth_counts.rs:20:
+     for version in 0..versions {
+         let mut raw = support::noise(len);
+         raw[version * 7] ^= 0x5a;
+-        let mut object = FinalizedObject::new(
+-            ObjectRole::WholeFile,
+-            support::assembled_small_object(&raw),
+-        )
+-        .unwrap();
++        let mut object =
++            FinalizedObject::new(ObjectRole::WholeFile, support::assembled_small_object(&raw))
++                .unwrap();
+         if let Some(base) = previous {
+             object = object.with_predecessors(AdvisoryPredecessors::explicit(base).unwrap());
+         }
+Diff in /work/core/crates/layerfs-storage/tests/delta_depth_counts.rs:43:
+         .iter()
+         .map(|o| {
+             assert_eq!(o.delta.whole_file_depths.iter().sum::<u64>(), 1, "{o:?}");
+-            o.delta.whole_file_depths.iter().position(|n| *n == 1).unwrap()
++            o.delta
++                .whole_file_depths
++                .iter()
++                .position(|n| *n == 1)
++                .unwrap()
+         })
+         .collect();
+     assert_eq!(&depths[..3], &[0, 1, 2]);
+Diff in /work/core/crates/layerfs-storage/tests/delta_depth_counts.rs:50:
+     // The fourth version's declared base is at the cap.
+-    assert!(outcomes[3].delta.depth_capped >= 1, "{:?}", outcomes[3].delta);
++    assert!(
++        outcomes[3].delta.depth_capped >= 1,
++        "{:?}",
++        outcomes[3].delta
++    );
+     assert!(depths[3] < 3);
+     assert!(outcomes.iter().all(|o| o.delta.work_exceeded == 0));
+     assert!(outcomes.iter().all(|o| o.delta.chunk_depths == [0; 32]));
+Diff in /work/core/crates/layerfs-storage/tests/pooled_dependency_integrity.rs:20:
+                 kind: InodeKind::RegularFile,
+                 namespace_ref_count: 1,
+                 content_root: ObjectId::for_bytes(&[n]),
+-                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(ObjectId::for_bytes(b"metadata")),
++                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                    ObjectId::for_bytes(b"metadata"),
++                ),
+             })
+         })
+         .collect();
+Diff in /work/core/crates/layerfs-storage/tests/stored_value_reads.rs:30:
+                     ]
+                     .concat(),
+                 ),
+-                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(ObjectId::for_bytes(b"metadata")),
++                metadata_root: layerfs_content::object::inode_leaf::InodeMetadata::Root(
++                    ObjectId::for_bytes(b"metadata"),
++                ),
+             }),
+         })
+         .collect();
+Diff in /work/core/crates/layerfs-store-service/src/bootstrap.rs:161:
+         }))
+     });
+     let control = factory(0)?;
+-    let store = Arc::new(Store::new(
+-        writer.storage.clone(),
+-        Arc::new(writer.history),
+-        control,
+-        factory,
+-        cache_bytes,
+-        reservations,
+-        workspace_capacity,
+-    )?
+-    .with_merge_scratch(writer.storage.merge_scratch()));
++    let store = Arc::new(
++        Store::new(
++            writer.storage.clone(),
++            Arc::new(writer.history),
++            control,
++            factory,
++            cache_bytes,
++            reservations,
++            workspace_capacity,
++        )?
++        .with_merge_scratch(writer.storage.merge_scratch()),
++    );
+     Ok(OpenedStore {
+         store,
+         sqlite_version,
+Diff in /work/sdk/js/native/examples/restore_record.rs:54:
+     let record = Answer {
+         id: 1,
+         reply: Reply::Sdk(SdkValue::map([
+-            ("manifest", SdkValue::Bytes(manifest.encode().expect("manifest"))),
+-            ("installed", SdkValue::Bytes(installed.encode().expect("installed"))),
++            (
++                "manifest",
++                SdkValue::Bytes(manifest.encode().expect("manifest")),
++            ),
++            (
++                "installed",
++                SdkValue::Bytes(installed.encode().expect("installed")),
++            ),
+         ])),
+     }
+     .encode()
+Diff in /work/sdk/js/native/examples/restore_record.rs:62:
+     .expect("record");
+-    let path = std::path::Path::new(home).join(project).join("project.record");
++    let path = std::path::Path::new(home)
++        .join(project)
++        .join("project.record");
+     let mut file = std::fs::OpenOptions::new()
+         .write(true)
+         .create_new(true)
+Diff in /work/sdk/js/native/src/discovery.rs:603:
+         let mut poll_fd = [signal_read.as_raw_fd(), POLLIN];
+         assert_eq!(unsafe { poll(&mut poll_fd, 1, 10_000) }, 1, "fork signal");
+         let mut pid = [0u8; 4];
+-        assert_eq!(unsafe { read(signal_read.as_raw_fd(), pid.as_mut_ptr(), 4) }, 4);
++        assert_eq!(
++            unsafe { read(signal_read.as_raw_fd(), pid.as_mut_ptr(), 4) },
++            4
++        );
+         let child = i32::from_ne_bytes(pid);
+         let lock = directory.join("ownership.lock");
+         let copied = fs::read_dir(format!("/proc/{child}/fd"))
+Diff in /work/sdk/js/native/src/discovery.rs:618:
+         drop(release_write);
+         assert!(spawner.join().unwrap().success());
+         let _ = fs::remove_dir_all(&directory);
+-        assert!(taken.is_ok(), "lock still held through the child's copy: {taken:?}");
++        assert!(
++            taken.is_ok(),
++            "lock still held through the child's copy: {taken:?}"
++        );
+     }
+ }
+ 

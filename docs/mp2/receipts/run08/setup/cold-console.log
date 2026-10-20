@@ -1,0 +1,6 @@
+plain 0 0.187194083 0.468721458 {'objects': 2783, 'lengths': 4721, 'bytes': 950981}
+large 0 1.103736958 0.506843875 {'objects': 13092, 'lengths': 32060, 'bytes': 5604292}
+plain 2 0.2539005 0.592414625 {'objects': 2783, 'lengths': 4721, 'bytes': 950981}
+large 2 1.227656042 0.615495 {'objects': 13092, 'lengths': 32060, 'bytes': 5604292}
+plain 20 0.837705417 1.185245334 {'objects': 2783, 'lengths': 4721, 'bytes': 950981}
+large 20 2.534266208 1.331638167 {'objects': 13092, 'lengths': 32060, 'bytes': 5604292}

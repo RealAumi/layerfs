@@ -1,0 +1,79 @@
+247   execve("/usr/bin/cp", ["cp", "-a", "/input/copies-1000/.", "/workspaces/1/cp-user1000-owner1"...], 0xffffdfb15548 /* 7 vars */) = 0
+247   faccessat(AT_FDCWD</>, "/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+247   openat(AT_FDCWD</>, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache>
+247   newfstatat(3</etc/ld.so.cache>, "", {st_mode=S_IFREG|0644, st_size=23671, ...}, AT_EMPTY_PATH) = 0
+247   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libselinux.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libselinux.so.1>
+247   newfstatat(3</usr/lib/aarch64-linux-gnu/libselinux.so.1>, "", {st_mode=S_IFREG|0644, st_size=198800, ...}, AT_EMPTY_PATH) = 0
+247   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libacl.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libacl.so.1.1.2301>
+247   newfstatat(3</usr/lib/aarch64-linux-gnu/libacl.so.1.1.2301>, "", {st_mode=S_IFREG|0644, st_size=67432, ...}, AT_EMPTY_PATH) = 0
+247   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libattr.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libattr.so.1.1.2501>
+247   newfstatat(3</usr/lib/aarch64-linux-gnu/libattr.so.1.1.2501>, "", {st_mode=S_IFREG|0644, st_size=67432, ...}, AT_EMPTY_PATH) = 0
+247   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libc.so.6>
+247   newfstatat(3</usr/lib/aarch64-linux-gnu/libc.so.6>, "", {st_mode=S_IFREG|0755, st_size=1651408, ...}, AT_EMPTY_PATH) = 0
+247   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libpcre2-8.so.0", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.11.2>
+247   newfstatat(3</usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.11.2>, "", {st_mode=S_IFREG|0644, st_size=592440, ...}, AT_EMPTY_PATH) = 0
+247   statfs("/sys/fs/selinux", 0xffffe8378110) = -1 ENOENT (No such file or directory)
+247   statfs("/selinux", 0xffffe8378110) = -1 ENOENT (No such file or directory)
+247   openat(AT_FDCWD</>, "/proc/filesystems", O_RDONLY|O_CLOEXEC) = 3</proc/filesystems>
+247   newfstatat(3</proc/filesystems>, "", {st_mode=S_IFREG|0444, st_size=0, ...}, AT_EMPTY_PATH) = 0
+247   faccessat(AT_FDCWD</>, "/etc/selinux/config", F_OK) = -1 ENOENT (No such file or directory)
+247   openat(AT_FDCWD</>, "/workspaces/1/cp-user1000-owner1000/", O_RDONLY|O_PATH|O_DIRECTORY) = 3</workspaces/1/cp-user1000-owner1000>
+247   newfstatat(AT_FDCWD</>, "/input/copies-1000/.", {st_mode=S_IFDIR|0755, st_size=28, ...}, AT_SYMLINK_NOFOLLOW) = 0
+247   newfstatat(3</workspaces/1/cp-user1000-owner1000>, ".", {st_mode=S_IFDIR|0777, st_size=0, ...}, AT_SYMLINK_NOFOLLOW) = 0
+247   openat(AT_FDCWD</>, "/input/copies-1000/.", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 4</input/copies-1000>
+247   newfstatat(4</input/copies-1000>, "", {st_mode=S_IFDIR|0755, st_size=28, ...}, AT_EMPTY_PATH) = 0
+247   newfstatat(AT_FDCWD</>, "/input/copies-1000/./file.txt", {st_mode=S_IFREG|0644, st_size=22, ...}, AT_SYMLINK_NOFOLLOW) = 0
+247   newfstatat(3</workspaces/1/cp-user1000-owner1000>, "./file.txt", 0xffffe8377930, 0) = -1 ENOENT (No such file or directory)
+247   openat(AT_FDCWD</>, "/input/copies-1000/./file.txt", O_RDONLY|O_NOFOLLOW) = 4</input/copies-1000/file.txt>
+247   newfstatat(4</input/copies-1000/file.txt>, "", {st_mode=S_IFREG|0644, st_size=22, ...}, AT_EMPTY_PATH) = 0
+247   openat(3</workspaces/1/cp-user1000-owner1000>, "./file.txt", O_WRONLY|O_CREAT|O_EXCL, 0600) = 5</workspaces/1/cp-user1000-owner1000/file.txt>
+247   ioctl(5</workspaces/1/cp-user1000-owner1000/file.txt>, BTRFS_IOC_CLONE or FICLONE, 4) = -1 EXDEV (Invalid cross-device link)
+247   newfstatat(5</workspaces/1/cp-user1000-owner1000/file.txt>, "", {st_mode=S_IFREG|0600, st_size=0, ...}, AT_EMPTY_PATH) = 0
+247   copy_file_range(4</input/copies-1000/file.txt>, NULL, 5</workspaces/1/cp-user1000-owner1000/file.txt>, NULL, 9223372035781033984, 0) = -1 EXDEV (Invalid cross-device link)
+247   utimensat(5</workspaces/1/cp-user1000-owner1000/file.txt>, NULL, [{tv_sec=1792516236, tv_nsec=158687438} /* 2026-10-20T17:10:36.158687438+0000 */, {tv_sec=1792516236, tv_nsec=158896020} /* 2026-10-20T17:10:36.158896020+0000 */], 0) = 0
+247   flistxattr(4</input/copies-1000/file.txt>, NULL, 0) = 0
+247   flistxattr(4</input/copies-1000/file.txt>, 0xffffe8377610, 0) = 0
+247   fgetxattr(4</input/copies-1000/file.txt>, "system.posix_acl_access", 0xffffe83774d0, 132) = -1 ENODATA (No data available)
+247   newfstatat(4</input/copies-1000/file.txt>, "", {st_mode=S_IFREG|0644, st_size=22, ...}, AT_EMPTY_PATH) = 0
+247   fsetxattr(5</workspaces/1/cp-user1000-owner1000/file.txt>, "system.posix_acl_access", "\2\0\0\0\1\0\6\0\377\377\377\377\4\0\4\0\377\377\377\377 \0\4\0\377\377\377\377", 28, 0) = -1 EOPNOTSUPP (Operation not supported)
+247   fchmod(5</workspaces/1/cp-user1000-owner1000/file.txt>, 0100644) = 0
+247   newfstatat(AT_FDCWD</>, "/input/copies-1000/./nested", {st_mode=S_IFDIR|0755, st_size=18, ...}, AT_SYMLINK_NOFOLLOW) = 0
+247   newfstatat(3</workspaces/1/cp-user1000-owner1000>, "./nested", 0xffffe8377930, AT_SYMLINK_NOFOLLOW) = -1 ENOENT (No such file or directory)
+247   mkdirat(3</workspaces/1/cp-user1000-owner1000>, "./nested", 0700) = 0
+247   newfstatat(3</workspaces/1/cp-user1000-owner1000>, "./nested", {st_mode=S_IFDIR|0700, st_size=0, ...}, AT_SYMLINK_NOFOLLOW) = 0
+247   openat(AT_FDCWD</>, "/input/copies-1000/./nested", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 4</input/copies-1000/nested>
+247   newfstatat(4</input/copies-1000/nested>, "", {st_mode=S_IFDIR|0755, st_size=18, ...}, AT_EMPTY_PATH) = 0
+247   newfstatat(AT_FDCWD</>, "/input/copies-1000/./nested/other.txt", {st_mode=S_IFREG|0644, st_size=19, ...}, AT_SYMLINK_NOFOLLOW) = 0
+247   openat(AT_FDCWD</>, "/input/copies-1000/./nested/other.txt", O_RDONLY|O_NOFOLLOW) = 4</input/copies-1000/nested/other.txt>
+247   newfstatat(4</input/copies-1000/nested/other.txt>, "", {st_mode=S_IFREG|0644, st_size=19, ...}, AT_EMPTY_PATH) = 0
+247   openat(3</workspaces/1/cp-user1000-owner1000>, "./nested/other.txt", O_WRONLY|O_CREAT|O_EXCL, 0600) = 5</workspaces/1/cp-user1000-owner1000/nested/other.txt>
+247   ioctl(5</workspaces/1/cp-user1000-owner1000/nested/other.txt>, BTRFS_IOC_CLONE or FICLONE, 4) = -1 EXDEV (Invalid cross-device link)
+247   newfstatat(5</workspaces/1/cp-user1000-owner1000/nested/other.txt>, "", {st_mode=S_IFREG|0600, st_size=0, ...}, AT_EMPTY_PATH) = 0
+247   copy_file_range(4</input/copies-1000/nested/other.txt>, NULL, 5</workspaces/1/cp-user1000-owner1000/nested/other.txt>, NULL, 9223372035781033984, 0) = -1 EXDEV (Invalid cross-device link)
+247   utimensat(5</workspaces/1/cp-user1000-owner1000/nested/other.txt>, NULL, [{tv_sec=1792516236, tv_nsec=158896020} /* 2026-10-20T17:10:36.158896020+0000 */, {tv_sec=1792516236, tv_nsec=158940562} /* 2026-10-20T17:10:36.158940562+0000 */], 0) = 0
+247   flistxattr(4</input/copies-1000/nested/other.txt>, NULL, 0) = 0
+247   flistxattr(4</input/copies-1000/nested/other.txt>, 0xffffe8377210, 0) = 0
+247   fgetxattr(4</input/copies-1000/nested/other.txt>, "system.posix_acl_access", 0xffffe83770d0, 132) = -1 ENODATA (No data available)
+247   newfstatat(4</input/copies-1000/nested/other.txt>, "", {st_mode=S_IFREG|0644, st_size=19, ...}, AT_EMPTY_PATH) = 0
+247   fsetxattr(5</workspaces/1/cp-user1000-owner1000/nested/other.txt>, "system.posix_acl_access", "\2\0\0\0\1\0\6\0\377\377\377\377\4\0\4\0\377\377\377\377 \0\4\0\377\377\377\377", 28, 0) = -1 EOPNOTSUPP (Operation not supported)
+247   fchmod(5</workspaces/1/cp-user1000-owner1000/nested/other.txt>, 0100644) = 0
+247   utimensat(3</workspaces/1/cp-user1000-owner1000>, "./nested", [{tv_sec=1792516236, tv_nsec=158896020} /* 2026-10-20T17:10:36.158896020+0000 */, {tv_sec=1792516236, tv_nsec=158896020} /* 2026-10-20T17:10:36.158896020+0000 */], 0) = 0
+247   fchownat(3</workspaces/1/cp-user1000-owner1000>, "./nested", 1000, 1000, AT_SYMLINK_NOFOLLOW) = 0
+247   llistxattr("/input/copies-1000/./nested", NULL, 0) = 0
+247   llistxattr("/input/copies-1000/./nested", 0xffffe8377600, 0) = 0
+247   getxattr("/input/copies-1000/./nested", "system.posix_acl_access", 0xffffe83774b0, 132) = -1 ENODATA (No data available)
+247   newfstatat(AT_FDCWD</>, "/input/copies-1000/./nested", {st_mode=S_IFDIR|0755, st_size=18, ...}, 0) = 0
+247   getxattr("/input/copies-1000/./nested", "system.posix_acl_default", 0xffffe83774b0, 132) = -1 ENODATA (No data available)
+247   newfstatat(AT_FDCWD</>, "/input/copies-1000/./nested", {st_mode=S_IFDIR|0755, st_size=18, ...}, 0) = 0
+247   setxattr("/workspaces/1/cp-user1000-owner1000/./nested", "system.posix_acl_access", "\2\0\0\0\1\0\7\0\377\377\377\377\4\0\5\0\377\377\377\377 \0\5\0\377\377\377\377", 28, 0) = -1 EOPNOTSUPP (Operation not supported)
+247   fchmodat(AT_FDCWD</>, "/workspaces/1/cp-user1000-owner1000/./nested", 040755) = 0
+247   utimensat(3</workspaces/1/cp-user1000-owner1000>, ".", [{tv_sec=1792516236, tv_nsec=158687438} /* 2026-10-20T17:10:36.158687438+0000 */, {tv_sec=1792516236, tv_nsec=158896020} /* 2026-10-20T17:10:36.158896020+0000 */], 0) = 0
+247   llistxattr("/input/copies-1000/.", NULL, 0) = 0
+247   llistxattr("/input/copies-1000/.", 0xffffe8377a00, 0) = 0
+247   getxattr("/input/copies-1000/.", "system.posix_acl_access", 0xffffe83778b0, 132) = -1 ENODATA (No data available)
+247   newfstatat(AT_FDCWD</>, "/input/copies-1000/.", {st_mode=S_IFDIR|0755, st_size=28, ...}, 0) = 0
+247   getxattr("/input/copies-1000/.", "system.posix_acl_default", 0xffffe83778b0, 132) = -1 ENODATA (No data available)
+247   newfstatat(AT_FDCWD</>, "/input/copies-1000/.", {st_mode=S_IFDIR|0755, st_size=28, ...}, 0) = 0
+247   setxattr("/workspaces/1/cp-user1000-owner1000/.", "system.posix_acl_access", "\2\0\0\0\1\0\7\0\377\377\377\377\4\0\5\0\377\377\377\377 \0\5\0\377\377\377\377", 28, 0) = -1 EOPNOTSUPP (Operation not supported)
+247   fchmodat(AT_FDCWD</>, "/workspaces/1/cp-user1000-owner1000/.", 040755) = 0
+247   +++ exited with 0 +++

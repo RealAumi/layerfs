@@ -1,0 +1,29 @@
+#0 building with "orbstack" instance using docker driver
+
+#1 [internal] load build definition from phase7.Dockerfile
+#1 transferring dockerfile: 205B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for public.ecr.aws/docker/library/rust:1.85.1-bookworm
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 288B done
+#3 DONE 0.0s
+
+#4 [1/2] FROM public.ecr.aws/docker/library/rust:1.85.1-bookworm@sha256:e51d0265072d2d9d5d320f6a44dde6b9ef13653b035098febd68cce8fa7c0bc4
+#4 resolve public.ecr.aws/docker/library/rust:1.85.1-bookworm@sha256:e51d0265072d2d9d5d320f6a44dde6b9ef13653b035098febd68cce8fa7c0bc4 0.0s done
+#4 DONE 0.0s
+
+#5 [2/2] RUN apt-get update && apt-get install -y --no-install-recommends strace && rm -rf /var/lib/apt/lists/*
+#5 CACHED
+
+#6 exporting to image
+#6 exporting layers done
+#6 exporting manifest sha256:b12bdcbc805d45e947dc4f22472773bb237a42ec32fb2d3efee9156f8b07519a 0.0s done
+#6 exporting config sha256:9566503b8a039a075dc7545f11b32c91c9a014d5f1e3057b2f08c41df9461a7b done
+#6 exporting attestation manifest sha256:25088579b4109b9318a2f4daae9d0ae6161f4022367cf947493018763d1c3990 0.0s done
+#6 exporting manifest list sha256:46516caab74bec6ed2df9f9e9f3ef28fdd069fd878e25b7e5183cbfe04ec94eb 0.0s done
+#6 naming to docker.io/library/cx7-tools:latest done
+#6 unpacking to docker.io/library/cx7-tools:latest 0.0s done
+#6 DONE 0.1s

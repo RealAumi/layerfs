@@ -1,0 +1,13 @@
+{
+  "python_syntax": {
+    "docs/mp2/phase8-env.py": "PASS",
+    "docs/mp2/phase8-run.py": "PASS",
+    "docs/mp2/phase8-diagnose.py": "PASS",
+    "docs/mp2/phase8-cycles.py": "PASS",
+    "docs/mp2/phase8-summary.py": "PASS",
+    "docs/mp2/phase8-workload.py": "PASS",
+    "docs/mp2/phase8-fixture.py": "PASS",
+    "docs/mp2/seal-receive-exclusive.py": "PASS"
+  },
+  "fuser_patch": "6a4754200d479d736c3dad76b453814c6068e56c050da2d2f9b00bdb5dc5f562"
+}

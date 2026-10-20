@@ -1,0 +1,37 @@
+266   execve("/usr/bin/tar", ["tar", "-xpf", "/tmp/copy-fixtures/1000.tar", "-C", "/workspaces/1/tar-user1000-owner"...], 0xfffff57ad670 /* 7 vars */) = 0
+266   faccessat(AT_FDCWD</>, "/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+266   openat(AT_FDCWD</>, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache>
+266   newfstatat(3</etc/ld.so.cache>, "", {st_mode=S_IFREG|0644, st_size=23671, ...}, AT_EMPTY_PATH) = 0
+266   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libacl.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libacl.so.1.1.2301>
+266   newfstatat(3</usr/lib/aarch64-linux-gnu/libacl.so.1.1.2301>, "", {st_mode=S_IFREG|0644, st_size=67432, ...}, AT_EMPTY_PATH) = 0
+266   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libselinux.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libselinux.so.1>
+266   newfstatat(3</usr/lib/aarch64-linux-gnu/libselinux.so.1>, "", {st_mode=S_IFREG|0644, st_size=198800, ...}, AT_EMPTY_PATH) = 0
+266   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libc.so.6>
+266   newfstatat(3</usr/lib/aarch64-linux-gnu/libc.so.6>, "", {st_mode=S_IFREG|0755, st_size=1651408, ...}, AT_EMPTY_PATH) = 0
+266   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libpcre2-8.so.0", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.11.2>
+266   newfstatat(3</usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.11.2>, "", {st_mode=S_IFREG|0644, st_size=592440, ...}, AT_EMPTY_PATH) = 0
+266   statfs("/sys/fs/selinux", 0xffffdb2811f0) = -1 ENOENT (No such file or directory)
+266   statfs("/selinux", 0xffffdb2811f0) = -1 ENOENT (No such file or directory)
+266   openat(AT_FDCWD</>, "/proc/filesystems", O_RDONLY|O_CLOEXEC) = 3</proc/filesystems>
+266   newfstatat(3</proc/filesystems>, "", {st_mode=S_IFREG|0444, st_size=0, ...}, AT_EMPTY_PATH) = 0
+266   faccessat(AT_FDCWD</>, "/etc/selinux/config", F_OK) = -1 ENOENT (No such file or directory)
+266   openat(AT_FDCWD</>, "/tmp/copy-fixtures/1000.tar", O_RDONLY) = 3</tmp/copy-fixtures/1000.tar>
+266   newfstatat(3</tmp/copy-fixtures/1000.tar>, "", {st_mode=S_IFREG|0666, st_size=10240, ...}, AT_EMPTY_PATH) = 0
+266   newfstatat(3</tmp/copy-fixtures/1000.tar>, "", {st_mode=S_IFREG|0666, st_size=10240, ...}, AT_EMPTY_PATH) = 0
+266   openat(AT_FDCWD</>, "/workspaces/1/tar-user1000-owner1000", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 4</workspaces/1/tar-user1000-owner1000>
+266   mkdirat(4</workspaces/1/tar-user1000-owner1000>, ".", 0700) = -1 EEXIST (File exists)
+266   newfstatat(4</workspaces/1/tar-user1000-owner1000>, ".", {st_mode=S_IFDIR|0777, st_size=0, ...}, AT_SYMLINK_NOFOLLOW) = 0
+266   newfstatat(4</workspaces/1/tar-user1000-owner1000>, ".", {st_mode=S_IFDIR|0777, st_size=0, ...}, AT_SYMLINK_NOFOLLOW) = 0
+266   openat(4</workspaces/1/tar-user1000-owner1000>, "./file.txt", O_WRONLY|O_CREAT|O_EXCL|O_NOCTTY|O_NONBLOCK|O_CLOEXEC, 0644) = 5</workspaces/1/tar-user1000-owner1000/file.txt>
+266   utimensat(5</workspaces/1/tar-user1000-owner1000/file.txt>, NULL, [UTIME_OMIT, {tv_sec=1792516236, tv_nsec=0} /* 2026-10-20T17:10:36+0000 */], 0) = 0
+266   mkdirat(4</workspaces/1/tar-user1000-owner1000>, "./nested", 0700) = 0
+266   openat(4</workspaces/1/tar-user1000-owner1000>, "./nested/other.txt", O_WRONLY|O_CREAT|O_EXCL|O_NOCTTY|O_NONBLOCK|O_CLOEXEC, 0644) = 5</workspaces/1/tar-user1000-owner1000/nested/other.txt>
+266   utimensat(5</workspaces/1/tar-user1000-owner1000/nested/other.txt>, NULL, [UTIME_OMIT, {tv_sec=1792516236, tv_nsec=0} /* 2026-10-20T17:10:36+0000 */], 0) = 0
+266   utimensat(4</workspaces/1/tar-user1000-owner1000>, "./nested", [UTIME_OMIT, {tv_sec=1792516236, tv_nsec=0} /* 2026-10-20T17:10:36+0000 */], AT_SYMLINK_NOFOLLOW) = 0
+266   openat(4</workspaces/1/tar-user1000-owner1000>, "./nested", O_RDONLY|O_NOFOLLOW|O_CLOEXEC|O_PATH) = 3</workspaces/1/tar-user1000-owner1000/nested>
+266   newfstatat(3</workspaces/1/tar-user1000-owner1000/nested>, "", {st_mode=S_IFDIR|0700, st_size=0, ...}, AT_EMPTY_PATH) = 0
+266   fchmodat(AT_FDCWD</>, "/proc/self/fd/3", 0755) = 0
+266   newfstatat(4</workspaces/1/tar-user1000-owner1000>, ".", {st_mode=S_IFDIR|0777, st_size=0, ...}, 0) = 0
+266   utimensat(4</workspaces/1/tar-user1000-owner1000>, ".", [UTIME_OMIT, {tv_sec=1792516236, tv_nsec=0} /* 2026-10-20T17:10:36+0000 */], 0) = 0
+266   fchmodat(4</workspaces/1/tar-user1000-owner1000>, ".", 0755) = 0
+266   +++ exited with 0 +++

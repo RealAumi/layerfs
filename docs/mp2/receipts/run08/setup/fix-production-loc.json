@@ -1,0 +1,43 @@
+{
+  "parent": "1d7c95677f954e93cef4e56d6aec0e9a9b05563a",
+  "staged": "9046421567cbdccaa64777c3d2ca2f687f37b027",
+  "before": 106524,
+  "after": 106524,
+  "delta": 0,
+  "counter": "e6d94d1a731b402ccc9159f49cef1eba5a74cfe0",
+  "method": "Exact counted-scope trees unchanged; carry run07 exact scan, exclude scripted mocks 739. Vendor runtime separately scanned.",
+  "subtrees": {
+    "core/crates": [
+      "9d443083d4158f8297ffa58a5a915aaa3bdec781",
+      "9d443083d4158f8297ffa58a5a915aaa3bdec781"
+    ],
+    "sdk/js/native/src": [
+      "79d28fd5be8748a570c30068d9709d643b4cd57d",
+      "79d28fd5be8748a570c30068d9709d643b4cd57d"
+    ],
+    "sdk/js/src": [
+      "1a68a293316a5cc506d336bb7d985260a1a8deee",
+      "1a68a293316a5cc506d336bb7d985260a1a8deee"
+    ],
+    "sdk/js/operator": [
+      "761873ea5abfaf887917f28338de3581563449fa",
+      "761873ea5abfaf887917f28338de3581563449fa"
+    ],
+    "dsh/packages": [
+      "6d2bd0cd47896bd5d2aa53ad84b9493eea2b51b7",
+      "6d2bd0cd47896bd5d2aa53ad84b9493eea2b51b7"
+    ]
+  },
+  "vendor": {
+    "parent": {
+      "src/session.rs": 485,
+      "src/session/lifecycle.rs": 330,
+      "src/session/receive_stop.rs": 65
+    },
+    "staged": {
+      "src/session.rs": 485,
+      "src/session/lifecycle.rs": 338,
+      "src/session/receive_stop.rs": 67
+    }
+  }
+}

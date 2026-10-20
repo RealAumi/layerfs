@@ -1,0 +1,141 @@
+docs/mp2/receipts/run08/setup/fix-checks02.log:59: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:150: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:167: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:251: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:279: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:312: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:323: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:344: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:370: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:383: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:402: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:436: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:534: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:677: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:1429: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:1582: trailing whitespace.
++ 
+docs/mp2/receipts/run08/setup/fix-checks02.log:1582: new blank line at EOF.
+docs/mp2/receipts/run08/setup/image.log:57: trailing whitespace.
++#5 7.634 Selecting previously unselected package libpopt0:arm64.
+docs/mp2/receipts/run08/setup/image.log:58: trailing whitespace.
++#5 7.634 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 23273 files and directories currently installed.)
+docs/mp2/receipts/run08/setup/image.log:59: trailing whitespace.
++#5 7.697 Preparing to unpack .../libpopt0_1.19+dfsg-1_arm64.deb ...
+docs/mp2/receipts/run08/setup/image.log:60: trailing whitespace.
++#5 7.828 Unpacking libpopt0:arm64 (1.19+dfsg-1) ...
+docs/mp2/receipts/run08/setup/image.log:61: trailing whitespace.
++#5 7.871 Selecting previously unselected package rsync.
+docs/mp2/receipts/run08/setup/image.log:62: trailing whitespace.
++#5 7.874 Preparing to unpack .../rsync_3.2.7-1+deb12u6_arm64.deb ...
+docs/mp2/receipts/run08/setup/image.log:63: trailing whitespace.
++#5 7.877 Unpacking rsync (3.2.7-1+deb12u6) ...
+docs/mp2/receipts/run08/setup/image.log:64: trailing whitespace.
++#5 7.919 Preparing to unpack .../libcap2_1%3a2.66-4+deb12u3+b1_arm64.deb ...
+docs/mp2/receipts/run08/setup/image.log:65: trailing whitespace.
++#5 7.927 Unpacking libcap2:arm64 (1:2.66-4+deb12u3+b1) over (1:2.66-4) ...
+docs/mp2/receipts/run08/setup/image.log:66: trailing whitespace.
++#5 7.956 Setting up libcap2:arm64 (1:2.66-4+deb12u3+b1) ...
+docs/mp2/receipts/run08/setup/image.log:67: trailing whitespace.
++#5 7.984 Selecting previously unselected package libbpf1:arm64.
+docs/mp2/receipts/run08/setup/image.log:68: trailing whitespace.
++#5 7.984 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 23350 files and directories currently installed.)
+docs/mp2/receipts/run08/setup/image.log:69: trailing whitespace.
++#5 7.990 Preparing to unpack .../0-libbpf1_1%3a1.1.2-0+deb12u1_arm64.deb ...
+docs/mp2/receipts/run08/setup/image.log:70: trailing whitespace.
++#5 7.992 Unpacking libbpf1:arm64 (1:1.1.2-0+deb12u1) ...
+docs/mp2/receipts/run08/setup/image.log:71: trailing whitespace.
++#5 8.013 Selecting previously unselected package libmnl0:arm64.
+docs/mp2/receipts/run08/setup/image.log:72: trailing whitespace.
++#5 8.015 Preparing to unpack .../1-libmnl0_1.0.4-3_arm64.deb ...
+docs/mp2/receipts/run08/setup/image.log:73: trailing whitespace.
++#5 8.017 Unpacking libmnl0:arm64 (1.0.4-3) ...
+docs/mp2/receipts/run08/setup/image.log:74: trailing whitespace.
++#5 8.033 Selecting previously unselected package libxtables12:arm64.
+docs/mp2/receipts/run08/setup/image.log:75: trailing whitespace.
++#5 8.035 Preparing to unpack .../2-libxtables12_1.8.9-2_arm64.deb ...
+docs/mp2/receipts/run08/setup/image.log:76: trailing whitespace.
++#5 8.037 Unpacking libxtables12:arm64 (1.8.9-2) ...
+docs/mp2/receipts/run08/setup/image.log:77: trailing whitespace.
++#5 8.049 Selecting previously unselected package libcap2-bin.
+docs/mp2/receipts/run08/setup/image.log:78: trailing whitespace.
++#5 8.051 Preparing to unpack .../3-libcap2-bin_1%3a2.66-4+deb12u3+b1_arm64.deb ...
+docs/mp2/receipts/run08/setup/image.log:79: trailing whitespace.
++#5 8.052 Unpacking libcap2-bin (1:2.66-4+deb12u3+b1) ...
+docs/mp2/receipts/run08/setup/image.log:80: trailing whitespace.
++#5 8.073 Selecting previously unselected package iproute2.
+docs/mp2/receipts/run08/setup/image.log:81: trailing whitespace.
++#5 8.075 Preparing to unpack .../4-iproute2_6.1.0-3_arm64.deb ...
+docs/mp2/receipts/run08/setup/image.log:82: trailing whitespace.
++#5 8.077 Unpacking iproute2 (6.1.0-3) ...
+docs/mp2/receipts/run08/setup/image.log:83: trailing whitespace.
++#5 8.143 Selecting previously unselected package iputils-ping.
+docs/mp2/receipts/run08/setup/image.log:84: trailing whitespace.
++#5 8.145 Preparing to unpack .../5-iputils-ping_3%3a20221126-1+deb12u1_arm64.deb ...
+docs/mp2/receipts/run08/setup/image.log:85: trailing whitespace.
++#5 8.147 Unpacking iputils-ping (3:20221126-1+deb12u1) ...
+docs/mp2/receipts/run08/setup/image.log:86: trailing whitespace.
++#5 8.167 Selecting previously unselected package strace.
+docs/mp2/receipts/run08/setup/image.log:87: trailing whitespace.
++#5 8.169 Preparing to unpack .../6-strace_6.1-0.1_arm64.deb ...
+docs/mp2/receipts/run08/setup/image.log:88: trailing whitespace.
++#5 8.171 Unpacking strace (6.1-0.1) ...
+docs/mp2/receipts/run08/setup/image.log:89: trailing whitespace.
++#5 8.206 Selecting previously unselected package time.
+docs/mp2/receipts/run08/setup/image.log:90: trailing whitespace.
++#5 8.209 Preparing to unpack .../7-time_1.9-0.2_arm64.deb ...
+docs/mp2/receipts/run08/setup/image.log:91: trailing whitespace.
++#5 8.211 Unpacking time (1.9-0.2) ...
+docs/mp2/receipts/run08/setup/image.log:92: trailing whitespace.
++#5 8.234 Setting up time (1.9-0.2) ...
+docs/mp2/receipts/run08/setup/image.log:93: trailing whitespace.
++#5 8.242 Setting up libcap2-bin (1:2.66-4+deb12u3+b1) ...
+docs/mp2/receipts/run08/setup/image.log:94: trailing whitespace.
++#5 8.248 Setting up strace (6.1-0.1) ...
+docs/mp2/receipts/run08/setup/image.log:95: trailing whitespace.
++#5 8.254 Setting up libmnl0:arm64 (1.0.4-3) ...
+docs/mp2/receipts/run08/setup/image.log:96: trailing whitespace.
++#5 8.259 Setting up libxtables12:arm64 (1.8.9-2) ...
+docs/mp2/receipts/run08/setup/image.log:97: trailing whitespace.
++#5 8.264 Setting up iputils-ping (3:20221126-1+deb12u1) ...
+docs/mp2/receipts/run08/setup/image.log:98: trailing whitespace.
++#5 8.271 Setting up libbpf1:arm64 (1:1.1.2-0+deb12u1) ...
+docs/mp2/receipts/run08/setup/image.log:99: trailing whitespace.
++#5 8.275 Setting up libpopt0:arm64 (1.19+dfsg-1) ...
+docs/mp2/receipts/run08/setup/image.log:100: trailing whitespace.
++#5 8.278 Setting up iproute2 (6.1.0-3) ...
+docs/mp2/receipts/run08/setup/image.log:101: trailing whitespace.
++#5 8.320 debconf: unable to initialize frontend: Dialog
+docs/mp2/receipts/run08/setup/image.log:102: trailing whitespace.
++#5 8.320 debconf: (TERM is not set, so the dialog frontend is not usable.)
+docs/mp2/receipts/run08/setup/image.log:103: trailing whitespace.
++#5 8.320 debconf: falling back to frontend: Readline
+docs/mp2/receipts/run08/setup/image.log:104: trailing whitespace.
++#5 8.323 debconf: unable to initialize frontend: Readline
+docs/mp2/receipts/run08/setup/image.log:105: trailing whitespace.
++#5 8.323 debconf: (This frontend requires a controlling tty.)
+docs/mp2/receipts/run08/setup/image.log:106: trailing whitespace.
++#5 8.323 debconf: falling back to frontend: Teletype
+docs/mp2/receipts/run08/setup/image.log:107: trailing whitespace.
++#5 8.334 Setting up rsync (3.2.7-1+deb12u6) ...
+docs/mp2/receipts/run08/setup/image.log:108: trailing whitespace.
++#5 8.345 invoke-rc.d: could not determine current runlevel
+docs/mp2/receipts/run08/setup/image.log:109: trailing whitespace.
++#5 8.346 invoke-rc.d: policy-rc.d denied execution of start.
+docs/mp2/receipts/run08/setup/image.log:110: trailing whitespace.
++#5 8.377 Processing triggers for libc-bin (2.36-9+deb12u10) ...

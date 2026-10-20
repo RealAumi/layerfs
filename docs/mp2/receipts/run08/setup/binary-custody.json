@@ -1,0 +1,21 @@
+{
+  "before": {
+    "layerfs-remote-daemon": "8060dbfa3405c377f38be445e6dcca21e1e4e1dcacf27487c494015a4e22262c",
+    "layerfs-remote": "dac8991e6fee4a36d58703936aa29e0b1131bfbb5a00e17c55dcfc2b34dddeb5",
+    "layerfs-store": "d2e180d07424ab18b715b518d9dd95621a8b952499af1000756353b67b3f9757",
+    "remote_driver": "009ba2c438e791ed8644f5aeecbce36f14ffee30a5a1b58877e56112b87a353f"
+  },
+  "after": {
+    "layerfs-remote-daemon": "d3cc3ed6af401598b418f6fa273acbaf59a4d7b709e684ee28a71d89d765031d",
+    "layerfs-remote": "98bcd3a07b9e4514865a1c0baf309f0a0b154b521c76cea81647d078d0b905b9",
+    "layerfs-store": "be27b4b75dff0bfb42847a35fe801a41d06f113ba16b2838be6f30eeba2ccdff",
+    "remote_driver": "009ba2c438e791ed8644f5aeecbce36f14ffee30a5a1b58877e56112b87a353f"
+  },
+  "fixed": {
+    "layerfs-remote-daemon": "f205f4b40ed912969dfea828ccdc810f097c36f3b6f71bea9ca3ada11d318028",
+    "layerfs-remote": "98bcd3a07b9e4514865a1c0baf309f0a0b154b521c76cea81647d078d0b905b9",
+    "layerfs-store": "be27b4b75dff0bfb42847a35fe801a41d06f113ba16b2838be6f30eeba2ccdff",
+    "remote_driver": "009ba2c438e791ed8644f5aeecbce36f14ffee30a5a1b58877e56112b87a353f"
+  },
+  "fixed_source": "c73497e2c7b7b8bd151a05b674188a20f18b5f74"
+}

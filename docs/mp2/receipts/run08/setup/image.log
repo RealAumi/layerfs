@@ -1,0 +1,123 @@
+#0 building with "orbstack" instance using docker driver
+
+#1 [internal] load build definition from phase8.Dockerfile
+#1 transferring dockerfile: 238B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for public.ecr.aws/docker/library/rust:1.85.1-bookworm
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 288B done
+#3 DONE 0.0s
+
+#4 [1/2] FROM public.ecr.aws/docker/library/rust:1.85.1-bookworm@sha256:e51d0265072d2d9d5d320f6a44dde6b9ef13653b035098febd68cce8fa7c0bc4
+#4 resolve public.ecr.aws/docker/library/rust:1.85.1-bookworm@sha256:e51d0265072d2d9d5d320f6a44dde6b9ef13653b035098febd68cce8fa7c0bc4 0.0s done
+#4 CACHED
+
+#5 [2/2] RUN apt-get update && apt-get install -y --no-install-recommends strace rsync iproute2 iputils-ping time && rm -rf /var/lib/apt/lists/*
+#5 0.750 Get:1 http://deb.debian.org/debian bookworm InRelease [151 kB]
+#5 1.215 Get:2 http://deb.debian.org/debian bookworm-updates InRelease [55.4 kB]
+#5 1.381 Get:3 http://deb.debian.org/debian-security bookworm-security InRelease [34.8 kB]
+#5 1.546 Get:4 http://deb.debian.org/debian bookworm/main arm64 Packages [8689 kB]
+#5 4.298 Get:5 http://deb.debian.org/debian bookworm-updates/main arm64 Packages [6936 B]
+#5 4.465 Get:6 http://deb.debian.org/debian-security bookworm-security/main arm64 Packages [352 kB]
+#5 4.859 Fetched 9290 kB in 5s (1995 kB/s)
+#5 4.859 Reading package lists...
+#5 5.071 Reading package lists...
+#5 5.295 Building dependency tree...
+#5 5.366 Reading state information...
+#5 5.432 The following additional packages will be installed:
+#5 5.432   libbpf1 libcap2 libcap2-bin libmnl0 libpopt0 libxtables12
+#5 5.433 Suggested packages:
+#5 5.433   iproute2-doc openssh-server python3-braceexpand
+#5 5.433 Recommended packages:
+#5 5.433   libatm1 libpam-cap
+#5 5.473 The following NEW packages will be installed:
+#5 5.473   iproute2 iputils-ping libbpf1 libcap2-bin libmnl0 libpopt0 libxtables12
+#5 5.473   rsync strace time
+#5 5.473 The following packages will be upgraded:
+#5 5.473   libcap2
+#5 5.678 1 upgraded, 10 newly installed, 0 to remove and 164 not upgraded.
+#5 5.678 Need to get 2985 kB of archives.
+#5 5.678 After this operation, 9171 kB of additional disk space will be used.
+#5 5.678 Get:1 http://deb.debian.org/debian bookworm/main arm64 libpopt0 arm64 1.19+dfsg-1 [42.0 kB]
+#5 7.165 Get:2 http://deb.debian.org/debian bookworm/main arm64 rsync arm64 3.2.7-1+deb12u6 [405 kB]
+#5 7.283 Get:3 http://deb.debian.org/debian bookworm/main arm64 libcap2 arm64 1:2.66-4+deb12u3+b1 [27.1 kB]
+#5 7.283 Get:4 http://deb.debian.org/debian bookworm/main arm64 libbpf1 arm64 1:1.1.2-0+deb12u1 [136 kB]
+#5 7.284 Get:5 http://deb.debian.org/debian bookworm/main arm64 libmnl0 arm64 1.0.4-3 [12.1 kB]
+#5 7.284 Get:6 http://deb.debian.org/debian bookworm/main arm64 libxtables12 arm64 1.8.9-2 [29.6 kB]
+#5 7.284 Get:7 http://deb.debian.org/debian bookworm/main arm64 libcap2-bin arm64 1:2.66-4+deb12u3+b1 [34.5 kB]
+#5 7.284 Get:8 http://deb.debian.org/debian bookworm/main arm64 iproute2 arm64 6.1.0-3 [1008 kB]
+#5 7.356 Get:9 http://deb.debian.org/debian bookworm/main arm64 iputils-ping arm64 3:20221126-1+deb12u1 [46.1 kB]
+#5 7.357 Get:10 http://deb.debian.org/debian bookworm/main arm64 strace arm64 6.1-0.1 [1193 kB]
+#5 7.489 Get:11 http://deb.debian.org/debian bookworm/main arm64 time arm64 1.9-0.2 [50.6 kB]
+#5 7.599 debconf: delaying package configuration, since apt-utils is not installed
+#5 7.611 Fetched 2985 kB in 2s (1482 kB/s)
+#5 7.634 Selecting previously unselected package libpopt0:arm64.
+#5 7.634 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 23273 files and directories currently installed.)
+#5 7.697 Preparing to unpack .../libpopt0_1.19+dfsg-1_arm64.deb ...
+#5 7.828 Unpacking libpopt0:arm64 (1.19+dfsg-1) ...
+#5 7.871 Selecting previously unselected package rsync.
+#5 7.874 Preparing to unpack .../rsync_3.2.7-1+deb12u6_arm64.deb ...
+#5 7.877 Unpacking rsync (3.2.7-1+deb12u6) ...
+#5 7.919 Preparing to unpack .../libcap2_1%3a2.66-4+deb12u3+b1_arm64.deb ...
+#5 7.927 Unpacking libcap2:arm64 (1:2.66-4+deb12u3+b1) over (1:2.66-4) ...
+#5 7.956 Setting up libcap2:arm64 (1:2.66-4+deb12u3+b1) ...
+#5 7.984 Selecting previously unselected package libbpf1:arm64.
+#5 7.984 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 23350 files and directories currently installed.)
+#5 7.990 Preparing to unpack .../0-libbpf1_1%3a1.1.2-0+deb12u1_arm64.deb ...
+#5 7.992 Unpacking libbpf1:arm64 (1:1.1.2-0+deb12u1) ...
+#5 8.013 Selecting previously unselected package libmnl0:arm64.
+#5 8.015 Preparing to unpack .../1-libmnl0_1.0.4-3_arm64.deb ...
+#5 8.017 Unpacking libmnl0:arm64 (1.0.4-3) ...
+#5 8.033 Selecting previously unselected package libxtables12:arm64.
+#5 8.035 Preparing to unpack .../2-libxtables12_1.8.9-2_arm64.deb ...
+#5 8.037 Unpacking libxtables12:arm64 (1.8.9-2) ...
+#5 8.049 Selecting previously unselected package libcap2-bin.
+#5 8.051 Preparing to unpack .../3-libcap2-bin_1%3a2.66-4+deb12u3+b1_arm64.deb ...
+#5 8.052 Unpacking libcap2-bin (1:2.66-4+deb12u3+b1) ...
+#5 8.073 Selecting previously unselected package iproute2.
+#5 8.075 Preparing to unpack .../4-iproute2_6.1.0-3_arm64.deb ...
+#5 8.077 Unpacking iproute2 (6.1.0-3) ...
+#5 8.143 Selecting previously unselected package iputils-ping.
+#5 8.145 Preparing to unpack .../5-iputils-ping_3%3a20221126-1+deb12u1_arm64.deb ...
+#5 8.147 Unpacking iputils-ping (3:20221126-1+deb12u1) ...
+#5 8.167 Selecting previously unselected package strace.
+#5 8.169 Preparing to unpack .../6-strace_6.1-0.1_arm64.deb ...
+#5 8.171 Unpacking strace (6.1-0.1) ...
+#5 8.206 Selecting previously unselected package time.
+#5 8.209 Preparing to unpack .../7-time_1.9-0.2_arm64.deb ...
+#5 8.211 Unpacking time (1.9-0.2) ...
+#5 8.234 Setting up time (1.9-0.2) ...
+#5 8.242 Setting up libcap2-bin (1:2.66-4+deb12u3+b1) ...
+#5 8.248 Setting up strace (6.1-0.1) ...
+#5 8.254 Setting up libmnl0:arm64 (1.0.4-3) ...
+#5 8.259 Setting up libxtables12:arm64 (1.8.9-2) ...
+#5 8.264 Setting up iputils-ping (3:20221126-1+deb12u1) ...
+#5 8.271 Setting up libbpf1:arm64 (1:1.1.2-0+deb12u1) ...
+#5 8.275 Setting up libpopt0:arm64 (1.19+dfsg-1) ...
+#5 8.278 Setting up iproute2 (6.1.0-3) ...
+#5 8.320 debconf: unable to initialize frontend: Dialog
+#5 8.320 debconf: (TERM is not set, so the dialog frontend is not usable.)
+#5 8.320 debconf: falling back to frontend: Readline
+#5 8.323 debconf: unable to initialize frontend: Readline
+#5 8.323 debconf: (This frontend requires a controlling tty.)
+#5 8.323 debconf: falling back to frontend: Teletype
+#5 8.334 Setting up rsync (3.2.7-1+deb12u6) ...
+#5 8.345 invoke-rc.d: could not determine current runlevel
+#5 8.346 invoke-rc.d: policy-rc.d denied execution of start.
+#5 8.377 Processing triggers for libc-bin (2.36-9+deb12u10) ...
+#5 DONE 8.8s
+
+#6 exporting to image
+#6 exporting layers
+#6 exporting layers 0.3s done
+#6 exporting manifest sha256:0249b1fde030c42dd02f3ef2011a0fc6390582b701432726b2f45336620d8698
+#6 exporting manifest sha256:0249b1fde030c42dd02f3ef2011a0fc6390582b701432726b2f45336620d8698 0.0s done
+#6 exporting config sha256:ee4d3ba4c89c214baa803cd85d481e366618a5fe1f39b0c5ea378079c6440fc9 0.0s done
+#6 exporting attestation manifest sha256:024886aeae1fd191591a0044bd6bb75bc25b13d579074c8f6dd87a24005582e8 0.0s done
+#6 exporting manifest list sha256:f2ce2e789cf7f94081ae305ec5e9017672d026c45e719f085e6620b4c1743492 0.0s done
+#6 naming to docker.io/library/cx7-p8-tools:latest done
+#6 unpacking to docker.io/library/cx7-p8-tools:latest 0.1s done
+#6 DONE 0.4s

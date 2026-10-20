@@ -1,0 +1,108 @@
+162   execve("/usr/bin/rsync", ["rsync", "-a", "/input/copies-0/", "/workspaces/1/rsync-user1000-own"...], 0xfffff082afd8 /* 7 vars */) = 0
+162   faccessat(AT_FDCWD</>, "/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+162   openat(AT_FDCWD</>, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache>
+162   newfstatat(3</etc/ld.so.cache>, "", {st_mode=S_IFREG|0644, st_size=23671, ...}, AT_EMPTY_PATH) = 0
+162   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libacl.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libacl.so.1.1.2301>
+162   newfstatat(3</usr/lib/aarch64-linux-gnu/libacl.so.1.1.2301>, "", {st_mode=S_IFREG|0644, st_size=67432, ...}, AT_EMPTY_PATH) = 0
+162   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libz.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libz.so.1.2.13>
+162   newfstatat(3</usr/lib/aarch64-linux-gnu/libz.so.1.2.13>, "", {st_mode=S_IFREG|0644, st_size=133520, ...}, AT_EMPTY_PATH) = 0
+162   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libpopt.so.0", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libpopt.so.0.0.2>
+162   newfstatat(3</usr/lib/aarch64-linux-gnu/libpopt.so.0.0.2>, "", {st_mode=S_IFREG|0644, st_size=67952, ...}, AT_EMPTY_PATH) = 0
+162   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/liblz4.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/liblz4.so.1.9.4>
+162   newfstatat(3</usr/lib/aarch64-linux-gnu/liblz4.so.1.9.4>, "", {st_mode=S_IFREG|0644, st_size=199056, ...}, AT_EMPTY_PATH) = 0
+162   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libzstd.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libzstd.so.1.5.4>
+162   newfstatat(3</usr/lib/aarch64-linux-gnu/libzstd.so.1.5.4>, "", {st_mode=S_IFREG|0644, st_size=657352, ...}, AT_EMPTY_PATH) = 0
+162   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libxxhash.so.0", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libxxhash.so.0.8.1>
+162   newfstatat(3</usr/lib/aarch64-linux-gnu/libxxhash.so.0.8.1>, "", {st_mode=S_IFREG|0644, st_size=38896, ...}, AT_EMPTY_PATH) = 0
+162   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libcrypto.so.3", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libcrypto.so.3>
+162   newfstatat(3</usr/lib/aarch64-linux-gnu/libcrypto.so.3>, "", {st_mode=S_IFREG|0644, st_size=4466856, ...}, AT_EMPTY_PATH) = 0
+162   openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libc.so.6>
+162   newfstatat(3</usr/lib/aarch64-linux-gnu/libc.so.6>, "", {st_mode=S_IFREG|0755, st_size=1651408, ...}, AT_EMPTY_PATH) = 0
+162   openat(AT_FDCWD</>, "/etc/popt", O_RDONLY) = -1 ENOENT (No such file or directory)
+162   newfstatat(AT_FDCWD</>, "/etc/popt.d", 0xffffc0792ce8, 0) = -1 ENOENT (No such file or directory)
+162   openat(AT_FDCWD</>, "//.popt", O_RDONLY) = -1 ENOENT (No such file or directory)
+162   getcwd("/", 4095)                 = 2
+162   openat(AT_FDCWD</>, "/usr/lib/aarch64-linux-gnu/gconv/gconv-modules.cache", O_RDONLY) = 3</usr/lib/aarch64-linux-gnu/gconv/gconv-modules.cache>
+162   newfstatat(3</usr/lib/aarch64-linux-gnu/gconv/gconv-modules.cache>, "", {st_mode=S_IFREG|0644, st_size=27028, ...}, AT_EMPTY_PATH) = 0
+163   openat(AT_FDCWD</>, "/usr/lib/ssl/openssl.cnf", O_RDONLY) = 3</etc/ssl/openssl.cnf>
+163   newfstatat(3</etc/ssl/openssl.cnf>, "", {st_mode=S_IFREG|0644, st_size=12332, ...}, AT_EMPTY_PATH) = 0
+162   openat(AT_FDCWD</>, "/usr/lib/ssl/openssl.cnf", O_RDONLY) = 3</etc/ssl/openssl.cnf>
+162   newfstatat(3</etc/ssl/openssl.cnf>, "", {st_mode=S_IFREG|0644, st_size=12332, ...}, AT_EMPTY_PATH) = 0
+162   chdir("/input/copies-0")          = 0
+162   newfstatat(AT_FDCWD</input/copies-0>, ".", {st_mode=S_IFDIR|0755, st_size=28, ...}, AT_SYMLINK_NOFOLLOW) = 0
+162   newfstatat(AT_FDCWD</input/copies-0>, "/etc/nsswitch.conf", {st_mode=S_IFREG|0644, st_size=494, ...}, 0) = 0
+162   newfstatat(AT_FDCWD</input/copies-0>, "/", {st_mode=S_IFDIR|0755, st_size=124, ...}, 0) = 0
+162   openat(AT_FDCWD</input/copies-0>, "/etc/nsswitch.conf", O_RDONLY|O_CLOEXEC) = 3</etc/nsswitch.conf>
+162   newfstatat(3</etc/nsswitch.conf>, "", {st_mode=S_IFREG|0644, st_size=494, ...}, AT_EMPTY_PATH) = 0
+162   newfstatat(3</etc/nsswitch.conf>, "", {st_mode=S_IFREG|0644, st_size=494, ...}, AT_EMPTY_PATH) = 0
+162   openat(AT_FDCWD</input/copies-0>, "/etc/passwd", O_RDONLY|O_CLOEXEC) = 3</etc/passwd>
+162   newfstatat(3</etc/passwd>, "", {st_mode=S_IFREG|0644, st_size=839, ...}, AT_EMPTY_PATH) = 0
+162   newfstatat(AT_FDCWD</input/copies-0>, "/etc/nsswitch.conf", {st_mode=S_IFREG|0644, st_size=494, ...}, 0) = 0
+162   openat(AT_FDCWD</input/copies-0>, "/etc/group", O_RDONLY|O_CLOEXEC) = 3</etc/group>
+162   newfstatat(3</etc/group>, "", {st_mode=S_IFREG|0644, st_size=446, ...}, AT_EMPTY_PATH) = 0
+162   openat(AT_FDCWD</input/copies-0>, ".", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3</input/copies-0>
+162   newfstatat(3</input/copies-0>, "", {st_mode=S_IFDIR|0755, st_size=28, ...}, AT_EMPTY_PATH) = 0
+162   newfstatat(AT_FDCWD</input/copies-0>, "file.txt", {st_mode=S_IFREG|0644, st_size=22, ...}, AT_SYMLINK_NOFOLLOW) = 0
+162   newfstatat(AT_FDCWD</input/copies-0>, "nested", {st_mode=S_IFDIR|0755, st_size=18, ...}, AT_SYMLINK_NOFOLLOW) = 0
+162   openat(AT_FDCWD</input/copies-0>, "nested", O_RDONLY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 3</input/copies-0/nested>
+162   newfstatat(3</input/copies-0/nested>, "", {st_mode=S_IFDIR|0755, st_size=18, ...}, AT_EMPTY_PATH) = 0
+162   newfstatat(AT_FDCWD</input/copies-0>, "nested/other.txt", {st_mode=S_IFREG|0644, st_size=19, ...}, AT_SYMLINK_NOFOLLOW) = 0
+163   newfstatat(AT_FDCWD</>, "/workspaces/1/rsync-user1000-owner0/", {st_mode=S_IFDIR|0777, st_size=0, ...}, 0) = 0
+163   chdir("/workspaces/1/rsync-user1000-owner0/") = 0
+163   newfstatat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, ".", {st_mode=S_IFDIR|0777, st_size=0, ...}, AT_SYMLINK_NOFOLLOW) = 0
+163   utimensat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, ".", [{tv_sec=1792517409, tv_nsec=110692607} /* 2026-10-20T17:30:09.110692607+0000 */, {tv_sec=1792516236, tv_nsec=158633771} /* 2026-10-20T17:10:36.158633771+0000 */], AT_SYMLINK_NOFOLLOW) = 0
+163   openat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, ".", O_RDONLY|O_NOFOLLOW|O_CLOEXEC|O_PATH) = 0</workspaces/1/rsync-user1000-owner0>
+163   newfstatat(0</workspaces/1/rsync-user1000-owner0>, "", {st_mode=S_IFDIR|0777, st_size=0, ...}, AT_EMPTY_PATH) = 0
+163   fchmodat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "/proc/self/fd/0", 0755) = 0
+163   newfstatat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, ".", {st_mode=S_IFDIR|0755, st_size=0, ...}, AT_SYMLINK_NOFOLLOW) = 0
+163   newfstatat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "file.txt", 0xffffc078fae0, AT_SYMLINK_NOFOLLOW) = -1 ENOENT (No such file or directory)
+163   newfstatat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested", 0xffffc078fae0, AT_SYMLINK_NOFOLLOW) = -1 ENOENT (No such file or directory)
+163   mkdirat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested", 0700) = 0
+163   newfstatat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested", {st_mode=S_IFDIR|0700, st_size=0, ...}, AT_SYMLINK_NOFOLLOW) = 0
+163   utimensat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested", [{tv_sec=1792517409, tv_nsec=150366118} /* 2026-10-20T17:30:09.150366118+0000 */, {tv_sec=1792516236, tv_nsec=158633771} /* 2026-10-20T17:10:36.158633771+0000 */], AT_SYMLINK_NOFOLLOW <unfinished ...>
+162   openat(AT_FDCWD</input/copies-0>, "file.txt", O_RDONLY|O_NOFOLLOW <unfinished ...>
+163   <... utimensat resumed>)          = 0
+163   openat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested", O_RDONLY|O_NOFOLLOW|O_CLOEXEC|O_PATH) = 0</workspaces/1/rsync-user1000-owner0/nested>
+162   <... openat resumed>)             = 3</input/copies-0/file.txt>
+163   newfstatat(0</workspaces/1/rsync-user1000-owner0/nested>, "", {st_mode=S_IFDIR|0700, st_size=0, ...}, AT_EMPTY_PATH) = 0
+163   fchmodat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "/proc/self/fd/0", 0755 <unfinished ...>
+162   newfstatat(3</input/copies-0/file.txt>, "", {st_mode=S_IFREG|0644, st_size=22, ...}, AT_EMPTY_PATH) = 0
+163   <... fchmodat resumed>)           = 0
+163   newfstatat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested/other.txt",  <unfinished ...>
+164   openat2(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "file.txt", {flags=O_RDONLY, resolve=RESOLVE_NO_MAGICLINKS|RESOLVE_BENEATH}, 24) = -1 ENOENT (No such file or directory)
+164   openat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, ".file.txt.tsQoG9", O_RDWR|O_CREAT|O_EXCL, 0600 <unfinished ...>
+163   <... newfstatat resumed>0xffffc078fae0, AT_SYMLINK_NOFOLLOW) = -1 ENOENT (No such file or directory)
+164   <... openat resumed>)             = 1</workspaces/1/rsync-user1000-owner0/.file.txt.tsQoG9>
+164   fchmod(1</workspaces/1/rsync-user1000-owner0/.file.txt.tsQoG9>, 0600 <unfinished ...>
+162   openat(AT_FDCWD</input/copies-0>, "nested/other.txt", O_RDONLY|O_NOFOLLOW) = 3</input/copies-0/nested/other.txt>
+162   newfstatat(3</input/copies-0/nested/other.txt>, "", {st_mode=S_IFREG|0644, st_size=19, ...}, AT_EMPTY_PATH) = 0
+164   <... fchmod resumed>)             = 0
+164   newfstatat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, ".file.txt.tsQoG9", {st_mode=S_IFREG|0600, st_size=22, ...}, AT_SYMLINK_NOFOLLOW) = 0
+164   utimensat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, ".file.txt.tsQoG9", [{tv_sec=1792517409, tv_nsec=150908659} /* 2026-10-20T17:30:09.150908659+0000 */, {tv_sec=1792516236, tv_nsec=158633771} /* 2026-10-20T17:10:36.158633771+0000 */], AT_SYMLINK_NOFOLLOW) = 0
+164   openat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, ".file.txt.tsQoG9", O_RDONLY|O_NOFOLLOW|O_CLOEXEC|O_PATH) = 1</workspaces/1/rsync-user1000-owner0/.file.txt.tsQoG9>
+164   newfstatat(1</workspaces/1/rsync-user1000-owner0/.file.txt.tsQoG9>, "", {st_mode=S_IFREG|0600, st_size=22, ...}, AT_EMPTY_PATH) = 0
+164   fchmodat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "/proc/self/fd/1", 0644) = 0
+164   renameat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, ".file.txt.tsQoG9", AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "file.txt") = 0
+164   newfstatat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "file.txt", {st_mode=S_IFREG|0644, st_size=22, ...}, 0) = 0
+164   openat2(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested/other.txt", {flags=O_RDONLY, resolve=RESOLVE_NO_MAGICLINKS|RESOLVE_BENEATH}, 24) = -1 ENOENT (No such file or directory)
+164   openat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested/.other.txt.mp4aIm", O_RDWR|O_CREAT|O_EXCL, 0600 <unfinished ...>
+163   newfstatat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, ".",  <unfinished ...>
+164   <... openat resumed>)             = 1</workspaces/1/rsync-user1000-owner0/nested/.other.txt.mp4aIm>
+163   <... newfstatat resumed>{st_mode=S_IFDIR|0755, st_size=0, ...}, AT_SYMLINK_NOFOLLOW) = 0
+164   fchmod(1</workspaces/1/rsync-user1000-owner0/nested/.other.txt.mp4aIm>, 0600) = 0
+163   utimensat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, ".", [{tv_sec=1792517409, tv_nsec=151294660} /* 2026-10-20T17:30:09.151294660+0000 */, {tv_sec=1792516236, tv_nsec=158633771} /* 2026-10-20T17:10:36.158633771+0000 */], AT_SYMLINK_NOFOLLOW) = 0
+164   newfstatat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested/.other.txt.mp4aIm", {st_mode=S_IFREG|0600, st_size=19, ...}, AT_SYMLINK_NOFOLLOW) = 0
+164   utimensat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested/.other.txt.mp4aIm", [{tv_sec=1792517409, tv_nsec=151522576} /* 2026-10-20T17:30:09.151522576+0000 */, {tv_sec=1792516236, tv_nsec=158687438} /* 2026-10-20T17:10:36.158687438+0000 */], AT_SYMLINK_NOFOLLOW) = 0
+164   openat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested/.other.txt.mp4aIm", O_RDONLY|O_NOFOLLOW|O_CLOEXEC|O_PATH) = 1</workspaces/1/rsync-user1000-owner0/nested/.other.txt.mp4aIm>
+164   newfstatat(1</workspaces/1/rsync-user1000-owner0/nested/.other.txt.mp4aIm>, "", {st_mode=S_IFREG|0600, st_size=19, ...}, AT_EMPTY_PATH) = 0
+164   fchmodat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "/proc/self/fd/1", 0644) = 0
+164   renameat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested/.other.txt.mp4aIm", AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested/other.txt") = 0
+164   newfstatat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested/other.txt", {st_mode=S_IFREG|0644, st_size=19, ...}, 0) = 0
+163   newfstatat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested", {st_mode=S_IFDIR|0755, st_size=0, ...}, AT_SYMLINK_NOFOLLOW) = 0
+163   utimensat(AT_FDCWD</workspaces/1/rsync-user1000-owner0>, "nested", [{tv_sec=1792517409, tv_nsec=151713785} /* 2026-10-20T17:30:09.151713785+0000 */, {tv_sec=1792516236, tv_nsec=158633771} /* 2026-10-20T17:10:36.158633771+0000 */], AT_SYMLINK_NOFOLLOW) = 0
+164   --- SIGUSR2 {si_signo=SIGUSR2, si_code=SI_USER, si_pid=163, si_uid=1000} ---
+164   +++ exited with 0 +++
+163   --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=164, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+163   +++ exited with 0 +++
+162   --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=163, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+162   +++ exited with 0 +++

@@ -1,0 +1,53 @@
+84    execve("/usr/bin/tar", ["tar", "-xpf", "/tmp/copy-fixtures/0.tar", "-C", "/workspaces/1/tar-user0-owner0"], 0xffffe7e9daf0 /* 7 vars */) = 0
+84    faccessat(AT_FDCWD</>, "/etc/ld.so.preload", R_OK) = -1 ENOENT (No such file or directory)
+84    openat(AT_FDCWD</>, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3</etc/ld.so.cache>
+84    newfstatat(3</etc/ld.so.cache>, "", {st_mode=S_IFREG|0644, st_size=23671, ...}, AT_EMPTY_PATH) = 0
+84    openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libacl.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libacl.so.1.1.2301>
+84    newfstatat(3</usr/lib/aarch64-linux-gnu/libacl.so.1.1.2301>, "", {st_mode=S_IFREG|0644, st_size=67432, ...}, AT_EMPTY_PATH) = 0
+84    openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libselinux.so.1", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libselinux.so.1>
+84    newfstatat(3</usr/lib/aarch64-linux-gnu/libselinux.so.1>, "", {st_mode=S_IFREG|0644, st_size=198800, ...}, AT_EMPTY_PATH) = 0
+84    openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libc.so.6>
+84    newfstatat(3</usr/lib/aarch64-linux-gnu/libc.so.6>, "", {st_mode=S_IFREG|0755, st_size=1651408, ...}, AT_EMPTY_PATH) = 0
+84    openat(AT_FDCWD</>, "/lib/aarch64-linux-gnu/libpcre2-8.so.0", O_RDONLY|O_CLOEXEC) = 3</usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.11.2>
+84    newfstatat(3</usr/lib/aarch64-linux-gnu/libpcre2-8.so.0.11.2>, "", {st_mode=S_IFREG|0644, st_size=592440, ...}, AT_EMPTY_PATH) = 0
+84    statfs("/sys/fs/selinux", 0xffffce0ea080) = -1 ENOENT (No such file or directory)
+84    statfs("/selinux", 0xffffce0ea080) = -1 ENOENT (No such file or directory)
+84    openat(AT_FDCWD</>, "/proc/filesystems", O_RDONLY|O_CLOEXEC) = 3</proc/filesystems>
+84    newfstatat(3</proc/filesystems>, "", {st_mode=S_IFREG|0444, st_size=0, ...}, AT_EMPTY_PATH) = 0
+84    faccessat(AT_FDCWD</>, "/etc/selinux/config", F_OK) = -1 ENOENT (No such file or directory)
+84    openat(AT_FDCWD</>, "/tmp/copy-fixtures/0.tar", O_RDONLY) = 3</tmp/copy-fixtures/0.tar>
+84    newfstatat(3</tmp/copy-fixtures/0.tar>, "", {st_mode=S_IFREG|0666, st_size=10240, ...}, AT_EMPTY_PATH) = 0
+84    newfstatat(3</tmp/copy-fixtures/0.tar>, "", {st_mode=S_IFREG|0666, st_size=10240, ...}, AT_EMPTY_PATH) = 0
+84    newfstatat(AT_FDCWD</>, "/etc/nsswitch.conf", {st_mode=S_IFREG|0644, st_size=494, ...}, 0) = 0
+84    newfstatat(AT_FDCWD</>, "/", {st_mode=S_IFDIR|0755, st_size=124, ...}, 0) = 0
+84    openat(AT_FDCWD</>, "/etc/nsswitch.conf", O_RDONLY|O_CLOEXEC) = 4</etc/nsswitch.conf>
+84    newfstatat(4</etc/nsswitch.conf>, "", {st_mode=S_IFREG|0644, st_size=494, ...}, AT_EMPTY_PATH) = 0
+84    newfstatat(4</etc/nsswitch.conf>, "", {st_mode=S_IFREG|0644, st_size=494, ...}, AT_EMPTY_PATH) = 0
+84    openat(AT_FDCWD</>, "/etc/passwd", O_RDONLY|O_CLOEXEC) = 4</etc/passwd>
+84    newfstatat(4</etc/passwd>, "", {st_mode=S_IFREG|0644, st_size=839, ...}, AT_EMPTY_PATH) = 0
+84    newfstatat(AT_FDCWD</>, "/etc/nsswitch.conf", {st_mode=S_IFREG|0644, st_size=494, ...}, 0) = 0
+84    openat(AT_FDCWD</>, "/etc/group", O_RDONLY|O_CLOEXEC) = 4</etc/group>
+84    newfstatat(4</etc/group>, "", {st_mode=S_IFREG|0644, st_size=446, ...}, AT_EMPTY_PATH) = 0
+84    openat(AT_FDCWD</>, "/workspaces/1/tar-user0-owner0", O_RDONLY|O_NOCTTY|O_NONBLOCK|O_CLOEXEC|O_DIRECTORY) = 4</workspaces/1/tar-user0-owner0>
+84    mkdirat(4</workspaces/1/tar-user0-owner0>, ".", 0700) = -1 EEXIST (File exists)
+84    newfstatat(4</workspaces/1/tar-user0-owner0>, ".", {st_mode=S_IFDIR|0777, st_size=0, ...}, AT_SYMLINK_NOFOLLOW) = 0
+84    newfstatat(4</workspaces/1/tar-user0-owner0>, ".", {st_mode=S_IFDIR|0777, st_size=0, ...}, AT_SYMLINK_NOFOLLOW) = 0
+84    openat(4</workspaces/1/tar-user0-owner0>, "./file.txt", O_WRONLY|O_CREAT|O_EXCL|O_NOCTTY|O_NONBLOCK|O_CLOEXEC, 0600) = 5</workspaces/1/tar-user0-owner0/file.txt>
+84    utimensat(5</workspaces/1/tar-user0-owner0/file.txt>, NULL, [UTIME_OMIT, {tv_sec=1792516236, tv_nsec=0} /* 2026-10-20T17:10:36+0000 */], 0) = 0
+84    fchown(5</workspaces/1/tar-user0-owner0/file.txt>, 0, 0) = -1 EPERM (Operation not permitted)
+84    fchmod(5</workspaces/1/tar-user0-owner0/file.txt>, 0644) = 0
+84    mkdirat(4</workspaces/1/tar-user0-owner0>, "./nested", 0700) = 0
+84    openat(4</workspaces/1/tar-user0-owner0>, "./nested/other.txt", O_WRONLY|O_CREAT|O_EXCL|O_NOCTTY|O_NONBLOCK|O_CLOEXEC, 0600) = 5</workspaces/1/tar-user0-owner0/nested/other.txt>
+84    utimensat(5</workspaces/1/tar-user0-owner0/nested/other.txt>, NULL, [UTIME_OMIT, {tv_sec=1792516236, tv_nsec=0} /* 2026-10-20T17:10:36+0000 */], 0) = 0
+84    fchown(5</workspaces/1/tar-user0-owner0/nested/other.txt>, 0, 0) = -1 EPERM (Operation not permitted)
+84    fchmod(5</workspaces/1/tar-user0-owner0/nested/other.txt>, 0644) = 0
+84    utimensat(4</workspaces/1/tar-user0-owner0>, "./nested", [UTIME_OMIT, {tv_sec=1792516236, tv_nsec=0} /* 2026-10-20T17:10:36+0000 */], AT_SYMLINK_NOFOLLOW) = 0
+84    fchownat(4</workspaces/1/tar-user0-owner0>, "./nested", 0, 0, AT_SYMLINK_NOFOLLOW) = -1 EPERM (Operation not permitted)
+84    openat(4</workspaces/1/tar-user0-owner0>, "./nested", O_RDONLY|O_NOFOLLOW|O_CLOEXEC|O_PATH) = 3</workspaces/1/tar-user0-owner0/nested>
+84    newfstatat(3</workspaces/1/tar-user0-owner0/nested>, "", {st_mode=S_IFDIR|0700, st_size=0, ...}, AT_EMPTY_PATH) = 0
+84    fchmodat(AT_FDCWD</>, "/proc/self/fd/3", 0755) = 0
+84    newfstatat(4</workspaces/1/tar-user0-owner0>, ".", {st_mode=S_IFDIR|0777, st_size=0, ...}, 0) = 0
+84    utimensat(4</workspaces/1/tar-user0-owner0>, ".", [UTIME_OMIT, {tv_sec=1792516236, tv_nsec=0} /* 2026-10-20T17:10:36+0000 */], 0) = 0
+84    fchownat(4</workspaces/1/tar-user0-owner0>, ".", 0, 0, 0) = -1 EPERM (Operation not permitted)
+84    fchmodat(4</workspaces/1/tar-user0-owner0>, ".", 0755) = 0
+84    +++ exited with 2 +++

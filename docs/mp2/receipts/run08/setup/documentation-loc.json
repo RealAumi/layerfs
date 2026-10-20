@@ -1,0 +1,118 @@
+{
+  "counter": "e6d94d1a731b402ccc9159f49cef1eba5a74cfe0",
+  "method": "Exact parent/staged archives; counter scan excludes inline tests; subtract scripted mock package739. Subsequent receipt-only index changes do not affect these source scopes.",
+  "parent": {
+    "root": "c73497e2c7b7b8bd151a05b674188a20f18b5f74",
+    "scopes": {
+      "core": {
+        "files": 827,
+        "lines": 98354,
+        "crates": {
+          "layerfs-api": 2291,
+          "layerfs-bridge": 3536,
+          "layerfs-content": 25783,
+          "layerfs-daemon": 6201,
+          "layerfs-fuse": 4524,
+          "layerfs-history": 990,
+          "layerfs-overlay": 9730,
+          "layerfs-persistence": 8398,
+          "layerfs-project": 1667,
+          "layerfs-remote-store": 1435,
+          "layerfs-sandbox": 3299,
+          "layerfs-storage": 8993,
+          "layerfs-store-service": 10236,
+          "layerfs-telemetry": 2280,
+          "layerfs-workspace": 8991
+        }
+      },
+      "reference": {
+        "files": 0,
+        "lines": 0,
+        "crates": {}
+      },
+      "sdk": {
+        "files": 52,
+        "lines": 2861,
+        "crates": {
+          "@layerfs/sdk": 548,
+          "layerfs-node": 2313
+        }
+      },
+      "dsh": {
+        "files": 71,
+        "lines": 5309,
+        "crates": {
+          "@dsh-layerfs/client": 1591,
+          "@dsh-layerfs/host": 1535,
+          "@dsh-layerfs/mock": 739,
+          "@dsh-layerfs/model": 939,
+          "@dsh-layerfs/view": 1244
+        }
+      }
+    },
+    "combined": 106524,
+    "mock_exclusion": 739,
+    "vendor": {
+      "src/session.rs": 485,
+      "src/session/lifecycle.rs": 338,
+      "src/session/receive_stop.rs": 67
+    }
+  },
+  "staged": {
+    "root": "9d03deff5719958a3a4abae739a5b7c793362310",
+    "scopes": {
+      "core": {
+        "files": 827,
+        "lines": 98354,
+        "crates": {
+          "layerfs-api": 2291,
+          "layerfs-bridge": 3536,
+          "layerfs-content": 25783,
+          "layerfs-daemon": 6201,
+          "layerfs-fuse": 4524,
+          "layerfs-history": 990,
+          "layerfs-overlay": 9730,
+          "layerfs-persistence": 8398,
+          "layerfs-project": 1667,
+          "layerfs-remote-store": 1435,
+          "layerfs-sandbox": 3299,
+          "layerfs-storage": 8993,
+          "layerfs-store-service": 10236,
+          "layerfs-telemetry": 2280,
+          "layerfs-workspace": 8991
+        }
+      },
+      "reference": {
+        "files": 0,
+        "lines": 0,
+        "crates": {}
+      },
+      "sdk": {
+        "files": 52,
+        "lines": 2861,
+        "crates": {
+          "@layerfs/sdk": 548,
+          "layerfs-node": 2313
+        }
+      },
+      "dsh": {
+        "files": 71,
+        "lines": 5309,
+        "crates": {
+          "@dsh-layerfs/client": 1591,
+          "@dsh-layerfs/host": 1535,
+          "@dsh-layerfs/mock": 739,
+          "@dsh-layerfs/model": 939,
+          "@dsh-layerfs/view": 1244
+        }
+      }
+    },
+    "combined": 106524,
+    "mock_exclusion": 739,
+    "vendor": {
+      "src/session.rs": 485,
+      "src/session/lifecycle.rs": 338,
+      "src/session/receive_stop.rs": 67
+    }
+  }
+}

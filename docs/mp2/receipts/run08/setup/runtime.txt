@@ -1,0 +1,6 @@
+Linux b707feae5afb 7.2.9-orbstack-00391-g2b298d05fbd4 #1 SMP PREEMPT Mon Oct 12 05:39:36 UTC 2026 aarch64 GNU/Linux
+git version 2.39.5
+strace -- version 6.1
+rsync  version 3.2.7  protocol version 32
+rustc 1.85.1 (4eb161250 2025-03-15)
+stat (GNU coreutils) 9.1

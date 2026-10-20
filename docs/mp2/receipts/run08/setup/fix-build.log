@@ -1,0 +1,30 @@
+{
+  "checked_manifests_locks_configs": 94,
+  "errors": [],
+  "authorized_patch_verified": true,
+  "registry_package_verified": false
+}
+   Compiling nix v0.31.3
+   Compiling fuser v0.18.0 (/work/core/vendor/fuser-0.18.0)
+   Compiling layerfs-overlay v0.1.7 (/work/core/crates/layerfs-overlay)
+   Compiling layerfs-workspace v0.1.7 (/work/core/crates/layerfs-workspace)
+   Compiling layerfs-persistence v0.1.7 (/work/core/crates/layerfs-persistence)
+   Compiling layerfs-store-service v0.1.7 (/work/core/crates/layerfs-store-service)
+   Compiling layerfs-fuse v0.1.7 (/work/core/crates/layerfs-fuse)
+   Compiling layerfs-remote-store v0.1.7 (/work/core/crates/layerfs-remote-store)
+   Compiling layerfs-daemon v0.1.7 (/work/core/crates/layerfs-daemon)
+    Finished `test` profile [optimized + debuginfo] target(s) in 38.71s
+   Compiling layerfs-overlay v0.1.7 (/work/core/crates/layerfs-overlay)
+   Compiling layerfs-workspace v0.1.7 (/work/core/crates/layerfs-workspace)
+   Compiling layerfs-fuse v0.1.7 (/work/core/crates/layerfs-fuse)
+    Finished `test` profile [optimized + debuginfo] target(s) in 15.21s
+  Executable unittests src/lib.rs (/target/cargo/debug/deps/layerfs_fuse-7ac9da89f81076c6)
+  Executable tests/attributes.rs (/target/cargo/debug/deps/attributes-da85046d36c7da01)
+  Executable tests/opcode_names.rs (/target/cargo/debug/deps/opcode_names-0a4729d863863bdf)
+  Executable tests/opcode_time.rs (/target/cargo/debug/deps/opcode_time-923c3488a21385d8)
+  Executable tests/requests.rs (/target/cargo/debug/deps/requests-d3e5d9909281e93f)
+   Compiling layerfs-sandbox v0.1.7 (/work/core/crates/layerfs-sandbox)
+   Compiling layerfs-daemon v0.1.7 (/work/core/crates/layerfs-daemon)
+   Compiling layerfs-api v0.1.7 (/work/core/crates/layerfs-api)
+    Finished `test` profile [optimized + debuginfo] target(s) in 5.27s
+  Executable tests/workspace_databases.rs (/target/cargo/debug/deps/workspace_databases-735240fabc59d22a)

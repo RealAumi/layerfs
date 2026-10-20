@@ -1,0 +1,9 @@
+python3 docs/mp2/phase8-summary.py > docs/mp2/receipts/run08/summary.json
+Exit 1, no summary emitted:
+Traceback (most recent call last):
+  File "docs/mp2/phase8-summary.py", line 39, in <module>
+    assert re.search(r'umount2\("/workspaces/1", 0\)\s+= 0',x['umount_trace'])
+AssertionError
+Cause: nine successful umount syscalls have strace unfinished/resumed form.
+The parser incorrectly accepted only a single complete line. The raw results
+and syscall traces remain unchanged; parse matching TID and resumed result.

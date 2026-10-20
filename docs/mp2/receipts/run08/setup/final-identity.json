@@ -1,0 +1,29 @@
+{
+  "source": "c73497e2c7b7b8bd151a05b674188a20f18b5f74",
+  "tree": "9046421567cbdccaa64777c3d2ca2f687f37b027",
+  "harness": {
+    "docs/mp2/phase8-env.py": "56d7a5ed36b41aee6031a35e6709bfcf5c7a14c33c9f71575eabfef18b435cdb",
+    "docs/mp2/phase8-workload.py": "66108c3b9a4a873f860eb4d0cdacfab8e0db6e06858446c2c459d1046c460081",
+    "docs/mp2/phase8-run.py": "b02d5fb301521641803e0544f06977934869fcced70c273c125e49de08534957",
+    "docs/mp2/phase8-diagnose.py": "d82000a647d02de92ce9708f49734f3be4f059f61fa35b73639f78e3dd409df7",
+    "docs/mp2/phase8-fixture.py": "3662121f8f28fc867eb2e4f598fe6c0239a3201fca9847ad52392b42ca6d09fe",
+    "docs/mp2/phase8-cycles.py": "bbb729d2ca05bd1608aeab3cb4f7e406842178777604cfec34dc83caad0489c8",
+    "docs/mp2/phase7-cycles.py": "ba0b2a6bfb2b689e814b879bcff88683a6336df2225d5f87b2f32802726699c4",
+    "docs/mp2/phase7-probe.py": "f0fd583f1afc3935290ae713bfb9e0434e90ec713954adc44953147c91b81bf8",
+    "docs/mp2/phase8.Dockerfile": "2e83a2017d71874ad88000c6df91ecfa715903a293766f4a6b26309fe08d7dd0",
+    "docs/mp2/phase7.Dockerfile": "54895285db50fccd779cbfd0c1532fa6bee398dc06f21ed35310d0c24c359091",
+    ".cargo/config.toml": "f54e4d536550625b3df978a6b506c44a51fa84dac85a4e2d0293dad1727be8c8",
+    "core/Cargo.lock": "e84ddb05446086a0a079a9beb29ee268c245ec64404e7dae10146d2c8858808a",
+    "core/crates/layerfs-remote-store/tests/receive_observe.rs": "b785f2c5e6d3e669608a639d6ab50c99b5bcd6d00bea294e09ee601b8ce7af95"
+  },
+  "custody_harness_difference": "Receipt root only",
+  "observer": "0cdc4b5009e5984819a0d8463ad17fca20047d930a9bbc3ace425199b43773ba",
+  "images": {
+    "cx7-p8-tools": "sha256:f2ce2e789cf7f94081ae305ec5e9017672d026c45e719f085e6620b4c1743492",
+    "cx7-tools": "sha256:46516caab74bec6ed2df9f9e9f3ef28fdd069fd878e25b7e5183cbfe04ec94eb"
+  },
+  "shape_manifests": {
+    "docs/mp2/receipts/run04/phase4/full-manifest.json.gz": "df3379f51945f00bcccf5d83c6329f4b4e732cd431771ac87db0030923876b41"
+  },
+  "analysis_harness_sha256": "bf8539c8ddcbf22889fa51168e7c9b2851e6bc806e7b16c89fc949e4e4e50ee2"
+}
