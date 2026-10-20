@@ -139,6 +139,9 @@ fn dispatch(
         wire::OBJECTS | wire::LENGTHS | wire::LACKING => {
             let ids = wire::ids(input)?;
             finish(input)?;
+            if std::env::var_os("LAYERFS_REMOTE_TRACE_READS").is_some() && opcode != wire::LACKING {
+                eprintln!("STORE_READ opcode={opcode} ids={ids:?}");
+            }
             if opcode == wire::LACKING {
                 for missing in store.lacking(&ids).map_err(storage)? {
                     out.byte(u8::from(missing));
