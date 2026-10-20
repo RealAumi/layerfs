@@ -1,0 +1,7 @@
+[
+  {
+    "check": "cargo test -p layerfs-remote-store --test transport",
+    "ok": true,
+    "evidence": "test result: ok. 2 passed; 0 failed"
+  }
+]

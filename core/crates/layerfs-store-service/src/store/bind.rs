@@ -92,6 +92,7 @@ impl Store {
                     committing: std::sync::atomic::AtomicBool::new(false),
                     producer: Default::default(),
                     pending: std::sync::Mutex::new(None),
+                    ignore: Default::default(),
                 },
             })
         })();

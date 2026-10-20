@@ -1,0 +1,18 @@
+Finding (not caused by ignore=git): `layerfs-remote unmount` is intermittently Retained at stage Join.
+
+First e2e run, scenario 1, B2 (ignore off): `git init; git add -A; git commit` on the 3003-file seed tree,
+LayerFS Commit (ok), then unmount returned exit 1:
+  Retained(TeardownCustody { stage: Join, detached: true, work: Some(MountWork { loops_configured: 2,
+  loops_entered: 2, loops_exited: 0, loops_joined: 0, active: 0, retained: 0, completed: 43266, served: 43266,
+  refused: 6, ... }), detail: "connection drain stopped at Join: loops Some(SessionSnapshot { phase: Serving,
+  ... exited: 0 ...}) ..." })   wall_ns=5006336686
+Source: core/crates/layerfs-daemon/src/control/detach.rs (message "connection drain stopped at ...").
+
+Isolation (scratch repro, same container layout, one B2 mount per run):
+  write one file, Commit, unmount                     -> Unmounted (4/4)
+  git init / git init+add+commit of one file / git add -A (no commit) / cat all files -> Unmounted
+  git add -A; git commit; Commit; unmount             -> Retained in 3 of 5 runs with the feature build,
+                                                         Retained in the 1 run on a pristine `git archive HEAD` build
+                                                         (no ignore changes at all), Unmounted in the others.
+No open fd / cwd inside the mount was found before unmount (ls -l /proc/*/fd /proc/*/cwd | grep workspaces = 0).
+The second, final e2e run (docs/mp2/receipts/ignore01/console.log) did not hit it: scenario 1 unmount clean.

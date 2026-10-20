@@ -1,6 +1,6 @@
 //! Logical Workspace binding. SQL/physical state remains in the overlay crate.
 use crate::Route;
-use crate::{serials::Serials, BaseView, CanonicalClient, Refusal};
+use crate::{serials::Serials, BaseView, CanonicalClient, PathHints, Refusal};
 use layerfs_content::{
     filesystem::{FilesystemRootId, InodeScope},
     ContentError,
@@ -15,6 +15,7 @@ pub struct Workspace {
     route: Route,
     pub(crate) base: Arc<RwLock<BaseView>>,
     pub(crate) serials: Arc<Mutex<Serials>>,
+    pub(crate) hints: Arc<PathHints>,
     operation_client: Option<Arc<CanonicalClient>>,
 }
 #[derive(Debug)]
@@ -80,11 +81,16 @@ impl Workspace {
             route,
             base: Arc::new(RwLock::new(base)),
             serials: Arc::new(Mutex::new(Serials::default())),
+            hints: Arc::default(),
             operation_client: None,
         }
     }
     pub const fn route(&self) -> Route {
         self.route
+    }
+    /// Bindings the kernel looked up and Commits added, shared by every view.
+    pub fn hints(&self) -> &Arc<PathHints> {
+        &self.hints
     }
     /// One operation's provider over the original binding and serial owner.
     /// No new namespace, root acquisition or serial range is created. Every
@@ -99,6 +105,7 @@ impl Workspace {
             route: self.route,
             base: self.base.clone(),
             serials: self.serials.clone(),
+            hints: self.hints.clone(),
             operation_client: Some(client),
         })
     }

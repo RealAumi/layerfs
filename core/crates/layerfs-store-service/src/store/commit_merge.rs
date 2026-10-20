@@ -35,14 +35,38 @@ pub struct PendingMerge {
 }
 
 impl BoundWorkspace {
-    /// The local base root: the pending merge's, else the history binding's.
+    /// The local base root: one with ignored names kept local, else the
+    /// pending merge's, else the history binding's.
     pub(super) fn local_root(&self, snapshot: &BranchSnapshot) -> Result<ObjectId, CommitError> {
+        if let Some(base) = self.ignore_state()?.base {
+            return Ok(base.local);
+        }
+        self.published_root(snapshot)
+    }
+
+    /// The published root the local base's kept names equal: the pending
+    /// merge's, else the history binding's.
+    pub(super) fn published_root(
+        &self,
+        snapshot: &BranchSnapshot,
+    ) -> Result<ObjectId, CommitError> {
+        if let Some(base) = self.ignore_state()?.base {
+            return Ok(base.published);
+        }
         Ok(self
             .pending
             .lock()
             .map_err(|_| CommitError::Workspace(WorkspaceError::BindingPoisoned))?
             .as_ref()
             .map_or(snapshot.effective_root, |pending| pending.local_root))
+    }
+
+    pub(super) fn ignore_state(
+        &self,
+    ) -> Result<std::sync::MutexGuard<'_, super::ignore::IgnoreState>, CommitError> {
+        self.ignore
+            .lock()
+            .map_err(|_| CommitError::Workspace(WorkspaceError::BindingPoisoned))
     }
 
     /// Paths of an installed conflicted merge that is not yet committed.

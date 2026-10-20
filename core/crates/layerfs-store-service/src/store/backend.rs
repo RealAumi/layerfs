@@ -44,6 +44,8 @@ pub struct RemoteContext {
     pub(super) resident: Arc<CanonicalClient>,
     pub(super) recognizer: Recognizer,
     pub(super) low_water: AtomicU64,
+    /// Commits keep Git-ignored names local (see `super::ignore`).
+    pub(super) ignore: bool,
 }
 #[derive(Clone)]
 pub enum WorkspaceBackend {
@@ -56,7 +58,8 @@ impl From<Arc<Store>> for WorkspaceBackend {
     }
 }
 impl WorkspaceBackend {
-    pub fn remote(source: Arc<dyn RemoteStore>, cache_bytes: usize) -> Self {
+    /// `ignore`: Commits keep Git-ignored names local (see `super::ignore`).
+    pub fn remote(source: Arc<dyn RemoteStore>, cache_bytes: usize, ignore: bool) -> Self {
         let cache = Arc::new(CanonicalCache::new(cache_bytes));
         Self::Remote(Arc::new(RemoteContext {
             source,
@@ -64,6 +67,7 @@ impl WorkspaceBackend {
             cache,
             recognizer: Recognizer::new(),
             low_water: AtomicU64::new(0),
+            ignore,
         }))
     }
     pub fn local(&self) -> Option<Arc<Store>> {
@@ -138,6 +142,7 @@ impl WorkspaceBackend {
                     committing: Default::default(),
                     producer: Default::default(),
                     pending: Mutex::new(None),
+                    ignore: Default::default(),
                 },
             })
         })();

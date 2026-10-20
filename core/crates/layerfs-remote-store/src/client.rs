@@ -6,7 +6,8 @@ use crate::{
 };
 use layerfs_bridge::duplex::{self, Connection};
 use layerfs_content::{
-    AuthenticatedObjects, ContentError, ContentResult, FinalizedObject, ObjectId,
+    AuthenticatedObjects, ContentError, ContentResult, FinalizedObject, InodeScope, ObjectId,
+    ObjectRole,
 };
 use layerfs_history::{BranchId, BranchSnapshot};
 use layerfs_storage::StoragePolicy;
@@ -14,7 +15,9 @@ use layerfs_store_service::store::{
     backend::{BackendError, RemoteBuild, RemoteStore},
     publish::{CandidateInput, Publication, PublishedCandidate},
 };
+use layerfs_telemetry::timer::Timing;
 use std::{
+    collections::HashSet,
     net::TcpStream,
     path::Path,
     sync::{
@@ -203,7 +206,13 @@ impl RemoteStore for Client {
         let mut missing = Vec::new();
         let mut positions = Vec::new();
         for (i, id) in ids.iter().enumerate() {
-            let value = self.0.cache.length(*id)?;
+            let mut value = self.0.cache.length(*id)?;
+            if value.is_none() {
+                value = local_length(self.0.cache.local(*id)?)?;
+                if let Some(n) = value {
+                    self.0.cache.keep_length(*id, n)?;
+                }
+            }
             if value.is_none() {
                 missing.push(*id);
                 positions.push(i);
@@ -243,21 +252,52 @@ impl RemoteStore for Client {
     fn build(&self) -> Result<Box<dyn RemoteBuild>> {
         Ok(Box::new(Build {
             client: Self(self.0.clone()),
-            attempt: self.0.cache.attempt()?,
             failure: Mutex::new(None),
         }))
     }
 }
 struct Build {
     client: Client,
-    attempt: i64,
     failure: Mutex<Option<BackendError>>,
 }
 impl std::fmt::Debug for Build {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("RemoteBuild")
-            .field("attempt", &self.attempt)
-            .finish()
+        f.debug_struct("RemoteBuild").finish_non_exhaustive()
+    }
+}
+impl Build {
+    /// The local objects `root` reaches, children before parents. An object
+    /// the Store has, or that this cache never held, ends the walk there.
+    fn closure(&self, root: ObjectId, scope: InodeScope) -> Result<Vec<(ObjectId, usize)>> {
+        let policy = self.client.policy().construction();
+        let (mut order, mut seen, mut stack) = (Vec::new(), HashSet::new(), vec![(root, 0)]);
+        while let Some((id, size)) = stack.pop() {
+            if size > 0 {
+                order.push((id, size));
+                continue;
+            }
+            if !seen.insert(id) {
+                continue;
+            }
+            let Some((role, body)) = self.client.0.cache.local(id)? else {
+                continue;
+            };
+            let size = body.len();
+            let object = Timing::disabled("remote.closure", |timing| {
+                FinalizedObject::admit(id, role, body, policy, scope, timing.child("object"))
+            })
+            .0
+            .map_err(error)?;
+            stack.push((id, size));
+            stack.extend(
+                object
+                    .references()
+                    .iter()
+                    .filter(|child| !seen.contains(*child))
+                    .map(|child| (*child, 0)),
+            );
+        }
+        Ok(order)
     }
 }
 impl AuthenticatedObjects for Build {
@@ -281,28 +321,36 @@ impl RemoteBuild for Build {
             .clone()
     }
     fn accept(&self, object: FinalizedObject) -> Result<()> {
-        self.client
-            .0
-            .cache
-            .accept(self.attempt, object)
-            .inspect_err(|e| {
-                *self.failure.lock().unwrap_or_else(|e| e.into_inner()) = Some(e.clone());
-            })
+        self.client.0.cache.accept(object).inspect_err(|e| {
+            *self.failure.lock().unwrap_or_else(|e| e.into_inner()) = Some(e.clone());
+        })
     }
     fn publish(&self, candidate: &CandidateInput) -> Result<(PublishedCandidate, Publication)> {
         let mut channel = self.client.0.write.lock().map_err(error)?;
         let result = (|| {
-            let mut after = 0;
-            loop {
-                let rows = self.client.0.cache.page(self.attempt, after)?;
-                if rows.is_empty() {
-                    break;
+            let order = self.closure(
+                candidate.root.0,
+                InodeScope::from_object(candidate.binding.scope),
+            )?;
+            let mut windows: Vec<Vec<ObjectId>> = Vec::new();
+            let mut bytes = 0;
+            for (id, size) in order {
+                match windows.last_mut() {
+                    Some(window) if window_fits(window, bytes, size) => {
+                        window.push(id);
+                        bytes += size;
+                    }
+                    _ => {
+                        windows.push(vec![id]);
+                        bytes = size;
+                    }
                 }
-                after = rows.last().expect("nonempty").sequence;
+            }
+            for ids in windows {
                 let mut out = Encode::new();
-                wire::put_ids(&mut out, &rows.iter().map(|r| r.id).collect::<Vec<_>>());
+                wire::put_ids(&mut out, &ids);
                 let missing = self.client.exchange(&mut channel, wire::LACKING, out)?;
-                if missing.len() != rows.len() {
+                if missing.len() != ids.len() {
                     return Err(error("missing bitmap cardinality"));
                 }
                 let mut out = Encode::new();
@@ -310,20 +358,27 @@ impl RemoteBuild for Build {
                 out.raw(candidate.binding.effective_root.as_bytes());
                 out.number(missing.iter().filter(|&&m| m == 1).count() as u64);
                 let mut uploaded = (0, 0);
-                for (row, present) in rows.iter().zip(missing) {
+                for (id, present) in ids.iter().zip(&missing) {
                     match present {
                         0 => (),
                         1 => {
+                            let (role, body) = self
+                                .client
+                                .0
+                                .cache
+                                .local(*id)?
+                                .ok_or_else(|| error("local object vanished"))?;
                             uploaded.0 += 1;
-                            uploaded.1 += row.bytes.len() as u64;
-                            out.raw(row.id.as_bytes());
-                            out.byte(row.role.code());
-                            out.blob(&row.bytes);
+                            uploaded.1 += body.len() as u64;
+                            out.raw(id.as_bytes());
+                            out.byte(role.code());
+                            out.blob(&body);
                         }
                         _ => return Err(error("missing bitmap")),
                     }
                 }
                 self.client.exchange(&mut channel, wire::UPLOAD, out)?;
+                self.client.0.cache.stored(&ids)?;
                 self.client
                     .0
                     .uploaded_objects
@@ -360,5 +415,26 @@ impl RemoteBuild for Build {
             channel.connection = None;
         }
         result
+    }
+}
+/// One Upload carries at most 512 objects and, past its first, 4 MiB.
+fn window_fits(window: &[ObjectId], bytes: usize, size: usize) -> bool {
+    window.len() < 512 && bytes + size < 4 * 1024 * 1024
+}
+/// The length of a file whose root only this cache holds: objects that stay
+/// local never reach the Store, so it cannot answer for them.
+fn local_length(object: Option<(ObjectRole, Vec<u8>)>) -> Result<Option<u64>> {
+    match object {
+        Some((ObjectRole::WholeFile, body)) => body
+            .len()
+            .checked_sub(layerfs_content::policy::WHOLE_FILE_CANONICAL_OVERHEAD)
+            .map(|n| Some(n as u64))
+            .ok_or_else(|| error("whole-file length")),
+        Some((ObjectRole::FileState, body)) => Ok(Some(
+            layerfs_content::file::mapping::decode_file_state(&body)
+                .map_err(error)?
+                .logical_len,
+        )),
+        _ => Ok(None),
     }
 }

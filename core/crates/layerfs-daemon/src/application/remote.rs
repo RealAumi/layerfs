@@ -54,7 +54,12 @@ pub fn run(path: &Path) -> Result<()> {
         .map_err(error)?
         .ok_or_else(|| error("Linux FUSE required"))?;
     let service = Arc::new(Service::with_kernel(
-        WorkspaceBackend::remote(client.clone(), 64 * 1024 * 1024),
+        WorkspaceBackend::remote(
+            client.clone(),
+            64 * 1024 * 1024,
+            // `ignore=git`: Commits keep Git-ignored names in this sandbox.
+            config.get("ignore").is_ok_and(|value| value == "git"),
+        ),
         &owner,
         kernel,
     ));

@@ -111,6 +111,7 @@ pub struct KernelReadVisit {
     open: Option<u64>,
     facts: Arc<VisitFacts>,
     resident: BaseView,
+    hints: Arc<crate::PathHints>,
 }
 /// One kernel mutation as one owner job.
 #[derive(Clone)]
@@ -185,6 +186,7 @@ impl Workspace {
             open: None,
             facts,
             resident: base.with_client(resident),
+            hints: self.hints.clone(),
         })
     }
     /// OPEN of the regular file `serial`, which the kernel references, for
@@ -237,6 +239,7 @@ impl Workspace {
             open: Some(request),
             facts,
             resident: base.with_client(resident),
+            hints: self.hints.clone(),
         })
     }
     pub fn kernel_mutation_visit(
@@ -288,7 +291,7 @@ impl KernelReadVisit {
                 round += 1;
             }
         };
-        match (&self.operation, self.open) {
+        let outcome = match (&self.operation, self.open) {
             (KernelReadOperation::Open { writable, .. }, Some(request)) => {
                 db.open_kernel_visit(self.mount, request, self.serial, *writable, decide)
             }
@@ -296,7 +299,15 @@ impl KernelReadVisit {
                 db.opendir_kernel_visit(self.mount, request, self.serial, decide)
             }
             _ => db.observe_kernel_visit(self.mount, self.serial, self.handle, lookup, decide),
+        };
+        if let (
+            KernelReadOperation::Lookup { parent, name },
+            Some(KernelReadDecision::Value(inode)),
+        ) = (&self.operation, &outcome.decision)
+        {
+            self.hints.record(inode.serial, *parent, name);
         }
+        outcome
     }
 }
 impl KernelMutationVisit {

@@ -3,6 +3,7 @@ use super::{
     backend::RemoteContext, publish::CandidateInput, BoundWorkspace, CapturedConstruction,
     CommitError, CommitFailure, CommitOptions, CommitPhase, CommitSuccess, RemoteBuild,
 };
+use layerfs_content::filesystem::FilesystemRootId;
 use layerfs_content::{ContentError, ContentResult, FinalizedConsumer, FinalizedObject};
 use layerfs_history::CommitVia;
 use std::sync::Arc;
@@ -55,11 +56,28 @@ impl BoundWorkspace {
                     None,
                 )
                 .map_err(|cause| objects.failure().map(CommitError::Remote).unwrap_or(cause))?;
+            let remote_failure =
+                |cause: ContentError| objects.failure().map_or(cause.into(), CommitError::Remote);
+            // With ignored names kept local, `root` is the whole local tree and
+            // the candidate its projection onto the published side.
+            let candidate = if remote.ignore {
+                let published = FilesystemRootId(self.published_root(&binding)?);
+                self.ignore_state()?
+                    .project(
+                        objects.reader(),
+                        &mut Sink(objects.as_ref()),
+                        self.workspace.hints(),
+                        [published, FilesystemRootId(local), root],
+                    )
+                    .map_err(remote_failure)?
+            } else {
+                root
+            };
             retained.phase = CommitPhase::Publish;
             let (published, receipt) = objects
                 .publish(&CandidateInput {
                     binding: binding.clone(),
-                    root,
+                    root: candidate,
                     options: options.clone(),
                     via,
                     conflicts: self
@@ -72,9 +90,19 @@ impl BoundWorkspace {
             retained.published = receipt.published;
             retained.intent = receipt.intent;
             retained.phase = CommitPhase::Install;
+            let installed = if remote.ignore {
+                super::ignore::rebase(
+                    objects.reader(),
+                    &mut Sink(objects.as_ref()),
+                    [candidate, published.root, root],
+                )
+                .map_err(remote_failure)?
+            } else {
+                published.root
+            };
             let client = self.store.ports(binding.scope).client();
             let mut checked = published.binding.clone();
-            checked.effective_root = published.root.0;
+            checked.effective_root = installed.0;
             let base =
                 super::bind::checked_base(client.clone(), &checked).map_err(CommitError::from)?;
             if base.root().root_inode()
@@ -91,7 +119,7 @@ impl BoundWorkspace {
                 .workspace
                 .scoped(client)
                 .map_err(CommitError::Workspace)?
-                .prepare_base_install(capture, published.root)
+                .prepare_base_install(capture, installed)
                 .map_err(CommitError::Workspace)?;
             self.job(|owner, route| {
                 owner.install_prepared(route, self.workspace.clone(), prepared)
@@ -105,6 +133,11 @@ impl BoundWorkspace {
                 .pending
                 .lock()
                 .map_err(|_| CommitError::Context("pending merge poisoned"))? = published.pending;
+            self.ignore_state()?.base =
+                (installed != published.root).then_some(super::ignore::LocalBase {
+                    local: installed.0,
+                    published: published.root.0,
+                });
             outcome = Some((published.merge, published.replaced));
             Ok(())
         })();
