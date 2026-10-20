@@ -121,17 +121,21 @@ have no references. Reference-bearing local metadata is read and authenticated.
 Server-known subtrees stop the walk. Absent IDs are resolved in a single batched
 LACKING phase (4096-ID protocol windows); any server-missing ID rejects the record.
 Remote objects remain demand fetchable. Payload authenticity is checked on demand,
-not by reading all ignored bytes at restore. Old manifest-bearing records remain
-readable, but their manifest suffix is ignored in favor of the current graph.
+not by reading all ignored bytes at restore. Trailing bytes, including old manifest
+suffixes, make a record invalid; no old record shapes are supported.
 `operator.remote.stats.restore` reports the latest keyed creation decision or
 checkpoint-write failure:
 `restored`, `not-found`, `missing-local-objects`, `invalid-local-objects`,
 `invalid-record`, or `validation-unavailable`; before any keyed request it is
 `not-requested`. A failed record write reports `save-failed` and keeps the
 previous record while the installed Commit remains successful and usable.
-Missing/invalid records fall back to the current published head with empty ignore state: no
-rejected seeds survive. Errors reading the record itself still return their
-original database error.
+Only definite `invalid-record`, `missing-local-objects` or `invalid-local-objects`
+verdicts fall back to the current published head with empty ignore state; no
+rejected seeds survive. Transport, malformed LACKING replies and SQLite errors
+during validation refuse the bind (`validation-unavailable`) and leave the record
+untouched. The caller can retry creation after recovery; a quarantined transport
+requires a new client. Errors reading the record itself also refuse the bind with
+the original database error. No automatic retry or fallback sandbox is created.
 
 Only the last successfully saved installed checkpoint is restored. Later edits and the overlay are
 not recovered. Restart supplies fresh disposable overlay and mount paths while
@@ -217,3 +221,8 @@ OS caches, not general performance guarantees. All 20 kill/restart checks passed
 12 Commits were interrupted and eight completed before the kill. No cycle was
 rerun. Power loss, arbitrary bit-rot of unchecked payload leaves, and recovery of
 uncommitted edits remain outside this proof.
+
+[ignore10](receipts/ignore10/README.md) retains failing-first validation tests:
+one-shot LACKING and SQLite errors refuse bind, explicit retry restores an
+unchanged record, and trailing manifest bytes produce `invalid-record` fallback.
+All 59 targeted tests pass, including the 200 × 30 model run; no Docker was needed.

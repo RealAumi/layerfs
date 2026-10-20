@@ -40,30 +40,27 @@ impl Client {
             *status = "invalid-record";
             return Ok(None);
         };
-        if let Err(reason) = self.check_restore(&point) {
+        *status = "validation-unavailable";
+        if let Some(reason) = self.check_restore(&point)? {
             *status = reason;
             return Ok(None);
         }
         *status = "restored";
         Ok(Some(point))
     }
-    fn check_restore(&self, point: &RestorePoint) -> std::result::Result<(), &'static str> {
+    fn check_restore(&self, point: &RestorePoint) -> Result<Option<&'static str>> {
         let (mut seen, mut pending, mut absent) = (HashSet::new(), vec![point.local], Vec::new());
         while let Some(id) = pending.pop() {
             if !seen.insert(id) {
                 continue;
             }
-            match self
-                .0
-                .cache
-                .presence(id)
-                .map_err(|_| "invalid-local-objects")?
-            {
+            match self.0.cache.presence(id)? {
                 None => absent.push(id),
                 Some((true, _)) => (), // The Store owns this entire subtree.
                 Some((false, code)) => {
-                    let role = ObjectRole::from_code(code.ok_or("invalid-local-objects")?)
-                        .map_err(|_| "invalid-local-objects")?;
+                    let Some(role) = code.and_then(|code| ObjectRole::from_code(code).ok()) else {
+                        return Ok(Some("invalid-local-objects"));
+                    };
                     if matches!(
                         role,
                         ObjectRole::WholeFile
@@ -73,15 +70,10 @@ impl Client {
                     ) {
                         continue;
                     }
-                    let Some((role, body)) = self
-                        .0
-                        .cache
-                        .local(id)
-                        .map_err(|_| "invalid-local-objects")?
-                    else {
-                        return Err("invalid-local-objects");
+                    let Some(body) = self.0.cache.body(id)? else {
+                        return Ok(Some("invalid-local-objects"));
                     };
-                    let object = Timing::disabled("restore.references", |t| {
+                    let Ok(object) = Timing::disabled("restore.references", |t| {
                         FinalizedObject::admit(
                             id,
                             role,
@@ -92,7 +84,9 @@ impl Client {
                         )
                     })
                     .0
-                    .map_err(|_| "invalid-local-objects")?;
+                    else {
+                        return Ok(Some("invalid-local-objects"));
+                    };
                     pending.extend_from_slice(object.references());
                 }
             }
@@ -101,17 +95,15 @@ impl Client {
         for ids in absent.chunks(wire::IDS) {
             let mut out = Encode::new();
             wire::put_ids(&mut out, ids);
-            let missing = self
-                .call(false, wire::LACKING, out)
-                .map_err(|_| "validation-unavailable")?;
+            let missing = self.call(false, wire::LACKING, out)?;
             if missing.len() != ids.len() || missing.iter().any(|v| *v > 1) {
-                return Err("validation-unavailable");
+                return Err(error("invalid LACKING response"));
             }
             if missing.contains(&1) {
-                return Err("missing-local-objects");
+                return Ok(Some("missing-local-objects"));
             }
         }
-        Ok(())
+        Ok(None)
     }
     pub(crate) fn keep_restore(&self, key: &str, point: &RestorePoint) -> Result<()> {
         let mut out = Encode::new();
@@ -152,10 +144,7 @@ fn decode(bytes: &[u8]) -> Result<RestorePoint> {
             _ => return Err(error("restore seed")),
         });
     }
-    // Older records end in a manifest. Accept that suffix but validate the tree.
-    if input.0.len() % 32 != 0 {
-        return Err(error("restore trailing fields"));
-    }
+    input.finish()?;
     Ok(RestorePoint {
         binding,
         local,

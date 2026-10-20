@@ -1,0 +1,79 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.10s
+     Running tests/restore_cache.rs (core/target/debug/deps/restore_cache-fcc99b9679fe2199)
+
+running 12 tests
+test cache_uses_a_process_crash_safe_journal ... ok
+test saving_restore_does_not_read_the_unchanged_object_graph ... ok
+test restore_presence_does_not_materialize_file_payload_leaves ... ok
+test trailing_manifest_is_an_invalid_record ... ok
+test save_failure_preserves_previous_record_and_exposes_status ... ok
+test absent_local_references_are_resolved_in_one_batch ... ok
+test remote_objects_are_not_required_in_manifest_and_corruption_has_reason ... ok
+test sqlite_validation_refuses_bind_then_retry_restores_unchanged_record ... ok
+test transient_lacking_refuses_bind_then_retry_restores_unchanged_record ... ok
+test missing_local_leaf_rejects_record ... ok
+test missing_local_root_rejects_record ... ok
+test restart_atomic_last_writer_and_scoped_keys ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+     Running tests/transport.rs (core/target/debug/deps/transport-1f2b5f5d79bb1d92)
+
+running 5 tests
+test production_style_blocking_listener_returns_blocking_sockets ... ok
+test fragments_cross_noise_records_and_reject_a_bad_offset ... ok
+test wrong_canonical_identity_is_not_cached_or_replayed ... ok
+test upload_lost_ack_keeps_local_objects_and_quarantines_without_replay ... ok
+test upload_window_failure_keeps_local_objects_and_never_sends_unreachable_bytes ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s
+
+     Running tests/ignore.rs (core/target/debug/deps/ignore-1c5653cdc3a7ad94)
+
+running 42 tests
+test ignored_changes_stay_local ... ok
+test directories_moved_while_ignored_leave_their_old_name_when_kept ... ok
+test cleans_stay_local ... ok
+test moved_heads_rebase_the_local_base ... ok
+test review_ignored_hardlinks_without_complete_hints_do_not_leak ... ok
+test moves_out_of_ignored_directories_carry_local_content ... ok
+test newly_tracked_paths_are_published ... ok
+test review_ignored_rule_rewrite_without_hints_reconciles ... ok
+test review_move_twice_from_shared_ignored_parents ... ok
+test review_seed_1_tracking_a_locally_deleted_directory ... ok
+test review_seed_130_moved_nested_negation ... ok
+test review_server_delete_preserves_local_ignored_descendants ... ok
+test review_server_rule_flip_keeps_views_equal ... ok
+test review_seed_2_disjoint_server_changes ... ok
+test review_unignore_after_local_delete_removes_stale_published_name ... ok
+test review_unreadable_index_does_not_publish_ignored_bytes ... ok
+test round4::deleted_nested_rule_reconciles_a_retained_directory_absent_from_q ... ok
+test round4::hardlinks_beyond_hint_capacity_are_all_classified ... ok
+test round4::kept_write_below_pruned_directory_reaches_next_publication ... ok
+test round4::pending_flips_survive_projection_failure_and_unacknowledged_publish ... ok
+test round4::server_delete_prunes_two_levels_but_preserves_local_only_file ... ok
+test round4::server_move_carries_local_only_descendants_without_pruning ... ok
+test round4::server_nested_rules_exclude_and_index_flip_on_next_noop_commit ... ok
+test review_seed_31_moved_directory_ignored_values ... ok
+test round4::server_rebind_prunes_old_directory_with_local_only_names ... ok
+test round4::split_index_uses_patterns_and_reports_unreadable ... ok
+test round4::unreadable_index_withholds_tracked_ignored_edits_until_readable ... ok
+test tracked_files_in_ignored_directories ... ok
+test rule_changes_publish_what_they_unignore ... ok
+test trees_without_ignored_changes_publish_as_built ... ok
+test faults::published_install_read_failure_retains_custody_and_refuses_next_commit ... ok
+test faults::published_rebase_write_failure_retains_custody_and_refuses_next_commit ... ok
+test faults::restore::remount_restores_last_successful_commit ... ok
+test faults::definite_upload_refusal_preserves_the_next_explicit_commit ... ok
+test faults::restore::pending_server_rule_flip_survives_and_next_noop_publishes ... ok
+test faults::restore::restored_old_binding_merges_head_moved_while_down ... ok
+test faults::restore::failed_record_write_leaves_commit_successful_and_workspace_usable ... ok
+test faults::restore::restart_restores_last_successful_commit ... ok
+test faults::restore::absent_key_and_ignore_off_do_not_restore_or_save ... ok
+test faults::restore::same_key_last_commit_replaces_root_snapshot_and_seeds_together ... ok
+PLACEMENT_PROBE_READS=16 files=1000 probe_directories=16
+test round4::missing_hints_for_1000_rewrites_list_probe_directories_once ... ok
+test review_model_200_seeds_30_steps ... ok
+
+test result: ok. 42 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.99s
+

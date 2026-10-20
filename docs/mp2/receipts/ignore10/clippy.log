@@ -1,0 +1,47 @@
+    Checking layerfs-telemetry v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-telemetry)
+    Checking layerfs-sandbox v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-sandbox)
+    Checking layerfs-overlay v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-overlay)
+    Checking layerfs-content v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-content)
+    Checking layerfs-history v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-history)
+    Checking layerfs-storage v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-storage)
+    Checking layerfs-workspace v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-workspace)
+    Checking layerfs-bridge v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-bridge)
+    Checking layerfs-persistence v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-persistence)
+    Checking layerfs-project v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-project)
+    Checking layerfs-store-service v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-store-service)
+error: the `Err`-variant returned from this function is very large
+   --> crates/layerfs-store-service/src/store/backend.rs:115:10
+    |
+115 |     ) -> Result<BindSuccess, super::BindRefusal> {
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the `Err`-variant is at least 456 bytes
+    |
+    = help: try reducing the size of `store::types::BindRefusal`, for example by boxing large elements or replacing it with `Box<store::types::BindRefusal>`
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#result_large_err
+    = note: `-D clippy::result-large-err` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::result_large_err)]`
+
+error: the `Err`-variant returned from this function is very large
+   --> crates/layerfs-store-service/src/store/backend.rs:124:10
+    |
+124 |     ) -> Result<BindSuccess, super::BindRefusal> {
+    |          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ the `Err`-variant is at least 456 bytes
+    |
+    = help: try reducing the size of `store::types::BindRefusal`, for example by boxing large elements or replacing it with `Box<store::types::BindRefusal>`
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#result_large_err
+
+error: the `Err`-variant returned from this closure is very large
+   --> crates/layerfs-store-service/src/store_service.rs:148:67
+    |
+148 |           let bound = crate::telemetry::phase(timing, "store.bind", || {
+    |  ___________________________________________________________________^
+149 | |             self.store
+150 | |                 .bind_private(self.owner.clone(), BindRequest { workspace, branch })
+151 | |         });
+    | |_________^ the `Err`-variant is at least 456 bytes
+    |
+    = help: try reducing the size of `store::types::BindRefusal`, for example by boxing large elements or replacing it with `Box<store::types::BindRefusal>`
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.98.0/index.html#result_large_err
+
+error: could not compile `layerfs-store-service` (lib) due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `layerfs-store-service` (lib test) due to 3 previous errors

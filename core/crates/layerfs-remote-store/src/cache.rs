@@ -116,19 +116,24 @@ impl Cache {
         Ok(())
     }
     pub fn get(&self, id: ObjectId) -> Result<Option<Vec<u8>>> {
-        let db = self.0.lock().map_err(error)?;
-        let bytes: Option<Vec<u8>> = db
+        let bytes = self.body(id)?;
+        if bytes.as_ref().is_some_and(|b| ObjectId::for_bytes(b) != id) {
+            return Err(error("cache identity mismatch"));
+        }
+        Ok(bytes)
+    }
+    /// Unauthenticated bytes: restore must admit them before using references.
+    pub fn body(&self, id: ObjectId) -> Result<Option<Vec<u8>>> {
+        self.0
+            .lock()
+            .map_err(error)?
             .query_row(
                 "SELECT body FROM objects WHERE id=?",
                 [id.as_bytes().as_slice()],
                 |r| r.get(0),
             )
             .optional()
-            .map_err(error)?;
-        if bytes.as_ref().is_some_and(|b| ObjectId::for_bytes(b) != id) {
-            return Err(error("cache identity mismatch"));
-        }
-        Ok(bytes)
+            .map_err(error)
     }
     /// An object the Store served: known there from now on.
     pub fn put(&self, id: ObjectId, bytes: &[u8]) -> Result<()> {
