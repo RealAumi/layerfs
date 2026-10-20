@@ -1,0 +1,25 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.14s
+     Running tests/ignore.rs (core/target/debug/deps/ignore-1c5653cdc3a7ad94)
+
+running 2 tests
+
+thread 'faults::restore::restart_restores_last_successful_commit' (8109114) panicked at crates/layerfs-store-service/tests/ignore/restore.rs:35:12:
+called `Result::unwrap()` on an `Err` value: BindRefusal { phase: Open, request: BindRequest { branch: BranchId(1101010101010101010101010101010101), workspace: WorkspaceId(0404040404040404040404040404040404040404040404040404040404040404) }, snapshot: Some(BranchSnapshot { branch: BranchRecord { id: BranchId(1101010101010101010101010101010101), stack: LayerStackId(3102020202020202020202020202020202), name: HistoryName("main"), base_layer: LayerId(323232323232323232323232323232323232323232323232323232323232323232), head_commit: None, forked_from: None }, head_root: Some(ObjectId("738150802cb1d61b1c0d1791de763ab3ac861b5c7e3f79e91d26d641f4c015d0")), base_root: ObjectId("6c4f8523b4b139ea6aef9519e5a5cbf1d1154038f07814552d8d16069cd9dc2b"), effective_root: ObjectId("738150802cb1d61b1c0d1791de763ab3ac861b5c7e3f79e91d26d641f4c015d0"), scope: ObjectId("01d6cdc298265ffde4ced88b42c9a895ed5251f316ec12ea684dc174a76f1913"), profile: ObjectId("d9bc397d578dab71b49f0816eb2d4f3bc5699cfd755addef915a303b35748ee0") }), error: Owner(Unattempted { cause: Retained(Overlay(Io(Os { code: 17, kind: AlreadyExists, message: "File exists" }))), input: original input retained }) }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test faults::restore::restart_restores_last_successful_commit ... FAILED
+
+thread 'faults::restore::remount_restores_last_successful_commit' (8109113) panicked at crates/layerfs-store-service/tests/ignore/restore.rs:60:5:
+assertion `left == right` failed: restore last installed local root
+  left: FilesystemRootId(ObjectId("738150802cb1d61b1c0d1791de763ab3ac861b5c7e3f79e91d26d641f4c015d0"))
+ right: FilesystemRootId(ObjectId("d9914a2c0005047cf12a7c3b3589d283945b65d71127c2fbe594ee34a51caa78"))
+test faults::restore::remount_restores_last_successful_commit ... FAILED
+
+failures:
+
+failures:
+    faults::restore::remount_restores_last_successful_commit
+    faults::restore::restart_restores_last_successful_commit
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 35 filtered out; finished in 0.03s
+
+error: test failed, to rerun pass `-p layerfs-store-service --test ignore`

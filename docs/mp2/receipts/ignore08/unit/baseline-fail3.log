@@ -1,0 +1,27 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.04s
+     Running tests/ignore.rs (core/target/debug/deps/ignore-1c5653cdc3a7ad94)
+
+running 2 tests
+
+thread 'faults::restore::remount_restores_last_successful_commit' (8110329) panicked at crates/layerfs-store-service/tests/ignore/restore.rs:64:5:
+assertion `left == right` failed: restore last installed local root
+  left: FilesystemRootId(ObjectId("738150802cb1d61b1c0d1791de763ab3ac861b5c7e3f79e91d26d641f4c015d0"))
+ right: FilesystemRootId(ObjectId("d9914a2c0005047cf12a7c3b3589d283945b65d71127c2fbe594ee34a51caa78"))
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test faults::restore::remount_restores_last_successful_commit ... FAILED
+
+thread 'faults::restore::restart_restores_last_successful_commit' (8110330) panicked at crates/layerfs-store-service/tests/ignore/restore.rs:64:5:
+assertion `left == right` failed: restore last installed local root
+  left: FilesystemRootId(ObjectId("738150802cb1d61b1c0d1791de763ab3ac861b5c7e3f79e91d26d641f4c015d0"))
+ right: FilesystemRootId(ObjectId("d9914a2c0005047cf12a7c3b3589d283945b65d71127c2fbe594ee34a51caa78"))
+test faults::restore::restart_restores_last_successful_commit ... FAILED
+
+failures:
+
+failures:
+    faults::restore::remount_restores_last_successful_commit
+    faults::restore::restart_restores_last_successful_commit
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 35 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p layerfs-store-service --test ignore`

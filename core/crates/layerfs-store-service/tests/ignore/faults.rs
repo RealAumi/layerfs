@@ -322,3 +322,5 @@ fn published_install_read_failure_retains_custody_and_refuses_next_commit() {
 fn published_rebase_write_failure_retains_custody_and_refuses_next_commit() {
     scenario(Fault::RebaseWrite);
 }
+#[path = "restore.rs"]
+mod restore;

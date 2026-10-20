@@ -1,0 +1,8 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.10s
+     Running tests/ignore.rs (core/target/debug/deps/ignore-1c5653cdc3a7ad94)
+
+running 2 tests
+error: test failed, to rerun pass `-p layerfs-store-service --test ignore`
+
+Caused by:
+  process didn't exit successfully: `~/Developer/layerfs-ignore/core/target/debug/deps/ignore-1c5653cdc3a7ad94 'faults::restore' --nocapture` (signal: 15, SIGTERM: termination signal)
