@@ -217,3 +217,200 @@ routing, eviction/restart persistence, server-side filtering, standalone UI and
 fs-bench-pro. Future proofs select Disposable, one construction worker and
 bounded explicit timeouts; Durable remains disabled. All runtime and performance
 acceptance above is **NOT_RUN** in this design phase.
+
+## Option B: local subtrees in the daemon
+
+Assessment at `07675573bd1dbc85bba1d32469d69ac9b10760a2`, 2026-10-20;
+source inspection only. **B removes Overlay payload retention, but is neither a
+drop-in port wrapper nor equivalent to capture-time ignore rules.** It introduces
+a second filesystem backend and a union namespace. Below, **F** means
+`core/crates/layerfs-fuse/`; other abbreviations retain their definitions above.
+
+### Dispatch boundary
+
+`F/src/request/callbacks.rs::KernelFilesystem` implements `fuser::Filesystem`.
+`request/state.rs::submit`, `request/reply.rs::ReadReply`,
+`request/mutate.rs::MutationReply` and `request/directory.rs` drive the semantic
+operations. `D/src/service/filesystem_port.rs::Mounted` supplies a per-request
+`FilesystemPort(StoreOperation, Fence)` through `MountServices::request`.
+
+The existing `RequestServices` trait (`F/src/ports.rs`) returns concrete
+`KernelReadOutcome`, `KernelWindow`, `KernelDirectoryWindow`,
+`KernelMutationOutcome` and `KernelCookieOffer`. Mutations also carry Overlay
+`OpenFile` and `Publication` custody. `operations/mutation.rs::Custody::decide`
+reserves a Workspace serial **before** `mutate_visit`. A wrapper here would
+either fabricate Overlay ownership or change these types throughout the stack.
+
+Use a proposed optional **`LocalServices` port above that boundary**, supplied by
+`Mounted`, with backend-neutral requests, fd/handle ownership, attributes, errno
+and actual byte-count results. Fuse owns callbacks/replies; daemon owns routing,
+rules, local catalog and native I/O. Route before serial reservation, recognition,
+Workspace visits and `.request()`'s `StoreOperation` creation. Preserve the
+existing default path and `MountRequests` admission/drain; do not add another
+receiver or hold a Workspace SQL lock during native I/O. Routing policy can be
+centralized; the callback/identity/reply hooks cannot all sit in one current port.
+
+| Operation | Hook and required behavior |
+| --- | --- |
+| lookup/getattr/readlink | `request/state.rs::submit`, `request/reply.rs::ReadReply`; consult local roots before versioned lookup, including a versioned parent. Return local attributes/lookup ownership and opaque symlink bytes. |
+| open/read/release | Same read path plus `callbacks.rs::release`; local fd handles bypass `KernelWindow` and `close_file`'s Overlay token. Native short reads are valid. |
+| setattr/write | `request/mutate.rs` before `KernelMutation::perform`; local fchmod/truncate/timestamps/pwrite, explicit errno and partial-effect handling. Do not use `coherence/pages.rs::written` to claim the requested count after a short host write. |
+| create/mkdir/mknod/symlink/link/unlink/rmdir/rename | `callbacks.rs` and `request/mutate.rs::named`; classify both source and destination, local-root membership and versioned-parent constraints before the publishing path. Return EXDEV through the new reply port; current `Refusal` has no EXDEV. Preserve regular-file-only mknod support. |
+| opendir/readdir/releasedir | `request/directory.rs`; new daemon union stream/handle. Existing `operations/directory.rs::DirectoryStream` publishes Overlay-owned cookies and cannot simply receive appended native entries. |
+| readdirplus | Currently refused in `callbacks.rs`, not negotiated by `mount/profile.rs`. Leave disabled; enabling it adds attributes and lookup ownership for every accepted entry. |
+| flush/fsync/fsyncdir | Currently inline ENOSYS. Smallest B retains uniform no-durability semantics under the no-sync-on-disposable-backing policy. Native fsync is a policy departure: route these callbacks and use explicit success on the versioned side, since ENOSYS is connection-wide/sticky and can suppress later local calls. It still would not persist the routing table or promise restart recovery. |
+| xattrs | Currently uniformly ENOSYS. Smallest B keeps them unsupported on both sides. Native xattrs require extra safe syscall support, policy and callback routing; versioned replies must then be EOPNOTSUPP rather than connection-wide ENOSYS. Do not claim full native syscall transparency. |
+| statfs | `callbacks.rs` → `request/inline.rs::statfs` currently returns fixed declared capacity. Route local nodes to backing-filesystem capacity and declared quota; root/versioned statistics must label their different meaning. |
+| forget/batch-forget | `request/inline.rs::forget_unit`; split local and Workspace ownership before `RequestServices::forget`. The library delivers batch units as individual callbacks. |
+
+### Identity, directories and installation
+
+Today `F/src/attributes.rs::Identity` maps the root serial to kernel inode 1 and
+other serials to `serial + 1`. Content serials stop at `i64::MAX`, so the highest
+versioned kernel number is **2^63**, not 2^63−1. Reserve local kernel numbers
+**2^63+1 through u64::MAX**, decode them as `Local` rather than a Workspace
+serial, and never allocate them from the Store. Existing entry/create replies
+use `Generation(KernelMount::owner_id())`; a monotonic, never-reused local number
+within that mount can use the same generation. Refuse exhaustion, never wrap.
+
+Map backing `(device, inode)` to a stable local identity; aliases within one local
+subtree share it. Pin host identity with fd ownership while lookup/open/request
+references exist, so host inode reuse cannot redirect an old kernel reference.
+Keep local lookup counts and handles separately; LOOKUP/CREATE/LINK acquire,
+FORGET decrements, RELEASE closes, and unlinked-but-open files remain usable.
+Plain READDIR acquires no lookup reference. A lost reply does not undo a native
+mutation or guessed lookup count. Ordinary host errors such as ENOENT/ENOSPC must
+be completed errno replies, not `ServiceError`s that terminally retain the mount.
+Use bounded/indexed backing for the subtree/identity/cookie catalog if it grows
+beyond open/kernel-referenced state; an unbounded resident path map is not free.
+Any backing catalog is disposable and never reopened as recovery state.
+
+For versioned parents, maintain local child names, virtual parent timestamps and
+directory link-count adjustments outside Overlay. Check merged emptiness for
+rmdir and rename-over-directory: Overlay alone would incorrectly permit removal
+of a parent whose only children are local. Serialize first-local creation and
+table publication with competing namespace operations. Read current rules/base
+through Workspace ports and retain a base source across the decisive operation
+to fence install; ancestor/rule mutations also need routing coordination. Base
+and rule misses can still contact the remote Store. No syscall retry on unknown
+effects, and no whole-Commit lock.
+Prepare a new backing node privately before publishing its table binding; host
+creation plus catalog insertion are not one transaction. Retain exact partial
+failure custody and cleanup debt instead of exposing a half-created route.
+
+A union directory needs its **own cookie namespace**: positions 1/2 for `.`/`..`,
+then published positions identifying backend and continuation, not raw native
+`d_off` mixed with Overlay offsets. Use a bounded two-phase stream (versioned
+entries with shadowed names removed, then local names); sorting across both
+backends is unnecessary. Record only the prefix accepted by the reply buffer,
+retain cookies until release/defined rewind, and handle local-table mutations
+without interpreting an old cookie as another name. Local-only directories use
+fd-based native enumeration behind the same cookie adapter. Wrapped versioned
+directory handles retain their existing lower owner. Test seek/rewind and tiny
+reply buffers through concurrent namespace changes and Commit.
+
+`S/src/store/commit_merge.rs::BoundWorkspace::stale_after_install` compares
+**canonical roots**, not the union view; `D/src/control/invalidate.rs` forwards
+its events through `F/src/session/invalidate.rs::Invalidator`. Keep this for
+versioned nodes, add local-name/parent invalidation and collision reconciliation;
+never invalidate a local file's data merely because its hidden base counterpart
+changed. Local bindings keep their kernel identities, including open handles.
+Parent deletion/replacement is harder than a same-name file collision: preserving
+`module/target` may require a local ancestor container at `module`, reparenting
+the virtual subtree and invalidating old parent/name caches. Retain detached old
+owners until release. A stale path→directory map alone cannot do this.
+
+Consequently the native **publication algorithm and UpToDate predicate need no
+local-dirt logic**, but installation needs a short, provider-independent routing
+coordination hook in the Store-service driver around the known install, plus
+daemon reconciliation before exposing the new union view. Reconcile the exact
+installed root, including conflicts and post-capture creates. This is not solved
+by running a callback only after the Commit reply. Preserve known-publication
+failure custody if reconciliation fails; do not replay Commit.
+
+### Behavioral rules and remaining differences
+
+| Case | Required rule / qualification |
+| --- | --- |
+| `getcwd` | Local-root `..` is the **virtual versioned parent**, never the private backing directory. Parent readdir must return the same local inode; track virtual ancestry through renames/reconciliation. Deleted cwd may return ENOENT normally. Test inside descendants and across parent replacement. |
+| `rm -rf` / root unlink | Recursively serve local children; only successful rmdir of an empty root, or unlink of a file root, removes its table binding. Serialize with recreation, preserve held fds/lookups. A failed native removal keeps the binding. Under collision, removal reveals the base; a continuing recursive command can then act on that revealed versioned data. Report this behavior, not isolation from `rm`. |
+| `mvn clean` then rebuild | Removing `target` removes the route; the next mkdir re-evaluates current rules and creates a **fresh local identity** if eligible. Existing handles still name the old object. |
+| Cross-boundary rename/link | EXDEV before any effect, including distinct local subtrees treated as separate domains. `mv` may copy/delete non-atomically; `ln` and some build tools simply fail. For the smaller prototype, also refuse rename of a versioned ancestor containing local roots with EXDEV; otherwise it needs a coupled Overlay/table rename. Never silently leave stale prefixes. |
+| Symlink from versioned space | Keep the symlink versioned; kernel path resolution reaches local lookup. For local links, return text via readlink and let the kernel resolve it. Native leaf opens must not follow links into the daemon host; use retained directory fds and no-follow component operations, never concatenate untrusted absolute paths. |
+| mmap / handles across Commit | Keep backing fds and local inode IDs; use the existing cached-I/O profile with writeback off. MAP_SHARED writes arrive as FUSE writes; Commit is not an msync barrier. No direct backing access by sandbox commands. Qualify truncate, unlink, dirty mappings, ENOSPC and teardown; ordinary local payload install is unnecessary. |
+| Permissions / `command_uid` | Mount already uses `allow_other,default_permissions`; `Identity` projects command UID/GID. Keep that model, supported modes and umask semantics; private backing parents remain daemon-only. Set intended backing mode/owner explicitly because daemon umask is 077. Do not switch process-wide credentials or expose root-only xattr/device/chown powers through forwarding. |
+| Quota / ENOSPC | Existing Overlay accounting covers none of this disk. Expose backing free space and an explicit local budget (or explicitly no per-Workspace quota); include unlinked-open allocation. Prechecking free bytes cannot guarantee a write. Native writes may partially succeed before ENOSPC: preserve/report the actual effect, do not claim Overlay atomicity or replay a tail. Cached FUSE partial-write/error behavior needs mounted proof. |
+| Unmount / discard | Opt-in accepts loss of local-only data on ordinary successful unmount; it must not permanently require `discard`. Preserve the versioned-dirt refusal. After detach/drain, revoke local owners, close fds and delete native trees/catalog with bounded traversal; report retained cleanup failure. Force follows the same ownership fence. A crash can leave private residue; never restore or claim it was deleted. |
+| Rule changes | B classifies at **creation**, whereas A classifies at **capture**. Re-reading rules for later creates cannot demote earlier uncommitted Overlay paths or promote existing native subtrees. Exact A semantics require migration, races/handle preservation and Commit integration, defeating the proposed no-change boundary. Smallest B must instead freeze a subtree's local classification until deletion/explicit copy-out; this is a policy change, not equivalent Git behavior. |
+
+Likewise, a `.gitignore` added after unignored files were created cannot make B
+skip them at the next Commit without migration. Negation cannot split an already
+routed subtree after rule changes. Already committed base names still win at
+creation; existing uncommitted versioned names must remain in that backend until
+explicitly removed. Shadow collisions remain local even when rules change.
+
+For the **creation-time, sticky-subtree variant**, no changes to Overlay schema,
+capture, generation floor, `born`, payload composition or `CapturedNamespace`
+are necessary. No exclusively local objects enter `Lacking`/`Upload`/
+`CommitCandidate`; server-side ignore support is unnecessary. It still needs the
+daemon routing/installation work above, rule evaluator, opt-in control, lifecycle
+and diagnostics. The existing `operator.workspace.changes` walks Workspace's
+view and would show **none** of these paths: merge local catalog/native traversal
+into its reporting with `localOnly`/`shadowsBase`, separately paginated/countable.
+`workspace.status`'s raw dirty counters can remain versioned-only; document that
+zero does not mean no disposable local data. Add local usage/counts to operator
+status and report loss separately from committable dirt. JS forwarding can stay
+unchanged; reuse the fork-only mount variant proposed in §3.
+
+### Scope, churn and recommendation
+
+Same exact-path method, now pinned to this assessment's parent:
+`git log --since=2026-10-06 --format=%H 0767557 -- <path>`; `!` = ≥8 commits.
+This is an edit inventory, not a source layout. Estimates cover the sticky
+variant, existing supported node types, no native fsync/readdirplus/xattrs, and no
+transparent migrations. They are planning ranges, not measured source deltas.
+
+| Work; estimated production lines | Existing edit points and commits |
+| --- | --- |
+| Local port/identity/replies; 400–700 | F/src/ports.rs (18!); F/src/attributes.rs (4); F/src/request/callbacks.rs (11!); F/src/request/state.rs (8!); F/src/request/reply.rs (9!); F/src/request/mutate.rs (5); F/src/request/directory.rs (10!); F/src/request/inline.rs (5); F/src/session/invalidate.rs (1); F/src/lib.rs (7) |
+| Native backend, rules, union catalog/cookies; 1,200–1,900 | D/src/lib.rs (22!); D/src/service/filesystem_port.rs (30!); D/src/application/config.rs (9!); D/src/application/filesystem.rs (4); D/Cargo.toml (11!) |
+| Lifecycle/install/diagnostics/opt-in; 700–1,200 | D/src/control/registry.rs (8!); D/src/control/operations.rs (27!); D/src/control/attach.rs (8!); D/src/control/invalidate.rs (1); D/src/control/unmount.rs (14!); D/src/control/force.rs (6); D/src/control/dirty.rs (1); D/src/operator/workspace.rs (4); S/src/store/commit.rs (5); S/src/store/commit_types.rs (4); B/src/control_types.rs (15!); B/src/control_request.rs (10!) |
+| Lock/docs; excluded from production estimate | core/Cargo.lock (20!); core/docs/architecture/75-native-request-service.md (21!); core/docs/architecture/77-native-mutation-coherence.md (19!) |
+
+New helpers (zero history) would be `F/src/local.rs` for the generic port and
+`D/src/local_subtrees/mod.rs`, `router.rs`, `catalog.rs`, `io.rs`, `directory.rs`,
+`rules.rs`, `lifecycle.rs` beneath that directory, split within the 999-line rule.
+The estimates include these files. Use existing std/nix safe fd APIs; both crates
+forbid unsafe code. The matcher remains a new dependency; safe syscall coverage
+and locked toolchain compatibility need implementation-stage checking. A backed
+catalog can use the repository's SQLite dependency, without changing Overlay or
+adding a second authoritative Store. Add external tests under F and D `tests/`;
+new test filenames have no history. No frozen harness changes.
+
+| Dimension | A: Overlay retention | B: native sticky subtrees |
+| --- | --- | --- |
+| Production / test estimate | 1,650–2,650 / 500–800 | **2,300–3,800 / 900–1,400** |
+| Main change | Projection plus local ownership in Overlay | Native backend plus union namespace and kernel ownership |
+| Dynamic rules | Reclassify at capture; promote retained content | New creates only; existing routing sticks; exact parity unestimated |
+| Rename/hard links | Shared inode semantics; projected aliases | EXDEV at boundaries; fallback is tool-dependent |
+| Commit/upload | Filter + projection dirt + install retention | No local objects/dirt; still install coordination/reconciliation |
+| Cost moved | Excluded payload not constructed; overlay writes remain | Native syscall/copy/page-cache costs; union routing and host disk usage |
+| Rebase risk | High: schema/query/lifetime hot spots | Also high: ports, callbacks, daemon mount/unmount; smaller Overlay overlap, new conflict with remote Commit seam |
+
+Proofs must include the earlier build/Commit/server-absence/second-UpToDate case;
+tiny readdir buffers and seek/rewind; lookup/forget balance; mixed backend
+rename/link refusal; local-parent emptiness and `getcwd`; clean/recreate with old
+fds; symlink escape prevention; modes; short writes/ENOSPC; mmap/truncate across
+Commit; merged parent removal/type collision; concurrent create/install and rule
+edits; ordinary/forced unmount and cleanup failure. Count native bytes/catalog
+growth as well as time; the existing 1–11% Overlay build overhead does not predict
+native-forwarding performance. All remain **NOT_RUN**; no builds were performed.
+
+**Recommendation: neither yet under the unchanged requirements.** A is already
+rejected on cost; B avoids its hottest Overlay changes but replaces them with a
+second filesystem backend, union-cookie/identity ownership and install races,
+with no demonstrated smaller implementation or faster build path. More
+decisively, creation-time routing cannot preserve the accepted capture-time rule
+semantics without migration. If that policy is deliberately narrowed to sticky,
+newly created ignored subtrees and EXDEV boundaries, B becomes a viable separate
+prototype; the source audit does not justify calling it the cheap equivalent.
