@@ -1,0 +1,12 @@
+First and only e2e invocation:
+IGN_RECEIPTS=ignore08 timeout 120s python3 -B docs/mp2/run-ignore-e2e.py e2e > docs/mp2/receipts/ignore08/e2e-invocation.log 2>&1
+status=$?
+printf '%s\n' "$status" > docs/mp2/receipts/ignore08/e2e-exit.txt
+exit "$status"
+
+After Python finished its results and cleanup, zsh reported:
+zsh:2: read-only variable: status
+
+Outer shell exit was 1; no e2e-exit.txt was written. No test was rerun.
+results.json is complete: 11 PASS scenarios, 185 successful checks.
+The harness historically reports assertion failures in results.json rather than its exit status.

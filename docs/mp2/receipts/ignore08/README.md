@@ -48,17 +48,44 @@ wall limits. No test ran Durable. Exact outputs are under `unit/`.
 
 ## Docker
 
-Build and first/only full e2e pending at this commit. This section will record
-that run's actual result without reruns or replacing failed receipts. Builds use
-OrbStack, Rust 1.85.1, `CARGO_BUILD_JOBS=2`, and `cxi-build-net`/`cxi-target`.
-The run uses only `cxi-` resources and one construction worker. Restart selects
-fresh overlay/mount paths while retaining its cache. The ten existing scenarios
-run once, followed by keyed remount/restart and explicit missing-leaf/root
-creation fallback checks. No real environment is involved.
+The first and only full e2e on **d2fafd9eb** passed **11/11 scenarios and
+185/185 checks**. `results.json`, `e2e-invocation.log`, `e2e-receipts.jsonl` and
+the daemon/proxy logs retain the full run. No scenario was rerun. The ten existing
+scenarios passed, followed by 35 checks in the new restart/fallback scenario.
+
+| Case | ignore07 baseline | ignore08 |
+| --- | --- | --- |
+| Remount | tracked exact; ignored files missing | all four files exact |
+| SIGKILL/restart, same cache, fresh process paths | tracked exact; ignored files missing | all four files exact |
+| Missing local leaf | not exercised | fallback to head, reason exposed, next Commit has no private files |
+| Missing local L | not exercised | same safe fallback |
+
+The new paths are `src/restart.txt`, `.gitignore`,
+`node_modules/restart/index.js`, and `target/restart.bin`; exact bytes and
+presence are recorded in `facts.restart_inventory`. The missing-object checks
+delete SQLite rows explicitly and exercise actual daemon creation and Commit,
+not just cache-unit validation. The kept tracked edit remains present throughout.
+
+Builds used local OrbStack, Rust 1.85.1, `CARGO_BUILD_JOBS=2`, and a fresh
+`cxi-target` volume. `build/` and `tested-identities.txt` pin source/build output
+and binary hashes. No product dependency was changed. The run used one
+construction worker. Earlier overlay/mount startup refusals remain unchanged
+in ignore07; fresh per-incarnation paths are harness setup only.
+
+The invocation had a 120-second wall limit and completed its checks and cleanup.
+The subsequent exit-file shell wrapper failed because zsh's `status` variable is
+read-only; its exact error is retained in `e2e-wrapper.txt`. No rerun or replacement
+receipt followed. The harness's completed JSON checks, not the outer shell exit,
+establish the result. This is correctness evidence, not a performance comparison.
+
+All `cxi-` containers and networks were removed, as were their data volumes.
+Only **cxi-target** remains for Cargo reuse; see `cleanup.json`. No `ign-*`,
+`cx7-*`, user container, or real environment was modified.
 
 ## Production LOC
 
 Implementation: **108,828 → 109,088 (delta +260)**, within the raised budget.
+Normalized production diff: 284 lines added, 24 removed (308 changed).
 Core 99,919 → 100,179; SDK 2,861 and dsh 6,048 unchanged. Reference absent
 (retired R9c; last counted 65,417 at tree 498dd1917812). Counter:
 `tools/production_loc.py` pinned at 4c394e3fb, `--root <export> --json`, on
@@ -67,3 +94,11 @@ and `dsh/packages`; tests, docs, harnesses and inline test items excluded.
 
 Raw test output retains Cargo's trailing blank lines; `git diff --check` flags
 four new receipt endings. Maintained Rust/Python/Markdown changes are clean.
+
+
+Local commits: `4aa44bc` failing tests (+0); `d2fafd9eb` implementation (+260).
+The final receipt/documentation commit is 109,088 → 109,088 (+0), counted with
+the same method against its first parent. Product snapshots are unchanged by it.
+Remaining limits: caller-managed key sharing, uncommitted edits discarded,
+no eviction/GC, no post-publication recovery and no power-loss qualification.
+Strict all-target lint/boundary blockers above remain; scoped validation passed.

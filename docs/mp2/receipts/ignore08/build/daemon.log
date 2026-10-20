@@ -1,0 +1,67 @@
+ Downloading crates ...
+  Downloaded equivalent v1.0.2
+  Downloaded num_enum_derive v0.7.6
+  Downloaded memchr v2.8.3
+  Downloaded num_enum v0.7.6
+  Downloaded page_size v0.6.0
+  Downloaded lock_api v0.4.14
+  Downloaded scopeguard v1.2.0
+  Downloaded log v0.4.34
+  Downloaded ref-cast v1.0.27
+  Downloaded proc-macro-crate v3.5.0
+  Downloaded toml_datetime v1.1.1+spec-1.1.0
+  Downloaded rustversion v1.0.23
+  Downloaded ref-cast-impl v1.0.27
+  Downloaded proc-macro2 v1.0.107
+  Downloaded parking_lot_core v0.9.12
+  Downloaded toml_parser v1.1.3+spec-1.1.0
+  Downloaded serde_core v1.0.229
+  Downloaded unicode-ident v1.0.24
+  Downloaded indexmap v2.14.2
+  Downloaded toml_edit v0.25.15+spec-1.1.0
+  Downloaded quote v1.0.47
+  Downloaded parking_lot v0.12.5
+  Downloaded zerocopy-derive v0.8.57
+  Downloaded winnow v1.0.4
+  Downloaded zerocopy v0.8.57
+  Downloaded syn v3.0.5
+  Downloaded syn v2.0.119
+   Compiling proc-macro2 v1.0.107
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.47
+   Compiling autocfg v1.5.1
+   Compiling memoffset v0.9.1
+   Compiling nix v0.31.3
+   Compiling winnow v1.0.4
+   Compiling equivalent v1.0.2
+   Compiling hashbrown v0.17.1
+   Compiling indexmap v2.14.2
+   Compiling toml_parser v1.1.3+spec-1.1.0
+   Compiling syn v2.0.119
+   Compiling toml_datetime v1.1.1+spec-1.1.0
+   Compiling toml_edit v0.25.15+spec-1.1.0
+   Compiling rustversion v1.0.23
+   Compiling parking_lot_core v0.9.12
+   Compiling proc-macro-crate v3.5.0
+   Compiling layerfs-overlay v0.1.7 (/work/core/crates/layerfs-overlay)
+   Compiling syn v3.0.5
+   Compiling zerocopy v0.8.57
+   Compiling ref-cast v1.0.27
+   Compiling scopeguard v1.2.0
+   Compiling lock_api v0.4.14
+   Compiling ref-cast-impl v1.0.27
+   Compiling layerfs-workspace v0.1.7 (/work/core/crates/layerfs-workspace)
+   Compiling num_enum_derive v0.7.6
+   Compiling zerocopy-derive v0.8.57
+   Compiling fuser v0.18.0 (/work/core/vendor/fuser-0.18.0)
+   Compiling parking_lot v0.12.5
+   Compiling num_enum v0.7.6
+   Compiling layerfs-persistence v0.1.7 (/work/core/crates/layerfs-persistence)
+   Compiling page_size v0.6.0
+   Compiling memchr v2.8.3
+   Compiling log v0.4.34
+   Compiling layerfs-store-service v0.1.7 (/work/core/crates/layerfs-store-service)
+   Compiling layerfs-fuse v0.1.7 (/work/core/crates/layerfs-fuse)
+   Compiling layerfs-remote-store v0.1.7 (/work/core/crates/layerfs-remote-store)
+   Compiling layerfs-daemon v0.1.7 (/work/core/crates/layerfs-daemon)
+    Finished `test` profile [optimized + debuginfo] target(s) in 46.05s

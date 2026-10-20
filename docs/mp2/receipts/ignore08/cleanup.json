@@ -1,0 +1,11 @@
+{
+  "context": "orbstack",
+  "remaining": {
+    "containers": [],
+    "networks": [],
+    "volumes": [
+      "cxi-target"
+    ]
+  },
+  "retained_target_volume": "cxi-target"
+}

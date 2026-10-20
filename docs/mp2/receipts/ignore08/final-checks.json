@@ -1,0 +1,21 @@
+{
+  "syntax": "PASS",
+  "unchanged_existing_scenarios": [
+    "s1_warm_base",
+    "s2_ignored_changes_stay_local",
+    "s3_clean",
+    "s4_rebuild",
+    "s5_flip",
+    "s6_moved_head",
+    "s5b_server_rule_flip",
+    "s6b_server_delete",
+    "s8_comparison",
+    "s9_logs"
+  ],
+  "links": "PASS",
+  "production_diff": {
+    "added": 284,
+    "removed": 24,
+    "net": 260
+  }
+}

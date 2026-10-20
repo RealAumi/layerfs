@@ -1,0 +1,8 @@
+{
+  "source": "d2fafd9eb1a666458283d9c6a887a49f7a25dcc9",
+  "docker_context": "orbstack",
+  "image_id": "sha256:e51d0265072d2d9d5d320f6a44dde6b9ef13653b035098febd68cce8fa7c0bc4",
+  "toolchain": "1.85.1",
+  "construction_workers": 1,
+  "cargo_jobs": 2
+}

@@ -122,7 +122,7 @@ round trip. Server-known subtrees are omitted and remain demand fetchable.
 `restored`, `not-found`, `missing-local-objects`, `invalid-local-objects`, or
 `invalid-record`; before any keyed request it is `not-requested`. Missing/invalid
 records fall back to the current published head with empty ignore state: no
-rejected seeds survive. Database access failures still return their original error.
+rejected seeds survive. Errors reading the record itself still return their original database error.
 
 Only the last successful Commit is restored. Later edits and the overlay are
 not recovered. Restart supplies fresh disposable overlay and mount paths while
@@ -186,6 +186,6 @@ moved head, pending rule flip, same-key last writer, absent key and ignore-off),
 and the real SQLite cache (reopen, atomic records, scope/Branch keys, missing
 leaf/root, corruption, and omitted remote objects). The manifest requires no
 network reads or uploads. See [ignore08](receipts/ignore08/README.md) for current
-checks and the full Docker run; [ignore07](receipts/ignore07/README.md) retains
+checks and the first/only full Docker run (11 scenarios, 185 checks passed); [ignore07](receipts/ignore07/README.md) retains
 the failing baseline and startup-path diagnostics. The existing corrected
 [ignore06 e2e](receipts/ignore06/README.txt) remains unchanged.
