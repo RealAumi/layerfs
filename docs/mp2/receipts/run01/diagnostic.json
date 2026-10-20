@@ -1,0 +1,8 @@
+{
+  "files": 3003,
+  "mount_rtt": 6,
+  "mount_command_wall_ns": 293020541,
+  "ls_rtt": 24,
+  "ls_output": "1103430037\n18059\n",
+  "cache": "empty B cache before mount; mandatory bind pages reused by ls; server/OS cache not cold-qualified"
+}

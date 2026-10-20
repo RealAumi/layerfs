@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "~/lfs-remote/mp2-remote-store/source/docs/mp2/run-remote-e2e.py", line 79, in <module>
+    unmount(B1,m1);m1=mount(B1);cat(B1,m1,'root-created','root writes\n');cat(B1,m1,'failing','failed but kept\n')
+  File "~/lfs-remote/mp2-remote-store/source/docs/mp2/run-remote-e2e.py", line 41, in unmount
+    def unmount(b,m,discard=False):return ctl(b,'unmount',m[1],m[2],*(['discard'] if discard else []))
+  File "~/lfs-remote/mp2-remote-store/source/docs/mp2/run-remote-e2e.py", line 35, in ctl
+    def ctl(b,op,*args,expected=0):return execute(b,'timeout','110','/opt/lfs/layerfs-remote','/state/daemon.setup',op,*args,expected=expected)
+  File "~/lfs-remote/mp2-remote-store/source/docs/mp2/run-remote-e2e.py", line 22, in execute
+    def execute(container,*args,**kw):return docker('exec',container,*args,**kw)
+  File "~/lfs-remote/mp2-remote-store/source/docs/mp2/run-remote-e2e.py", line 21, in docker
+    def docker(*args,**kw):return run([DOCKER,*args],**kw)
+  File "~/lfs-remote/mp2-remote-store/source/docs/mp2/run-remote-e2e.py", line 18, in run
+    if expected is not None: assert p.returncode==expected, (args,p.returncode,p.stdout[-5000:])
+AssertionError: (['/usr/local/bin/docker', 'exec', 'mp2-lfs-b1', 'timeout', '110', '/opt/lfs/layerfs-remote', '/state/daemon.setup', 'unmount', '8a6b6d336e82d090eb7d3014b3972baf1f3f9bd55073166dd180a45b540bd307', '1'], 1, 'Retained(TeardownCustody { token: WorkspaceToken { workspace: WorkspaceId(8a6b6d336e82d090eb7d3014b3972baf1f3f9bd55073166dd180a45b540bd307), namespace: 1 }, stage: Join, detached: true, work: Some(MountWork { loops_configured: 2, loops_entered: 2, loops_exited: 0, loops_joined: 0, active: 0, retained: 0, completed: 39, served: 39, inline: 0, refused: 4, terminal: 0, forget_units: 0 }), detail: "connection drain stopped at Join: loops Some(SessionSnapshot { phase: Serving, revision: 6, configured: 2, created: 2, entered: 2, exited: 0, joined: 0 }), work Some(MountWork { active: 0, retained: 0, requests: 43, completed: 39, terminal: true })", forced: None })\nwall_ns=5004423479\ncontrol refused; original result printed\n')

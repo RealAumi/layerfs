@@ -1,0 +1,11 @@
+   Compiling nix v0.31.3
+   Compiling layerfs-overlay v0.1.7 (/work/core/crates/layerfs-overlay)
+   Compiling layerfs-workspace v0.1.7 (/work/core/crates/layerfs-workspace)
+   Compiling layerfs-persistence v0.1.7 (/work/core/crates/layerfs-persistence)
+   Compiling layerfs-store-service v0.1.7 (/work/core/crates/layerfs-store-service)
+   Compiling layerfs-remote-store v0.1.7 (/work/core/crates/layerfs-remote-store)
+   Compiling layerfs-sandbox v0.1.7 (/work/core/crates/layerfs-sandbox)
+   Compiling layerfs-api v0.1.7 (/work/core/crates/layerfs-api)
+    Finished `test` profile [optimized + debuginfo] target(s) in 34.17s
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.15s
+  Executable tests/remote_driver.rs (target-remote/debug/deps/remote_driver-a38802135b0ca42e)

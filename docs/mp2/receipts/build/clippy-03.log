@@ -1,0 +1,18 @@
+info: downloading component 'clippy'
+info: installing component 'clippy'
+info: downloading component 'rustfmt'
+info: installing component 'rustfmt'
+    Checking layerfs-remote-store v0.1.7 (/work/core/crates/layerfs-remote-store)
+    Checking layerfs-api v0.1.7 (/work/core/crates/layerfs-api)
+    Checking num_enum v0.7.6
+    Checking parking_lot v0.12.5
+    Checking ref-cast v1.0.27
+    Checking page_size v0.6.0
+    Checking memchr v2.8.3
+    Checking log v0.4.34
+    Checking fuser v0.18.0 (/work/core/vendor/fuser-0.18.0)
+    Checking layerfs-store-service v0.1.7 (/work/core/crates/layerfs-store-service)
+    Checking layerfs-fuse v0.1.7 (/work/core/crates/layerfs-fuse)
+    Checking layerfs-bridge v0.1.7 (/work/core/crates/layerfs-bridge)
+    Checking layerfs-daemon v0.1.7 (/work/core/crates/layerfs-daemon)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 10.74s

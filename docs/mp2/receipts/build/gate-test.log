@@ -1,0 +1,20 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.19s
+  Executable tests/remote_refresh_gate.rs (target-remote/debug/deps/remote_refresh_gate-4cae9e888d2fb2ec)
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.10s
+     Running tests/remote_refresh_gate.rs (target-remote/debug/deps/remote_refresh_gate-4cae9e888d2fb2ec)
+
+running 1 test
+test server_edits_refresh_clean_and_dirty_mount_and_root_can_create ... FAILED
+
+failures:
+
+failures:
+    server_edits_refresh_clean_and_dirty_mount_and_root_can_create
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+
+thread 'server_edits_refresh_clean_and_dirty_mount_and_root_can_create' panicked at crates/layerfs-daemon/tests/../../layerfs-api/tests/support/sdk.rs:98:39:
+fs.write refused: SdkRefusal { code: "ReadOnly", message: "main changes only through publish", detail: Null }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `-p layerfs-daemon --test remote_refresh_gate`

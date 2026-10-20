@@ -1,0 +1,2 @@
+35 changed Rust files; rustfmt --edition 2021 --config skip_children=true --check
+exit=0

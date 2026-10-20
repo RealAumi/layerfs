@@ -1,0 +1,296 @@
+   Compiling layerfs-store-service v0.1.7 (/work/core/crates/layerfs-store-service)
+warning: unused import: `Arc`
+  --> crates/layerfs-store-service/src/store/commit.rs:12:35
+   |
+12 | use std::sync::{atomic::Ordering, Arc};
+   |                                   ^^^
+   |
+   = note: `#[warn(unused_imports)]` on by default
+
+warning: method `cache` is never used
+  --> crates/layerfs-store-service/src/store/backend.rs:81:19
+   |
+58 | impl WorkspaceBackend {
+   | --------------------- method in this implementation
+...
+81 |     pub(super) fn cache(&self) -> Arc<CanonicalCache> {
+   |                   ^^^^^
+   |
+   = note: `#[warn(dead_code)]` on by default
+
+   Compiling layerfs-daemon v0.1.7 (/work/core/crates/layerfs-daemon)
+error[E0277]: `(dyn RemoteBuild + 'static)` cannot be sent between threads safely
+   --> crates/layerfs-daemon/src/control/attach.rs:239:27
+    |
+239 |                 evidence: Box::new((failure, mount, other)),
+    |                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `(dyn RemoteBuild + 'static)` cannot be sent between threads safely
+    |
+    = help: the trait `Send` is not implemented for `(dyn RemoteBuild + 'static)`
+    = note: required for `Unique<(dyn RemoteBuild + 'static)>` to implement `Send`
+note: required because it appears within the type `Box<(dyn RemoteBuild + 'static)>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/boxed.rs:231:12
+note: required because it appears within the type `Option<Box<(dyn RemoteBuild + 'static)>>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/core/src/option.rs:572:10
+note: required because it appears within the type `CommitFailure`
+   --> /work/core/crates/layerfs-store-service/src/store/commit_types.rs:139:12
+    |
+139 | pub struct CommitFailure {
+    |            ^^^^^^^^^^^^^
+    = note: required for `Unique<CommitFailure>` to implement `Send`
+note: required because it appears within the type `Box<CommitFailure>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/boxed.rs:231:12
+note: required because it appears within the type `Failure`
+   --> crates/layerfs-daemon/src/control/types.rs:39:10
+    |
+39  | pub enum Failure {
+    |          ^^^^^^^
+note: required because it appears within the type `std::result::Result<(), Failure>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/core/src/result.rs:528:10
+    = note: required because it appears within the type `(KernelFailure, KernelMount, std::result::Result<(), Failure>)`
+    = note: required for the cast from `Box<(KernelFailure, KernelMount, std::result::Result<(), Failure>)>` to `Box<(dyn Debug + Send + 'static)>`
+
+error[E0277]: `(dyn RemoteBuild + 'static)` cannot be sent between threads safely
+   --> crates/layerfs-daemon/src/control/detach.rs:113:21
+    |
+113 |                     Box::new((failure, drained)),
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `(dyn RemoteBuild + 'static)` cannot be sent between threads safely
+    |
+    = help: the trait `Send` is not implemented for `(dyn RemoteBuild + 'static)`
+    = note: required for `Unique<(dyn RemoteBuild + 'static)>` to implement `Send`
+note: required because it appears within the type `Box<(dyn RemoteBuild + 'static)>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/boxed.rs:231:12
+note: required because it appears within the type `Option<Box<(dyn RemoteBuild + 'static)>>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/core/src/option.rs:572:10
+note: required because it appears within the type `CommitFailure`
+   --> /work/core/crates/layerfs-store-service/src/store/commit_types.rs:139:12
+    |
+139 | pub struct CommitFailure {
+    |            ^^^^^^^^^^^^^
+    = note: required for `Unique<CommitFailure>` to implement `Send`
+note: required because it appears within the type `Box<CommitFailure>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/boxed.rs:231:12
+note: required because it appears within the type `Failure`
+   --> crates/layerfs-daemon/src/control/types.rs:39:10
+    |
+39  | pub enum Failure {
+    |          ^^^^^^^
+    = note: required because it appears within the type `(Failure, Box<Drained>)`
+    = note: required for the cast from `Box<(Failure, Box<Drained>)>` to `Box<(dyn Debug + Send + 'static)>`
+
+error[E0277]: `(dyn RemoteBuild + 'static)` cannot be sent between threads safely
+   --> crates/layerfs-daemon/src/control/force.rs:300:21
+    |
+300 |                     Box::new((failure, drained)),
+    |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `(dyn RemoteBuild + 'static)` cannot be sent between threads safely
+    |
+    = help: the trait `Send` is not implemented for `(dyn RemoteBuild + 'static)`
+    = note: required for `Unique<(dyn RemoteBuild + 'static)>` to implement `Send`
+note: required because it appears within the type `Box<(dyn RemoteBuild + 'static)>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/boxed.rs:231:12
+note: required because it appears within the type `Option<Box<(dyn RemoteBuild + 'static)>>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/core/src/option.rs:572:10
+note: required because it appears within the type `CommitFailure`
+   --> /work/core/crates/layerfs-store-service/src/store/commit_types.rs:139:12
+    |
+139 | pub struct CommitFailure {
+    |            ^^^^^^^^^^^^^
+    = note: required for `Unique<CommitFailure>` to implement `Send`
+note: required because it appears within the type `Box<CommitFailure>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/boxed.rs:231:12
+note: required because it appears within the type `Failure`
+   --> crates/layerfs-daemon/src/control/types.rs:39:10
+    |
+39  | pub enum Failure {
+    |          ^^^^^^^
+    = note: required because it appears within the type `(Failure, Box<Drained>)`
+    = note: required for the cast from `Box<(Failure, Box<Drained>)>` to `Box<(dyn Debug + Send + 'static)>`
+
+error[E0277]: `(dyn RemoteBuild + 'static)` cannot be sent between threads safely
+   --> crates/layerfs-daemon/src/control/unmount.rs:155:17
+    |
+155 |                 Box::new((failure, kernel)),
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^ `(dyn RemoteBuild + 'static)` cannot be sent between threads safely
+    |
+    = help: the trait `Send` is not implemented for `(dyn RemoteBuild + 'static)`
+    = note: required for `Unique<(dyn RemoteBuild + 'static)>` to implement `Send`
+note: required because it appears within the type `Box<(dyn RemoteBuild + 'static)>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/boxed.rs:231:12
+note: required because it appears within the type `Option<Box<(dyn RemoteBuild + 'static)>>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/core/src/option.rs:572:10
+note: required because it appears within the type `CommitFailure`
+   --> /work/core/crates/layerfs-store-service/src/store/commit_types.rs:139:12
+    |
+139 | pub struct CommitFailure {
+    |            ^^^^^^^^^^^^^
+    = note: required for `Unique<CommitFailure>` to implement `Send`
+note: required because it appears within the type `Box<CommitFailure>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/boxed.rs:231:12
+note: required because it appears within the type `Failure`
+   --> crates/layerfs-daemon/src/control/types.rs:39:10
+    |
+39  | pub enum Failure {
+    |          ^^^^^^^
+    = note: required because it appears within the type `(Failure, Option<Box<Drained>>)`
+    = note: required for the cast from `Box<(Failure, Option<Box<Drained>>)>` to `Box<(dyn Debug + Send + 'static)>`
+
+error[E0277]: `(dyn RemoteBuild + 'static)` cannot be sent between threads safely
+   --> crates/layerfs-daemon/src/application/connection.rs:49:24
+    |
+49  |                   .spawn(move || {
+    |  __________________-----_^
+    | |                  |
+    | |                  required by a bound introduced by this call
+50  | |                     let mut result = application.connection(stream, slot);
+51  | |                     if let Err(failure) = &mut result {
+52  | |                         if failure.original.is_none()
+...   |
+79  | |                 });
+    | |_________________^ `(dyn RemoteBuild + 'static)` cannot be sent between threads safely
+    |
+    = help: the trait `Send` is not implemented for `(dyn RemoteBuild + 'static)`
+    = note: required for `Unique<(dyn RemoteBuild + 'static)>` to implement `Send`
+note: required because it appears within the type `Box<(dyn RemoteBuild + 'static)>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/boxed.rs:231:12
+note: required because it appears within the type `Option<Box<(dyn RemoteBuild + 'static)>>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/core/src/option.rs:572:10
+note: required because it appears within the type `CommitFailure`
+   --> /work/core/crates/layerfs-store-service/src/store/commit_types.rs:139:12
+    |
+139 | pub struct CommitFailure {
+    |            ^^^^^^^^^^^^^
+    = note: required for `Unique<CommitFailure>` to implement `Send`
+note: required because it appears within the type `Box<CommitFailure>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/boxed.rs:231:12
+note: required because it appears within the type `Failure`
+   --> crates/layerfs-daemon/src/control/types.rs:39:10
+    |
+39  | pub enum Failure {
+    |          ^^^^^^^
+note: required because it appears within the type `std::result::Result<Success, Failure>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/core/src/result.rs:528:10
+note: required because it appears within the type `control::serve::Served`
+   --> crates/layerfs-daemon/src/control/serve.rs:15:12
+    |
+15  | pub struct Served {
+    |            ^^^^^^
+    = note: required for `Unique<control::serve::Served>` to implement `Send`
+note: required because it appears within the type `Box<control::serve::Served>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/boxed.rs:231:12
+note: required because it appears within the type `ApplicationError`
+   --> crates/layerfs-daemon/src/application/failure.rs:10:10
+    |
+10  | pub enum ApplicationError {
+    |          ^^^^^^^^^^^^^^^^
+note: required because it appears within the type `ConnectionFailure`
+   --> crates/layerfs-daemon/src/application/failure.rs:71:12
+    |
+71  | pub struct ConnectionFailure {
+    |            ^^^^^^^^^^^^^^^^^
+    = note: required for `Unique<ConnectionFailure>` to implement `Send`
+note: required because it appears within the type `Box<ConnectionFailure>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/boxed.rs:231:12
+note: required because it appears within the type `Slot`
+   --> crates/layerfs-daemon/src/application/owner.rs:22:17
+    |
+22  | pub(super) enum Slot {
+    |                 ^^^^
+note: required because it appears within the type `PhantomData<Slot>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/core/src/marker.rs:757:12
+note: required because it appears within the type `alloc::raw_vec::RawVec<Slot>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/raw_vec.rs:76:19
+note: required because it appears within the type `Vec<Slot>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/vec/mod.rs:397:12
+note: required because it appears within the type `application::owner::State`
+   --> crates/layerfs-daemon/src/application/owner.rs:34:19
+    |
+34  | pub(super) struct State {
+    |                   ^^^^^
+    = note: required for `Mutex<application::owner::State>` to implement `Sync`
+note: required because it appears within the type `Application`
+   --> crates/layerfs-daemon/src/application/owner.rs:39:12
+    |
+39  | pub struct Application {
+    |            ^^^^^^^^^^^
+    = note: required for `Arc<Application>` to implement `Send`
+note: required because it's used within this closure
+   --> crates/layerfs-daemon/src/application/connection.rs:49:24
+    |
+49  |                 .spawn(move || {
+    |                        ^^^^^^^
+note: required by a bound in `Builder::spawn`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/std/src/thread/mod.rs:395:5
+
+error[E0277]: `(dyn RemoteBuild + 'static)` cannot be sent between threads safely
+   --> crates/layerfs-daemon/src/application/diagnostics/resources.rs:86:53
+    |
+86  |               Some(original) => Some(io::Error::other(ResourceDiagnosticError {
+    |  ____________________________________----------------_^
+    | |                                    |
+    | |                                    required by a bound introduced by this call
+87  | |                 original: Mutex::new(original),
+88  | |                 output,
+89  | |             })),
+    | |_____________^ `(dyn RemoteBuild + 'static)` cannot be sent between threads safely
+    |
+    = help: the trait `Send` is not implemented for `(dyn RemoteBuild + 'static)`
+    = note: required for `Unique<(dyn RemoteBuild + 'static)>` to implement `Send`
+note: required because it appears within the type `Box<(dyn RemoteBuild + 'static)>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/boxed.rs:231:12
+note: required because it appears within the type `Option<Box<(dyn RemoteBuild + 'static)>>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/core/src/option.rs:572:10
+note: required because it appears within the type `CommitFailure`
+   --> /work/core/crates/layerfs-store-service/src/store/commit_types.rs:139:12
+    |
+139 | pub struct CommitFailure {
+    |            ^^^^^^^^^^^^^
+    = note: required for `Unique<CommitFailure>` to implement `Send`
+note: required because it appears within the type `Box<CommitFailure>`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/alloc/src/boxed.rs:231:12
+note: required because it appears within the type `Failure`
+   --> crates/layerfs-daemon/src/control/types.rs:39:10
+    |
+39  | pub enum Failure {
+    |          ^^^^^^^
+    = note: required for `Mutex<Failure>` to implement `Send`
+note: required because it appears within the type `ResourceFailure`
+   --> crates/layerfs-daemon/src/application/diagnostics/resources.rs:18:10
+    |
+18  | pub enum ResourceFailure {
+    |          ^^^^^^^^^^^^^^^
+    = note: required for `Mutex<ResourceFailure>` to implement `Send`
+note: required because it appears within the type `ResourceDiagnosticError`
+   --> crates/layerfs-daemon/src/application/diagnostics/resources.rs:28:12
+    |
+28  | pub struct ResourceDiagnosticError {
+    |            ^^^^^^^^^^^^^^^^^^^^^^^
+    = note: required for `Box<(dyn std::error::Error + Send + Sync + 'static)>` to implement `From<ResourceDiagnosticError>`
+    = note: required for `ResourceDiagnosticError` to implement `Into<Box<(dyn std::error::Error + Send + Sync + 'static)>>`
+note: required by a bound in `std::io::Error::other`
+   --> /rustc/4eb161250e340c8f48f66e2b929ef4a5bed7c181/library/std/src/io/error.rs:590:5
+
+error[E0004]: non-exhaustive patterns: `&CommitError::Remote(_)` not covered
+   --> crates/layerfs-daemon/src/control/failure.rs:204:24
+    |
+204 |     let detail = match error {
+    |                        ^^^^^ pattern `&CommitError::Remote(_)` not covered
+    |
+note: `CommitError` defined here
+   --> /work/core/crates/layerfs-store-service/src/store/commit_types.rs:32:1
+    |
+32  | pub enum CommitError {
+    | ^^^^^^^^^^^^^^^^^^^^
+33  |     InFlight,
+34  |     Remote(super::BackendError),
+    |     ------ not covered
+    = note: the matched value is of type `&CommitError`
+help: ensure that all possible cases are being handled by adding a match arm with a wildcard pattern or an explicit pattern as shown
+    |
+217 ~         },
+218 +         &CommitError::Remote(_) => todo!()
+    |
+
+Some errors have detailed explanations: E0004, E0277.
+For more information about an error, try `rustc --explain E0004`.
+error: could not compile `layerfs-daemon` (lib) due to 7 previous errors
+warning: build failed, waiting for other jobs to finish...
+warning: `layerfs-store-service` (lib) generated 2 warnings (run `cargo fix --lib -p layerfs-store-service` to apply 1 suggestion)

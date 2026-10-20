@@ -1,0 +1,26 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.19s
+  Executable tests/lane_merge.rs (target-remote/debug/deps/lane_merge-e0ae313d2231f6bd)
+  Executable tests/remote_refresh_gate.rs (target-remote/debug/deps/remote_refresh_gate-d166269412f7c995)
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.07s
+     Running tests/remote_refresh_gate.rs (target-remote/debug/deps/remote_refresh_gate-d166269412f7c995)
+
+running 1 test
+PASS clean moved head installs and invalidates cached content
+PASS server edits plus disjoint local edits install together
+PASS root touch/write/cat; projected owner=65534:65534
+test server_edits_refresh_clean_and_dirty_mount_and_root_can_create ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s
+
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.07s
+     Running tests/lane_merge.rs (target-remote/debug/deps/lane_merge-e0ae313d2231f6bd)
+
+running 4 tests
+LANE_MERGE lane_hold uncontended_ms=0.69 uncontended_statements=15 moved_head_ms=1.12 moved_head_statements=58 lane_paths=2; release_to_reply uncontended_ms=4.3 moved_head_ms=2.3 samples=1
+test a_conflict_landing_before_the_lane_follows_the_conflict_rules ... ok
+test a_commit_landing_before_the_lane_is_merged_in_the_lane ... ok
+test more_than_the_lane_bound_is_refused_and_counted ... ok
+LANE_MERGE_SIZE holds=[(1, (1.4458739999999999, 58)), (1000, (1.347916, 61))] samples=1
+test the_lane_hold_follows_what_landed_not_the_commit ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.22s

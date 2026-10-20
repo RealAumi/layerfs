@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "~/lfs-remote/mp2-remote-store/source/docs/mp2/run-remote-e2e.py", line 79, in <module>
+    execute(B1,'timeout','30','cp','-a',m1[0],'/state/oracle');docker('cp',B1+':/state/oracle',str(ROOT/'oracle-b'))
+  File "~/lfs-remote/mp2-remote-store/source/docs/mp2/run-remote-e2e.py", line 22, in execute
+    def execute(container,*args,**kw):return docker('exec',container,*args,**kw)
+  File "~/lfs-remote/mp2-remote-store/source/docs/mp2/run-remote-e2e.py", line 21, in docker
+    def docker(*args,**kw):return run([DOCKER,*args],**kw)
+  File "~/lfs-remote/mp2-remote-store/source/docs/mp2/run-remote-e2e.py", line 18, in run
+    if expected is not None: assert p.returncode==expected, (args,p.returncode,p.stdout[-5000:])
+AssertionError: (['/usr/local/bin/docker', 'exec', 'mp2-lfs-b1', 'timeout', '30', 'cp', '-a', '/workspaces/1', '/state/oracle'], 124, '')

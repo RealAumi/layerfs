@@ -301,53 +301,98 @@ restart reconciliation, GC, replication, remote JS SDK packaging, cloud-sandbox
 provisioning, FUSE optimization and hostile-client/per-Workspace security.
 Phase 1 stops here.
 
-## Phase 2 results (in progress)
+## Phase 2 results
 
-Prerequisite at phase-1 source `cfbd865f5`: the real mounted test
-`core/crates/layerfs-daemon/tests/remote_refresh_gate.rs` passed on remote-host,
-Docker 29.4.0 / Linux arm64, Rust 1.85.1. The build retained the repository ARM64
-flags and explicitly selected Disposable; no Linux compilation ran locally.
+**Prototype implemented; read/Commit acceptance passed, normal unmount failed.**
+All Linux compilation/execution ran on remote-host in arm64 OrbStack containers
+(Docker 29.4.0, Rust 1.85.1), with Disposable Stores and repository ARM64 flags.
+No push, upstream issue/PR, Docker-backend change or upstream contract edit.
 
-- A clean mount with cached data accepted server `fs.write` followed by Commit,
-  and immediately read the new bytes. Disjoint local edits survived the same flow.
-- **Correction to phase 1:** nonzero `command_uid` is a configuration/attribute
-  identity, not a caller-UID allowlist. `request/callbacks.rs` does not inspect
-  request UID; `attributes.rs::Identity::attributes` projects configured UID/GID
-  for every inode. Root touch/write/cat succeeded and the new file appeared as
-  `65534:65534`. Kernel `default_permissions` still applies; this is not root
-  isolation. The configuration rule remains unchanged.
-- The first fixture mistakenly wrote `main`: SDK refused `ReadOnly` before the
-  refresh check. The corrected test forks writable `work`; no product fix was needed.
+`layerfs-remote-store` now supplies the versioned Noise Store protocol, server,
+two-connection client and verified canonical SQLite cache. `WorkspaceBackend`
+and the shared `Store::publish_candidate` keep network I/O outside the publish
+lane. `layerfs-remote-daemon` mounts without Docker or a Store path; the separate
+`layerfs-remote` controller performs explicit mount/Commit/unmount. Commands stay
+external. Positive cached objects remain indefinitely; construction emission
+order is SQLite-backed. Upload uses lacking-ID windows, child-before-parent
+admission and local Save completion, then the existing server merge/CAS logic.
+No new dependency package/version was introduced.
 
-Test commands so far (inside the owned Linux test container, cwd `/work`,
-`CARGO_HOME=/work/.cargo-home`, `CARGO_TARGET_DIR=/work/target-remote`,
-`LAYERFS_CONSTRUCTION_WORKERS=1`):
+**Server edits and root callers.** Confirmed both by source and actual FUSE:
+clean overlay + moved head proceeds through merge/install, rather than the
+native UpToDate fast path. Server `fs.write` → remote Commit → ordinary `cat`
+returns new content even after caching the old bytes; disjoint local edits
+survive. Root touch/write/cat also works with `allow_other` and configured UID/GID
+1000. New files appear as `1000:1000`. FUSE callbacks do not enforce request UID;
+`Identity::attributes` projects configured ownership and kernel
+`default_permissions` remains active. The nonzero setup rule is unchanged.
+**This corrects phase 1's overly broad root-command warning:** it is not a
+caller-UID allowlist or root isolation boundary. The earlier native proof used
+65534 and observed `65534:65534`.
 
-```sh
-timeout 120 cargo test --manifest-path core/Cargo.toml --locked -j 2 -p layerfs-daemon --test remote_refresh_gate --no-run
-timeout 120 cargo test --manifest-path core/Cargo.toml --locked -j 2 -p layerfs-daemon --test remote_refresh_gate -- --nocapture
-```
+| Acceptance | Result |
+| --- | --- |
+| Remote mount, 3003-file tree/read oracle, local edits | PASS; independent server SDK-method-table reads matched sandbox file hashes. |
+| Commit → server `fs.read` → fresh mount | PASS; B had binaries/cache/overlay only. |
+| Failing external command's edits committed | PASS; command exited 7, explicit Commit preserved its file. |
+| Server edit refresh, clean and disjoint dirty overlay | PASS; kernel cache invalidation observed by `cat`. |
+| Root touch/write/cat, configured ownership | PASS; `1000:1000`, no setup-rule change. |
+| Two B daemons, same branch, different lines | PASS; both line changes in server readback. |
+| Same-line race | PASS; one conflict, history grew by exactly one winning Commit; loser published nothing. Markers and explicit resolution also checked. |
+| Read TCP cut | PASS; cold content read returned EIO. |
+| Upload TCP cut | PASS; Unknown, unchanged head, no reconnect; later Commit refused at admission with unchanged request count. |
+| No Store access on B | PASS; Docker mounts, absent Store path and `/proc/*/fd` showed only local cache/overlay/template SQLite files. |
+| Normal unmount | **FAIL** twice: detached=true, Join retained, two receive loops did not exit within existing 5 s. Main-process launch did not resolve it. No FUSE fix, deadline extension or failed-operation replay. |
 
-Both commands ran twice: first no-run PASS / execution FAIL (`main` ReadOnly,
-0.01 s); after fixture correction no-run PASS / execution PASS (1 test, 0.03 s).
-Compilation ran first with `cargo build --manifest-path core/Cargo.toml --locked
--j 2 --profile test -p layerfs-daemon --test remote_refresh_gate` (PASS).
-Fuser provenance check passed. Initial build setup failures were missing Git
-metadata in the rsync copy and login-shell PATH hiding Cargo; fixed in the owned
-remote directory/container. One dependency acquisition/build was interrupted
-after crates.io timeout diagnostics; rsproxy then supplied locked dependencies
-with retries disabled. Raw logs are retained under `~/lfs-remote/mp2-remote-store/`.
-Remote transport, two-container proofs and RTT diagnostics are not yet run.
+RTT diagnostic ([raw result](receipts/run02/diagnostic.json)): empty B object
+cache before mount, **mount 6 Store requests / 43.465 ms** including controller
+process/Docker-exec wall overhead; subsequent **`ls -R` 24 requests / 17.387 ms**
+for 3003 files (30 requests cumulative). The ls wall interval surrounds ls itself.
+Counters exclude Noise handshakes/control RPCs; daemon startup is outside mount.
+ls reuses mandatory bind pages; server/OS cache state is not cold-qualified.
+These are one-run diagnostics, not performance qualification. No new prefetch
+was added. The earlier proxy without TCP_NODELAY produced an ineligible slow
+run and an oracle timeout; its evidence is retained, not overwritten.
 
-Shared publisher/backend checkpoint: `Store::publish_candidate` now owns the
-existing two-stage merge/publication algorithm; local capture/install stays in
-`BoundWorkspace`. Daemon changes route the backend and classify remote errors.
-After extraction, the mounted refresh/root test passed again (1 test, 0.03 s),
-and `lane_merge` passed all 4 cases (0.22 s). Its incidental timing output is not
-promoted to performance evidence. Commands, once each at this checkpoint:
+The [validation ledger](phase2-validation.md) lists **every test command and
+result**, including no-run invocations, all five E2E attempts, exact container
+argv/outputs, initial failures and final checks. Final transport tests PASS 2;
+native refresh PASS 1 and lane-merge PASS 4; core-tool tests PASS 50; scoped
+all-target Clippy PASS. Changed-file formatting passes. Package-wide formatting
+still finds three unchanged upstream files; the boundary guard has exactly the
+same 57 violations as `3a80ec6d9`. All owned containers, networks and volumes
+were cleaned up; other containers/images were untouched.
 
-```sh
-timeout 120 cargo test --manifest-path core/Cargo.toml --locked -j 2 -p layerfs-daemon --test remote_refresh_gate --test lane_merge --no-run
-timeout 120 cargo test --manifest-path core/Cargo.toml --locked -j 2 -p layerfs-daemon --test remote_refresh_gate -- --nocapture
-timeout 120 cargo test --manifest-path core/Cargo.toml --locked -j 2 -p layerfs-daemon --test lane_merge -- --nocapture
-```
+Local implementation commits:
+
+| Commit | Change | Production LOC before → after |
+| --- | --- | --- |
+| `6771ecad8` | Mounted server-refresh and root-caller prerequisite proof | 104,430 → 104,430 (0) |
+| `10d2c76b0` | Shared candidate publisher and Workspace backend ports | 104,430 → 104,890 (+460) |
+| `6aa63705c` | Noise server/client/cache, remote daemon/controller and external proofs | 104,890 → 106,260 (+1,370) |
+
+Results/receipt publication is a separate documentation-only commit, identified
+by `git log -1 --format='%h %s' -- docs/mp2/phase2-validation.md` (unchanged
+production 106,260 → 106,260, delta 0). Phase-1 design is `cfbd865f5`.
+Overall phase-2 changed production: **2,560 lines (+2,195/−365; net +1,830)**;
+external tests: **552 added code lines** (391 Rust + 161 Python harness/proxy),
+no deleted tests. Nonblank/non-comment Rust is counted with pinned
+`tools/production_loc.py` blob `e6d94d1a731b402ccc9159f49cef1eba5a74cfe0`,
+including inline-test exclusion; diff counted over those code lines, so moved
+publisher code contributes to churn. Python counts exclude comments/docstrings.
+Final production scopes: core 98,090; SDK 2,861; dsh 5,309, excluding the same
+739 scripted mock lines in every snapshot. Reference absent (retired R9c;
+last counted 65,417 at tree `498dd1917812`).
+
+**Limits and deviations.** The seam works as designed; the added semantic bind
+snapshot remains necessary beyond the three read interfaces. Normal unmount
+is an unresolved lifecycle gap, not a passing result. Server SDK calls were
+exercised through the public native method table, not the JS wrapper. Execution
+was Linux arm64 containers, not cloud-sandbox/x86_64/kernel-6.1 qualification. Remote force,
+non-default Store policies and remote operator Store diagnostics are unsupported.
+No metadata prefetch, read pool, eviction/GC, restart recovery/reconciliation,
+Unknown replay, hostile-client hardening beyond bounded admission, per-Workspace
+authorization, remote JS SDK, FUSE optimization, provisioning or command
+supervisor was built. Durable was NOT_RUN—disabled by owner. Whole-workspace
+and frozen fs-bench-pro tests were skipped as instructed; extra symlink/sparse/
+descriptor/restart scenarios from the broader phase-1 plan remain unqualified.

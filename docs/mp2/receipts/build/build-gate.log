@@ -1,0 +1,18 @@
+fatal: not a git repository (or any parent up to mount point /)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+Traceback (most recent call last):
+  File "/work/core/tools/check_fuser_integrity.py", line 286, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/work/core/tools/check_fuser_integrity.py", line 276, in main
+    checked, errors = repository_errors(args.root)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/core/tools/check_fuser_integrity.py", line 243, in repository_errors
+    paths = subprocess.check_output(
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 466, in check_output
+    return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['git', '-C', '/work', 'ls-files', '-z', '--cached', '--others', '--exclude-standard', '--', 'Cargo.toml', 'Cargo.lock', '**/Cargo.toml', '**/Cargo.lock', '.cargo/config.toml', '.cargo/config']' returned non-zero exit status 128.

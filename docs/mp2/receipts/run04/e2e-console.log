@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "~/lfs-remote/mp2-remote-store/run-remote-e2e.py", line 96, in <module>
+    fds=execute(b,'python3','-c','import os,glob;print("\n".join(sorted({os.readlink(f) for f in glob.glob("/proc/[0-9]*/fd/*") if os.path.islink(f) and ".sqlite" in os.readlink(f)})))')
+  File "~/lfs-remote/mp2-remote-store/run-remote-e2e.py", line 22, in execute
+    def execute(container,*args,**kw):return docker('exec',container,*args,**kw)
+  File "~/lfs-remote/mp2-remote-store/run-remote-e2e.py", line 21, in docker
+    def docker(*args,**kw):return run([DOCKER,*args],**kw)
+  File "~/lfs-remote/mp2-remote-store/run-remote-e2e.py", line 18, in run
+    if expected is not None: assert p.returncode==expected, (args,p.returncode,p.stdout[-5000:])
+AssertionError: (['/usr/local/bin/docker', 'exec', 'mp2-lfs-b1', 'python3', '-c', 'import os,glob;print("\n".join(sorted({os.readlink(f) for f in glob.glob("/proc/[0-9]*/fd/*") if os.path.islink(f) and ".sqlite" in os.readlink(f)})))'], 1, '  File "<string>", line 1\n    import os,glob;print("\n                         ^\nSyntaxError: unterminated string literal (detected at line 1)\n')

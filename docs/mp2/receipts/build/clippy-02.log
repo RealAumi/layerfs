@@ -1,0 +1,123 @@
+info: downloading component 'clippy'
+info: installing component 'clippy'
+info: downloading component 'rustfmt'
+info: installing component 'rustfmt'
+    Checking cfg-if v1.0.4
+    Checking libc v0.2.189
+    Checking typenum v1.20.1
+    Checking generic-array v0.14.7
+    Checking subtle v2.6.1
+    Checking getrandom v0.2.17
+    Checking constant_time_eq v0.4.2
+    Checking rand_core v0.6.4
+    Checking arrayvec v0.7.8
+    Checking crypto-common v0.1.7
+    Checking arrayref v0.3.9
+    Checking zeroize v1.9.0
+    Checking blake3 v1.8.5
+    Checking inout v0.1.4
+    Checking layerfs-telemetry v0.1.7 (/work/core/crates/layerfs-telemetry)
+    Checking cipher v0.4.4
+    Checking universal-hash v0.5.1
+    Checking cpufeatures v0.2.17
+    Checking opaque-debug v0.3.1
+    Checking layerfs-content v0.1.7 (/work/core/crates/layerfs-content)
+    Checking block-buffer v0.10.4
+    Checking digest v0.10.7
+    Checking polyval v0.6.2
+    Checking aead v0.5.2
+    Checking ghash v0.5.1
+    Checking poly1305 v0.8.0
+    Checking aes v0.8.4
+    Checking chacha20 v0.9.1
+    Checking ctr v0.9.2
+    Checking aes-gcm v0.10.3
+    Checking chacha20poly1305 v0.10.1
+    Checking curve25519-dalek v4.1.3
+    Checking sha2 v0.10.9
+    Checking blake2 v0.10.6
+    Checking bitflags v2.13.1
+    Checking smallvec v1.16.0
+    Checking snow v0.9.6
+    Checking memoffset v0.9.1
+    Checking hybrid-array v0.4.15
+    Checking foldhash v0.2.0
+    Checking hashbrown v0.17.1
+    Checking nix v0.31.3
+    Checking layerfs-history v0.1.7 (/work/core/crates/layerfs-history)
+    Checking libsqlite3-sys v0.38.2
+    Checking layerfs-bridge v0.1.7 (/work/core/crates/layerfs-bridge)
+    Checking hashlink v0.12.2
+    Checking crypto-common v0.2.2
+    Checking block-buffer v0.12.1
+    Checking fallible-streaming-iterator v0.1.9
+    Checking fallible-iterator v0.3.0
+    Checking const-oid v0.10.2
+    Checking digest v0.11.3
+    Checking rusqlite v0.40.2
+    Checking cpufeatures v0.3.1
+    Checking sha2 v0.11.0
+    Checking zstd-sys v2.0.16+zstd.1.5.7
+    Checking layerfs-overlay v0.1.7 (/work/core/crates/layerfs-overlay)
+    Checking layerfs-storage v0.1.7 (/work/core/crates/layerfs-storage)
+    Checking layerfs-persistence v0.1.7 (/work/core/crates/layerfs-persistence)
+    Checking layerfs-workspace v0.1.7 (/work/core/crates/layerfs-workspace)
+    Checking scopeguard v1.2.0
+    Checking lock_api v0.4.14
+    Checking layerfs-store-service v0.1.7 (/work/core/crates/layerfs-store-service)
+    Checking parking_lot_core v0.9.12
+    Checking layerfs-project v0.1.7 (/work/core/crates/layerfs-project)
+    Checking layerfs-sandbox v0.1.7 (/work/core/crates/layerfs-sandbox)
+    Checking zerocopy v0.8.57
+    Checking layerfs-remote-store v0.1.7 (/work/core/crates/layerfs-remote-store)
+error: use of `format!` to build up a string from an iterator
+  --> crates/layerfs-remote-store/src/config.rs:41:5
+   |
+41 |     bytes.iter().map(|b| format!("{b:02x}")).collect()
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+help: call `fold` instead
+  --> crates/layerfs-remote-store/src/config.rs:41:18
+   |
+41 |     bytes.iter().map(|b| format!("{b:02x}")).collect()
+   |                  ^^^
+help: ... and use the `write!` macro here
+  --> crates/layerfs-remote-store/src/config.rs:41:26
+   |
+41 |     bytes.iter().map(|b| format!("{b:02x}")).collect()
+   |                          ^^^^^^^^^^^^^^^^^^
+   = note: this can be written more efficiently by appending to a `String` directly
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#format_collect
+   = note: `-D clippy::format-collect` implied by `-D warnings`
+   = help: to override `-D warnings` add `#[allow(clippy::format_collect)]`
+
+error: field assignment outside of initializer for an instance created with Default::default()
+   --> crates/layerfs-remote-store/src/server.rs:323:5
+    |
+323 |     receipt.phase = CommitPhase::Publish;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+note: consider initializing the variable with `layerfs_store_service::store::publish::Publication { phase: CommitPhase::Publish, ..Default::default() }` and removing relevant reassignments
+   --> crates/layerfs-remote-store/src/server.rs:322:5
+    |
+322 |     let mut receipt = Publication::default();
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#field_reassign_with_default
+    = note: `-D clippy::field-reassign-with-default` implied by `-D warnings`
+    = help: to override `-D warnings` add `#[allow(clippy::field_reassign_with_default)]`
+
+error: field assignment outside of initializer for an instance created with Default::default()
+   --> crates/layerfs-remote-store/src/server.rs:358:5
+    |
+358 |     saved.canonical_bytes = input.number()?;
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+note: consider initializing the variable with `layerfs_storage::WriteOutcome { canonical_bytes: input.number()?, stored_bytes: input.number()?, metadata_bytes: input.number()?, ..Default::default() }` and removing relevant reassignments
+   --> crates/layerfs-remote-store/src/server.rs:357:5
+    |
+357 |     let mut saved = WriteOutcome::default();
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#field_reassign_with_default
+
+error: could not compile `layerfs-remote-store` (lib) due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...

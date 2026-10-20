@@ -1,0 +1,21 @@
+   Compiling layerfs-bridge v0.1.7 (/work/core/crates/layerfs-bridge)
+   Compiling layerfs-store-service v0.1.7 (/work/core/crates/layerfs-store-service)
+warning: unused import: `Arc`
+  --> crates/layerfs-store-service/src/store/commit.rs:12:35
+   |
+12 | use std::sync::{atomic::Ordering, Arc};
+   |                                   ^^^
+   |
+   = note: `#[warn(unused_imports)]` on by default
+
+error[E0609]: no field `id` on type `ObjectLocation`
+   --> crates/layerfs-store-service/src/store/backend.rs:171:51
+    |
+171 |             located.iter().map(|row| row.location.id).collect();
+    |                                                   ^^ unknown field
+    |
+    = note: available fields are: `object_id`, `role`, `canonical_length`, `pack_id`, `group_number`, `record_number`
+
+For more information about this error, try `rustc --explain E0609`.
+warning: `layerfs-store-service` (lib) generated 1 warning
+error: could not compile `layerfs-store-service` (lib) due to 1 previous error; 1 warning emitted

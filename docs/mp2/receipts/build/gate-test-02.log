@@ -1,0 +1,14 @@
+   Compiling layerfs-daemon v0.1.7 (/work/core/crates/layerfs-daemon)
+    Finished `test` profile [optimized + debuginfo] target(s) in 2.76s
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.10s
+  Executable tests/remote_refresh_gate.rs (target-remote/debug/deps/remote_refresh_gate-4cae9e888d2fb2ec)
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.07s
+     Running tests/remote_refresh_gate.rs (target-remote/debug/deps/remote_refresh_gate-4cae9e888d2fb2ec)
+
+running 1 test
+PASS clean moved head installs and invalidates cached content
+PASS server edits plus disjoint local edits install together
+PASS root touch/write/cat; projected owner=65534:65534
+test server_edits_refresh_clean_and_dirty_mount_and_root_can_create ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s

@@ -1,0 +1,20 @@
+   Compiling layerfs-store-service v0.1.7 (/work/core/crates/layerfs-store-service)
+   Compiling layerfs-remote-store v0.1.7 (/work/core/crates/layerfs-remote-store)
+   Compiling layerfs-daemon v0.1.7 (/work/core/crates/layerfs-daemon)
+error[E0282]: type annotations needed for `std::result::Result<(), _>`
+   --> crates/layerfs-daemon/src/application/remote.rs:86:17
+    |
+86  |             let result = (|| {
+    |                 ^^^^^^
+...
+123 |                         return Ok(());
+    |                                ------ type must be known at this point
+    |
+help: consider giving `result` an explicit type, where the type for type parameter `E` is specified
+    |
+86  |             let result: std::result::Result<(), E> = (|| {
+    |                       ++++++++++++++++++++++++++++
+
+For more information about this error, try `rustc --explain E0282`.
+error: could not compile `layerfs-daemon` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

@@ -1,0 +1,58 @@
+core/crates/layerfs-api/src/base/args.rs:9: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/base/args.rs:10: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/base/args.rs:11: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/base/args.rs:12: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/base/args.rs:13: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/base/args.rs:16: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/base/args.rs:17: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/base/args.rs:21: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/base/args.rs:29: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/base/dispatch.rs:6: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/base/dispatch.rs:43: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/branch/diff_branches.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/branch/diff_commits.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/branch/fork.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/branch/list_commits.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/branch/merge.rs:5: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/branch/publish.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/fs/apply.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/fs/blame.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/fs/cp.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/fs/diff_files.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/fs/edit.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/fs/glob.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/fs/grep.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/fs/list.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/fs/mkdir.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/fs/mv.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/fs/read.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/fs/rm.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/fs/stat.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/fs/write.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-api/src/project/list_branches.rs:4: forbidden first-party source import layerfs-api -> layerfs-store-service
+core/crates/layerfs-daemon/src/control/inspect.rs:49: forbidden first-party source import layerfs-daemon -> layerfs-store-service
+core/crates/layerfs-daemon/src/lib.rs:19: forbidden first-party source import layerfs-daemon -> layerfs-store-service
+core/crates/layerfs-daemon/src/lib.rs:21: forbidden first-party source import layerfs-daemon -> layerfs-store-service
+core/crates/layerfs-daemon/src/operator/mod.rs:5: forbidden first-party source import layerfs-daemon -> layerfs-store-service
+core/crates/layerfs-daemon/src/operator/workspace.rs:10: forbidden first-party source import layerfs-daemon -> layerfs-store-service
+core/crates/layerfs-daemon/src/operator/workspace.rs:265: forbidden first-party source import layerfs-daemon -> layerfs-store-service
+core/crates/layerfs-daemon/src/telemetry.rs:3: forbidden first-party source import layerfs-daemon -> layerfs-store-service
+core/crates/layerfs-daemon/src/telemetry.rs:6: forbidden first-party source import layerfs-daemon -> layerfs-store-service
+core/crates/layerfs-daemon/src/telemetry.rs:7: forbidden first-party source import layerfs-daemon -> layerfs-store-service
+core/crates/layerfs-daemon/src/telemetry.rs:8: forbidden first-party source import layerfs-daemon -> layerfs-store-service
+core/crates/layerfs-persistence/src/backend/sqlite/acquisition/mod.rs:20: implementation construct in declaration/delegation entry file
+core/crates/layerfs-persistence/src/backend/sqlite/acquisition/mod.rs:36: implementation construct in declaration/delegation entry file
+core/crates/layerfs-persistence/src/backend/sqlite/acquisition/mod.rs:39: implementation construct in declaration/delegation entry file
+core/crates/layerfs-persistence/src/backend/sqlite/admission.rs:16: forbidden first-party source import layerfs-persistence -> layerfs-telemetry
+core/crates/layerfs-persistence/src/backend/sqlite/lane.rs:26: forbidden first-party source import layerfs-persistence -> layerfs-telemetry
+core/crates/layerfs-persistence/src/backend/sqlite/transaction.rs:124: forbidden first-party source import layerfs-persistence -> layerfs-telemetry
+core/crates/layerfs-persistence/src/backend/sqlite/transaction.rs:126: forbidden first-party source import layerfs-persistence -> layerfs-telemetry
+core/crates/layerfs-persistence/src/backend/sqlite/transaction.rs:128: forbidden first-party source import layerfs-persistence -> layerfs-telemetry
+core/crates/layerfs-store-service/src/history/mod.rs:8: implementation construct in declaration/delegation entry file
+core/crates/layerfs-store-service/src/operator/mod.rs:15: implementation construct in declaration/delegation entry file
+sdk/js/native/src/discovery.rs:543: test-only attribute in product source
+sdk/js/native/src/discovery.rs:571: test-only attribute in product source
+crates/layerfs-api/Cargo.toml:1: forbidden production dependency layerfs-api -> layerfs-store-service
+crates/layerfs-daemon/Cargo.toml:1: forbidden production dependency layerfs-daemon -> layerfs-store-service
+crates/layerfs-persistence/Cargo.toml:1: forbidden production dependency layerfs-persistence -> layerfs-telemetry
+FAIL: 57 product-source boundary violations

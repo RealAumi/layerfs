@@ -1,0 +1,12 @@
+   Compiling layerfs-remote-store v0.1.7 (/work/core/crates/layerfs-remote-store)
+    Finished `test` profile [optimized + debuginfo] target(s) in 4.68s
+  Executable tests/remote_driver.rs (target-remote/debug/deps/remote_driver-a38802135b0ca42e)
+  Executable tests/transport.rs (target-remote/debug/deps/transport-8bd9befec4b2a06a)
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.10s
+     Running tests/transport.rs (target-remote/debug/deps/transport-8bd9befec4b2a06a)
+
+running 2 tests
+test fragments_cross_noise_records_and_reject_a_bad_offset ... ok
+test wrong_canonical_identity_is_not_cached_or_replayed ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

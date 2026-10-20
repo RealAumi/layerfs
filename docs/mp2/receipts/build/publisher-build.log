@@ -1,0 +1,56 @@
+   Compiling layerfs-store-service v0.1.7 (/work/core/crates/layerfs-store-service)
+warning: unused import: `Arc`
+  --> crates/layerfs-store-service/src/store/commit.rs:12:35
+   |
+12 | use std::sync::{atomic::Ordering, Arc};
+   |                                   ^^^
+   |
+   = note: `#[warn(unused_imports)]` on by default
+
+error[E0282]: type annotations needed for `Result<(FilesystemRootId, FilesystemRootId, ..., ..., ..., ...), ...>`
+   --> crates/layerfs-store-service/src/store/publish.rs:62:13
+    |
+62  |         let built = (|| {
+    |             ^^^^^
+...
+191 |             Ok((root, candidate, current, moved, logical, lane))
+    |             ---------------------------------------------------- type must be known at this point
+    |
+    = note: the full type name has been written to '/work/target-remote/debug/deps/layerfs_store_service-5ebc7faf8fe26118.long-type-2350749783111955370.txt'
+help: consider giving `built` an explicit type, where the type for type parameter `E` is specified
+    |
+62  |         let built: std::result::Result<(FilesystemRootId, FilesystemRootId, BranchSnapshot, bool, u64, PublishLane), E> = (|| {
+    |                  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+error[E0283]: type annotations needed for `Result<(FilesystemRootId, FilesystemRootId, ..., ..., ..., ...), ...>`
+   --> crates/layerfs-store-service/src/store/publish.rs:62:13
+    |
+62  |         let built = (|| {
+    |             ^^^^^
+...
+193 |         let (candidate, ours, current, moved, logical, lane) = built?;
+    |                                                                     - type must be known at this point
+    |
+    = note: the full type name has been written to '/work/target-remote/debug/deps/layerfs_store_service-5ebc7faf8fe26118.long-type-2350749783111955370.txt'
+note: multiple `impl`s satisfying `CommitError: From<_>` found
+   --> crates/layerfs-store-service/src/store/commit_types.rs:222:1
+    |
+222 | impl From<ContentError> for CommitError {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+230 | impl From<StorageError> for CommitError {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+235 | impl From<WorkspaceError> for CommitError {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    = note: and another `impl` found in the `core` crate: `impl<T> From<T> for T;`
+    = note: required for `std::result::Result<PublishedCandidate, CommitError>` to implement `FromResidual<std::result::Result<Infallible, _>>`
+help: consider giving `built` an explicit type, where the placeholders `_` are specified
+    |
+62  |         let built: std::result::Result<(FilesystemRootId, FilesystemRootId, BranchSnapshot, bool, u64, PublishLane), E> = (|| {
+    |                  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+Some errors have detailed explanations: E0282, E0283.
+For more information about an error, try `rustc --explain E0282`.
+warning: `layerfs-store-service` (lib) generated 1 warning
+error: could not compile `layerfs-store-service` (lib) due to 2 previous errors; 1 warning emitted
