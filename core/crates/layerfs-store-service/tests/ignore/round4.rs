@@ -96,3 +96,14 @@ fn missing_hints_for_1000_rewrites_list_probe_directories_once() {
     assert!(reader.reads.get() <= 16,"probe listings={}, expected at most one walk",reader.reads.get());
     assert_eq!(mem.files(projected),mem.files(base));
 }
+
+#[test]
+fn deleted_nested_rule_reconciles_a_retained_directory_absent_from_q() {
+    let mem = Mem::default();
+    let mut ws = Workspace::new(&mem);
+    ws.commit(&[Write("local/.gitignore", b"secret\n"), Write("local/secret", b"local only")], &[]);
+    ws.commit(&[], &[Remove("local")]);
+    assert!(has(&mem.files(ws.local()),"local/secret","local only"));
+    ws.commit(&[], &[]);
+    assert!(has(&mem.files(ws.published),"local/secret","local only"));
+}
