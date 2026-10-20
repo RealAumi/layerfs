@@ -1,0 +1,20 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.05s
+     Running unittests src/lib.rs (core/target/debug/deps/layerfs_store_service-ef9c13d9e78554d6)
+
+running 1 test
+
+thread 'store::ignore::tests::review_model_200_seeds_30_steps' (7292515) panicked at crates/layerfs-store-service/src/store/ignore/tests.rs:743:9:
+assertion `left == right` failed: kept seed=1 step=6
+  left: {".git/": "", ".git/HEAD": "ref: refs/heads/main\n", ".git/index": "DIRC\0\0\0\u{2}\0\0\0\u{4}\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\n.gitignore\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\u{e}build/keep.txt\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\nsrc/A.java\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\ntarget/gen\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", ".gitignore": "target/\nnode_modules/\nbuild/\nout/\n*.log\n", "build/": "", "build/keep.txt": "seed=1;step=0", "src/": "", "src/A.java": "v1", "src/server0": "server=1;step=6", "src/server1": "server=1;step=4", "src/server2": "server=1;step=5"}
+ right: {".git/": "", ".git/HEAD": "ref: refs/heads/main\n", ".git/index": "DIRC\0\0\0\u{2}\0\0\0\u{4}\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\n.gitignore\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\u{e}build/keep.txt\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\nsrc/A.java\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\ntarget/gen\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", ".gitignore": "target/\nnode_modules/\nbuild/\nout/\n*.log\n", "build/": "", "build/keep.txt": "seed=1;step=0", "src/": "", "src/A.java": "v1", "src/server0": "server=1;step=6", "src/server1": "server=1;step=4", "src/server2": "server=1;step=5", "target/": ""}
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test store::ignore::tests::review_model_200_seeds_30_steps ... FAILED
+
+failures:
+
+failures:
+    store::ignore::tests::review_model_200_seeds_30_steps
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 19 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p layerfs-store-service --lib`

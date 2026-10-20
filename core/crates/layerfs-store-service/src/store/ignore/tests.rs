@@ -593,3 +593,162 @@ fn directories_moved_while_ignored_leave_their_old_name_when_kept() {
     assert!(has(&out, "out/x/index.js", "x"));
     assert!(!out.contains_key("node_modules/x/"));
 }
+
+#[test]
+fn review_move_twice_from_shared_ignored_parents() {
+    let mem = Mem::default();
+    let mut workspace = Workspace::new(&mem);
+    // Both ignored parents exist in Q, but Q never sees the first move.
+    workspace.published = mem.edit(Some(workspace.published), &[Write("out/old", b"warm")]);
+    workspace.commit(&[Move("node_modules/x", "out/x")], &[]);
+    let published = workspace.commit(&[Move("out/x", "vendor/x")], &[]);
+    let files = mem.files(published);
+    assert!(has(&files, "vendor/x/index.js", "x"));
+    assert!(!files.contains_key("node_modules/x/"));
+}
+
+#[test]
+fn review_unignore_after_local_delete_removes_stale_published_name() {
+    let mem = Mem::default();
+    let mut workspace = Workspace::new(&mem);
+    workspace.commit(&[Remove("target/old.class")], &[]);
+    let published = workspace.commit(&[Write(".gitignore", b"node_modules/\nbuild/\nout/\n*.log\n")], &[]);
+    assert!(!mem.files(published).contains_key("target/old.class"));
+    assert_eq!(mem.files(workspace.local()).get("target/old.class"), None);
+}
+
+#[test]
+fn review_unreadable_index_does_not_publish_ignored_bytes() {
+    let mem = Mem::default();
+    let mut workspace = Workspace::new(&mem);
+    let published = workspace.commit(&[Write("target/secret", b"private"), Write(".git/index", b"unsupported")], &[]);
+    assert!(!mem.files(published).contains_key("target/secret"));
+}
+
+#[test]
+fn review_server_delete_preserves_local_ignored_descendants() {
+    let mem = Mem::default();
+    let mut workspace = Workspace::new(&mem);
+    workspace.commit(&[Write("logs/private.log", b"private"), Write("logs/kept", b"kept")], &[]);
+    workspace.commit(&[], &[Remove("logs")]);
+    assert!(has(&mem.files(workspace.local()), "logs/private.log", "private"));
+}
+
+#[test]
+fn review_ignored_rule_rewrite_without_hints_reconciles() {
+    let mem = Mem::default();
+    let mut workspace = Workspace::new(&mem);
+    workspace.commit(&[Write(".gitignore", b"*.log\n.gitignore\n"), Write("logs/.gitignore", b"# empty\n"), Write("logs/keep.log", b"keep")], &[]);
+    workspace.hints = PathHints::default();
+    let published = workspace.commit(&[Write("logs/.gitignore", b"!keep.log\n")], &[]);
+    assert!(has(&mem.files(published), "logs/keep.log", "keep"));
+}
+
+// Independent path/byte model for a deliberately small Git rule language.
+// No production classifier or replay is used to compute the expected view.
+fn model_kept(path: &str, files: &BTreeMap<String, String>, tracked: &[String]) -> bool {
+    let path = path.trim_end_matches('/');
+    if path == ".git" || path.starts_with(".git/") || tracked.iter().any(|p| p == path || p.starts_with(&format!("{path}/"))) {
+        return true;
+    }
+    let rules = files.get(".gitignore").map(String::as_str).unwrap_or("");
+    if rules.lines().any(|rule| rule.ends_with('/') && (path == rule.trim_end_matches('/') || path.starts_with(rule))) {
+        return false;
+    }
+    if rules.lines().any(|rule| rule == "*.log") && path.split('/').any(|p| p.ends_with(".log")) {
+        return path == "logs/keep.log" && files.get("logs/.gitignore").is_some_and(|r| r.lines().any(|r| r == "!keep.log"));
+    }
+    true
+}
+
+fn model_apply(files: &mut BTreeMap<String, String>, ops: &[Op<'_>]) {
+    for op in ops {
+        match *op {
+            Write(path, bytes) => {
+                let mut prefix = String::new();
+                let parts: Vec<_> = path.split('/').collect();
+                for part in &parts[..parts.len()-1] {
+                    prefix.push_str(part);
+                    prefix.push('/');
+                    files.entry(prefix.clone()).or_default();
+                }
+                files.insert(path.into(), String::from_utf8_lossy(bytes).into_owned());
+            }
+            Remove(path) => files.retain(|p, _| p != path && !p.starts_with(&format!("{path}/"))),
+            Move(from, to) => {
+                let moved: Vec<_> = files.iter().filter(|(p,_)| p.as_str() == from || p.starts_with(&format!("{from}/"))).map(|(p,b)| (format!("{to}{}", &p[from.len()..]), b.clone())).collect();
+                files.retain(|p,_| p != from && !p.starts_with(&format!("{from}/")));
+                for (p,b) in moved { files.insert(p,b); }
+                let parts: Vec<_> = to.split('/').collect();
+                let mut prefix = String::new();
+                for part in &parts[..parts.len()-1] { prefix.push_str(part); prefix.push('/'); files.entry(prefix.clone()).or_default(); }
+            }
+        }
+    }
+}
+
+fn model_seed(seed: u64) {
+    let mem = Mem::default();
+    let mut ws = Workspace::new(&mem);
+    let mut model = mem.files(ws.local());
+    let mut allowed: BTreeSet<(String,String)> = model.iter().map(|(p,b)| (p.clone(), b.clone())).collect();
+    let mut tracked: Vec<String> = TRACKED.iter().map(|s| (*s).into()).collect();
+    let mut random = seed + 1;
+    let mut next = || { random ^= random << 13; random ^= random >> 7; random ^= random << 17; random };
+    for step in 0..30 {
+        let pick = next();
+        let path = ["target/gen", "out/gen", "logs/keep.log", "logs/drop.log", "src/random", "build/keep.txt", "node_modules/x/index.js"][(pick as usize / 16) % 7];
+        let bytes = format!("seed={seed};step={step}");
+        let rule = if pick & 256 == 0 { "target/\nnode_modules/\nbuild/\nout/\n*.log\n" } else { "node_modules/\nbuild/\nout/\n*.log\n" };
+        let index_bytes;
+        let from;
+        let to;
+        let ops = match pick % 10 {
+            0..=3 => vec![Write(path, bytes.as_bytes())],
+            4 => if model.contains_key(path) { vec![Remove(path)] } else { vec![Write(path, bytes.as_bytes())] },
+            5 => vec![Write(".gitignore", rule.as_bytes())],
+            6 => vec![Write("logs/.gitignore", if pick & 512 == 0 { b"!keep.log\n" } else { b"# none\n" })],
+            7 => {
+                if tracked.iter().any(|p| p == path) { tracked.retain(|p| p != path); } else { tracked.push(path.into()); }
+                index_bytes = index(&tracked.iter().map(String::as_str).collect::<Vec<_>>());
+                vec![Write(".git/index", &index_bytes)]
+            }
+            8 => {
+                // Move files and complete directories, preserving serials.
+                let candidates: Vec<_> = model.keys().filter(|p| !p.starts_with('.') && p.as_str() != "src/" && p.as_str() != "build/").cloned().collect();
+                from = candidates[(pick as usize / 1024) % candidates.len()].trim_end_matches('/').to_owned();
+                to = format!("{}/m{step}", if pick & 512 == 0 { "out" } else { "vendor" });
+                // Moving a directory into itself is not an ordinary successful operation.
+                if to.starts_with(&format!("{from}/")) { vec![Write(path, bytes.as_bytes())] } else { vec![Move(&from, &to)] }
+            }
+            _ => {
+                let dirs: Vec<_> = model.keys().filter(|p| p.ends_with('/') && !p.starts_with('.') && !p.starts_with("src/")).cloned().collect();
+                if dirs.is_empty() { vec![Write(path, bytes.as_bytes())] } else {
+                    from = dirs[(pick as usize / 1024) % dirs.len()].trim_end_matches('/').to_owned();
+                    vec![Remove(&from)]
+                }
+            }
+        };
+        let server_path = format!("src/server{}", step % 3);
+        let server_bytes = format!("server={seed};step={step}");
+        let server = if pick & 64 == 0 { vec![Write(&server_path, server_bytes.as_bytes())] } else { vec![] };
+        model_apply(&mut model, &ops);
+        model_apply(&mut model, &server);
+        for (p,b) in &model { if model_kept(p, &model, &tracked) { allowed.insert((p.clone(), b.clone())); } }
+        let published = ws.commit(&ops, &server);
+        let local = mem.files(ws.local());
+        assert_eq!(local, model, "local model seed={seed} step={step}");
+        let out = mem.files(published);
+        let kept = |files: &BTreeMap<String,String>| files.iter().filter(|(p,_)| model_kept(p, &model, &tracked)).map(|(p,b)| (p.clone(),b.clone())).collect::<BTreeMap<_,_>>();
+        assert_eq!(kept(&local), kept(&out), "kept seed={seed} step={step}");
+        for (p,b) in &out { assert!(allowed.contains(&(p.clone(), b.clone())), "leak seed={seed} step={step} path={p}"); }
+    }
+}
+
+#[test]
+fn review_model_200_seeds_30_steps() {
+    for seed in 0..200 { model_seed(seed); }
+}
+
+#[test]
+fn review_seed_1_tracking_a_locally_deleted_directory() { model_seed(1); }

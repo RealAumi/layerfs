@@ -1,0 +1,34 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.05s
+     Running tests/transport.rs (core/target/debug/deps/transport-1f2b5f5d79bb1d92)
+
+running 2 tests
+test fragments_cross_noise_records_and_reject_a_bad_offset ... FAILED
+test wrong_canonical_identity_is_not_cached_or_replayed ... FAILED
+
+failures:
+
+---- fragments_cross_noise_records_and_reject_a_bad_offset stdout ----
+
+thread '<unnamed>' (7271847) panicked at crates/layerfs-remote-store/tests/transport.rs:49:49:
+called `Result::unwrap()` on an `Err` value: BackendError { detail: "Resource temporarily unavailable (os error 35)", unknown: false }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'fragments_cross_noise_records_and_reject_a_bad_offset' (7271845) panicked at crates/layerfs-remote-store/tests/transport.rs:61:50:
+called `Result::unwrap()` on an `Err` value: BackendError { detail: "Broken pipe (os error 32); shutdown also failed: Socket is not connected (os error 57)", unknown: false }
+
+---- wrong_canonical_identity_is_not_cached_or_replayed stdout ----
+
+thread '<unnamed>' (7271848) panicked at crates/layerfs-remote-store/tests/transport.rs:93:48:
+called `Result::unwrap()` on an `Err` value: BackendError { detail: "Resource temporarily unavailable (os error 35)", unknown: false }
+
+thread 'wrong_canonical_identity_is_not_cached_or_replayed' (7271846) panicked at crates/layerfs-remote-store/tests/transport.rs:110:5:
+unexpected end of file; shutdown also failed: Socket is not connected (os error 57)
+
+
+failures:
+    fragments_cross_noise_records_and_reject_a_bad_offset
+    wrong_canonical_identity_is_not_cached_or_replayed
+
+test result: FAILED. 0 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `-p layerfs-remote-store --test transport`
