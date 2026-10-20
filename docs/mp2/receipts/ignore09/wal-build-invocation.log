@@ -1,0 +1,10 @@
+BUILD source: HEAD a2dfc4fe06b3a7c83614258b94d918d629a4a545 worktree-diff+untracked sha256 9468409082bf4ef5807c7743172268028214d40cc44330e59ae05c4ba17f4e31
+BUILD bins: ok in 4s:     Finished `test` profile [optimized + debuginfo] target(s) in 3.86s
+BUILD daemon: ok in 4s:     Finished `test` profile [optimized + debuginfo] target(s) in 3.19s
+BUILD driver: ok in 6s: /target/cargo/debug/deps/remote_driver-a38802135b0ca42e
+BUILD artifacts:
+d3e3700fd8c5616b50f3a68eb163cffc85001baee1503fc1ce16df0b1aec42dd  bin/layerfs-store
+c1f2c83f3b4f68fe8276ec23e12cb7a7747d66c4bfd6e557a373bf6e335cdeb2  bin/layerfs-remote
+9f0b80f7f38f216bd96b93815815e50470a58694f24412663405e03386d9ab7e  bin/layerfs-remote-daemon
+0225b23689c8fd54d4b2d0a5a8b3dd1d5b38ee22b0be093afda7cd62d84ba271  bin/remote_driver
+6b361b5765081c0190ee20a5d021dc607150ce0a0f43e636183762f48f7532c4  bin/tcp-cut.py

@@ -40,6 +40,10 @@ def load(arm):
                 args[-1] += "; printf 'ignore=git\\n' >> /state/daemon.setup"
         return original(*args, **kw)
     h.docker=docker
+    def ctl(b,op,*args,expected=0):
+        return h.docker('exec',b,'timeout','115','/opt/lfs/layerfs-remote',
+                        '/state/daemon.setup',op,*args,expected=expected,wall=120)
+    h.ctl=ctl
     return h
 
 def seal(arm, source):
@@ -106,8 +110,82 @@ def measure(arm):
         h.unmount(restored); h.unmount(mounts['unkeyed'])
     record(dict(kind='complete',ns=time.monotonic_ns()-start))
 
+def kill_loop():
+    import subprocess
+    h=load('kill-loop'); output=h.RECEIPTS/'cycles.jsonl'
+    assert not output.exists(), 'each cycle runs once'
+    delays=[0,2,5,10,20,40,80,160,320,640,1,3,7,15,30,60,120,240,480,960]
+    def record(r):
+        with output.open('a') as f: f.write(json.dumps(r)+'\n')
+        print(json.dumps(r),flush=True)
+    def prepare(m, generation):
+        h.put(m,'tracked.txt',f'gen {generation:08d}\n')
+        h.execute(m.b,'timeout','20','python3','-c',
+            'import pathlib,sys,hashlib\np=pathlib.Path(sys.argv[1]);p.mkdir(exist_ok=True)\n'
+            'g=int(sys.argv[2])\n'
+            'for name in ["a","b"]:(p/name).write_bytes((f"generation:{g:08d}\\n").encode()+hashlib.shake_256(f"{g}:{name}".encode()).digest(8*1024*1024))',
+            m.p('target'),str(generation),wall=25)
+    with h.Env():
+        m=h.mount(h.B1,'crash')
+        h.put(m,'.gitignore','node_modules/\ntarget/\n')
+        h.execute(h.B1,'timeout','115','python3','-c','import shutil,sys;shutil.copytree("/fixture/node_modules",sys.argv[1]+"/node_modules")',m.path,wall=120)
+        prepare(m,0); h.commit(m)
+        record(dict(kind='setup',fixture=json.loads((WORK/'fixture.json').read_text()),delays_ms=delays))
+        for cycle, delay in enumerate(delays,1):
+            row=dict(cycle=cycle,delay_ms=delay,result='FAIL')
+            try:
+                prepare(m,cycle)
+                # Change only the NEXT process incarnation's paths before kill.
+                h.execute(h.B1,'sed','-i','-e',f's|^overlay=.*|overlay=/state/overlay-{cycle}/template.sqlite|','-e',f's|^mounts=.*|mounts=/workspaces-{cycle}|','/state/daemon.setup')
+                h.execute(h.B1,'rm','-f','/state/commit.pid')
+                h.execute(h.B1,'mv','/state/daemon.log',f'/state/daemon-cycle-{cycle}.log')
+                script='echo $$ > /state/commit.pid; exec timeout 25 /opt/lfs/layerfs-remote /state/daemon.setup commit "$1" "$2"'
+                p=subprocess.Popen(['docker','--context','orbstack','exec',h.B1,'bash','-c',script,'bash',m.ws,str(m.ns)],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True)
+                # Observe a live CLI process before applying the chosen delay.
+                h.execute(h.B1,'timeout','3','bash','-c','while ! test -s /state/commit.pid; do sleep .001; done',wall=5)
+                time.sleep(delay/1000)
+                row['client_finished_before_kill']=p.poll() is not None
+                h.docker('kill','--signal','KILL',h.B1)
+                stdout,_=p.communicate(timeout=30)
+                row.update(commit_exit=p.returncode,commit_output=stdout)
+                h.docker('cp',f'{h.B1}:/state/daemon-cycle-{cycle}.log',str(h.RECEIPTS/f'cycle-{cycle:02d}-killed.log'))
+                h.docker('start',h.B1)
+                h.ready(h.B1,'REMOTE_DAEMON_READY','/state/daemon.log')
+                # A fresh log plus actual control creation prove this incarnation opened the cache.
+                t=time.monotonic_ns();m=h.mount(h.B1,'crash');row['restore_outer_ns']=time.monotonic_ns()-t
+                stats=h.ctl(h.B1,'stats').stdout;row['stats_after_restore']=stats
+                validation=h.execute(h.B1,'timeout','20','python3','-c',
+                    'import pathlib,sys,json,sqlite3,hashlib\n'
+                    'p=pathlib.Path(sys.argv[1]);c=sqlite3.connect("file:/state/cache/objects.sqlite?mode=ro",uri=True)\n'
+                    'pair=[]\n'
+                    'for n in ["a","b"]:\n'
+                    ' f=p/"target"/n;data=f.read_bytes() if f.exists() else None\n'
+                    ' if data is None:pair.append(None);continue\n'
+                    ' head,tail=data.split(b"\\n",1);g=int(head.split(b":")[1]);assert tail==hashlib.shake_256(f"{g}:{n}".encode()).digest(8*1024*1024);pair.append(g)\n'
+                    'record=c.execute("SELECT body FROM restore_points WHERE key=?",("crash",)).fetchone()\n'
+                    'print(json.dumps(dict(integrity=c.execute("PRAGMA quick_check").fetchone()[0],journal=c.execute("PRAGMA journal_mode").fetchone()[0],generation=pair,record_sha=hashlib.sha256(record[0]).hexdigest() if record else None)))',m.path,wall=25)
+                facts=json.loads(validation.stdout);row.update(facts)
+                assert facts['integrity']=='ok' and facts['journal']=='wal',facts
+                if 'Text("restored")' in stats or 'String("restored")' in stats:
+                    assert facts['generation'][0]==facts['generation'][1] and 0<=facts['generation'][0]<=cycle,facts
+                else:
+                    assert any(reason in stats for reason in ['missing-local-objects','invalid-local-objects','invalid-record','validation-unavailable','not-found']),stats
+                    assert facts['generation']==[None,None],facts
+                result,ns,outer=h.commit(m);row.update(next_commit=result,next_ns=ns)
+                first=json.load(gzip.open(MANIFEST,'rt'))[0]['path']
+                assert h.server_read('/'+first) is None
+                assert h.server_read('/target/a') is None and h.server_read('/target/b') is None
+                assert h.server_read('/tracked.txt')==h.cat(m,'tracked.txt')
+                row['result']='PASS'
+                h.execute(h.B1,'rm','-f','/state/commit.pid')
+            except Exception as e:
+                row['error']=repr(e)
+            record(row)
+        h.try_unmount('kill-loop',m,discard=True)
+
 if __name__=='__main__':
     if sys.argv[1]=='fixture': fixture()
     elif sys.argv[1]=='seal': seal(sys.argv[2],sys.argv[3])
     elif sys.argv[1]=='measure': measure(sys.argv[2])
+    elif sys.argv[1]=='kill-loop': kill_loop()
     else: raise ValueError(sys.argv)

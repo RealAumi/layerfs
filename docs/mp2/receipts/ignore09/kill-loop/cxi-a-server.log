@@ -1,0 +1,57 @@
+REMOTE_STORE_READY 0.0.0.0:7800
+STORE_METADATA objects=1 lengths=0
+STORE_METADATA objects=1 lengths=0
+STORE_METADATA objects=60 lengths=3003
+STORE_METADATA objects=2 lengths=0
+STORE_METADATA objects=11 lengths=0
+STORE_READ opcode=3 ids=[ObjectId("0c411539fd81e7174a98c3f76bf1578a8e5232f6555aa470d31d9f824de1b406")]
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+STORE_READ opcode=3 ids=[ObjectId("e34d6e17f80767a5975c9ed688bc5ac94f5d87c9a3a035ea5390d5797e7db848"), ObjectId("4ea3b87b9781315904a9938acf180ae242857b7603b623b045f024183e28e767")]
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+STORE_READ opcode=3 ids=[ObjectId("0b94f783b26af1048ce06b61f884420a893fed030958f873bcc4e03a944b57c6")]
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+STORE_READ opcode=3 ids=[ObjectId("7cfed6be29fe01a4f022b62c8cb2eaa3537e396b389c8a40b68f5139ed51f847")]
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+STORE_READ opcode=3 ids=[ObjectId("08055732d20622526f4600cf635caf703c1c12a4b77e3cda0741c6a80bb5b34d")]
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+STORE_READ opcode=3 ids=[ObjectId("e64acc4eab9b1802f0714a17aca64e3f7317f46153a8f1e7f3d51d6a23da9031")]
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+remote connection ended: Broken pipe (os error 32); shutdown also failed: Transport endpoint is not connected (os error 107)
+remote connection ended: unexpected end of file
+STORE_READ opcode=3 ids=[ObjectId("684de0ee83332cb7dbd65fcb7ad3becd4171a8f5130142ba022920a2c10d3f15")]
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+STORE_READ opcode=3 ids=[ObjectId("fd6bbceb383370ac821ff7379bc169d8eaac7b2c0f315889e65db2400ce293f2")]
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+STORE_READ opcode=3 ids=[ObjectId("2246c5a770b0c2f4e68fede050699e5075b863e3ec538eff6ee395abd6106ea3")]
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+STORE_READ opcode=3 ids=[ObjectId("ce959fd49162800615ffb249014683301d1aefc8a73df14c3c112109e939bc6a")]
+remote connection ended: unexpected end of file
+remote connection ended: unexpected end of file
+STORE_READ opcode=3 ids=[ObjectId("858d1ef09e911517f866fa9efaa9bf731ddbf7567f5727b4665416f73c6e9540")]

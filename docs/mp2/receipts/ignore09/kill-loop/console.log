@@ -1,0 +1,4 @@
+ignore setting lines: B1 1 | B2 1
+  [PASS] kill-loop :: unmount cxi-b1 ns1 (discard) clean
+cxi-b1 daemon.log error-ish lines: 0
+cxi-b2 daemon.log error-ish lines: 0

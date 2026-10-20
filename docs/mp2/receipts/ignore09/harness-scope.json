@@ -1,0 +1,15 @@
+{
+  "measurement_harness_source": "b927c453c",
+  "scope": {
+    "fixture": "9f73747e7321b0b5cb59787de98da4c0f8175c2aea4865195bedee1fd58ed4c7",
+    "load": "7d47d14c5dade588c6654b6832268b5e6350e564dbab0a2f757248893789cdbf",
+    "seal": "b0cda904e9655b8773e2b59827b23974a2a064103f69cf73b14f2e5031d9dba1",
+    "measure": "c4658a733182e608052f845a82a026a9e855453f59210bfc3ea2f8b1cc87492f"
+  },
+  "new_kill_loop_does_not_change_measurement_functions": true,
+  "post_campaign_change": {
+    "control_deadline": "inherited 300/320 seconds corrected to 115/120 seconds after all runs",
+    "used_in_retained_runs": false,
+    "measurement_body_changed": false
+  }
+}

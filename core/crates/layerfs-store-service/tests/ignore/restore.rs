@@ -334,6 +334,11 @@ fn failed_record_write_leaves_commit_successful_and_workspace_usable() {
             "src/A.java",
             "tracked-two"
         ));
+        let older = bind(remote, owner, 4, Some("key"));
+        older.commit_captured(&CommitOptions::default()).unwrap();
+        assert_eq!(file(&older, &["target", "old.class"], None), b"private-one");
+        assert_eq!(file(&older, &["src", "A.java"], None), b"tracked-two");
+        older.close().unwrap();
         remote.0.lock().unwrap().fault = Fault::None;
         ws.commit_captured(&CommitOptions::default()).unwrap();
         ws.close().unwrap();

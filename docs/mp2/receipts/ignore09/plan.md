@@ -43,3 +43,12 @@ record blob size, local cache DB/WAL sizes and object bytes, outside sample timi
 Process-crash qualification does not include power loss. Kill samples retain the
 original Commit result/uncertainty, database integrity/open observations, selected
 restore state, and the explicit next Commit's no-ignored-publication proof.
+
+
+Post-campaign deadline audit (does not amend the registration above): measured
+Commit samples used the intended 25-second child / 28-second host bounds. However,
+setup, restore and recovery control helpers inherited 300/320-second limits from
+run-ignore-e2e.py. This violates the registered <=120-second control bound; no
+child actually reached 120 seconds, and all cohorts finished within 58 seconds.
+The failing pure harness check is retained; future calls now use 115/120 seconds.
+No measured arm or kill cycle was rerun to replace the original evidence.

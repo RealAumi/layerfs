@@ -1,0 +1,4 @@
+Inherited control deadline: ('exec', 'cxi-b1', 'timeout', '300', '/opt/lfs/layerfs-remote', '/state/daemon.setup', 'commit', 'workspace', '1') {'expected': 0, 'wall': 320}
+Traceback (most recent call last):
+  File "<stdin>", line 9, in <module>
+AssertionError

@@ -1,0 +1,6 @@
+   Compiling layerfs-remote-store v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-remote-store)
+   Compiling layerfs-store-service v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-store-service)
+    Finished `test` profile [optimized + debuginfo] target(s) in 2.06s
+  Executable tests/restore_cache.rs (core/target/debug/deps/restore_cache-fcc99b9679fe2199)
+  Executable tests/transport.rs (core/target/debug/deps/transport-1f2b5f5d79bb1d92)
+  Executable tests/ignore.rs (core/target/debug/deps/ignore-1c5653cdc3a7ad94)

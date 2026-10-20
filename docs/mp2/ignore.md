@@ -102,11 +102,11 @@ Remote creation accepts optional `restore_key` on the control `Mount` request:
 `layerfs-remote <config> mount <branch-id> [restore-key]`. Choose a stable identity
 for the caller's local sandbox. Keys are scoped by cache file, canonical Store
 scope and Branch. **One live sandbox per key is the caller's responsibility**;
-there is no lease or refusal. Sequential successful Commits sharing a key replace
-its entire record, so the last record wins without mixing roots or seeds.
+there is no lease or refusal. Each successful checkpoint write replaces
+the entire record, so the last saved record wins without mixing roots or seeds.
 Absent keys and ignore-off preserve the previous behavior and write no record.
 
-After a known successful publication and installation, the Commit writes one
+After a known successful publication and installation, the Commit attempts one
 transaction to `restore_points` in the existing cache SQLite. The record contains
 local `L`, its published partner, pending seeds, and the **original BranchSnapshot**.
 Creation restores that old snapshot, so the next Commit still merges a server
@@ -123,21 +123,31 @@ LACKING phase (4096-ID protocol windows); any server-missing ID rejects the reco
 Remote objects remain demand fetchable. Payload authenticity is checked on demand,
 not by reading all ignored bytes at restore. Old manifest-bearing records remain
 readable, but their manifest suffix is ignored in favor of the current graph.
-`operator.remote.stats.restore` reports the latest keyed creation decision:
-`restored`, `not-found`, `missing-local-objects`, `invalid-local-objects`, or
+`operator.remote.stats.restore` reports the latest keyed creation decision or
+checkpoint-write failure:
+`restored`, `not-found`, `missing-local-objects`, `invalid-local-objects`,
 `invalid-record`, or `validation-unavailable`; before any keyed request it is
 `not-requested`. A failed record write reports `save-failed` and keeps the
-previous record while the installed Commit remains successful and usable. Missing/invalid
-records fall back to the current published head with empty ignore state: no
-rejected seeds survive. Errors reading the record itself still return their original database error.
+previous record while the installed Commit remains successful and usable.
+Missing/invalid records fall back to the current published head with empty ignore state: no
+rejected seeds survive. Errors reading the record itself still return their
+original database error.
 
-Only the last successful Commit is restored. Later edits and the overlay are
+Only the last successfully saved installed checkpoint is restored. Later edits and the overlay are
 not recovered. Restart supplies fresh disposable overlay and mount paths while
 retaining the cache; the existing `AlreadyExists` refusals are unchanged.
 A failed post-install record write leaves the previous record. Its original
 binding lets the next restored Commit merge any newer head; ignored changes
-after that older checkpoint may be lost. No publication recovery protocol is added. SQLite's
-existing cache profile is unchanged; this is not a power-loss durability claim.
+after that older checkpoint may be lost. No publication recovery protocol is added.
+
+The canonical cache configuration in `layerfs-remote-store/src/cache.rs` belongs
+to the `mp2/remote-store` base and applies to all remote clients. It now uses
+**WAL with synchronous=OFF**: application-process crash consistency, without a
+power-loss/OS-crash guarantee. Keep its database and WAL together on restart.
+This addresses the cache's new role as the only copy of local-only objects;
+Workspace overlays still use their disposable profile and fresh incarnation paths.
+See [SQLite's synchronous contract](https://www.sqlite.org/pragma.html#pragma_synchronous)
+and [MEMORY-journal crash warning](https://www.sqlite.org/howtocorrupt.html).
 
 ## Cost and limits
 
@@ -197,3 +207,13 @@ without uploading ignored objects. See [ignore08](receipts/ignore08/README.md) f
 checks and the first/only full Docker run (11 scenarios, 185 checks passed); [ignore07](receipts/ignore07/README.md) retains
 the failing baseline and startup-path diagnostics. The existing corrected
 [ignore06 e2e](receipts/ignore06/README.txt) remains unchanged.
+
+Current cost/crash evidence: [ignore09](receipts/ignore09/README.md). On the
+Phase 8 ignored fixture, the retained 10-per-arm hot cohorts show keyed one-file
+Commit medians of 327.34 ms with manifests, 6.97 ms with small records/MEMORY,
+and 7.34 ms with small records/WAL. WAL unkeyed median is 7.12 ms; restore is
+152.80 ms including CLI/attachment. These are local diagnostics with uncontrolled
+OS caches, not general performance guarantees. All 20 kill/restart checks passed;
+12 Commits were interrupted and eight completed before the kill. No cycle was
+rerun. Power loss, arbitrary bit-rot of unchecked payload leaves, and recovery of
+uncommitted edits remain outside this proof.

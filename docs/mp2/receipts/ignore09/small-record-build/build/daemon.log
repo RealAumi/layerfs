@@ -1,0 +1,4 @@
+   Compiling layerfs-store-service v0.1.7 (/work/core/crates/layerfs-store-service)
+   Compiling layerfs-remote-store v0.1.7 (/work/core/crates/layerfs-remote-store)
+   Compiling layerfs-daemon v0.1.7 (/work/core/crates/layerfs-daemon)
+    Finished `test` profile [optimized + debuginfo] target(s) in 5.65s

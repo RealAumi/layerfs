@@ -1,0 +1,10 @@
+{
+  "documentation_links": "PASS",
+  "harness_syntax": "PASS",
+  "production_added": 105,
+  "production_removed": 42,
+  "production_net": 63,
+  "linux_binary_source": "a2dfc4fe0 plus wal-build/source.patch; final production differs only by that exact patch",
+  "untouched_existing_e2e": true,
+  "control_deadline_selfcheck": "PASS after retained failing audit; past cohorts not rerun"
+}

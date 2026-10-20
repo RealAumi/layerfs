@@ -8,7 +8,7 @@ pub struct Cache(Mutex<Connection>);
 impl Cache {
     pub fn open(path: &Path) -> Result<Self> {
         let db = Connection::open(path).map_err(error)?;
-        db.execute_batch("PRAGMA journal_mode=MEMORY; PRAGMA synchronous=OFF; PRAGMA mmap_size=0; PRAGMA cache_size=-2048;
+        db.execute_batch("PRAGMA journal_mode=WAL; PRAGMA synchronous=OFF; PRAGMA mmap_size=0; PRAGMA cache_size=-2048;
             CREATE TABLE IF NOT EXISTS objects(id BLOB PRIMARY KEY, body BLOB NOT NULL, role INTEGER, remote INTEGER NOT NULL DEFAULT 1);
             CREATE INDEX IF NOT EXISTS object_presence ON objects(id,remote,role);
             CREATE TABLE IF NOT EXISTS lengths(id BLOB PRIMARY KEY, value INTEGER NOT NULL);
