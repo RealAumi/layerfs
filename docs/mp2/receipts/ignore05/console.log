@@ -1,0 +1,359 @@
+ignore setting lines: B1 1 | B2 0
+=== 1 warm base (B2, ignore off)
+  [PASS] 1 warm base (B2, ignore off) :: git status clean before Commit (ignored files hidden) -- ''
+  [PASS] 1 warm base (B2, ignore off) :: git ls-files has .gitignore and src/A.java, not target/
+  warm commit output: Committed(Committed { record: CommitRecord { id: CommitId(12a525f5b06b61b177c31b2a774d2c9d5f0ce60f2bfa7aab2631261f478509ffca), stack: LayerStackId(3117171717171717171717171717171717), root: ObjectId("d2ca71a29532eeafbb7426e1babc9898a7281d8431f4cfaaefdbbeb4b26e7616"), parent: None, base_layer: LayerId(320955e18f2b36c9b9e2a338636eaef912589fbe4ba71062b9683ffbf8ea1c7e75), second_parent: None, meta: Co
+  [PASS] 1 warm base (B2, ignore off) :: warm Commit published ignored target/old.class (ignore off) -- 'old'
+  [PASS] 1 warm base (B2, ignore off) :: published node_modules/x/index.js
+  [PASS] 1 warm base (B2, ignore off) :: published src/A.java v1
+  [PASS] 1 warm base (B2, ignore off) :: published .git/HEAD
+  [PASS] 1 warm base (B2, ignore off) :: unmount ign-b2 ns1 clean
+B1 mounted /workspaces/1
+=== 2 ignored changes stay local (B1 ignore=git)
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: B1 sees the warm base (src/A.java v1, target/old.class old)
+  warm-up watch: {"scenario": "2 ignored changes stay local (B1 ignore=git)", "commit_round_trips": 8, "settle_round_trips": 0, "store_reads": 5, "store_metadata": 0, "local_only_in_cache": 4813, "local_only_requested": 0}
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: warm-up watch: no server read of a local-only object during/after Commit -- {'scenario': '2 ignored changes stay local (B1 ignore=git)', 'commit_round_trips': 8, 'settle_round_trips': 0, 'store_reads': 5, 'store_metadata': 0, 'local_only_in_cache': 4813, 'local_only_requested': 0} asked=[]
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: warm-up watch: no server activity in the 3 s after Commit (round trips) -- commit=8 settle=0
+  s2 commit output: Committed(Committed { record: CommitRecord { id: CommitId(124ed920927315bf4b6240455df0e1bb0ae370cf9d7c5b812a61940a214db23505), stack: LayerStackId(3117171717171717171717171717171717), root: ObjectId("1b6213a8e012818d1cd4944818c67744de9ea47e6acd9c41f80fc42e6c14938a"), parent: Some(CommitId(12a525f5b06b61b177c31b2a774d2c9d5f0ce60f2bfa7aab2631261f478509ffca)), base_layer: LayerId(320955e18f2b36c9b9e2a338636eaef912589fbe4ba71062b9683ffbf8ea1c7e75), second_parent: None, meta: CommitMeta { branch: Som
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (a) client uploadedBytes far below 32 MiB (< 2 MiB) -- delta={'roundTrips': 8, 'uploadedObjects': 4, 'uploadedBytes': 9353}
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (a) server store grew far below 32 MiB (< 2 MiB) -- 6299360 -> 6299360 (+0)
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (b) B1 src/A.java edited
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (b) B1 target/big.bin stat size == 32 MiB -- 33554432
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (b) B1 target/big.bin content sha unchanged -- 97bf6c7dd39e142afc2dfed65362be788bb97dc334e6a07a1da99f88e33d881d
+  ls -l after Commit:
+-rw-rw-rw- 1 1000 1000       11 Oct 20 18:04 /workspaces/1/app.log
+-rw-rw-rw- 1 1000 1000 33554432 Oct 20 18:04 /workspaces/1/target/big.bin
+-rw-rw-rw- 1 1000 1000        7 Oct 20 18:04 /workspaces/1/target/old.class
+
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (b) ls -l shows big.bin with 33554432 bytes -- -rw-rw-rw- 1 1000 1000       11 Oct 20 18:04 /workspaces/1/app.log
+-rw-rw-rw- 1 1000 1000 33554432 Oct 20 18:04 /workspaces/1/target/big.bin
+-rw-rw-rw- 1 1000 1000        7 Oct 20 18:04 /workspaces/1/target/old.class
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (b) B1 node_modules/y still 3000 files -- 3000
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (b) B1 node_modules/y content hash unchanged
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (b) B1 node_modules/y stat sizes are real (non-zero) -- 58 59 60 61 
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (b) B1 app.log content + size -- 11
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (b) B1 target/old.class == rebuilt (size 7)
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (b) B1 node_modules/x/index.js still readable
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (c): B2 src/A.java == 'class A { int v = 2; }\n' -- 'class A { int v = 2; }\n'
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (c): B2 target/old.class == 'old' -- 'old'
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (c): B2 has node_modules/x/index.js
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (c): B2 has no target/big.bin
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (c): B2 has no node_modules/y
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (c): B2 has no app.log
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: unmount ign-b2 ns2 (discard) clean
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (c) published head lacks big.bin / node_modules/y/m0000.js / app.log (Store SDK)
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (d) B1 git status --porcelain == " M src/A.java" -- ' M src/A.java\n'
+  [PASS] 2 ignored changes stay local (B1 ignore=git) :: (d) B2 git status --porcelain == " M src/A.java" -- ' M src/A.java\n'
+=== 3 clean
+  warm-up watch: {"scenario": "3 clean", "commit_round_trips": 1, "settle_round_trips": 0, "store_reads": 0, "store_metadata": 0, "local_only_in_cache": 4818, "local_only_requested": 0}
+  [PASS] 3 clean :: warm-up watch: no server read of a local-only object during/after Commit -- {'scenario': '3 clean', 'commit_round_trips': 1, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4818, 'local_only_requested': 0} asked=[]
+  [PASS] 3 clean :: warm-up watch: no server activity in the 3 s after Commit (round trips) -- commit=1 settle=0
+  [PASS] 3 clean :: B1 no longer shows target/ and node_modules/
+  [PASS] 3 clean :: B2: B2 target/old.class == 'old' -- 'old'
+  [PASS] 3 clean :: B2: B2 node_modules/x/index.js == 'module.exports = 1;\n' -- 'module.exports = 1;\n'
+  [PASS] 3 clean :: B2: B2 has node_modules/x
+  [PASS] 3 clean :: unmount ign-b2 ns3 (discard) clean
+  [PASS] 3 clean :: published head still has target/old.class old (Store SDK)
+  [PASS] 3 clean :: B2 git status unchanged (only " M src/A.java") -- ' M src/A.java\n'
+=== 4 rebuild
+  warm-up watch: {"scenario": "4 rebuild", "commit_round_trips": 1, "settle_round_trips": 0, "store_reads": 0, "store_metadata": 0, "local_only_in_cache": 4825, "local_only_requested": 0}
+  [PASS] 4 rebuild :: warm-up watch: no server read of a local-only object during/after Commit -- {'scenario': '4 rebuild', 'commit_round_trips': 1, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4825, 'local_only_requested': 0} asked=[]
+  [PASS] 4 rebuild :: warm-up watch: no server activity in the 3 s after Commit (round trips) -- commit=1 settle=0
+  [PASS] 4 rebuild :: B1 target/old.class == again
+  [PASS] 4 rebuild :: rebuild upload tiny (< 64 KiB) -- 0
+  [PASS] 4 rebuild :: B2: B2 target/old.class == 'old' -- 'old'
+  [PASS] 4 rebuild :: unmount ign-b2 ns4 (discard) clean
+  [PASS] 4 rebuild :: published head target/old.class still old (Store SDK)
+=== 5 flip
+  warm-up watch: {"scenario": "5 flip", "commit_round_trips": 1, "settle_round_trips": 0, "store_reads": 0, "store_metadata": 0, "local_only_in_cache": 4832, "local_only_requested": 0}
+  [PASS] 5 flip :: warm-up watch: no server read of a local-only object during/after Commit -- {'scenario': '5 flip', 'commit_round_trips': 1, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4832, 'local_only_requested': 0} asked=[]
+  [PASS] 5 flip :: warm-up watch: no server activity in the 3 s after Commit (round trips) -- commit=1 settle=0
+  [PASS] 5 flip :: 5a B1 still shows out/gen.txt
+  [PASS] 5 flip :: 5a: B2 has no out/gen.txt
+  [PASS] 5 flip :: unmount ign-b2 ns5 (discard) clean
+  warm-up watch: {"scenario": "5 flip", "commit_round_trips": 3, "settle_round_trips": 0, "store_reads": 0, "store_metadata": 0, "local_only_in_cache": 4833, "local_only_requested": 0}
+  [PASS] 5 flip :: warm-up watch: no server read of a local-only object during/after Commit -- {'scenario': '5 flip', 'commit_round_trips': 3, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4833, 'local_only_requested': 0} asked=[]
+  [PASS] 5 flip :: warm-up watch: no server activity in the 3 s after Commit (round trips) -- commit=3 settle=0
+  [PASS] 5 flip :: 5b after git add -f: B2 out/gen.txt == 'gen from B1\n' -- 'gen from B1\n'
+  [PASS] 5 flip :: unmount ign-b2 ns6 (discard) clean
+  [PASS] 5 flip :: 5b published head has out/gen.txt with B1 bytes (Store SDK)
+  warm-up watch: {"scenario": "5 flip", "commit_round_trips": 3, "settle_round_trips": 0, "store_reads": 0, "store_metadata": 0, "local_only_in_cache": 4837, "local_only_requested": 0}
+  [PASS] 5 flip :: warm-up watch: no server read of a local-only object during/after Commit -- {'scenario': '5 flip', 'commit_round_trips': 3, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4837, 'local_only_requested': 0} asked=[]
+  [PASS] 5 flip :: warm-up watch: no server activity in the 3 s after Commit (round trips) -- commit=3 settle=0
+  [PASS] 5 flip :: 5c after .gitignore edit: B2 keep.log == 'keep me\n' -- 'keep me\n'
+  [PASS] 5 flip :: 5c after .gitignore edit: B2 app.log == 'log line 1\n' -- 'log line 1\n'
+  [PASS] 5 flip :: 5c after .gitignore edit: B2 .gitignore == 'target/\nnode_modules/\nout/\n' -- 'target/\nnode_modules/\nout/\n'
+  [PASS] 5 flip :: unmount ign-b2 ns7 (discard) clean
+  warm-up watch: {"scenario": "5 flip", "commit_round_trips": 1, "settle_round_trips": 0, "store_reads": 0, "store_metadata": 0, "local_only_in_cache": 4842, "local_only_requested": 0}
+  [PASS] 5 flip :: warm-up watch: no server read of a local-only object during/after Commit -- {'scenario': '5 flip', 'commit_round_trips': 1, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4842, 'local_only_requested': 0} asked=[]
+  [PASS] 5 flip :: warm-up watch: no server activity in the 3 s after Commit (round trips) -- commit=1 settle=0
+  [PASS] 5 flip :: 5d moved-file prelude: B2 has no target/moved.txt
+  [PASS] 5 flip :: 5d moved-file prelude: B2 has no src/moved.txt
+  [PASS] 5 flip :: unmount ign-b2 ns8 (discard) clean
+  warm-up watch: {"scenario": "5 flip", "commit_round_trips": 3, "settle_round_trips": 0, "store_reads": 0, "store_metadata": 0, "local_only_in_cache": 4844, "local_only_requested": 0}
+  [PASS] 5 flip :: warm-up watch: no server read of a local-only object during/after Commit -- {'scenario': '5 flip', 'commit_round_trips': 3, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4844, 'local_only_requested': 0} asked=[]
+  [PASS] 5 flip :: warm-up watch: no server activity in the 3 s after Commit (round trips) -- commit=3 settle=0
+  [PASS] 5 flip :: 5d after mv into src/: B2 src/moved.txt == 'moved bytes\n' -- 'moved bytes\n'
+  [PASS] 5 flip :: 5d after mv into src/: B2 has no target/moved.txt
+  [PASS] 5 flip :: unmount ign-b2 ns9 (discard) clean
+=== 6 moved head
+  warm-up watch: {"scenario": "6 moved head", "commit_round_trips": 1, "settle_round_trips": 0, "store_reads": 0, "store_metadata": 0, "local_only_in_cache": 4910, "local_only_requested": 0}
+  [PASS] 6 moved head :: warm-up watch: no server read of a local-only object during/after Commit -- {'scenario': '6 moved head', 'commit_round_trips': 1, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4910, 'local_only_requested': 0} asked=[]
+  [PASS] 6 moved head :: warm-up watch: no server activity in the 3 s after Commit (round trips) -- commit=1 settle=0
+  [PASS] 6 moved head :: prelude: B1 holds local-only ignored files -- {'old': 'again', 'z': 'zzz\n', 'big2': 'ed3adfb01c50acdf4e68783d2c825428ddd69a97639b2f889711682a40c90849'}
+  B2 commit output: Committed(Committed { record: CommitRecord { id: CommitId(126ddfced9a29b71bbcb2210990c673d58d3cd1a1f116460815c117de09cb62c57), stack: LayerStackId(3117171717171717171717171717171717), root: ObjectId("8f4e69df3ccd03938a9c9cf30a21211795a01113e8437f63c050b22a9b671a89"), parent: Some(CommitId(123787531a
+  [PASS] 6 moved head :: B2 docs/README.md published (Store SDK)
+  warm-up watch: {"scenario": "6 moved head", "commit_round_trips": 16, "settle_round_trips": 0, "store_reads": 13, "store_metadata": 0, "local_only_in_cache": 4917, "local_only_requested": 0}
+  [PASS] 6 moved head :: warm-up watch: no server read of a local-only object during/after Commit -- {'scenario': '6 moved head', 'commit_round_trips': 16, 'settle_round_trips': 0, 'store_reads': 13, 'store_metadata': 0, 'local_only_in_cache': 4917, 'local_only_requested': 0} asked=[]
+  [PASS] 6 moved head :: warm-up watch: no server activity in the 3 s after Commit (round trips) -- commit=16 settle=0
+  B1 merge commit output: MergeCommitted(MergedCommit { outcome: Committed { record: CommitRecord { id: CommitId(12f612d7a22fe7df5ff6b5933f704ebff1ae2c49af9da0b96864be9c3d292a2b2c), stack: LayerStackId(3117171717171717171717171717171717), root: ObjectId("765e6bf12a936a6da83921e3dfd0430bc88f7c5bcf1851900bbe86b5bfb70ee5"), parent: Some(CommitId(126ddfced9a29b71bbcb2210990c673d58d3cd1a1f116460815c117de09cb62c57)), base_layer: LayerId(320955e18f2b36c9b9e2a338636eaef912589fbe4ba71062b9683ffbf8ea1c7e75), second_parent: None, meta: CommitMeta { branch: Some(BranchId(113194cdee5f53d59e866ac08c390c6fdd)), via: Workspace, messag
+  [PASS] 6 moved head :: B1 Commit output mentions a merge -- MergeCommitted(MergedCommit { outcome: Committed { record: CommitRecord { id: CommitId(12f612d7a22fe7df5ff6b5933f704ebff1ae2c49af9da0b96864be9c3d292a2b2c), stack: LayerStackId(3117171717171717171717171717171717), root: ObjectId("765e6bf12a936a6da83921e3dfd0430bc88f7c5bcf1851900bbe86b5bfb70ee5"), par
+  [PASS] 6 moved head :: B1 Commit had no conflict -- MergeCommitted(MergedCommit { outcome: Committed { record: CommitRecord { id: CommitId(12f612d7a22fe7df5ff6b5933f704ebff1ae2c49af9da0b96864be9c3d292a2b2c), stack: LayerStackId(311717171717171717171717
+  [PASS] 6 moved head :: B1 mount now shows docs/README.md -- readme from B2
+
+  [PASS] 6 moved head :: B1 mount keeps src/A.java v3
+  [PASS] 6 moved head :: B1 still has its local-only ignored files after the merge -- {'old': 'again', 'z': 'zzz\n', 'big2': 'ed3adfb01c50acdf4e68783d2c825428ddd69a97639b2f889711682a40c90849'}
+  [PASS] 6 moved head :: B1 target/big2.bin stat size == 1 MiB -- 1048576
+  B1 git status after merge:
+ M .gitignore
+A  docs/README.md
+A  out/gen.txt
+ M src/A.java
+?? app.log
+?? keep.log
+?? src/moved.txt
+
+  [PASS] 6 moved head :: B1 git status lists no path under target/, node_modules/, out/ (ignored stay hidden) -- ' M .gitignore\nA  docs/README.md\nA  out/gen.txt\n M src/A.java\n?? app.log\n?? keep.log\n?? src/moved.txt\n'
+  [PASS] 6 moved head :: published head does not have B1 local-only files (Store SDK)
+  [PASS] 6 moved head :: unmount ign-b2 ns10 (discard) clean
+  [PASS] 6 moved head :: B2 fresh: B2 src/A.java == 'class A { int v = 3; }\n' -- 'class A { int v = 3; }\n'
+  [PASS] 6 moved head :: B2 fresh: B2 docs/README.md == 'readme from B2\n' -- 'readme from B2\n'
+  [PASS] 6 moved head :: B2 fresh: B2 target/old.class == 'old' -- 'old'
+  [PASS] 6 moved head :: B2 fresh: B2 has docs/README.md
+  [PASS] 6 moved head :: B2 fresh: B2 has no node_modules/z
+  [PASS] 6 moved head :: B2 fresh: B2 has no target/big2.bin
+  [PASS] 6 moved head :: unmount ign-b2 ns11 (discard) clean
+=== 5b server rule flip (B2 un-ignores out/)
+  warm-up watch: {"scenario": "5b server rule flip (B2 un-ignores out/)", "commit_round_trips": 1, "settle_round_trips": 0, "store_reads": 0, "store_metadata": 0, "local_only_in_cache": 4922, "local_only_requested": 0}
+  [PASS] 5b server rule flip (B2 un-ignores out/) :: warm-up watch: no server read of a local-only object during/after Commit -- {'scenario': '5b server rule flip (B2 un-ignores out/)', 'commit_round_trips': 1, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4922, 'local_only_requested': 0} asked=[]
+  [PASS] 5b server rule flip (B2 un-ignores out/) :: warm-up watch: no server activity in the 3 s after Commit (round trips) -- commit=1 settle=0
+  [PASS] 5b server rule flip (B2 un-ignores out/) :: prelude: B1 holds out/local.txt
+  [PASS] 5b server rule flip (B2 un-ignores out/) :: prelude: published head has no out/local.txt (Store SDK)
+  [PASS] 5b server rule flip (B2 un-ignores out/) :: unmount ign-b2 ns12 clean
+  [PASS] 5b server rule flip (B2 un-ignores out/) :: server head .gitignore no longer ignores out/ (Store SDK)
+  warm-up watch: {"scenario": "5b server rule flip (B2 un-ignores out/)", "commit_round_trips": 4, "settle_round_trips": 0, "store_reads": 3, "store_metadata": 0, "local_only_in_cache": 4924, "local_only_requested": 0}
+  [PASS] 5b server rule flip (B2 un-ignores out/) :: warm-up watch: no server read of a local-only object during/after Commit -- {'scenario': '5b server rule flip (B2 un-ignores out/)', 'commit_round_trips': 4, 'settle_round_trips': 0, 'store_reads': 3, 'store_metadata': 0, 'local_only_in_cache': 4924, 'local_only_requested': 0} asked=[]
+  [PASS] 5b server rule flip (B2 un-ignores out/) :: warm-up watch: no server activity in the 3 s after Commit (round trips) -- commit=4 settle=0
+  B1 no-change Commit output: MergeCommitted(MergedCommit { outcome: UpToDate { head: Some(CommitId(12c8c496c5cd8bffeb67a782078417660ca51da05379b1c9372c6e5e8c64110367)), root: ObjectId("bfb72675e8279e920dce8f267f9d6ffb8dc4ff27ad175c273bfb4f2a65bf75e6") }, from: Some(CommitId(12f612d7a22fe7df5ff6b5933f704ebff1ae2c49af9da0b96864be9c3d292a2b2c)), head: Some(CommitId(12c8c496c5cd8bffeb67a782078417660ca51da05379b1c9372c6e5e8c64110367)), lww: [] }) | wall_ns=3089335
+  [PASS] 5b server rule flip (B2 un-ignores out/) :: B1 Commit had no conflict -- MergeCommitted(MergedCommit { outcome: UpToDate { head: Some(CommitId(12c8c496c5cd8bffeb67a782078417660ca51da05379b1c9372c6e5e8c64110367)), root: ObjectId("bfb72675e8279e920dce8f267f9d6ffb8dc4ff27ad175c273bfb4f2a65bf75e6") }, from: Some(CommitId(12f612d7a22fe7df5ff6b5933f704ebff1ae2c49af9da0b96864be
+  [PASS] 5b server rule flip (B2 un-ignores out/) :: B1 mount shows the server .gitignore -- 'target/\nnode_modules/\n'
+  [PASS] 5b server rule flip (B2 un-ignores out/) :: B1 still has out/local.txt
+  [FAIL] 5b server rule flip (B2 un-ignores out/) :: published head has out/local.txt with B1 bytes (Store SDK) -- None
+  [FAIL] 5b server rule flip (B2 un-ignores out/) :: B2 fresh: B2 out/local.txt == 'local out bytes\n' -- None
+  [PASS] 5b server rule flip (B2 un-ignores out/) :: B2 fresh: B2 out/gen.txt == 'gen from B1\n' -- 'gen from B1\n'
+  [PASS] 5b server rule flip (B2 un-ignores out/) :: unmount ign-b2 ns13 (discard) clean
+=== 6b server delete (B2 deletes tracked pkg/)
+  warm-up watch: {"scenario": "6b server delete (B2 deletes tracked pkg/)", "commit_round_trips": 3, "settle_round_trips": 0, "store_reads": 0, "store_metadata": 0, "local_only_in_cache": 4927, "local_only_requested": 0}
+  [PASS] 6b server delete (B2 deletes tracked pkg/) :: warm-up watch: no server read of a local-only object during/after Commit -- {'scenario': '6b server delete (B2 deletes tracked pkg/)', 'commit_round_trips': 3, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4927, 'local_only_requested': 0} asked=[]
+  [PASS] 6b server delete (B2 deletes tracked pkg/) :: warm-up watch: no server activity in the 3 s after Commit (round trips) -- commit=3 settle=0
+  warm-up watch: {"scenario": "6b server delete (B2 deletes tracked pkg/)", "commit_round_trips": 1, "settle_round_trips": 0, "store_reads": 0, "store_metadata": 0, "local_only_in_cache": 4991, "local_only_requested": 0}
+  [PASS] 6b server delete (B2 deletes tracked pkg/) :: warm-up watch: no server read of a local-only object during/after Commit -- {'scenario': '6b server delete (B2 deletes tracked pkg/)', 'commit_round_trips': 1, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4991, 'local_only_requested': 0} asked=[]
+  [PASS] 6b server delete (B2 deletes tracked pkg/) :: warm-up watch: no server activity in the 3 s after Commit (round trips) -- commit=1 settle=0
+  [PASS] 6b server delete (B2 deletes tracked pkg/) :: prelude: published head has pkg/a.txt and pkg/sub/b.txt, not pkg/build (Store SDK)
+  [PASS] 6b server delete (B2 deletes tracked pkg/) :: prelude: B1 holds pkg/build/out.bin (1 MiB)
+  [PASS] 6b server delete (B2 deletes tracked pkg/) :: prelude: B1 git status does not list pkg/build -- 'M  .gitignore\nA  docs/README.md\nA  out/gen.txt\nA  pkg/a.txt\nA  pkg/sub/b.txt\n M src/A.java\n?? app.log\n?? keep.log\n?? out/local.txt\n?? src/moved.txt\n'
+  [PASS] 6b server delete (B2 deletes tracked pkg/) :: prelude: B2 sees tracked pkg/a.txt and no pkg/build
+  [FAIL] 6b server delete (B2 deletes tracked pkg/) :: no exception -- AssertionError((['docker', 'exec', '-e', 'HOME=/tmp', '-w', '/workspaces/14', 'ign-b2', 'git', '-c', 'safe.directory=*', '-c', 'user.name=ign', '-c', 'user.email=ign@example.invalid', '-c', 'init.defaultBranch=main', 'rm', '-r', '-q', 'pkg'], 1, 'error: the following files have changes staged in the
+=== 8 comparison (B2 ignore off, same shape as 2)
+  [PASS] 8 comparison (B2 ignore off, same shape as 2) :: ignore-off Commit uploads the 32 MiB file (>= 32 MiB) -- delta={'roundTrips': 31, 'uploadedObjects': 4807, 'uploadedBytes': 34230442}
+  [PASS] 8 comparison (B2 ignore off, same shape as 2) :: published head has target/big.bin (Store SDK size)
+  [PASS] 8 comparison (B2 ignore off, same shape as 2) :: unmount ign-b2 ns15 clean
+=== 9 logs and warm-up summary
+  [PASS] 9 logs and warm-up summary :: server.log has no error lines (trace lines excluded) -- []
+  [PASS] 9 logs and warm-up summary :: ign-b1 daemon.log has no error lines -- 0
+  [PASS] 9 logs and warm-up summary :: ign-b2 daemon.log has no error lines -- 0
+ign-b1 daemon.log error-ish lines: 0
+ign-b2 daemon.log error-ish lines: 0
+
+SUMMARY
+  PASS  1 warm base (B2, ignore off)  (7/7 checks)
+  PASS  2 ignored changes stay local (B1 ignore=git)  (25/25 checks)
+  PASS  3 clean  (9/9 checks)
+  PASS  4 rebuild  (7/7 checks)
+  PASS  5 flip  (26/26 checks)
+  PASS  6 moved head  (22/22 checks)
+  FAIL  5b server rule flip (B2 un-ignores out/)  (13/15 checks)  FAILED: ['published head has out/local.txt with B1 bytes (Store SDK)', "B2 fresh: B2 out/local.txt == 'local out bytes\\n'"]
+  FAIL  6b server delete (B2 deletes tracked pkg/)  (8/9 checks)  FAILED: ['no exception']
+  PASS  8 comparison (B2 ignore off, same shape as 2)  (3/3 checks)
+  PASS  9 logs and warm-up summary  (3/3 checks)
+FACTS {
+  "m2_warm": "37486cba72e38b65e38d818d8ca4338e3e0f340abd1dff58e48a4cf3b1f50c59",
+  "warm_commit_wall_ms": 526.105646,
+  "warm_upload": {
+    "roundTrips": 15,
+    "uploadedObjects": 3389,
+    "uploadedBytes": 951735
+  },
+  "s2_ignored_bytes_written": 33734432,
+  "s2_ignore_on": {
+    "commit_wall_ms": 421.121925,
+    "python_wall_ms": 462.530084,
+    "roundTrips": 8,
+    "uploadedObjects": 4,
+    "uploadedBytes": 9353,
+    "server_store_delta_bytes": 0
+  },
+  "s3_commit": {
+    "wall_ms": 107.810223,
+    "uploadedBytes": 0
+  },
+  "s8_ignore_off": {
+    "commit_wall_ms": 829.549344,
+    "python_wall_ms": 874.534291,
+    "roundTrips": 31,
+    "uploadedObjects": 4807,
+    "uploadedBytes": 34230442,
+    "server_store_delta_bytes": 35045752
+  },
+  "warm_up_watch": [
+    {
+      "scenario": "2 ignored changes stay local (B1 ignore=git)",
+      "commit_round_trips": 8,
+      "settle_round_trips": 0,
+      "store_reads": 5,
+      "store_metadata": 0,
+      "local_only_in_cache": 4813,
+      "local_only_requested": 0
+    },
+    {
+      "scenario": "3 clean",
+      "commit_round_trips": 1,
+      "settle_round_trips": 0,
+      "store_reads": 0,
+      "store_metadata": 0,
+      "local_only_in_cache": 4818,
+      "local_only_requested": 0
+    },
+    {
+      "scenario": "4 rebuild",
+      "commit_round_trips": 1,
+      "settle_round_trips": 0,
+      "store_reads": 0,
+      "store_metadata": 0,
+      "local_only_in_cache": 4825,
+      "local_only_requested": 0
+    },
+    {
+      "scenario": "5 flip",
+      "commit_round_trips": 1,
+      "settle_round_trips": 0,
+      "store_reads": 0,
+      "store_metadata": 0,
+      "local_only_in_cache": 4832,
+      "local_only_requested": 0
+    },
+    {
+      "scenario": "5 flip",
+      "commit_round_trips": 3,
+      "settle_round_trips": 0,
+      "store_reads": 0,
+      "store_metadata": 0,
+      "local_only_in_cache": 4833,
+      "local_only_requested": 0
+    },
+    {
+      "scenario": "5 flip",
+      "commit_round_trips": 3,
+      "settle_round_trips": 0,
+      "store_reads": 0,
+      "store_metadata": 0,
+      "local_only_in_cache": 4837,
+      "local_only_requested": 0
+    },
+    {
+      "scenario": "5 flip",
+      "commit_round_trips": 1,
+      "settle_round_trips": 0,
+      "store_reads": 0,
+      "store_metadata": 0,
+      "local_only_in_cache": 4842,
+      "local_only_requested": 0
+    },
+    {
+      "scenario": "5 flip",
+      "commit_round_trips": 3,
+      "settle_round_trips": 0,
+      "store_reads": 0,
+      "store_metadata": 0,
+      "local_only_in_cache": 4844,
+      "local_only_requested": 0
+    },
+    {
+      "scenario": "6 moved head",
+      "commit_round_trips": 1,
+      "settle_round_trips": 0,
+      "store_reads": 0,
+      "store_metadata": 0,
+      "local_only_in_cache": 4910,
+      "local_only_requested": 0
+    },
+    {
+      "scenario": "6 moved head",
+      "commit_round_trips": 16,
+      "settle_round_trips": 0,
+      "store_reads": 13,
+      "store_metadata": 0,
+      "local_only_in_cache": 4917,
+      "local_only_requested": 0
+    },
+    {
+      "scenario": "5b server rule flip (B2 un-ignores out/)",
+      "commit_round_trips": 1,
+      "settle_round_trips": 0,
+      "store_reads": 0,
+      "store_metadata": 0,
+      "local_only_in_cache": 4922,
+      "local_only_requested": 0
+    },
+    {
+      "scenario": "5b server rule flip (B2 un-ignores out/)",
+      "commit_round_trips": 4,
+      "settle_round_trips": 0,
+      "store_reads": 3,
+      "store_metadata": 0,
+      "local_only_in_cache": 4924,
+      "local_only_requested": 0
+    },
+    {
+      "scenario": "6b server delete (B2 deletes tracked pkg/)",
+      "commit_round_trips": 3,
+      "settle_round_trips": 0,
+      "store_reads": 0,
+      "store_metadata": 0,
+      "local_only_in_cache": 4927,
+      "local_only_requested": 0
+    },
+    {
+      "scenario": "6b server delete (B2 deletes tracked pkg/)",
+      "commit_round_trips": 1,
+      "settle_round_trips": 0,
+      "store_reads": 0,
+      "store_metadata": 0,
+      "local_only_in_cache": 4991,
+      "local_only_requested": 0
+    }
+  ]
+}
+=== 7 platform check (Linux transport tests): exit 0 in 3s
+Compiling layerfs-remote-store v0.1.7 (/work/core/crates/layerfs-remote-store)
+    Finished `test` profile [optimized + debuginfo] target(s) in 2.73s
+     Running tests/transport.rs (/target/cargo/debug/deps/transport-8bd9befec4b2a06a)
+
+running 5 tests
+test production_style_blocking_listener_returns_blocking_sockets ... ok
+test fragments_cross_noise_records_and_reject_a_bad_offset ... ok
+test wrong_canonical_identity_is_not_cached_or_replayed ... ok
+test upload_window_failure_keeps_local_objects_and_never_sends_unreachable_bytes ... ok
+test upload_lost_ack_keeps_local_objects_and_quarantines_without_replay ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.03s

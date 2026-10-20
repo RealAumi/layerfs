@@ -316,7 +316,32 @@ def local_only_ids(b):
     return set(execute(b, 'python3', '-c', script).stdout.split())
 
 
-def watched_commit(scn, m, settle=3.0):
+def read_kinds(b, reads):
+    """Name what a window's STORE_READ lines asked for, from B1's own cache (it stored what the server sent):
+    opcode, object role, size, whether the cache holds it as server-known, and the printable runs in its body
+    (directory entry names, .gitignore text, the paths of a .git/index)."""
+    rows = []
+    for line in reads:
+        op = int(re.search(r'opcode=(\d+)', line)[1])
+        for h in re.findall(r'[0-9a-f]{64}', line):
+            rows.append(dict(opcode=op, id=h))
+    script = ('import sqlite3,sys,json,re\n'
+              'c=sqlite3.connect("file:/state/cache/objects.sqlite?mode=ro",uri=True)\n'
+              'out=[]\n'
+              'for h in sys.argv[1:]:\n'
+              ' r=c.execute("SELECT role,body,remote FROM objects WHERE id=?",(bytes.fromhex(h),)).fetchone()\n'
+              ' if not r: out.append(None); continue\n'
+              ' body=bytes(r[1]); runs=[x.decode() for x in re.findall(rb"[ -~\\n]{3,}",body)]\n'
+              ' out.append(dict(role=r[0],size=len(body),remote=r[2],dirc=b"DIRC" in body,text="|".join(runs)[:200].replace("\\n","\\\\n")))\n'
+              'print(json.dumps(out))\n')
+    info = json.loads(execute(b, 'python3', '-c', script, *[r['id'] for r in rows]).stdout) if rows else []
+    for r, i in zip(rows, info):
+        r['id'] = r['id'][:12]
+        r.update(i or dict(cached=False))
+    return rows
+
+
+def watched_commit(scn, m, settle=3.0, dump=None):
     """commit() plus the warm-up watch; returns commit()'s tuple."""
     n0 = len(server_log_lines())
     r0 = stats(m.b)['roundTrips']
@@ -329,6 +354,10 @@ def watched_commit(scn, m, settle=3.0):
     meta = [x for x in window if x.startswith('STORE_METADATA')]
     local = local_only_ids(m.b)
     asked = sorted(set(re.findall(r'[0-9a-f]{64}', ' '.join(reads))) & local)
+    if dump:
+        FACTS[dump] = read_kinds(m.b, reads)
+        for row in FACTS[dump]:
+            say('   read', json.dumps(row))
     rec = dict(scenario=scn, commit_round_trips=r1 - r0, settle_round_trips=r2 - r1, store_reads=len(reads), store_metadata=len(meta),
                local_only_in_cache=len(local), local_only_requested=len(asked))
     WARM.append(rec)
@@ -499,7 +528,7 @@ def s6_moved_head(m1):
     check(s, 'B2 docs/README.md published (Store SDK)', server_read('/docs/README.md') == 'readme from B2\n')
     # B1 edits a tracked file and Commits: stale base -> the server merges.
     put(m1, 'src/A.java', 'class A { int v = 3; }\n')
-    out1, w, _ = watched_commit(s, m1)
+    out1, w, _ = watched_commit(s, m1, dump='s6_merge_reads')
     say('  B1 merge commit output:', out1.strip().replace('\n', ' | ')[:600])
     check(s, 'B1 Commit output mentions a merge', re.search(r'[Mm]erge', out1) is not None, out1.strip()[:400])
     check(s, 'B1 Commit had no conflict', 'Conflict(' not in out1, out1.strip()[:200])
@@ -517,6 +546,96 @@ def s6_moved_head(m1):
     try_unmount(s, m2, discard=True)
     check_b2_view(s, 'B2 fresh', ['docs/README.md'], ['node_modules/z', 'target/big2.bin'],
                   {'src/A.java': 'class A { int v = 3; }\n', 'docs/README.md': 'readme from B2\n', 'target/old.class': 'old'})
+
+
+def s5b_server_rule_flip(m1):
+    """The server's .gitignore stops ignoring out/; B1 holds a never-published out/local.txt.
+
+    Documented in docs/mp2/ignore.md: newly kept local bytes wait for the next projection, so
+    (a) the Commit that merges the rule change leaves out/local.txt off the published head and
+    (b) a second Commit with no local change publishes it."""
+    s = '5b server rule flip (B2 un-ignores out/)'
+    new_rules = 'target/\nnode_modules/\n'
+    put(m1, 'out/local.txt', 'local out bytes\n')
+    watched_commit(s, m1)
+    check(s, 'prelude: B1 holds out/local.txt', cat(m1, 'out/local.txt') == 'local out bytes\n')
+    check(s, 'prelude: published head has no out/local.txt (Store SDK)', server_read('/out/local.txt') is None)
+    m2 = mount(B2)
+    put(m2, '.gitignore', new_rules)
+    commit(m2)
+    try_unmount(s, m2)
+    check(s, 'prelude: server head .gitignore no longer ignores out/ (Store SDK)', server_read('/.gitignore') == new_rules)
+    # (a) B1's Commit after the rule change (no local change): merges the moved head.
+    out1, w, py = watched_commit(s, m1)
+    say('  5b(a) B1 merge Commit output:', out1.strip().replace('\n', ' | ')[:500])
+    check(s, '5b(a) B1 Commit had no conflict', 'Conflict(' not in out1, out1.strip()[:300])
+    check(s, '5b(a) B1 got the new .gitignore', cat(m1, '.gitignore') == new_rules, repr(cat(m1, '.gitignore')))
+    check(s, '5b(a) B1 still has out/local.txt', cat(m1, 'out/local.txt') == 'local out bytes\n')
+    check(s, '5b(a) EXPECTED one-Commit lag: out/local.txt is not yet on the published head (docs/mp2/ignore.md)',
+          server_read('/out/local.txt') is None, repr(server_read('/out/local.txt')))
+    # (b) a second Commit with no local change publishes the newly kept bytes.
+    b0 = stats(B1)
+    out2, w, py = watched_commit(s, m1)
+    b1 = stats(B1)
+    delta = {k: b1[k] - b0[k] for k in b0}
+    FACTS['s5b_second_commit'] = dict(commit_wall_ms=(w or py) / 1e6, **delta)
+    say('  5b(b) B1 second Commit output:', out2.strip().replace('\n', ' | ')[:500], '| upload', delta)
+    check(s, '5b(b) B1 Commit had no conflict', 'Conflict(' not in out2, out2.strip()[:300])
+    check(s, '5b(b) published head has out/local.txt with B1 bytes (Store SDK)', server_read('/out/local.txt') == 'local out bytes\n', repr(server_read('/out/local.txt')))
+    check_b2_view(s, '5b(b) B2 fresh', [], [], {'out/local.txt': 'local out bytes\n', 'out/gen.txt': 'gen from B1\n', '.gitignore': new_rules})
+    check(s, '5b(b) nothing else under ignored paths was uploaded: client upload < 64 KiB (1 MiB big2.bin is local-only)',
+          delta['uploadedBytes'] < 64 * 1024, f'delta={delta}')
+    check(s, '5b(b) published head still lacks target/big2.bin and node_modules/z (Store SDK)',
+          server_read('/target/big2.bin') is None and server_read('/node_modules/z/index.js') is None)
+    check(s, '5b(b) published head target/old.class still "old" (B1 local is "again")', server_read('/target/old.class') == 'old', repr(server_read('/target/old.class')))
+    check(s, '5b(b) B1 keeps its other local-only files (old.class again, node_modules/z, big2.bin 1 MiB)',
+          cat(m1, 'target/old.class') == 'again' and cat(m1, 'node_modules/z/index.js') == 'zzz\n' and size(m1, 'target/big2.bin') == MIB)
+
+
+def s6b_server_delete(m1):
+    """B2 deletes tracked pkg/; B1 holds ignored pkg/build/out.bin inside it."""
+    s = '6b server delete (B2 deletes tracked pkg/)'
+    lines = (cat(m1, '.gitignore') or '').splitlines()
+    if 'build/' not in lines:
+        put(m1, '.gitignore', '\n'.join(lines + ['build/']) + '\n')
+    put(m1, 'pkg/a.txt', 'tracked a\n')
+    put(m1, 'pkg/sub/b.txt', 'tracked b\n')
+    git(m1, 'add', '.gitignore', 'pkg')
+    watched_commit(s, m1)
+    big_file(m1, 'pkg/build/out.bin', 1)
+    put(m1, 'pkg/build/log.txt', 'build log\n')
+    out_sha = sha(m1, 'pkg/build/out.bin')
+    watched_commit(s, m1)
+    check(s, 'prelude: published head has pkg/a.txt and pkg/sub/b.txt, not pkg/build (Store SDK)',
+          server_read('/pkg/a.txt') == 'tracked a\n' and server_read('/pkg/sub/b.txt') == 'tracked b\n' and server_read('/pkg/build/out.bin') is None)
+    check(s, 'prelude: B1 holds pkg/build/out.bin (1 MiB)', size(m1, 'pkg/build/out.bin') == MIB and out_sha is not None)
+    st = status(m1)
+    check(s, 'prelude: B1 git status does not list pkg/build', 'pkg/build' not in st, repr(st))
+    # B2 deletes the tracked pkg/ and Commits.
+    m2 = mount(B2)
+    check(s, 'prelude: B2 sees tracked pkg/a.txt and no pkg/build', exists(m2, 'pkg/a.txt') and not exists(m2, 'pkg/build'))
+    git(m2, 'rm', '-r', '-f', '-q', 'pkg')
+    commit(m2)
+    check(s, 'B2 mount has no pkg/ after git rm', not exists(m2, 'pkg'))
+    try_unmount(s, m2)
+    check(s, 'published head lost pkg/a.txt and pkg/sub/b.txt (Store SDK)', server_read('/pkg/a.txt') is None and server_read('/pkg/sub/b.txt') is None)
+    # B1 edits a tracked file and Commits (stale base: the server merges).
+    put(m1, 'src/A.java', 'class A { int v = 4; }\n')
+    out1, w, py = watched_commit(s, m1)
+    say('  B1 post-delete Commit output:', out1.strip().replace('\n', ' | ')[:500])
+    check(s, 'B1 Commit had no conflict', 'Conflict(' not in out1, out1.strip()[:300])
+    check(s, 'B1 still has pkg/build/out.bin (sha, size)', sha(m1, 'pkg/build/out.bin') == out_sha and size(m1, 'pkg/build/out.bin') == MIB,
+          f'{sha(m1, "pkg/build/out.bin")} {size(m1, "pkg/build/out.bin")}')
+    check(s, 'B1 still has pkg/build/log.txt', cat(m1, 'pkg/build/log.txt') == 'build log\n')
+    check(s, 'B1 no longer has tracked pkg/a.txt', not exists(m1, 'pkg/a.txt'))
+    check(s, 'B1 no longer has tracked pkg/sub (b.txt)', not exists(m1, 'pkg/sub/b.txt') and not exists(m1, 'pkg/sub'))
+    check(s, 'B1 src/A.java edit kept', cat(m1, 'src/A.java') == 'class A { int v = 4; }\n')
+    st = status(m1)
+    say('  B1 git status after server delete:\n' + st)
+    check(s, 'B1 git status lists no pkg path', 'pkg' not in st, repr(st))
+    check(s, 'published head still has no pkg/ files and no pkg/build (Store SDK)',
+          server_read('/pkg/a.txt') is None and server_read('/pkg/build/out.bin') is None and server_read('/pkg/build/log.txt') is None)
+    check_b2_view(s, 'B2 fresh', [], ['pkg'], {'src/A.java': 'class A { int v = 4; }\n'})
 
 
 def s9_logs():
@@ -626,6 +745,8 @@ def e2e():
         scenario('4 rebuild', s4_rebuild, m1)
         scenario('5 flip', s5_flip, m1)
         scenario('6 moved head', s6_moved_head, m1)
+        scenario('5b server rule flip (B2 un-ignores out/)', s5b_server_rule_flip, m1)
+        scenario('6b server delete (B2 deletes tracked pkg/)', s6b_server_delete, m1)
         scenario('8 comparison (B2 ignore off, same shape as 2)', s8_comparison)
         scenario('9 logs and warm-up summary', s9_logs)
     summary = {}

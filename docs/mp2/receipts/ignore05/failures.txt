@@ -1,0 +1,18 @@
+ignore05: first and only run of 42f8a5ebb (+ the 5b/6b scenarios added to run-ignore-e2e.py). Nothing was rerun.
+
+5b server rule flip -- FAIL (2 of 15 checks)
+  B1 held a never-published out/local.txt; B2 dropped `out/` from .gitignore and Committed; B1 then Committed with
+  no local change. That Commit returned MergeCommitted(outcome: UpToDate, ...); B1 got the new .gitignore and kept
+  out/local.txt, but the Store SDK read of /out/local.txt on the published head was None and a fresh B2 mount had
+  no out/local.txt.
+  Cause (code reading, not re-run): IgnoreState::rebase (store/ignore/project.rs) only records the server's rule flip
+  in `pending` during the Commit that merges the moved head; IgnoreState::project publishes it on the NEXT Commit
+  (tests/ignore/round4.rs::server_nested_rules_exclude_and_index_flip_on_next_noop_commit does merge Commit, then a
+  second no-op Commit). The scenario as specified has one Commit. Unverified here: whether a second no-op Commit
+  would publish out/local.txt in the container run.
+
+6b server delete -- FAIL (harness defect; the product was not exercised after the prelude)
+  B2's `git rm -r -q pkg` exited 1: "error: the following files have changes staged in the index: pkg/a.txt
+  pkg/sub/b.txt (use --cached to keep the file, or -f to force removal)". The script's B1 ran `git add` on pkg/
+  but never `git commit`, so git refuses. Fix is in the script (`git rm -r -f -q pkg`), not in product code.
+  The B1 edit, merge Commit and the pkg/build/out.bin checks never ran. Not applied, because a rerun is not allowed.

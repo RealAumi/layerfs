@@ -1,0 +1,842 @@
+{
+  "scenarios": {
+    "1 warm base (B2, ignore off)": {
+      "result": "PASS",
+      "checks": [
+        {
+          "check": "git status clean before Commit (ignored files hidden)",
+          "ok": true,
+          "evidence": "''"
+        },
+        {
+          "check": "git ls-files has .gitignore and src/A.java, not target/",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "warm Commit published ignored target/old.class (ignore off)",
+          "ok": true,
+          "evidence": "'old'"
+        },
+        {
+          "check": "published node_modules/x/index.js",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "published src/A.java v1",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "published .git/HEAD",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "unmount ign-b2 ns1 clean",
+          "ok": true,
+          "evidence": ""
+        }
+      ]
+    },
+    "2 ignored changes stay local (B1 ignore=git)": {
+      "result": "PASS",
+      "checks": [
+        {
+          "check": "B1 sees the warm base (src/A.java v1, target/old.class old)",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "warm-up watch: no server read of a local-only object during/after Commit",
+          "ok": true,
+          "evidence": "{'scenario': '2 ignored changes stay local (B1 ignore=git)', 'commit_round_trips': 8, 'settle_round_trips': 0, 'store_reads': 5, 'store_metadata': 0, 'local_only_in_cache': 4813, 'local_only_requested': 0} asked=[]"
+        },
+        {
+          "check": "warm-up watch: no server activity in the 3 s after Commit (round trips)",
+          "ok": true,
+          "evidence": "commit=8 settle=0"
+        },
+        {
+          "check": "(a) client uploadedBytes far below 32 MiB (< 2 MiB)",
+          "ok": true,
+          "evidence": "delta={'roundTrips': 8, 'uploadedObjects': 4, 'uploadedBytes': 9353}"
+        },
+        {
+          "check": "(a) server store grew far below 32 MiB (< 2 MiB)",
+          "ok": true,
+          "evidence": "6299360 -> 6299360 (+0)"
+        },
+        {
+          "check": "(b) B1 src/A.java edited",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "(b) B1 target/big.bin stat size == 32 MiB",
+          "ok": true,
+          "evidence": "33554432"
+        },
+        {
+          "check": "(b) B1 target/big.bin content sha unchanged",
+          "ok": true,
+          "evidence": "97bf6c7dd39e142afc2dfed65362be788bb97dc334e6a07a1da99f88e33d881d"
+        },
+        {
+          "check": "(b) ls -l shows big.bin with 33554432 bytes",
+          "ok": true,
+          "evidence": "-rw-rw-rw- 1 1000 1000       11 Oct 20 18:04 /workspaces/1/app.log\n-rw-rw-rw- 1 1000 1000 33554432 Oct 20 18:04 /workspaces/1/target/big.bin\n-rw-rw-rw- 1 1000 1000        7 Oct 20 18:04 /workspaces/1/target/old.class"
+        },
+        {
+          "check": "(b) B1 node_modules/y still 3000 files",
+          "ok": true,
+          "evidence": "3000"
+        },
+        {
+          "check": "(b) B1 node_modules/y content hash unchanged",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "(b) B1 node_modules/y stat sizes are real (non-zero)",
+          "ok": true,
+          "evidence": "58 59 60 61 "
+        },
+        {
+          "check": "(b) B1 app.log content + size",
+          "ok": true,
+          "evidence": "11"
+        },
+        {
+          "check": "(b) B1 target/old.class == rebuilt (size 7)",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "(b) B1 node_modules/x/index.js still readable",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "(c): B2 src/A.java == 'class A { int v = 2; }\\n'",
+          "ok": true,
+          "evidence": "'class A { int v = 2; }\\n'"
+        },
+        {
+          "check": "(c): B2 target/old.class == 'old'",
+          "ok": true,
+          "evidence": "'old'"
+        },
+        {
+          "check": "(c): B2 has node_modules/x/index.js",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "(c): B2 has no target/big.bin",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "(c): B2 has no node_modules/y",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "(c): B2 has no app.log",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "unmount ign-b2 ns2 (discard) clean",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "(c) published head lacks big.bin / node_modules/y/m0000.js / app.log (Store SDK)",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "(d) B1 git status --porcelain == \" M src/A.java\"",
+          "ok": true,
+          "evidence": "' M src/A.java\\n'"
+        },
+        {
+          "check": "(d) B2 git status --porcelain == \" M src/A.java\"",
+          "ok": true,
+          "evidence": "' M src/A.java\\n'"
+        }
+      ]
+    },
+    "3 clean": {
+      "result": "PASS",
+      "checks": [
+        {
+          "check": "warm-up watch: no server read of a local-only object during/after Commit",
+          "ok": true,
+          "evidence": "{'scenario': '3 clean', 'commit_round_trips': 1, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4818, 'local_only_requested': 0} asked=[]"
+        },
+        {
+          "check": "warm-up watch: no server activity in the 3 s after Commit (round trips)",
+          "ok": true,
+          "evidence": "commit=1 settle=0"
+        },
+        {
+          "check": "B1 no longer shows target/ and node_modules/",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "B2: B2 target/old.class == 'old'",
+          "ok": true,
+          "evidence": "'old'"
+        },
+        {
+          "check": "B2: B2 node_modules/x/index.js == 'module.exports = 1;\\n'",
+          "ok": true,
+          "evidence": "'module.exports = 1;\\n'"
+        },
+        {
+          "check": "B2: B2 has node_modules/x",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "unmount ign-b2 ns3 (discard) clean",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "published head still has target/old.class old (Store SDK)",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "B2 git status unchanged (only \" M src/A.java\")",
+          "ok": true,
+          "evidence": "' M src/A.java\\n'"
+        }
+      ]
+    },
+    "4 rebuild": {
+      "result": "PASS",
+      "checks": [
+        {
+          "check": "warm-up watch: no server read of a local-only object during/after Commit",
+          "ok": true,
+          "evidence": "{'scenario': '4 rebuild', 'commit_round_trips': 1, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4825, 'local_only_requested': 0} asked=[]"
+        },
+        {
+          "check": "warm-up watch: no server activity in the 3 s after Commit (round trips)",
+          "ok": true,
+          "evidence": "commit=1 settle=0"
+        },
+        {
+          "check": "B1 target/old.class == again",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "rebuild upload tiny (< 64 KiB)",
+          "ok": true,
+          "evidence": "0"
+        },
+        {
+          "check": "B2: B2 target/old.class == 'old'",
+          "ok": true,
+          "evidence": "'old'"
+        },
+        {
+          "check": "unmount ign-b2 ns4 (discard) clean",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "published head target/old.class still old (Store SDK)",
+          "ok": true,
+          "evidence": ""
+        }
+      ]
+    },
+    "5 flip": {
+      "result": "PASS",
+      "checks": [
+        {
+          "check": "warm-up watch: no server read of a local-only object during/after Commit",
+          "ok": true,
+          "evidence": "{'scenario': '5 flip', 'commit_round_trips': 1, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4832, 'local_only_requested': 0} asked=[]"
+        },
+        {
+          "check": "warm-up watch: no server activity in the 3 s after Commit (round trips)",
+          "ok": true,
+          "evidence": "commit=1 settle=0"
+        },
+        {
+          "check": "5a B1 still shows out/gen.txt",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "5a: B2 has no out/gen.txt",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "unmount ign-b2 ns5 (discard) clean",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "warm-up watch: no server read of a local-only object during/after Commit",
+          "ok": true,
+          "evidence": "{'scenario': '5 flip', 'commit_round_trips': 3, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4833, 'local_only_requested': 0} asked=[]"
+        },
+        {
+          "check": "warm-up watch: no server activity in the 3 s after Commit (round trips)",
+          "ok": true,
+          "evidence": "commit=3 settle=0"
+        },
+        {
+          "check": "5b after git add -f: B2 out/gen.txt == 'gen from B1\\n'",
+          "ok": true,
+          "evidence": "'gen from B1\\n'"
+        },
+        {
+          "check": "unmount ign-b2 ns6 (discard) clean",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "5b published head has out/gen.txt with B1 bytes (Store SDK)",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "warm-up watch: no server read of a local-only object during/after Commit",
+          "ok": true,
+          "evidence": "{'scenario': '5 flip', 'commit_round_trips': 3, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4837, 'local_only_requested': 0} asked=[]"
+        },
+        {
+          "check": "warm-up watch: no server activity in the 3 s after Commit (round trips)",
+          "ok": true,
+          "evidence": "commit=3 settle=0"
+        },
+        {
+          "check": "5c after .gitignore edit: B2 keep.log == 'keep me\\n'",
+          "ok": true,
+          "evidence": "'keep me\\n'"
+        },
+        {
+          "check": "5c after .gitignore edit: B2 app.log == 'log line 1\\n'",
+          "ok": true,
+          "evidence": "'log line 1\\n'"
+        },
+        {
+          "check": "5c after .gitignore edit: B2 .gitignore == 'target/\\nnode_modules/\\nout/\\n'",
+          "ok": true,
+          "evidence": "'target/\\nnode_modules/\\nout/\\n'"
+        },
+        {
+          "check": "unmount ign-b2 ns7 (discard) clean",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "warm-up watch: no server read of a local-only object during/after Commit",
+          "ok": true,
+          "evidence": "{'scenario': '5 flip', 'commit_round_trips': 1, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4842, 'local_only_requested': 0} asked=[]"
+        },
+        {
+          "check": "warm-up watch: no server activity in the 3 s after Commit (round trips)",
+          "ok": true,
+          "evidence": "commit=1 settle=0"
+        },
+        {
+          "check": "5d moved-file prelude: B2 has no target/moved.txt",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "5d moved-file prelude: B2 has no src/moved.txt",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "unmount ign-b2 ns8 (discard) clean",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "warm-up watch: no server read of a local-only object during/after Commit",
+          "ok": true,
+          "evidence": "{'scenario': '5 flip', 'commit_round_trips': 3, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4844, 'local_only_requested': 0} asked=[]"
+        },
+        {
+          "check": "warm-up watch: no server activity in the 3 s after Commit (round trips)",
+          "ok": true,
+          "evidence": "commit=3 settle=0"
+        },
+        {
+          "check": "5d after mv into src/: B2 src/moved.txt == 'moved bytes\\n'",
+          "ok": true,
+          "evidence": "'moved bytes\\n'"
+        },
+        {
+          "check": "5d after mv into src/: B2 has no target/moved.txt",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "unmount ign-b2 ns9 (discard) clean",
+          "ok": true,
+          "evidence": ""
+        }
+      ]
+    },
+    "6 moved head": {
+      "result": "PASS",
+      "checks": [
+        {
+          "check": "warm-up watch: no server read of a local-only object during/after Commit",
+          "ok": true,
+          "evidence": "{'scenario': '6 moved head', 'commit_round_trips': 1, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4910, 'local_only_requested': 0} asked=[]"
+        },
+        {
+          "check": "warm-up watch: no server activity in the 3 s after Commit (round trips)",
+          "ok": true,
+          "evidence": "commit=1 settle=0"
+        },
+        {
+          "check": "prelude: B1 holds local-only ignored files",
+          "ok": true,
+          "evidence": "{'old': 'again', 'z': 'zzz\\n', 'big2': 'ed3adfb01c50acdf4e68783d2c825428ddd69a97639b2f889711682a40c90849'}"
+        },
+        {
+          "check": "B2 docs/README.md published (Store SDK)",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "warm-up watch: no server read of a local-only object during/after Commit",
+          "ok": true,
+          "evidence": "{'scenario': '6 moved head', 'commit_round_trips': 16, 'settle_round_trips': 0, 'store_reads': 13, 'store_metadata': 0, 'local_only_in_cache': 4917, 'local_only_requested': 0} asked=[]"
+        },
+        {
+          "check": "warm-up watch: no server activity in the 3 s after Commit (round trips)",
+          "ok": true,
+          "evidence": "commit=16 settle=0"
+        },
+        {
+          "check": "B1 Commit output mentions a merge",
+          "ok": true,
+          "evidence": "MergeCommitted(MergedCommit { outcome: Committed { record: CommitRecord { id: CommitId(12f612d7a22fe7df5ff6b5933f704ebff1ae2c49af9da0b96864be9c3d292a2b2c), stack: LayerStackId(3117171717171717171717171717171717), root: ObjectId(\"765e6bf12a936a6da83921e3dfd0430bc88f7c5bcf1851900bbe86b5bfb70ee5\"), parent: Some(CommitId(126ddfced9a29b71bbcb2210990c673d58d3cd1a1f116460815c117de09cb62c57)), base_layer:"
+        },
+        {
+          "check": "B1 Commit had no conflict",
+          "ok": true,
+          "evidence": "MergeCommitted(MergedCommit { outcome: Committed { record: CommitRecord { id: CommitId(12f612d7a22fe7df5ff6b5933f704ebff1ae2c49af9da0b96864be9c3d292a2b2c), stack: LayerStackId(311717171717171717171717"
+        },
+        {
+          "check": "B1 mount now shows docs/README.md",
+          "ok": true,
+          "evidence": "readme from B2\n"
+        },
+        {
+          "check": "B1 mount keeps src/A.java v3",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "B1 still has its local-only ignored files after the merge",
+          "ok": true,
+          "evidence": "{'old': 'again', 'z': 'zzz\\n', 'big2': 'ed3adfb01c50acdf4e68783d2c825428ddd69a97639b2f889711682a40c90849'}"
+        },
+        {
+          "check": "B1 target/big2.bin stat size == 1 MiB",
+          "ok": true,
+          "evidence": "1048576"
+        },
+        {
+          "check": "B1 git status lists no path under target/, node_modules/, out/ (ignored stay hidden)",
+          "ok": true,
+          "evidence": "' M .gitignore\\nA  docs/README.md\\nA  out/gen.txt\\n M src/A.java\\n?? app.log\\n?? keep.log\\n?? src/moved.txt\\n'"
+        },
+        {
+          "check": "published head does not have B1 local-only files (Store SDK)",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "unmount ign-b2 ns10 (discard) clean",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "B2 fresh: B2 src/A.java == 'class A { int v = 3; }\\n'",
+          "ok": true,
+          "evidence": "'class A { int v = 3; }\\n'"
+        },
+        {
+          "check": "B2 fresh: B2 docs/README.md == 'readme from B2\\n'",
+          "ok": true,
+          "evidence": "'readme from B2\\n'"
+        },
+        {
+          "check": "B2 fresh: B2 target/old.class == 'old'",
+          "ok": true,
+          "evidence": "'old'"
+        },
+        {
+          "check": "B2 fresh: B2 has docs/README.md",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "B2 fresh: B2 has no node_modules/z",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "B2 fresh: B2 has no target/big2.bin",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "unmount ign-b2 ns11 (discard) clean",
+          "ok": true,
+          "evidence": ""
+        }
+      ]
+    },
+    "5b server rule flip (B2 un-ignores out/)": {
+      "result": "FAIL",
+      "checks": [
+        {
+          "check": "warm-up watch: no server read of a local-only object during/after Commit",
+          "ok": true,
+          "evidence": "{'scenario': '5b server rule flip (B2 un-ignores out/)', 'commit_round_trips': 1, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4922, 'local_only_requested': 0} asked=[]"
+        },
+        {
+          "check": "warm-up watch: no server activity in the 3 s after Commit (round trips)",
+          "ok": true,
+          "evidence": "commit=1 settle=0"
+        },
+        {
+          "check": "prelude: B1 holds out/local.txt",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "prelude: published head has no out/local.txt (Store SDK)",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "unmount ign-b2 ns12 clean",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "server head .gitignore no longer ignores out/ (Store SDK)",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "warm-up watch: no server read of a local-only object during/after Commit",
+          "ok": true,
+          "evidence": "{'scenario': '5b server rule flip (B2 un-ignores out/)', 'commit_round_trips': 4, 'settle_round_trips': 0, 'store_reads': 3, 'store_metadata': 0, 'local_only_in_cache': 4924, 'local_only_requested': 0} asked=[]"
+        },
+        {
+          "check": "warm-up watch: no server activity in the 3 s after Commit (round trips)",
+          "ok": true,
+          "evidence": "commit=4 settle=0"
+        },
+        {
+          "check": "B1 Commit had no conflict",
+          "ok": true,
+          "evidence": "MergeCommitted(MergedCommit { outcome: UpToDate { head: Some(CommitId(12c8c496c5cd8bffeb67a782078417660ca51da05379b1c9372c6e5e8c64110367)), root: ObjectId(\"bfb72675e8279e920dce8f267f9d6ffb8dc4ff27ad175c273bfb4f2a65bf75e6\") }, from: Some(CommitId(12f612d7a22fe7df5ff6b5933f704ebff1ae2c49af9da0b96864be"
+        },
+        {
+          "check": "B1 mount shows the server .gitignore",
+          "ok": true,
+          "evidence": "'target/\\nnode_modules/\\n'"
+        },
+        {
+          "check": "B1 still has out/local.txt",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "published head has out/local.txt with B1 bytes (Store SDK)",
+          "ok": false,
+          "evidence": "None"
+        },
+        {
+          "check": "B2 fresh: B2 out/local.txt == 'local out bytes\\n'",
+          "ok": false,
+          "evidence": "None"
+        },
+        {
+          "check": "B2 fresh: B2 out/gen.txt == 'gen from B1\\n'",
+          "ok": true,
+          "evidence": "'gen from B1\\n'"
+        },
+        {
+          "check": "unmount ign-b2 ns13 (discard) clean",
+          "ok": true,
+          "evidence": ""
+        }
+      ]
+    },
+    "6b server delete (B2 deletes tracked pkg/)": {
+      "result": "FAIL",
+      "checks": [
+        {
+          "check": "warm-up watch: no server read of a local-only object during/after Commit",
+          "ok": true,
+          "evidence": "{'scenario': '6b server delete (B2 deletes tracked pkg/)', 'commit_round_trips': 3, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4927, 'local_only_requested': 0} asked=[]"
+        },
+        {
+          "check": "warm-up watch: no server activity in the 3 s after Commit (round trips)",
+          "ok": true,
+          "evidence": "commit=3 settle=0"
+        },
+        {
+          "check": "warm-up watch: no server read of a local-only object during/after Commit",
+          "ok": true,
+          "evidence": "{'scenario': '6b server delete (B2 deletes tracked pkg/)', 'commit_round_trips': 1, 'settle_round_trips': 0, 'store_reads': 0, 'store_metadata': 0, 'local_only_in_cache': 4991, 'local_only_requested': 0} asked=[]"
+        },
+        {
+          "check": "warm-up watch: no server activity in the 3 s after Commit (round trips)",
+          "ok": true,
+          "evidence": "commit=1 settle=0"
+        },
+        {
+          "check": "prelude: published head has pkg/a.txt and pkg/sub/b.txt, not pkg/build (Store SDK)",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "prelude: B1 holds pkg/build/out.bin (1 MiB)",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "prelude: B1 git status does not list pkg/build",
+          "ok": true,
+          "evidence": "'M  .gitignore\\nA  docs/README.md\\nA  out/gen.txt\\nA  pkg/a.txt\\nA  pkg/sub/b.txt\\n M src/A.java\\n?? app.log\\n?? keep.log\\n?? out/local.txt\\n?? src/moved.txt\\n'"
+        },
+        {
+          "check": "prelude: B2 sees tracked pkg/a.txt and no pkg/build",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "no exception",
+          "ok": false,
+          "evidence": "AssertionError((['docker', 'exec', '-e', 'HOME=/tmp', '-w', '/workspaces/14', 'ign-b2', 'git', '-c', 'safe.directory=*', '-c', 'user.name=ign', '-c', 'user.email=ign@example.invalid', '-c', 'init.defaultBranch=main', 'rm', '-r', '-q', 'pkg'], 1, 'error: the following files have changes staged in the index:\\n    pkg/a.txt\\n    pkg/sub/b.txt\\n(use --cached to keep the file, or -f to force removal)\\n'))"
+        }
+      ]
+    },
+    "8 comparison (B2 ignore off, same shape as 2)": {
+      "result": "PASS",
+      "checks": [
+        {
+          "check": "ignore-off Commit uploads the 32 MiB file (>= 32 MiB)",
+          "ok": true,
+          "evidence": "delta={'roundTrips': 31, 'uploadedObjects': 4807, 'uploadedBytes': 34230442}"
+        },
+        {
+          "check": "published head has target/big.bin (Store SDK size)",
+          "ok": true,
+          "evidence": ""
+        },
+        {
+          "check": "unmount ign-b2 ns15 clean",
+          "ok": true,
+          "evidence": ""
+        }
+      ]
+    },
+    "9 logs and warm-up summary": {
+      "result": "PASS",
+      "checks": [
+        {
+          "check": "server.log has no error lines (trace lines excluded)",
+          "ok": true,
+          "evidence": "[]"
+        },
+        {
+          "check": "ign-b1 daemon.log has no error lines",
+          "ok": true,
+          "evidence": "0"
+        },
+        {
+          "check": "ign-b2 daemon.log has no error lines",
+          "ok": true,
+          "evidence": "0"
+        }
+      ]
+    }
+  },
+  "facts": {
+    "m2_warm": "37486cba72e38b65e38d818d8ca4338e3e0f340abd1dff58e48a4cf3b1f50c59",
+    "warm_commit_wall_ms": 526.105646,
+    "warm_upload": {
+      "roundTrips": 15,
+      "uploadedObjects": 3389,
+      "uploadedBytes": 951735
+    },
+    "s2_ignored_bytes_written": 33734432,
+    "s2_ignore_on": {
+      "commit_wall_ms": 421.121925,
+      "python_wall_ms": 462.530084,
+      "roundTrips": 8,
+      "uploadedObjects": 4,
+      "uploadedBytes": 9353,
+      "server_store_delta_bytes": 0
+    },
+    "s3_commit": {
+      "wall_ms": 107.810223,
+      "uploadedBytes": 0
+    },
+    "s8_ignore_off": {
+      "commit_wall_ms": 829.549344,
+      "python_wall_ms": 874.534291,
+      "roundTrips": 31,
+      "uploadedObjects": 4807,
+      "uploadedBytes": 34230442,
+      "server_store_delta_bytes": 35045752
+    },
+    "warm_up_watch": [
+      {
+        "scenario": "2 ignored changes stay local (B1 ignore=git)",
+        "commit_round_trips": 8,
+        "settle_round_trips": 0,
+        "store_reads": 5,
+        "store_metadata": 0,
+        "local_only_in_cache": 4813,
+        "local_only_requested": 0
+      },
+      {
+        "scenario": "3 clean",
+        "commit_round_trips": 1,
+        "settle_round_trips": 0,
+        "store_reads": 0,
+        "store_metadata": 0,
+        "local_only_in_cache": 4818,
+        "local_only_requested": 0
+      },
+      {
+        "scenario": "4 rebuild",
+        "commit_round_trips": 1,
+        "settle_round_trips": 0,
+        "store_reads": 0,
+        "store_metadata": 0,
+        "local_only_in_cache": 4825,
+        "local_only_requested": 0
+      },
+      {
+        "scenario": "5 flip",
+        "commit_round_trips": 1,
+        "settle_round_trips": 0,
+        "store_reads": 0,
+        "store_metadata": 0,
+        "local_only_in_cache": 4832,
+        "local_only_requested": 0
+      },
+      {
+        "scenario": "5 flip",
+        "commit_round_trips": 3,
+        "settle_round_trips": 0,
+        "store_reads": 0,
+        "store_metadata": 0,
+        "local_only_in_cache": 4833,
+        "local_only_requested": 0
+      },
+      {
+        "scenario": "5 flip",
+        "commit_round_trips": 3,
+        "settle_round_trips": 0,
+        "store_reads": 0,
+        "store_metadata": 0,
+        "local_only_in_cache": 4837,
+        "local_only_requested": 0
+      },
+      {
+        "scenario": "5 flip",
+        "commit_round_trips": 1,
+        "settle_round_trips": 0,
+        "store_reads": 0,
+        "store_metadata": 0,
+        "local_only_in_cache": 4842,
+        "local_only_requested": 0
+      },
+      {
+        "scenario": "5 flip",
+        "commit_round_trips": 3,
+        "settle_round_trips": 0,
+        "store_reads": 0,
+        "store_metadata": 0,
+        "local_only_in_cache": 4844,
+        "local_only_requested": 0
+      },
+      {
+        "scenario": "6 moved head",
+        "commit_round_trips": 1,
+        "settle_round_trips": 0,
+        "store_reads": 0,
+        "store_metadata": 0,
+        "local_only_in_cache": 4910,
+        "local_only_requested": 0
+      },
+      {
+        "scenario": "6 moved head",
+        "commit_round_trips": 16,
+        "settle_round_trips": 0,
+        "store_reads": 13,
+        "store_metadata": 0,
+        "local_only_in_cache": 4917,
+        "local_only_requested": 0
+      },
+      {
+        "scenario": "5b server rule flip (B2 un-ignores out/)",
+        "commit_round_trips": 1,
+        "settle_round_trips": 0,
+        "store_reads": 0,
+        "store_metadata": 0,
+        "local_only_in_cache": 4922,
+        "local_only_requested": 0
+      },
+      {
+        "scenario": "5b server rule flip (B2 un-ignores out/)",
+        "commit_round_trips": 4,
+        "settle_round_trips": 0,
+        "store_reads": 3,
+        "store_metadata": 0,
+        "local_only_in_cache": 4924,
+        "local_only_requested": 0
+      },
+      {
+        "scenario": "6b server delete (B2 deletes tracked pkg/)",
+        "commit_round_trips": 3,
+        "settle_round_trips": 0,
+        "store_reads": 0,
+        "store_metadata": 0,
+        "local_only_in_cache": 4927,
+        "local_only_requested": 0
+      },
+      {
+        "scenario": "6b server delete (B2 deletes tracked pkg/)",
+        "commit_round_trips": 1,
+        "settle_round_trips": 0,
+        "store_reads": 0,
+        "store_metadata": 0,
+        "local_only_in_cache": 4991,
+        "local_only_requested": 0
+      }
+    ]
+  }
+}
