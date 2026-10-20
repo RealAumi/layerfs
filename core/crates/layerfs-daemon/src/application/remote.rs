@@ -102,10 +102,14 @@ pub fn run(path: &Path) -> Result<()> {
                             store_sqlite: None,
                         })),
                         Request::Sdk(call) if call.method == "operator.remote.stats" => {
-                            Some(Reply::Sdk(SdkValue::map([(
-                                "roundTrips",
-                                SdkValue::Int(client.round_trips().min(i64::MAX as u64) as i64),
-                            )])))
+                            Some(Reply::Sdk(SdkValue::map([
+                                (
+                                    "roundTrips",
+                                    SdkValue::Int(client.round_trips().min(i64::MAX as u64) as i64),
+                                ),
+                                ("uploadedObjects", SdkValue::Int(client.uploaded().0 as i64)),
+                                ("uploadedBytes", SdkValue::Int(client.uploaded().1 as i64)),
+                            ])))
                         }
                         _ => None,
                     };

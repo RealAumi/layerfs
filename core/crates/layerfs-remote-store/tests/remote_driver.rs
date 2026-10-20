@@ -62,6 +62,27 @@ fn drive() {
     match std::env::var("LFS_MODE").unwrap().as_str() {
         "init" => {
             let fixture = installed::Fixture::built("remote-e2e", |source| {
+                if let Ok(input) = std::env::var("LFS_SOURCE") {
+                    assert!(std::process::Command::new("cp")
+                        .args(["-a", &format!("{input}/."), source.to_str().unwrap()])
+                        .status()
+                        .unwrap()
+                        .success());
+                    fn count(p: &Path) -> usize {
+                        fs::read_dir(p)
+                            .unwrap()
+                            .map(|e| {
+                                let e = e.unwrap();
+                                1 + if e.file_type().unwrap().is_dir() {
+                                    count(&e.path())
+                                } else {
+                                    0
+                                }
+                            })
+                            .sum()
+                    }
+                    return count(source);
+                }
                 fs::create_dir(source.join("bulk")).unwrap();
                 for i in 0..3000 {
                     fs::write(
@@ -97,6 +118,46 @@ fn drive() {
                 &HistoryName::new("work").unwrap(),
             );
             fs::write("/out/branch", hex(&branch.to_bytes())).unwrap();
+            let cfg = Config::read(Path::new("/out/b1.setup")).unwrap();
+            let snapshot = service
+                .store
+                .history()
+                .branch_snapshot(branch)
+                .unwrap()
+                .unwrap();
+            let setup = layerfs_bridge::daemon_setup::DaemonSetup {
+                listen: "0.0.0.0:7801".into(),
+                private_key: cfg.key("private_key").unwrap(),
+                control_peer: duplex::public_key(&token).unwrap(),
+                store: "/state/store/store.sqlite".into(),
+                overlay: "/state/overlay/template.sqlite".into(),
+                mounts: "/workspaces".into(),
+                command_uid: 1000,
+                command_gid: 1000,
+                limits: layerfs_bridge::daemon_setup::DaemonLimits {
+                    connections: 8,
+                    handshake_ms: 10000,
+                    cache_bytes: 64 * 1024 * 1024,
+                    namespaces: 64,
+                    pager_kib: 2048,
+                    serial_low_water: 0,
+                },
+                existing_store: Some(layerfs_bridge::provision::StoreManifest {
+                    provider: layerfs_bridge::provision::ProviderKind::Sqlite,
+                    locator: "/state/store/store.sqlite".into(),
+                    profile: layerfs_bridge::provision::StoreProfile::Disposable,
+                    binding: installed::BINDING.to_vec(),
+                    cursor_key: installed::CURSOR,
+                    stack: LayerStackId::from_authority([23; 16]).to_bytes(),
+                    branch: branch.to_bytes(),
+                    root: snapshot.effective_root.to_bytes(),
+                    bytes: fs::metadata("/state/store/store.sqlite").unwrap().len(),
+                    host_sqlite: rusqlite::version().into(),
+                    daemon_sqlite: Some(rusqlite::version().into()),
+                }),
+            };
+            fs::write("/out/native.setup", setup.encode().unwrap()).unwrap();
+            fs::set_permissions("/out/native.setup", fs::Permissions::from_mode(0o600)).unwrap();
             service.close().unwrap();
         }
         mode => {

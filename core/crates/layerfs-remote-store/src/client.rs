@@ -32,6 +32,8 @@ struct Shared {
     write: Mutex<Channel>,
     cache: Cache,
     calls: AtomicU64,
+    uploaded_objects: AtomicU64,
+    uploaded_bytes: AtomicU64,
 }
 pub struct Client(Arc<Shared>);
 impl Client {
@@ -59,10 +61,19 @@ impl Client {
             write: Mutex::new(connect()?),
             cache: Cache::open(Path::new(config.get("cache")?))?,
             calls: AtomicU64::new(0),
+            uploaded_objects: AtomicU64::new(0),
+            uploaded_bytes: AtomicU64::new(0),
         }))))
     }
     pub fn round_trips(&self) -> u64 {
         self.0.calls.load(Ordering::Relaxed)
+    }
+    /// Canonical payload admitted by acknowledged Upload calls; excludes framing.
+    pub fn uploaded(&self) -> (u64, u64) {
+        (
+            self.0.uploaded_objects.load(Ordering::Relaxed),
+            self.0.uploaded_bytes.load(Ordering::Relaxed),
+        )
     }
     fn call(&self, write: bool, opcode: u8, body: Encode) -> Result<Vec<u8>> {
         let channel = if write { &self.0.write } else { &self.0.read };
@@ -295,10 +306,13 @@ impl RemoteBuild for Build {
                 out.raw(candidate.binding.scope.as_bytes());
                 out.raw(candidate.binding.effective_root.as_bytes());
                 out.number(missing.iter().filter(|&&m| m == 1).count() as u64);
+                let mut uploaded = (0, 0);
                 for (row, present) in rows.iter().zip(missing) {
                     match present {
                         0 => (),
                         1 => {
+                            uploaded.0 += 1;
+                            uploaded.1 += row.bytes.len() as u64;
                             out.raw(row.id.as_bytes());
                             out.byte(row.role.code());
                             out.blob(&row.bytes);
@@ -307,6 +321,14 @@ impl RemoteBuild for Build {
                     }
                 }
                 self.client.exchange(&mut channel, wire::UPLOAD, out)?;
+                self.client
+                    .0
+                    .uploaded_objects
+                    .fetch_add(uploaded.0, Ordering::Relaxed);
+                self.client
+                    .0
+                    .uploaded_bytes
+                    .fetch_add(uploaded.1, Ordering::Relaxed);
             }
             let mut out = Encode::new();
             out.blob(&layerfs_bridge::snapshot::encode(&candidate.binding).map_err(error)?);
