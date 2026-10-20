@@ -233,7 +233,9 @@ impl Application {
             },
             _ => resources::ResourceObservation::unavailable(),
         };
-        let store = service.as_ref().and_then(|service| service.observed_store());
+        let store = service
+            .as_ref()
+            .and_then(|service| service.observed_store());
         let result = (|| {
             let mut rows = Records::new(
                 io::stderr().lock(),

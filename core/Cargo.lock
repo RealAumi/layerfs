@@ -591,6 +591,7 @@ dependencies = [
  "layerfs-overlay",
  "layerfs-persistence",
  "layerfs-project",
+ "layerfs-remote-store",
  "layerfs-storage",
  "layerfs-store-service",
  "layerfs-telemetry",
@@ -667,6 +668,24 @@ dependencies = [
  "layerfs-storage",
  "layerfs-telemetry",
  "sha2 0.11.0",
+]
+
+[[package]]
+name = "layerfs-remote-store"
+version = "0.1.7"
+dependencies = [
+ "layerfs-api",
+ "layerfs-bridge",
+ "layerfs-content",
+ "layerfs-history",
+ "layerfs-persistence",
+ "layerfs-project",
+ "layerfs-storage",
+ "layerfs-store-service",
+ "layerfs-telemetry",
+ "layerfs-workspace",
+ "nix",
+ "rusqlite",
 ]
 
 [[package]]

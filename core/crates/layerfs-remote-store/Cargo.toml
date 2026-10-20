@@ -1,0 +1,22 @@
+[package]
+name = "layerfs-remote-store"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+layerfs-store-service = { path = "../layerfs-store-service" }
+layerfs-bridge = { path = "../layerfs-bridge" }
+layerfs-content = { path = "../layerfs-content" }
+layerfs-storage = { path = "../layerfs-storage" }
+layerfs-history = { path = "../layerfs-history" }
+layerfs-workspace = { path = "../layerfs-workspace" }
+layerfs-persistence = { path = "../layerfs-persistence" }
+layerfs-telemetry = { path = "../layerfs-telemetry" }
+rusqlite = { version = "=0.40.2", features = ["bundled"] }
+nix = { version = "=0.31.3", features = ["user"] }
+
+[dev-dependencies]
+layerfs-api = { path = "../layerfs-api" }
+layerfs-project = { path = "../layerfs-project" }

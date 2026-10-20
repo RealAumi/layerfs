@@ -13,3 +13,6 @@ pub use diagnostics::resources::{ResourceDiagnosticError, ResourceFailure, Resou
 pub(crate) use diagnostics::{commit_parts, namespace_values, storage_values};
 pub use failure::{ApplicationError, ConnectionFailure};
 pub use owner::Application;
+
+#[cfg(target_os = "linux")]
+pub mod remote;

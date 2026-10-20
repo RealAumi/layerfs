@@ -77,7 +77,7 @@ pub(super) fn protected_file(path: &Path) -> io::Result<()> {
     }
     Ok(())
 }
-fn private_directory(path: &Path, create: bool) -> io::Result<()> {
+pub(super) fn private_directory(path: &Path, create: bool) -> io::Result<()> {
     match fs::symlink_metadata(path) {
         Ok(_) => (),
         Err(error) if create && error.kind() == io::ErrorKind::NotFound => {
@@ -100,7 +100,7 @@ fn private_directory(path: &Path, create: bool) -> io::Result<()> {
     Ok(())
 }
 #[cfg(target_os = "linux")]
-fn secure_process() -> io::Result<()> {
+pub(super) fn secure_process() -> io::Result<()> {
     nix::sys::stat::umask(nix::sys::stat::Mode::from_bits_truncate(0o077));
     nix::sys::prctl::set_dumpable(false).map_err(io::Error::from)?;
     if nix::sys::prctl::get_dumpable().map_err(io::Error::from)? {
@@ -109,7 +109,7 @@ fn secure_process() -> io::Result<()> {
     Ok(())
 }
 #[cfg(not(target_os = "linux"))]
-fn secure_process() -> io::Result<()> {
+pub(super) fn secure_process() -> io::Result<()> {
     Err(io::Error::new(
         io::ErrorKind::Unsupported,
         "production daemon requires Linux process protection",

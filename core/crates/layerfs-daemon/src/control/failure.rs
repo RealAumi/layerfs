@@ -172,7 +172,13 @@ fn port(error: Option<&PortError>, opaque: bool) -> ControlCode {
     match error {
         Some(PortError::Storage(error)) => storage(error),
         Some(PortError::History(error)) => history(error).0,
-        Some(PortError::Remote(error)) => if error.unknown { ControlCode::Unknown } else { ControlCode::Failed },
+        Some(PortError::Remote(error)) => {
+            if error.unknown {
+                ControlCode::Unknown
+            } else {
+                ControlCode::Failed
+            }
+        }
         Some(PortError::Poisoned) => ControlCode::Unknown,
         Some(PortError::ConcurrentDemand) => ControlCode::Busy,
         Some(PortError::ReadAdmission(error)) => match error {

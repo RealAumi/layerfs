@@ -60,7 +60,8 @@ impl FilesystemPort {
     fn scoped(cause: &PortError) -> bool {
         matches!(
             cause,
-            PortError::Remote(_) | PortError::Storage(_)
+            PortError::Remote(_)
+                | PortError::Storage(_)
                 | PortError::ReadAdmission(
                     ReadAdmissionError::NoReaders | ReadAdmissionError::Stopped
                 )

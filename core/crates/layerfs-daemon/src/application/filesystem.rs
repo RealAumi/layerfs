@@ -29,7 +29,7 @@ pub(super) fn assemble(
     Ok(None)
 }
 #[cfg(target_os = "linux")]
-pub(super) use linux::assemble;
+pub(super) use linux::{assemble, assemble_at};
 #[cfg(target_os = "linux")]
 mod linux {
     use crate::control::{KernelConfig, KernelServing};
@@ -58,15 +58,22 @@ mod linux {
     pub(in crate::application) fn assemble(
         setup: &DaemonSetup,
     ) -> io::Result<Option<Arc<KernelServing>>> {
-        let mounts = Path::new(&setup.mounts);
+        assemble_at(&setup.mounts, setup.command_uid, setup.command_gid)
+    }
+    pub(in crate::application) fn assemble_at(
+        mounts: &str,
+        command_uid: u32,
+        command_gid: u32,
+    ) -> io::Result<Option<Arc<KernelServing>>> {
+        let mounts = Path::new(mounts);
         device()?;
         home(mounts)?;
         KernelServing::start(KernelConfig {
             mounts: mounts.to_owned(),
             owner_uid: Uid::effective().as_raw(),
             owner_gid: Gid::effective().as_raw(),
-            command_uid: setup.command_uid,
-            command_gid: setup.command_gid,
+            command_uid,
+            command_gid,
             ready_wait: READY_WAIT,
             drain_wait: DRAIN_WAIT,
         })

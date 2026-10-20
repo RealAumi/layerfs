@@ -46,13 +46,15 @@ impl BoundWorkspace {
             build = Some(remote.source.build().map_err(CommitError::Remote)?);
             let objects = build.as_ref().expect("created build");
             retained.phase = CommitPhase::Construct;
-            let root = self.construct_captured(
-                objects.reader(),
-                &mut Sink(objects.as_ref()),
-                capture,
-                &mut held,
-                None,
-            ).map_err(|cause| objects.failure().map(CommitError::Remote).unwrap_or(cause))?;
+            let root = self
+                .construct_captured(
+                    objects.reader(),
+                    &mut Sink(objects.as_ref()),
+                    capture,
+                    &mut held,
+                    None,
+                )
+                .map_err(|cause| objects.failure().map(CommitError::Remote).unwrap_or(cause))?;
             retained.phase = CommitPhase::Publish;
             let (published, receipt) = objects
                 .publish(&CandidateInput {

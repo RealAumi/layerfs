@@ -46,7 +46,11 @@ impl Service {
         }
     }
     /// Binds control and kernel serving to the same Store and overlay owner.
-    pub fn with_kernel(store: impl Into<WorkspaceBackend>, owner: &Owner, kernel: Arc<KernelServing>) -> Self {
+    pub fn with_kernel(
+        store: impl Into<WorkspaceBackend>,
+        owner: &Owner,
+        kernel: Arc<KernelServing>,
+    ) -> Self {
         Self {
             kernel: Some(kernel),
             ..Self::new(store, owner)

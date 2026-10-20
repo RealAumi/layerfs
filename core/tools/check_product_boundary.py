@@ -23,7 +23,7 @@ UNSAFE_AUDITED_MODULE = {
     "layerfs-storage": "src/encoding/codec.rs",
     "layerfs-persistence": "src/backend/sqlite/file_control.rs",
 }
-UNSAFE_FREE_CRATES = ("layerfs-content", "layerfs-telemetry", "layerfs-project", "layerfs-overlay", "layerfs-workspace", "layerfs-fuse", "layerfs-daemon", "layerfs-api", "layerfs-bridge", "layerfs-sandbox")
+UNSAFE_FREE_CRATES = ("layerfs-content", "layerfs-telemetry", "layerfs-project", "layerfs-overlay", "layerfs-workspace", "layerfs-fuse", "layerfs-daemon", "layerfs-api", "layerfs-bridge", "layerfs-sandbox", "layerfs-remote-store")
 UNSAFE_ROOT_ATTR = {
     "layerfs-storage": "#![deny(unsafe_code)]",
     "layerfs-content": "#![forbid(unsafe_code)]",
@@ -37,6 +37,7 @@ UNSAFE_ROOT_ATTR = {
     "layerfs-api": "#![forbid(unsafe_code)]",
     "layerfs-bridge": "#![forbid(unsafe_code)]",
     "layerfs-sandbox": "#![forbid(unsafe_code)]",
+    "layerfs-remote-store": "#![forbid(unsafe_code)]",
 }
 
 
@@ -54,7 +55,8 @@ ALLOWED_DEPENDENCIES = {
     "layerfs-fuse": {"layerfs-content", "layerfs-overlay", "layerfs-workspace"},
     # Concrete Store open/install belongs to application composition. The
     # provider-independent daemon store/ subtree has a narrower source boundary.
-    "layerfs-daemon": {"layerfs-overlay", "layerfs-workspace", "layerfs-fuse", "layerfs-bridge", "layerfs-content", "layerfs-storage", "layerfs-history", "layerfs-persistence", "layerfs-telemetry"},
+    "layerfs-remote-store": {"layerfs-store-service", "layerfs-bridge", "layerfs-content", "layerfs-storage", "layerfs-history", "layerfs-workspace", "layerfs-persistence", "layerfs-telemetry"},
+    "layerfs-daemon": {"layerfs-remote-store","layerfs-overlay", "layerfs-workspace", "layerfs-fuse", "layerfs-bridge", "layerfs-content", "layerfs-storage", "layerfs-history", "layerfs-persistence", "layerfs-telemetry"},
     "layerfs-api": {"layerfs-content", "layerfs-storage", "layerfs-history", "layerfs-persistence", "layerfs-telemetry", "layerfs-bridge", "layerfs-project", "layerfs-sandbox"},
     "layerfs-bridge": {"layerfs-content", "layerfs-history"},
     "layerfs-sandbox": set(),
