@@ -1,0 +1,37 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.04s
+     Running tests/restore_cache.rs (core/target/debug/deps/restore_cache-fcc99b9679fe2199)
+
+running 12 tests
+test cache_uses_a_process_crash_safe_journal ... ok
+test absent_local_references_are_resolved_in_one_batch ... ok
+test restore_presence_does_not_materialize_file_payload_leaves ... ok
+test save_failure_preserves_previous_record_and_exposes_status ... ok
+test saving_restore_does_not_read_the_unchanged_object_graph ... ok
+test remote_objects_are_not_required_in_manifest_and_corruption_has_reason ... ok
+
+thread 'trailing_manifest_is_an_invalid_record' (8494550) panicked at crates/layerfs-remote-store/tests/restore_cache.rs:656:5:
+old manifest suffix was accepted
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test trailing_manifest_is_an_invalid_record ... FAILED
+
+thread 'sqlite_validation_refuses_bind_then_retry_restores_unchanged_record' (8494549) panicked at crates/layerfs-remote-store/tests/restore_cache.rs:612:5:
+transient validation fell back instead of refusing bind
+test sqlite_validation_refuses_bind_then_retry_restores_unchanged_record ... FAILED
+
+thread 'transient_lacking_refuses_bind_then_retry_restores_unchanged_record' (8494551) panicked at crates/layerfs-remote-store/tests/restore_cache.rs:612:5:
+transient validation fell back instead of refusing bind
+test transient_lacking_refuses_bind_then_retry_restores_unchanged_record ... FAILED
+test missing_local_root_rejects_record ... ok
+test missing_local_leaf_rejects_record ... ok
+test restart_atomic_last_writer_and_scoped_keys ... ok
+
+failures:
+
+failures:
+    sqlite_validation_refuses_bind_then_retry_restores_unchanged_record
+    trailing_manifest_is_an_invalid_record
+    transient_lacking_refuses_bind_then_retry_restores_unchanged_record
+
+test result: FAILED. 9 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+error: test failed, to rerun pass `-p layerfs-remote-store --test restore_cache`

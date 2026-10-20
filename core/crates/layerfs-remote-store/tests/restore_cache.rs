@@ -1,4 +1,4 @@
-//! Actual SQLite/cache/manifest tests, with bounded authenticated idle peers.
+//! Actual SQLite/cache/restore tests, with bounded authenticated idle peers.
 use layerfs_bridge::duplex;
 use layerfs_content::{
     construct_bytes,
@@ -36,6 +36,7 @@ struct Peer {
     stop: Vec<TcpStream>,
     known: Arc<Mutex<BTreeSet<ObjectId>>>,
     requests: Arc<Mutex<Vec<Vec<ObjectId>>>>,
+    fail_once: Arc<Mutex<bool>>,
     worker: Option<thread::JoinHandle<()>>,
 }
 impl Drop for Peer {
@@ -71,6 +72,8 @@ fn connect(dir: &Path, n: usize) -> Peer {
     let server_known = known.clone();
     let requests = Arc::new(Mutex::new(Vec::new()));
     let server_requests = requests.clone();
+    let fail_once = Arc::new(Mutex::new(false));
+    let server_fail = fail_once.clone();
     let worker = thread::spawn(move || {
         let deadline = Instant::now() + Duration::from_secs(5);
         let mut channels = Vec::new();
@@ -105,6 +108,12 @@ fn connect(dir: &Path, n: usize) -> Peer {
             server_requests.lock().unwrap().push(ids.clone());
             let mut out = Encode::new();
             out.number(request);
+            if std::mem::take(&mut *server_fail.lock().unwrap()) {
+                out.byte(1);
+                out.text("injected transient LACKING failure");
+                wire::send(&mut channels[0], &out.0).unwrap();
+                continue;
+            }
             out.byte(0);
             for id in ids {
                 out.byte(u8::from(!server_known.lock().unwrap().contains(&id)));
@@ -117,6 +126,7 @@ fn connect(dir: &Path, n: usize) -> Peer {
         stop: rx.recv_timeout(Duration::from_secs(5)).unwrap(),
         known,
         requests,
+        fail_once,
         worker: Some(worker),
     }
 }
@@ -452,4 +462,197 @@ fn absent_local_references_are_resolved_in_one_batch() {
     drop(db);
     drop(peer);
     fs::remove_dir_all(dir).unwrap();
+}
+
+// Supply the current head locally while keeping actual cache/LACKING validation.
+struct BindingStore {
+    client: Arc<Client>,
+    head: BranchSnapshot,
+}
+impl RemoteStore for BindingStore {
+    fn policy(&self) -> layerfs_storage::StoragePolicy {
+        self.client.policy()
+    }
+    fn snapshot(
+        &self,
+        _: BranchId,
+    ) -> Result<BranchSnapshot, layerfs_store_service::store::BackendError> {
+        Ok(self.head.clone())
+    }
+    fn objects(
+        &self,
+        ids: &[ObjectId],
+    ) -> Result<Vec<Vec<u8>>, layerfs_store_service::store::BackendError> {
+        self.client.objects(ids)
+    }
+    fn lengths(
+        &self,
+        ids: &[ObjectId],
+    ) -> Result<Vec<u64>, layerfs_store_service::store::BackendError> {
+        self.client.lengths(ids)
+    }
+    fn reserve(
+        &self,
+        _: ObjectId,
+        _: u64,
+    ) -> Result<(u64, u64), layerfs_store_service::store::BackendError> {
+        panic!("bind does not reserve")
+    }
+    fn build(&self) -> Result<Box<dyn RemoteBuild>, layerfs_store_service::store::BackendError> {
+        panic!("bind does not build")
+    }
+    fn restore(
+        &self,
+        head: &BranchSnapshot,
+        key: &str,
+    ) -> Result<Option<RestorePoint>, layerfs_store_service::store::BackendError> {
+        self.client.restore(head, key)
+    }
+}
+fn validation_refuses_bind(sqlite: bool) {
+    use layerfs_history::WorkspaceId;
+    use layerfs_store_service::{
+        store::{BindRequest, WorkspaceBackend},
+        Owner, OwnerConfig,
+    };
+    let dir = temp(if sqlite {
+        "validation-sqlite"
+    } else {
+        "validation-lacking"
+    });
+    let peer = connect(&dir, 1);
+    let (saved, leaf) = point(&peer.client, 61);
+    let (head, _) = point(&peer.client, 62);
+    peer.client.save_restore("key", &saved).unwrap();
+    let db = rusqlite::Connection::open(dir.join("cache.sqlite")).unwrap();
+    let record = || {
+        db.query_row("SELECT body FROM restore_points", [], |r| {
+            r.get::<_, Vec<u8>>(0)
+        })
+        .unwrap()
+    };
+    let original = record();
+    if sqlite {
+        db.execute_batch("DROP INDEX object_presence").unwrap();
+    } else {
+        peer.known.lock().unwrap().insert(leaf);
+        db.execute(
+            "DELETE FROM objects WHERE id=?",
+            [leaf.as_bytes().as_slice()],
+        )
+        .unwrap();
+        *peer.fail_once.lock().unwrap() = true;
+    }
+    let owner = Owner::start(
+        &dir.join("template.sqlite"),
+        Default::default(),
+        OwnerConfig::default(),
+    )
+    .unwrap();
+    let backend = WorkspaceBackend::remote(
+        Arc::new(BindingStore {
+            client: peer.client.clone(),
+            head: head.binding.clone(),
+        }),
+        1 << 20,
+        true,
+    );
+    let bind = |id| {
+        backend.bind_restore(
+            owner.client(),
+            BindRequest {
+                branch: head.binding.branch.id,
+                workspace: WorkspaceId::from_authority([id; 32]).unwrap(),
+            },
+            Some("key".into()),
+        )
+    };
+    let first = bind(63);
+    let refused = first.is_err();
+    let error = first.as_ref().err().map(|e| format!("{e:?}"));
+    if let Ok(bound) = first {
+        bound.workspace.close().unwrap();
+    }
+    assert_eq!(
+        record(),
+        original,
+        "failed validation must not replace the record"
+    );
+    if sqlite {
+        db.execute_batch("CREATE INDEX object_presence ON objects(id,remote,role)")
+            .unwrap();
+    }
+    // Explicit caller retry after recovery; no operation is automatically replayed.
+    let restored = bind(64).unwrap().workspace;
+    assert_eq!(restored.snapshot().unwrap(), saved.binding);
+    assert_eq!(
+        restored
+            .operation()
+            .unwrap()
+            .workspace()
+            .base()
+            .unwrap()
+            .identity()
+            .0,
+        saved.local
+    );
+    assert_eq!(
+        peer.client.restore(&head.binding, "key").unwrap(),
+        Some(saved)
+    );
+    assert_eq!(peer.client.restore_status(), "restored");
+    assert_eq!(record(), original);
+    restored.close().unwrap();
+    drop(restored);
+    drop(backend);
+    drop(owner);
+    drop(db);
+    drop(peer);
+    fs::remove_dir_all(dir).unwrap();
+    assert!(
+        refused,
+        "transient validation fell back instead of refusing bind"
+    );
+    let error = error.unwrap();
+    assert!(
+        error.contains(if sqlite {
+            "no such index"
+        } else {
+            "injected transient LACKING failure"
+        }),
+        "{error}"
+    );
+    assert!(
+        error.contains("unknown: false"),
+        "bind failure is safe to retry: {error}"
+    );
+}
+#[test]
+fn transient_lacking_refuses_bind_then_retry_restores_unchanged_record() {
+    validation_refuses_bind(false);
+}
+#[test]
+fn sqlite_validation_refuses_bind_then_retry_restores_unchanged_record() {
+    validation_refuses_bind(true);
+}
+#[test]
+fn trailing_manifest_is_an_invalid_record() {
+    let dir = temp("old-shape");
+    let peer = connect(&dir, 1);
+    let (point, _) = point(&peer.client, 64);
+    peer.client.save_restore("key", &point).unwrap();
+    let db = rusqlite::Connection::open(dir.join("cache.sqlite")).unwrap();
+    let mut bytes: Vec<u8> = db
+        .query_row("SELECT body FROM restore_points", [], |r| r.get(0))
+        .unwrap();
+    bytes.extend_from_slice(point.local.as_bytes());
+    db.execute("UPDATE restore_points SET body=?", [bytes])
+        .unwrap();
+    let restored = peer.client.restore(&point.binding, "key").unwrap();
+    let status = peer.client.restore_status();
+    drop(db);
+    drop(peer);
+    fs::remove_dir_all(dir).unwrap();
+    assert!(restored.is_none(), "old manifest suffix was accepted");
+    assert_eq!(status, "invalid-record");
 }
