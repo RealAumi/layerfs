@@ -11,13 +11,13 @@ machine"). Every container, network and volume is prefixed `ign-`; `ign-target`
   run-ignore-e2e.py transport   scenario 7 (layerfs-remote-store transport tests)
   run-ignore-e2e.py all         everything (default)
 
-Receipts: docs/mp2/receipts/ignore01/.  Work dir (binaries, seed): $IGN_WORK,
+Receipts: docs/mp2/receipts/$IGN_RECEIPTS/ (default ignore01).  Work dir (binaries, seed): $IGN_WORK,
 default ~/.cache/ign-e2e.
 """
 import hashlib, json, os, pathlib, re, subprocess, sys, time, shutil
 
 REPO = pathlib.Path(__file__).resolve().parents[2]
-RECEIPTS = REPO / 'docs/mp2/receipts/ignore01'
+RECEIPTS = REPO / 'docs/mp2/receipts' / os.environ.get('IGN_RECEIPTS', 'ignore01')
 WORK = pathlib.Path(os.environ.get('IGN_WORK', pathlib.Path.home() / '.cache/ign-e2e'))
 BIN, SEED = WORK / 'bin', WORK / 'seed'
 IMAGE = 'public.ecr.aws/docker/library/rust:1.85.1-bookworm'
@@ -296,6 +296,48 @@ def scenario(scn, fn, *a):
         check(scn, 'no exception', False, repr(e)[:1500])
 
 
+# ---------------------------------------------------------------- warm-up watch
+# The server runs with LAYERFS_REMOTE_TRACE_READS=1, so every object/length read it serves is in
+# server.log (STORE_READ opcode=2|3 ids=[...], STORE_METADATA objects=N lengths=M). After each
+# B1 Commit (B2 idle) the window up to a 3 s settle must contain no read of an object that B1's
+# cache still holds as local-only (cache.objects.remote=0): that would be a warm-up asking the
+# server for something only the sandbox has.
+
+WARM = []
+
+
+def server_log_lines():
+    return execute(A, 'cat', '/state/server.log').stdout.splitlines()
+
+
+def local_only_ids(b):
+    script = ('import sqlite3,sys;c=sqlite3.connect("file:/state/cache/objects.sqlite?mode=ro",uri=True);'
+              'print("\\n".join(r[0].hex() for r in c.execute("SELECT id FROM objects WHERE remote=0")))')
+    return set(execute(b, 'python3', '-c', script).stdout.split())
+
+
+def watched_commit(scn, m, settle=3.0):
+    """commit() plus the warm-up watch; returns commit()'s tuple."""
+    n0 = len(server_log_lines())
+    r0 = stats(m.b)['roundTrips']
+    res = commit(m)
+    r1 = stats(m.b)['roundTrips']
+    time.sleep(settle)
+    r2 = stats(m.b)['roundTrips']
+    window = server_log_lines()[n0:]
+    reads = [x for x in window if x.startswith('STORE_READ')]
+    meta = [x for x in window if x.startswith('STORE_METADATA')]
+    local = local_only_ids(m.b)
+    asked = sorted(set(re.findall(r'[0-9a-f]{64}', ' '.join(reads))) & local)
+    rec = dict(scenario=scn, commit_round_trips=r1 - r0, settle_round_trips=r2 - r1, store_reads=len(reads), store_metadata=len(meta),
+               local_only_in_cache=len(local), local_only_requested=len(asked))
+    WARM.append(rec)
+    say('  warm-up watch:', json.dumps(rec))
+    check(scn, 'warm-up watch: no server read of a local-only object during/after Commit', not asked, f'{rec} asked={asked[:3]}')
+    check(scn, 'warm-up watch: no server activity in the 3 s after Commit (round trips)', r2 == r1, f'commit={r1 - r0} settle={r2 - r1}')
+    return res
+
+
 # ---------------------------------------------------------------- scenarios
 
 def s1_warm_base():
@@ -355,7 +397,7 @@ def s2_ignored_changes_stay_local(m1):
     put(m1, 'target/old.class', 'rebuilt')
     FACTS['s2_ignored_bytes_written'] = 32 * MIB + 3000 * 60
     s0, store0 = stats(B1), store_bytes()
-    out_, w, py = commit(m1)
+    out_, w, py = watched_commit(s, m1)
     s1, store1 = stats(B1), store_bytes()
     delta = {k: s1[k] - s0[k] for k in s0}
     FACTS['s2_ignore_on'] = dict(commit_wall_ms=(w or py) / 1e6, python_wall_ms=py / 1e6, **delta, server_store_delta_bytes=store1 - store0)
@@ -392,7 +434,7 @@ def s3_clean(m1):
     s = '3 clean'
     execute(m1.b, 'bash', '-c', 'cd "$1" && rm -rf target node_modules', 'bash', m1.path, wall=120)
     s0 = stats(B1)
-    out_, w, py = commit(m1)
+    out_, w, py = watched_commit(s, m1)
     s1 = stats(B1)
     FACTS['s3_commit'] = dict(wall_ms=(w or py) / 1e6, uploadedBytes=s1['uploadedBytes'] - s0['uploadedBytes'])
     check(s, 'B1 no longer shows target/ and node_modules/', not exists(m1, 'target') and not exists(m1, 'node_modules'))
@@ -405,7 +447,7 @@ def s4_rebuild(m1):
     s = '4 rebuild'
     put(m1, 'target/old.class', 'again')
     s0 = stats(B1)
-    commit(m1)
+    watched_commit(s, m1)
     s1 = stats(B1)
     check(s, 'B1 target/old.class == again', cat(m1, 'target/old.class') == 'again')
     check(s, 'rebuild upload tiny (< 64 KiB)', s1['uploadedBytes'] - s0['uploadedBytes'] < 65536, s1['uploadedBytes'] - s0['uploadedBytes'])
@@ -417,25 +459,25 @@ def s5_flip(m1):
     s = '5 flip'
     # 5a: written under out/ (ignored): stays local.
     put(m1, 'out/gen.txt', 'gen from B1\n')
-    commit(m1)
+    watched_commit(s, m1)
     check(s, '5a B1 still shows out/gen.txt', cat(m1, 'out/gen.txt') == 'gen from B1\n')
     check_b2_view(s, '5a', [], ['out/gen.txt'], {})
     # 5b: git add -f flips it to kept.
     git(m1, 'add', '-f', 'out/gen.txt')
-    commit(m1)
+    watched_commit(s, m1)
     check_b2_view(s, '5b after git add -f', [], [], {'out/gen.txt': 'gen from B1\n'})
     check(s, '5b published head has out/gen.txt with B1 bytes (Store SDK)', server_read('/out/gen.txt') == 'gen from B1\n')
     # 5c: drop *.log from .gitignore, write keep.log.
     put(m1, '.gitignore', 'target/\nnode_modules/\nout/\n')
     put(m1, 'keep.log', 'keep me\n')
-    commit(m1)
+    watched_commit(s, m1)
     check_b2_view(s, '5c after .gitignore edit', [], [], {'keep.log': 'keep me\n', 'app.log': 'log line 1\n', '.gitignore': 'target/\nnode_modules/\nout/\n'})
     # 5d: move from an ignored directory into a kept one.
     put(m1, 'target/moved.txt', 'moved bytes\n')
-    commit(m1)
+    watched_commit(s, m1)
     check_b2_view(s, '5d moved-file prelude', [], ['target/moved.txt', 'src/moved.txt'], {})
     execute(m1.b, 'bash', '-c', 'mv "$1/target/moved.txt" "$1/src/moved.txt"', 'bash', m1.path)
-    commit(m1)
+    watched_commit(s, m1)
     check_b2_view(s, '5d after mv into src/', [], ['target/moved.txt'], {'src/moved.txt': 'moved bytes\n'})
 
 
@@ -445,7 +487,7 @@ def s6_moved_head(m1):
     put(m1, 'node_modules/z/index.js', 'zzz\n')
     big_file(m1, 'target/big2.bin', 1)
     big2 = sha(m1, 'target/big2.bin')
-    commit(m1)
+    watched_commit(s, m1)
     before = dict(old=cat(m1, 'target/old.class'), z=cat(m1, 'node_modules/z/index.js'), big2=sha(m1, 'target/big2.bin'))
     check(s, 'prelude: B1 holds local-only ignored files', before == dict(old='again', z='zzz\n', big2=big2), before)
     # B2 adds a tracked docs/README.md and Commits (head moves under B1).
@@ -457,7 +499,7 @@ def s6_moved_head(m1):
     check(s, 'B2 docs/README.md published (Store SDK)', server_read('/docs/README.md') == 'readme from B2\n')
     # B1 edits a tracked file and Commits: stale base -> the server merges.
     put(m1, 'src/A.java', 'class A { int v = 3; }\n')
-    out1, w, _ = commit(m1)
+    out1, w, _ = watched_commit(s, m1)
     say('  B1 merge commit output:', out1.strip().replace('\n', ' | ')[:600])
     check(s, 'B1 Commit output mentions a merge', re.search(r'[Mm]erge', out1) is not None, out1.strip()[:400])
     check(s, 'B1 Commit had no conflict', 'Conflict(' not in out1, out1.strip()[:200])
@@ -475,6 +517,17 @@ def s6_moved_head(m1):
     try_unmount(s, m2, discard=True)
     check_b2_view(s, 'B2 fresh', ['docs/README.md'], ['node_modules/z', 'target/big2.bin'],
                   {'src/A.java': 'class A { int v = 3; }\n', 'docs/README.md': 'readme from B2\n', 'target/old.class': 'old'})
+
+
+def s9_logs():
+    s = '9 logs and warm-up summary'
+    srv = [x for x in server_log_lines() if not x.startswith(('STORE_READ', 'STORE_METADATA'))]
+    bad = [x for x in srv if re.search(r'error|panic|missing|not found|refused', x, re.I)]
+    check(s, 'server.log has no error lines (trace lines excluded)', not bad, bad[:3])
+    for b in (B1, B2):
+        n = execute(b, 'bash', '-c', 'grep -ciE "error|panic|refused|missing" /state/daemon.log', expected=None).stdout.strip()
+        check(s, f'{b} daemon.log has no error lines', n == '0', n)
+    FACTS['warm_up_watch'] = WARM
 
 
 def s8_comparison():
@@ -523,7 +576,7 @@ class Env:
             docker('run', '--rm', '--name', 'ign-init', '--network', NET_A, '-v', f'{BIN}:/opt/lfs:ro', '-v', f'{SEED}:/out', '-v', f'{V_SERVER}:/state',
                    '-e', 'LFS_MODE=init', '-e', f'LAYERFS_CONSTRUCTION_WORKERS={WORKERS}', IMAGE, 'timeout', '120', '/opt/lfs/remote_driver', '--ignored', '--exact', 'drive', '--nocapture')
             docker('run', '-d', '--name', A, '--init', '--network', NET_A, '-v', f'{BIN}:/opt/lfs:ro', '-v', f'{V_SERVER}:/state',
-                   '-e', f'LAYERFS_CONSTRUCTION_WORKERS={WORKERS}', IMAGE, 'bash', '-c', 'exec /opt/lfs/layerfs-store --config /state/server.setup > /state/server.log 2>&1')
+                   '-e', f'LAYERFS_CONSTRUCTION_WORKERS={WORKERS}', '-e', 'LAYERFS_REMOTE_TRACE_READS=1', IMAGE, 'bash', '-c', 'exec /opt/lfs/layerfs-store --config /state/server.setup > /state/server.log 2>&1')
             self.owned.append(A)
             docker('network', 'connect', '--alias', 'store', LINK, A)
             ready(A, 'REMOTE_STORE_READY', '/state/server.log')
@@ -574,6 +627,7 @@ def e2e():
         scenario('5 flip', s5_flip, m1)
         scenario('6 moved head', s6_moved_head, m1)
         scenario('8 comparison (B2 ignore off, same shape as 2)', s8_comparison)
+        scenario('9 logs and warm-up summary', s9_logs)
     summary = {}
     for scn, checks in RESULTS.items():
         summary[scn] = dict(result='PASS' if all(c['ok'] for c in checks) else 'FAIL', checks=checks)

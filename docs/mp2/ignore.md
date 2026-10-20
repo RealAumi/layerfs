@@ -146,3 +146,9 @@ A path that becomes ignored needs nothing: `Q` keeps what it had.
 - In that run, the Commit with ignored outputs uploaded 9,353 B in 411 ms. The
   same shape with ignore off uploaded 34.2 MB in 790 ms. `git status` agreed
   on both sandboxes.
+- The run was repeated on top of metadata batching, with receipts in
+  `docs/mp2/receipts/ignore02/`, and all scenarios passed again. With server
+  read tracing on, no Commit's warm-up or merge asked the Store for a
+  local-only object.
+- One run hit the intermittent unmount Retained(Join). That failure also
+  happens without this change; see remote-store.md, Phase 6.
