@@ -31,6 +31,8 @@ use std::{
     },
     time::Duration,
 };
+/// How long a connection may wait for its next request.
+const IDLE: Duration = Duration::from_secs(15 * 60);
 fn storage(e: StorageError) -> BackendError {
     BackendError {
         unknown: e.is_unknown_outcome(),
@@ -80,7 +82,9 @@ pub fn serve(config: Config) -> Result<()> {
                     .map_err(error)?;
                 let settings = stream.try_clone().map_err(error)?;
                 let mut connection = duplex::accept(stream, &key, peer).map_err(error)?;
-                settings.set_read_timeout(None).map_err(error)?;
+                // A client that vanished without closing (a paused or deleted
+                // machine) frees its slot; a live one reopens on its next request.
+                settings.set_read_timeout(Some(IDLE)).map_err(error)?;
                 let mut saved = WriteOutcome::default();
                 let mut last = 0;
                 loop {

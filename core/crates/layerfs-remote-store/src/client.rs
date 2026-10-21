@@ -1,4 +1,10 @@
-//! Two persistent channels, no reconnection/replay, and exact request counters.
+//! Two channels that reopen after a lost connection, and exact request counters.
+//!
+//! A lost connection is dropped and the next request opens a new one. Every
+//! request except Commit is sent once more on the new connection: reads and
+//! presence checks change nothing, uploaded objects are content-addressed and
+//! reused, and a serial range whose answer was lost just stays consumed. A
+//! Commit is never resent; its lost answer stays unknown.
 use crate::{
     cache::Cache,
     config::Config,
@@ -15,19 +21,56 @@ use layerfs_store_service::store::{
     publish::{CandidateInput, Publication, PublishedCandidate},
 };
 use std::{
-    net::TcpStream,
+    net::{SocketAddr, TcpStream},
     path::Path,
     sync::{
         atomic::{AtomicU64, Ordering},
         Arc, Mutex,
     },
-    time::Duration,
+    time::{Duration, Instant},
 };
+/// A Commit on a channel quiet for longer than this is preceded by a probe,
+/// so that a connection cut while idle (a paused machine, a proxy's idle
+/// limit) is found and replaced before the one request that is never resent.
+const PROBE_AFTER: Duration = Duration::from_secs(1);
+struct Dial {
+    address: SocketAddr,
+    token: [u8; 32],
+    server_key: [u8; 32],
+}
+impl Dial {
+    fn open(&self) -> Result<Connection> {
+        let stream =
+            TcpStream::connect_timeout(&self.address, Duration::from_secs(5)).map_err(error)?;
+        stream
+            .set_read_timeout(Some(Duration::from_secs(10)))
+            .map_err(error)?;
+        stream
+            .set_write_timeout(Some(Duration::from_secs(10)))
+            .map_err(error)?;
+        duplex::initiate(stream, &self.token, self.server_key).map_err(error)
+    }
+}
 struct Channel {
     connection: Option<Connection>,
     next: u64,
+    /// When this channel last received an answer.
+    answered: Instant,
+}
+/// Why one attempt failed: `Lost` dropped the connection before an answer.
+enum Failure {
+    Lost(BackendError),
+    Answered(BackendError),
+}
+impl Failure {
+    fn error(self) -> BackendError {
+        match self {
+            Self::Lost(e) | Self::Answered(e) => e,
+        }
+    }
 }
 pub(crate) struct Shared {
+    dial: Dial,
     read: Mutex<Channel>,
     write: Mutex<Channel>,
     pub(crate) cache: Cache,
@@ -39,27 +82,22 @@ pub(crate) struct Shared {
 pub struct Client(pub(crate) Arc<Shared>);
 impl Client {
     pub fn connect(config: &Config) -> Result<Arc<Self>> {
-        let connect = || {
-            let address = config.get("server")?.parse().map_err(error)?;
-            let stream =
-                TcpStream::connect_timeout(&address, Duration::from_secs(5)).map_err(error)?;
-            stream
-                .set_read_timeout(Some(Duration::from_secs(10)))
-                .map_err(error)?;
-            stream
-                .set_write_timeout(Some(Duration::from_secs(10)))
-                .map_err(error)?;
-            let connection =
-                duplex::initiate(stream, &config.key("token")?, config.key("server_key")?)
-                    .map_err(error)?;
+        let dial = Dial {
+            address: config.get("server")?.parse().map_err(error)?,
+            token: config.key("token")?,
+            server_key: config.key("server_key")?,
+        };
+        let channel = || {
             Ok(Channel {
-                connection: Some(connection),
+                connection: Some(dial.open()?),
                 next: 1,
+                answered: Instant::now(),
             })
         };
         Ok(Arc::new(Self(Arc::new(Shared {
-            read: Mutex::new(connect()?),
-            write: Mutex::new(connect()?),
+            read: Mutex::new(channel()?),
+            write: Mutex::new(channel()?),
+            dial,
             cache: Cache::open(Path::new(config.get("cache")?))?,
             metadata: Mutex::new(()),
             calls: AtomicU64::new(0),
@@ -82,10 +120,33 @@ impl Client {
         self.exchange(&mut *channel.lock().map_err(error)?, opcode, body)
     }
     fn exchange(&self, channel: &mut Channel, opcode: u8, body: Encode) -> Result<Vec<u8>> {
-        let connection = channel.connection.as_mut().ok_or_else(|| BackendError {
-            detail: "channel quarantined; no replay".into(),
-            unknown: true,
-        })?;
+        if opcode == wire::COMMIT && channel.answered.elapsed() > PROBE_AFTER {
+            // An empty presence check: answered by any live Store, changes nothing.
+            let mut probe = Encode::new();
+            wire::put_ids(&mut probe, &[]);
+            self.exchange(channel, wire::LACKING, probe)?;
+        }
+        match self.attempt(channel, opcode, &body) {
+            Err(Failure::Lost(first)) if opcode != wire::COMMIT => {
+                self.attempt(channel, opcode, &body).map_err(|failure| {
+                    let mut e = failure.error();
+                    e.unknown |= first.unknown;
+                    e
+                })
+            }
+            result => result.map_err(Failure::error),
+        }
+    }
+    fn attempt(
+        &self,
+        channel: &mut Channel,
+        opcode: u8,
+        body: &Encode,
+    ) -> std::result::Result<Vec<u8>, Failure> {
+        if channel.connection.is_none() {
+            channel.connection = Some(self.0.dial.open().map_err(Failure::Lost)?);
+        }
+        let connection = channel.connection.as_mut().expect("opened connection");
         let id = channel.next;
         channel.next += 1;
         let mut request = Encode::new();
@@ -102,7 +163,7 @@ impl Client {
             Err(mut e) => {
                 channel.connection = None;
                 e.unknown = wire::mutates(opcode);
-                return Err(e);
+                return Err(Failure::Lost(e));
             }
         };
         let parsed = (|| -> Result<Result<Vec<u8>>> {
@@ -124,11 +185,14 @@ impl Client {
             }
         })();
         match parsed {
-            Ok(answer) => answer,
+            Ok(answer) => {
+                channel.answered = Instant::now();
+                answer.map_err(Failure::Answered)
+            }
             Err(mut failure) => {
                 channel.connection = None;
                 failure.unknown = wire::mutates(opcode);
-                Err(failure)
+                Err(Failure::Answered(failure))
             }
         }
     }
@@ -360,5 +424,147 @@ impl RemoteBuild for Build {
             channel.connection = None;
         }
         result
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::config::hex;
+    use std::{
+        fs,
+        net::TcpListener,
+        os::unix::fs::PermissionsExt,
+        path::PathBuf,
+        sync::atomic::AtomicUsize,
+        thread::{self, JoinHandle},
+    };
+    type Script = Box<dyn FnOnce(Connection) + Send>;
+    /// A Store stand-in: the nth accepted connection runs the nth script. The
+    /// client opens read then write; later connections are reopened channels.
+    fn fake(scripts: Vec<Script>) -> (Arc<Client>, JoinHandle<TcpListener>, PathBuf) {
+        static RUN: AtomicUsize = AtomicUsize::new(0);
+        let server = duplex::generate_keypair().unwrap();
+        let token = duplex::generate_keypair().unwrap();
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let directory = std::env::temp_dir().join(format!(
+            "remote-reopen-{}-{}",
+            std::process::id(),
+            RUN.fetch_add(1, Ordering::Relaxed)
+        ));
+        fs::create_dir(&directory).unwrap();
+        let path = directory.join("config");
+        fs::write(
+            &path,
+            format!(
+                "server={address}\nserver_key={}\ntoken={}\ncache={}\n",
+                hex(&server.public),
+                hex(&token.private),
+                directory.join("cache.sqlite").display()
+            ),
+        )
+        .unwrap();
+        fs::set_permissions(&path, fs::Permissions::from_mode(0o600)).unwrap();
+        let worker = thread::spawn(move || {
+            listener.set_nonblocking(true).unwrap();
+            let running: Vec<_> = scripts
+                .into_iter()
+                .map(|script| {
+                    let until = Instant::now() + Duration::from_secs(3);
+                    let stream = loop {
+                        match listener.accept() {
+                            Ok((stream, _)) => break stream,
+                            Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {
+                                assert!(Instant::now() < until, "accept deadline");
+                                thread::sleep(Duration::from_millis(5));
+                            }
+                            Err(e) => panic!("accept: {e}"),
+                        }
+                    };
+                    stream.set_nonblocking(false).unwrap();
+                    stream
+                        .set_read_timeout(Some(Duration::from_secs(3)))
+                        .unwrap();
+                    let connection = duplex::accept(stream, &server.private, token.public).unwrap();
+                    thread::spawn(move || script(connection))
+                })
+                .collect();
+            for script in running {
+                script.join().unwrap();
+            }
+            listener
+        });
+        let client = Client::connect(&Config::read(&path).unwrap()).unwrap();
+        (client, worker, directory)
+    }
+    /// Receives one request with this opcode; answers it when `reply` is set.
+    fn serve(connection: &mut Connection, opcode: u8, reply: Option<Encode>) {
+        let request = wire::receive(connection).unwrap();
+        let mut input = Decode(&request);
+        let id = input.number().unwrap();
+        assert_eq!(input.byte().unwrap(), opcode);
+        if let Some(body) = reply {
+            let mut answer = Encode::new();
+            answer.number(id);
+            answer.byte(0);
+            answer.raw(&body.0);
+            wire::send(connection, &answer.0).unwrap();
+        }
+    }
+    fn idle(_: Connection) {}
+    #[test]
+    fn a_lost_read_is_resent_on_a_new_connection() {
+        let (client, worker, directory) = fake(vec![
+            Box::new(|mut read| serve(&mut read, wire::LENGTHS, None)),
+            Box::new(idle),
+            Box::new(|mut read| {
+                let mut lengths = Encode::new();
+                lengths.number(1);
+                lengths.number(7);
+                serve(&mut read, wire::LENGTHS, Some(lengths));
+            }),
+        ]);
+        assert_eq!(client.lengths(&[ObjectId::for_bytes(b"a")]).unwrap(), [7]);
+        assert_eq!(client.round_trips(), 2);
+        worker.join().unwrap();
+        fs::remove_dir_all(directory).unwrap();
+    }
+    #[test]
+    fn a_lost_commit_is_not_resent() {
+        let (client, worker, directory) = fake(vec![
+            Box::new(idle),
+            Box::new(|mut write| serve(&mut write, wire::COMMIT, None)),
+        ]);
+        let error = client.call(true, wire::COMMIT, Encode::new()).unwrap_err();
+        assert!(error.unknown, "{error}");
+        assert_eq!(client.round_trips(), 1);
+        let listener = worker.join().unwrap();
+        assert_eq!(
+            listener.accept().unwrap_err().kind(),
+            std::io::ErrorKind::WouldBlock,
+            "no new connection for a lost Commit"
+        );
+        fs::remove_dir_all(directory).unwrap();
+    }
+    #[test]
+    fn an_idle_commit_first_replaces_a_cut_connection() {
+        let (client, worker, directory) = fake(vec![
+            Box::new(idle),
+            Box::new(idle),
+            Box::new(|mut write| {
+                let mut present = Encode::new();
+                present.raw(&[]);
+                serve(&mut write, wire::LACKING, Some(present));
+                serve(&mut write, wire::COMMIT, Some(Encode::new()));
+            }),
+        ]);
+        thread::sleep(PROBE_AFTER + Duration::from_millis(100));
+        assert!(client
+            .call(true, wire::COMMIT, Encode::new())
+            .unwrap()
+            .is_empty());
+        assert_eq!(client.round_trips(), 3, "lost probe, resent probe, Commit");
+        worker.join().unwrap();
+        fs::remove_dir_all(directory).unwrap();
     }
 }

@@ -118,7 +118,8 @@ home is absolute, daemon-owned mode 0755. Linux mount capability and `allow_othe
 are required. Set `LAYERFS_CONSTRUCTION_WORKERS=1`. B has no Store setting or
 path. This prototype uses one read/reservation connection and one upload/Commit
 connection, with five-second connect and ten-second request I/O deadlines;
-failed channels are quarantined, never reconnected automatically.
+failed channels were quarantined, never reconnected automatically
+([Phase 9](remote-store.md#phase-9-reopening-lost-connections) reopens them).
 
 Explicit control operations:
 

@@ -1288,3 +1288,50 @@ eviction or Durable behavior was built. Exact OrbStack kernel shutdown trigger,
 other kernels, precise 2/20 ms end-to-end timing and Maven cost remain unqualified.
 Cleanup leaves only the permitted **cx7-target** Cargo volume; no other job's
 containers, images, networks or volumes were touched.
+
+## Phase 9: reopening lost connections
+
+A trial on cloud sandboxes, with the Store on one machine and the daemon on
+another, ran the Store protocol over a WebSocket byte pipe (the sandboxes have no
+raw TCP between them). Mount, fork, edit loops and a replacement machine worked.
+Two lifecycle events broke the channels for good, because a failed channel was
+quarantined and never reopened:
+
+- **Pause and resume.** The old connection still looked open but carried
+  nothing; the next request timed out and the Commit failed.
+- **Idle.** The exposure closed both connections after 300 s without traffic;
+  afterwards an uncached read returned EIO and the Commit failed.
+
+Now a lost connection is dropped and the next request on that channel opens a
+new one (`layerfs-remote-store/src/client.rs`).
+
+- **Requests other than Commit are sent once more** on the new connection.
+  - Reads and presence checks change nothing.
+  - Uploads are content-addressed, and the Save reuses an object it already
+    stores.
+  - A serial range whose answer was lost stays consumed, as unused ranges
+    already do.
+- **A Commit is never resent.** A lost Commit answer stays unknown and keeps
+  the existing custody.
+- **An idle channel is probed before a Commit.** When the write channel has had
+  no answer for over a second, an empty presence check runs first. A connection
+  cut while idle is therefore found and replaced by a resendable request, not by
+  the Commit.
+- **The server closes a connection that sends nothing for 15 minutes.** A client
+  that vanished without closing, such as a paused or deleted machine, frees its
+  slot; a live client reopens on its next request.
+
+No heartbeat was added: reopening on demand covers both events. After a pause,
+the first request still waits for the ten-second deadline before it reopens.
+
+Three unit tests drive a fake Store over real Noise channels:
+- a lost read is resent on a new connection;
+- a lost Commit opens no new connection and returns unknown;
+- an idle Commit replaces a cut connection through the probe.
+
+`cargo test --locked -p layerfs-remote-store` passes on Linux with Rust 1.85.1,
+including the two existing transport tests. On macOS those two existing tests fail
+before and after this change. An accepted socket there inherits the listener's
+non-blocking flag, so the tests are Linux-only as written.
+
+The pause and idle cases have not been rerun on the sandboxes with this change.
