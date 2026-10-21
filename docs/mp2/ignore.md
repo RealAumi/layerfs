@@ -1,6 +1,6 @@
 # Git-ignored names stay local
 
-> **Status: mp2 prototype on branch `mp2/ignore`; not a released contract.**
+> **Status: mp2 prototype on the fork's `main`; not a released contract.**
 > Opt-in per remote daemon: `ignore=git`. Warm-base builders run without it.
 
 A remote Commit builds the complete local filesystem, projects its kept changes
@@ -145,7 +145,7 @@ binding lets the next restored Commit merge any newer head; ignored changes
 after that older checkpoint may be lost. No publication recovery protocol is added.
 
 The canonical cache configuration in `layerfs-remote-store/src/cache.rs` belongs
-to the `mp2/remote-store` base and applies to all remote clients. It now uses
+to the remote-store layer and applies to all remote clients. It now uses
 **WAL with synchronous=OFF**: application-process crash consistency, without a
 power-loss/OS-crash guarantee. Keep its database and WAL together on restart.
 This addresses the cache's new role as the only copy of local-only objects;

@@ -13,6 +13,10 @@ This table maps them, sorted by old id. Branch tips at the rewrite:
 `mp2/remote-store` 131cfc021 → ec07fdde4, `mp2/ignore` 918608765 → 4f87119b5,
 `mp2/local-paths` 40e949d72 → 7074947af.
 
+Since the same day `main` carries our version. `mp2/remote-store` and
+`mp2/ignore` were folded into it and deleted; `mp2/local-paths` became
+`notes/local-paths`. Upstream is merged into `main` from `upstream/main`.
+
 | Old | New | Subject |
 | --- | --- | --- |
 | 06a781cfc | 221f4aa16 | feat(remote-store): expose opt-in canonical read diagnostics |
