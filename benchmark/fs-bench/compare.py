@@ -25,7 +25,7 @@ SCENARIOS = (
     "overwrite 64 MiB",
     "git init + commit 100 files",
 )
-CANDIDATES = ("computer-upstream", "layerfs-reference")
+CANDIDATES = ("computer-upstream", "layerfs-core")
 RUNNER_SHA256 = "0e2004339a9269b88c2de451d56575957477bde16b96a10cf1837519e37230ef"
 COMPUTER_COMMIT = "de87919a4fd37242e960e13b7b3ba802d1eef0a0"
 COMPUTER_TREE = "4fb409d7e1356e1098439293d77d2fdc2dbf2190"
@@ -34,6 +34,9 @@ SAFE_ID = re.compile(r"^[A-Za-z0-9._-]+$")
 
 class InvalidPair(ValueError):
     pass
+
+
+AWK_INT_MAX = 2**31 - 1
 
 
 def require(condition: bool, message: str) -> None:
@@ -89,6 +92,10 @@ def read_arm(pair_dir: Path, candidate: str) -> tuple[dict, dict[str, str]]:
         for key in ("meanNs", "medianNs", "p95Ns", "minNs", "maxNs", "samples"):
             require(type(row[key]) is int, f"{candidate}/{scenario}: {key} type")
         require(row["samples"] == config["reps"], f"{candidate}/{scenario}: sample count")
+        # The runner prints its statistics with awk's %d; mawk saturates that
+        # at 2**31 - 1, so a row of 2.147 s or more reads as exactly that.
+        for key in ("meanNs", "medianNs", "p95Ns", "minNs", "maxNs"):
+            require(row[key] < AWK_INT_MAX, f"{candidate}/{scenario}: {key} saturated at awk's %d limit")
         require(0 < row["minNs"] <= row["medianNs"] <= row["maxNs"], f"{candidate}/{scenario}: median bounds")
         require(row["minNs"] <= row["meanNs"] <= row["maxNs"], f"{candidate}/{scenario}: mean bounds")
         require(row["medianNs"] <= row["p95Ns"] <= row["maxNs"], f"{candidate}/{scenario}: p95 bounds")
@@ -126,14 +133,14 @@ def render_markdown(receipt: dict) -> str:
         "",
         "## Provenance",
         "",
-        "| Candidate | Intended commit | Intended tree | Provenance | Basis |",
-        "|---|---|---|---|---|",
+        "| Candidate | Intended commit | Intended tree | Runner user | Command route | Provenance | Basis |",
+        "|---|---|---|---|---|---|---|",
     ]
     for candidate in CANDIDATES:
         provenance = receipt["provenance"][candidate]
         lines.append(
             f"| `{candidate}` | `{provenance['intended_commit']}` | "
-            f"`{provenance['intended_tree'] or 'N/A'}` | **{provenance['status']}** | {provenance['basis']} |"
+            f"`{provenance['intended_tree'] or 'N/A'}` | `{provenance['exec_user']}` | {provenance['command_route']} | **{provenance['status']}** | {provenance['basis']} |"
         )
     lines += [
         "",
@@ -141,7 +148,7 @@ def render_markdown(receipt: dict) -> str:
         "",
         "## Scenario medians",
         "",
-        "| Scenario | Computer upstream | LayerFS Reference | LayerFS speedup | Winner |",
+        "| Scenario | Computer upstream | LayerFS core | LayerFS speedup | Winner |",
         "|---|---:|---:|---:|---|",
     ]
     for row in receipt["rows"]:
@@ -187,9 +194,9 @@ def compare_pair(results_root: Path, pair_id: str) -> dict:
     computer_sum = layerfs_sum = 0
     for scenario in SCENARIOS:
         computer = arms["computer-upstream"]["rows"][scenario]["medianNs"]
-        layerfs = arms["layerfs-reference"]["rows"][scenario]["medianNs"]
-        winner = "layerfs-reference" if layerfs < computer else "computer-upstream" if computer < layerfs else "tie"
-        layerfs_wins += winner == "layerfs-reference"
+        layerfs = arms["layerfs-core"]["rows"][scenario]["medianNs"]
+        winner = "layerfs-core" if layerfs < computer else "computer-upstream" if computer < layerfs else "tie"
+        layerfs_wins += winner == "layerfs-core"
         computer_wins += winner == "computer-upstream"
         ties += winner == "tie"
         computer_sum += computer
@@ -222,6 +229,8 @@ def compare_pair(results_root: Path, pair_id: str) -> dict:
             candidate: {
                 "status": manifests[candidate]["provenance_status"],
                 "basis": manifests[candidate]["provenance_basis"],
+                "exec_user": manifests[candidate].get("exec_user", "not recorded"),
+                "command_route": manifests[candidate].get("command_route", "not recorded"),
                 "intended_commit": manifests[candidate]["intended_candidate_commit"],
                 "intended_tree": manifests[candidate]["intended_candidate_tree"],
             }
@@ -291,7 +300,7 @@ def self_check() -> None:
         pair_id = "synthetic"
         pair = root / "fs-bench" / pair_id
         synthetic_arm(pair / "computer-upstream", pair_id, "computer-upstream", 200)
-        synthetic_arm(pair / "layerfs-reference", pair_id, "layerfs-reference", 100)
+        synthetic_arm(pair / "layerfs-core", pair_id, "layerfs-core", 100)
         receipt = compare_pair(root, pair_id)
         assert receipt["aggregates"]["layerfs_wins"] == 12
         assert receipt["aggregates"]["sum_speedup"] == 2
@@ -305,8 +314,8 @@ def self_check() -> None:
 
         bad_pair = root / "fs-bench" / "bad-matrix"
         synthetic_arm(bad_pair / "computer-upstream", "bad-matrix", "computer-upstream", 200)
-        synthetic_arm(bad_pair / "layerfs-reference", "bad-matrix", "layerfs-reference", 100)
-        raw_path = bad_pair / "layerfs-reference" / "result.json"
+        synthetic_arm(bad_pair / "layerfs-core", "bad-matrix", "layerfs-core", 100)
+        raw_path = bad_pair / "layerfs-core" / "result.json"
         raw = json.loads(raw_path.read_text(encoding="utf-8"))
         raw["results"].pop()
         raw_path.write_text(json.dumps(raw), encoding="utf-8")
@@ -319,8 +328,8 @@ def self_check() -> None:
 
         fail_pair = root / "fs-bench" / "fail-marker"
         synthetic_arm(fail_pair / "computer-upstream", "fail-marker", "computer-upstream", 200)
-        synthetic_arm(fail_pair / "layerfs-reference", "fail-marker", "layerfs-reference", 100)
-        (fail_pair / "layerfs-reference" / "stderr.txt").write_text("FAIL\n", encoding="utf-8")
+        synthetic_arm(fail_pair / "layerfs-core", "fail-marker", "layerfs-core", 100)
+        (fail_pair / "layerfs-core" / "stderr.txt").write_text("FAIL\n", encoding="utf-8")
         try:
             compare_pair(root, "fail-marker")
         except InvalidPair as error:

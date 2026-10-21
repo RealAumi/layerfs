@@ -325,8 +325,8 @@ function execOf(step, call, ws, notes, verifies, off) {
   if (call.ok === false || exit === undefined) fail(`${step.label}: exec ended ${kindOf(call)}`);
   const lines = String(call.output ?? "").trimEnd().split("\n").slice(-OUTPUT_LINES).join("\n");
   // a recorded exit that came from a race (import/crew.mjs) may come out either way
-  const flaky = call.flaky ? { flaky: call.flaky } : {};
-  const expect = off ? null : `sandbox.exec:exit:${exit}${flaky.flaky ? (exit === "0" ? "|1" : "|0") : ""}`;
+  const flaky = call.flaky ? { flaky: call.flaky } : call.sandboxOwn ? { sandboxOwn: call.sandboxOwn } : {};
+  const expect = off ? null : `sandbox.exec:exit:${exit}${flaky.flaky || flaky.sandboxOwn ? (exit === "0" ? "|1" : "|0") : ""}`;
   return { op: "exec", ws, command: replaced, message: call.args.message ?? null, exit: Number(exit), output: Buffer.from(lines).subarray(-OUTPUT_BYTES).toString(), ms: Math.round(call.ms), expect, ...(verifies ? { verification: true } : {}), ...(call.browser ? { browser: true } : {}), ...(off ? { disabled: true } : {}), ...flaky };
 }
 

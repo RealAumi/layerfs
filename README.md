@@ -14,12 +14,12 @@
 
 <p align="center">
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT license"></a>
-  <a href="release-notes/0.1.7/README.md"><img src="https://img.shields.io/badge/status-0.1.7%20developer%20preview-orange.svg" alt="0.1.7 Developer Preview"></a>
+  <a href="docs/release-notes/0.1.7/README.md"><img src="https://img.shields.io/badge/status-0.1.7%20developer%20preview-orange.svg" alt="0.1.7 Developer Preview"></a>
 </p>
 
 > **Status:** LayerFS 0.1.7 Developer Preview, released as source. It is for
 > evaluation and agent-runtime integration, not production storage: there is no
-> crash or power-loss durability. Read the [release record](release-notes/0.1.7/README.md)
+> crash or power-loss durability. Read the [release record](docs/release-notes/0.1.7/README.md)
 > and its waivers before relying on it.
 
 ## Core ideas
@@ -73,7 +73,7 @@
 ## See it run
 
 <p align="center">
-  <img src="docs/assets/readme/demo.gif" alt="A LayerFS project at work: agents fork Branches, mount Workspaces in Sandboxes, commit, merge and publish to main, while the history tree grows" width="100%">
+  <img src="docs/assets/official_release/page3-demo.gif" alt="The LayerFS demo: agents on several Branches run tool calls in Sandboxes and fs, each call becomes a Commit, and the history tree grows" width="100%">
 </p>
 <p align="center"><sub>Agents fork Branches, work in Workspaces inside Sandboxes, commit, merge and publish to <code>main</code>. The history grows as they go.</sub></p>
 
@@ -108,8 +108,8 @@ To set it up by hand, follow the [JavaScript SDK guide](sdk/js/README.md).
 | --- | --- |
 | The 0.1.7 manual | [Manual](docs/versioned/0.1.7/README.md) · [SDK and terminal UI](docs/versioned/0.1.7/sdk-and-ui.md) · [SDK reference](docs/versioned/0.1.7/sdk-reference.md) |
 | Concepts | [Core concepts](docs/general/concepts.md) · [Documentation index](docs/README.md) |
-| Release and limits | [0.1.7 release record](release-notes/0.1.7/README.md) · [Known limits](docs/versioned/0.1.7/sdk-and-ui.md#7-known-limits) |
-| Benchmarks | Released fs-bench-pro results: [v0.1.4](release-notes/0.1.4/benchmark-closeout.md) · [v0.1.5](release-notes/0.1.5/benchmark-closeout.md) · [v0.1.6](release-notes/0.1.6/benchmark-closeout.md) (0.1.7 published none) |
+| Release and limits | [0.1.7 release record](docs/release-notes/0.1.7/README.md) · [Known limits](docs/versioned/0.1.7/sdk-and-ui.md#7-known-limits) |
+| Benchmarks | Released fs-bench-pro results: [v0.1.4](docs/release-notes/0.1.4/benchmark-closeout.md) · [v0.1.5](docs/release-notes/0.1.5/benchmark-closeout.md) · [v0.1.6](docs/release-notes/0.1.6/benchmark-closeout.md) (0.1.7 published none) |
 
 ## License
 

@@ -7,7 +7,7 @@
 - [Manual](versioned/0.1.7/README.md)
 - [SDK and terminal UI guide](versioned/0.1.7/sdk-and-ui.md)
 - [SDK reference](versioned/0.1.7/sdk-reference.md)
-- [Release record, compatibility and waivers](../release-notes/0.1.7/README.md)
+- [Release record, compatibility and waivers](release-notes/0.1.7/README.md)
 - Next: [LayerFS 1.0.0 plan](roadmap/1.0/README.md)
 
 ## Historical LayerFS 0.1.6
@@ -17,23 +17,23 @@
 - [CLI reference](versioned/0.1.6/cli.md)
 - [Rust SDK reference](versioned/0.1.6/sdk.md)
 - [Container runtime](versioned/0.1.6/container-runtime.md)
-- [Release record and accepted limitations](../release-notes/0.1.6/README.md)
-- [Owner acceptance, waivers and issue disposition](../release-notes/0.1.6/acceptance.md)
+- [Release record and accepted limitations](release-notes/0.1.6/README.md)
+- [Owner acceptance, waivers and issue disposition](release-notes/0.1.6/acceptance.md)
 - [Sandbox-local state and unchanged Store format](versioned/0.1.6/storage-format.md)
 - [Honest limitations](versioned/0.1.6/limitations.md)
-- [Every measured v0.1.6 selection](../release-notes/0.1.6/benchmark-closeout.md)
+- [Every measured v0.1.6 selection](release-notes/0.1.6/benchmark-closeout.md)
 
 ## Historical LayerFS 0.1.5
 
 - [Manual](versioned/0.1.5/README.md)
-- [Release record](../release-notes/0.1.5/README.md)
-- [Every v0.1.5 benchmark family and case](../release-notes/0.1.5/benchmark-closeout.md)
+- [Release record](release-notes/0.1.5/README.md)
+- [Every v0.1.5 benchmark family and case](release-notes/0.1.5/benchmark-closeout.md)
 
 ## Historical LayerFS 0.1.4
 
 - [Manual](versioned/0.1.4/README.md)
-- [Release record](../release-notes/0.1.4/README.md)
-- [Every v0.1.4 benchmark family and case](../release-notes/0.1.4/benchmark-closeout.md)
+- [Release record](release-notes/0.1.4/README.md)
+- [Every v0.1.4 benchmark family and case](release-notes/0.1.4/benchmark-closeout.md)
 
 ## Historical LayerFS 0.1.3
 
@@ -45,7 +45,7 @@
 - [Container runtime](versioned/0.1.3/container-runtime.md)
 - [Storage format](versioned/0.1.3/storage-format.md)
 - [Limitations](versioned/0.1.3/limitations.md)
-- [Release record](../release-notes/0.1.3/README.md)
+- [Release record](release-notes/0.1.3/README.md)
 
 ## Plan and build
 
@@ -67,6 +67,7 @@
 - [Release policy](general/release-policy.md)
 - [Documentation policy](general/documentation-policy.md)
 - [Development workspace cleanup](general/cleanup.md): ownership checks, verified recovery, evidence retention, and disk-space reporting
+- [Parallel worktree development](general/parallel-worktrees.md): private Cargo resources, prepared dependencies, pinned SDK builds, and per-run Docker E2E state
 
 ## Explore
 
@@ -83,4 +84,4 @@ assets/       images used by maintained documentation
 ```
 
 Release announcements, proof, artifacts, limitations, and performance evidence
-remain under [`release-notes/`](../release-notes/).
+remain under [`docs/release-notes/`](release-notes/).

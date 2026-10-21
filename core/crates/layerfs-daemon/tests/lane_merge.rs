@@ -290,11 +290,14 @@ fn mounted_writes(
             mtime: None,
             size: Some(0),
         });
-        apply(Operation::Write {
-            serial,
-            position: Position::At(0),
-            data: bytes.clone().into(),
-        });
+        // in 64 KiB writes, as the kernel sends them
+        for (index, piece) in bytes.chunks(64 * 1024).enumerate() {
+            apply(Operation::Write {
+                serial,
+                position: Position::At(index as u64 * 64 * 1024),
+                data: piece.to_vec().into(),
+            });
+        }
     }
     drop(view);
     operation
@@ -500,5 +503,44 @@ fn more_than_the_lane_bound_is_refused_and_counted() {
     assert_eq!((counters.lane_steps, counters.lane_refused), (0, 1));
     assert_eq!(read(&fixture, "/a.txt"), None, "nothing was published");
     assert_eq!(read(&fixture, "/many00000").as_deref(), Some("x\n"));
+    fixture.sdk.cleanup();
+}
+
+/// #352 F-073: in the lane, a file's bytes are compared only up to the text
+/// bound, so the hold does not grow with a file's size. Worst case: the
+/// Workspace and the Commit that landed hold 64 MiB files of the same length
+/// that differ only in their last bytes, and the base differs from both at
+/// the first byte. Above the bound the roots decide, as before F-073: a
+/// binary conflict.
+#[test]
+fn the_lane_does_not_compare_a_large_file_byte_by_byte() {
+    const LENGTH: usize = 64 * 1024 * 1024;
+    let fixture = fixture("lane-merge-large");
+    let ours: Vec<u8> = (0..LENGTH).map(|n| (n % 251) as u8).collect();
+    let mut base = ours.clone();
+    base[0] ^= 1;
+    let mut theirs = ours.clone();
+    theirs[LENGTH - 1] ^= 1;
+    fixture
+        .sdk
+        .apply(LANE, vec![support::write("/big.bin", base)]);
+    let token = mounted_write(&fixture, 86, "big.bin", &ours);
+    let held = commit_held(&fixture, token, || {
+        fixture
+            .sdk
+            .apply(LANE, vec![support::write("/big.bin", theirs)]);
+    });
+    assert!(
+        matches!(held.reply, Ok(Reply::Conflict(_))),
+        "{:?}",
+        held.reply
+    );
+    let (ms, statements) = fixture.last_hold();
+    assert_eq!(fixture.store.save_counters().merge.lane_steps, 1);
+    println!(
+        "LANE_MERGE_LARGE bytes={LENGTH} lane_hold_ms={ms:.2} lane_hold_statements={statements} \
+         release_to_reply_ms={:.1} samples=1",
+        held.ms
+    );
     fixture.sdk.cleanup();
 }

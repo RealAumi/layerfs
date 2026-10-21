@@ -1,136 +1,167 @@
-# Benchmark hosting
+# AGENTS.md — benchmarks
 
-> **Status:** Historical. This harness built and measured the v0.1.6 reference
-> under root `crates/`, which R9c retired on 2026-10-10. Its manifest, runner
-> and image recipes name paths that are absent at HEAD, so nothing below is
-> runnable from the current checkout; do not redirect it to the same-named core
-> packages. To reproduce a historical row, check out local tag
-> `reference-v0.1.6-final` (`d296981ac`). Receipts keep their original verdicts.
-> Current core routing is
-> [core/benchmark/fs-bench-pro/AGENTS.md](../core/benchmark/fs-bench-pro/AGENTS.md).
+> **Status:** Current general guide, 2026-10-20. Root [AGENTS.md](../AGENTS.md)
+> §1–3 and the [measurement workflow](../docs/general/agent-measurement-policy.md)
+> govern; this file names the environment and the SDK route for suites in
+> `benchmark/`.
 
-## Scoped v0.1.6 replacement experiment
+Read before any measurement:
 
-For the owner-directed `v016-local-snapshot-experiment-v1` only, follow
-`docs/roadmap/0.1/0.1.6/sandbox-local-snapshot-spec-and-plan.md` ahead of conflicting
-legacy hosting/sampling text below or in the general guide/quick start. The
-candidate may own mutable Workspace metadata, snapshot generations and temporary
-payload backing in the sandbox. SQLite, the benchmark/SDK coordinator, canonical
-construction and publication remain on the macOS host. Use **one** Commit compute
-worker for commit, capture and snapshot, and one performance sample per case/arm; no
-n3/repeated-sample campaign. The released small-content path used four workers
-(`SMALL_CONTENT_WORKERS = 4`) and `construction_worker_limit()` still defaults to
-available parallelism, so a **performance drop against v0.1.5 is expected**: it is
-accepted by the bounded acceptance rule (sub-50 % or sub-10 ms), never repaired by
-adding workers. Single-worker must become the product default during this campaign,
-not merely an exported variable.
-**`init_namespace` is the one case allowed multiple workers/threads** — its
-initialization path (`initialize_layerstack`, `prepare_parallel_root_directories`)
-keeps its parallelism and its 2.7 s cold Init target; every other family's measured
-work must be single-worker. This exception does not change unrelated benchmark or
-release contracts.
+- root AGENTS.md §1–3;
+- [benchmark rules](../docs/general/benchmark_rules.md);
+- the [report template](../docs/general/benchmark_agent_report.md);
+- the suite's own README.
 
-## Existing profiles
+Read the [`layerfs-js-sdk` skill](../.agents/skills/layerfs-js-sdk/SKILL.md)
+before writing any LayerFS client code.
 
-- SQLite, the SDK/benchmark coordinator, canonical construction/Commit publication, and physical spool backing must run on the macOS host.
-- The approved #49 rewrite may place the live Workspace operation core with the Linux daemon/FUSE runtime. This is execution-side filesystem state, not a container-side SQLite Store, benchmark coordinator, or canonical publication service.
-- Docker runs only the Linux daemon, FUSE, and workload helper. Never run or restore Docker-owned SQLite, prepared Store images, or a container-side benchmark coordinator.
-- Migrate unsupported families to host execution; never add a Docker fallback or use a historical revision to bypass this prohibition.
-- Historical Docker results remain unchanged and apply only to their recorded topology.
-- Use the current fs-bench-pro family entrypoints and follow `docs/general/benchmark_rules.md` and `fs-bench-pro/QUICKSTART.md`.
+## What lives here
 
-## Measurement cache discipline
+| Path | State | Notes |
+| --- | --- | --- |
+| [fs-bench/](fs-bench/README.md) | **Current** | Cloudflare Computer's frozen twelve-scenario `fs-bench.sh`, run against pinned Computer and against LayerFS core as one pair. `run.sh` collects one arm; `compare.py` validates the pair. |
+| [fs-bench-pro/](fs-bench-pro/AGENTS.md) | **Frozen and broken** (owner, 2026-10-18) | Do not edit, build, run or repair it. Its #352 F-020 breaks stay. |
+| `deepseek-sdk-experiment/` | **Broken at HEAD** | It calls Rust SDK operations that #352 F-020 removed. Acknowledged; not repaired. |
+| [data/](data/) | Release data | One folder per suite and version (`data/<suite>/v<version>/`), copied unchanged from receipts or release notes and never recomputed. The website mirrors it. |
 
-Reuse preparation proactively; never let reuse or residual warmth credit a
-measured phase. `../AGENTS.md` §1–2 states the rule; this section names the
-mechanics that exist in this tree.
+## Environment
 
-Setup reuse is `--setup clone`; verification reuse is `--reuse-pass`; builds and
-images reuse through their seals. There is no bare `--reuse` flag.
+- **Host.** Docker Desktop on this arm64 Mac (a linux/arm64 VM, kernel
+  6.12.x-linuxkit).
+  - Docker is limited to 8 GB and 8 CPUs.
+  - Build with `-j 6`, one heavy batch at a time.
+  - Record the Docker version, OS and kernel, CPUs and memory with each pair.
+  - A native x86-64 Linux host is the later route to a qualifying pair; this
+    host's results say so.
+- **Linux builds.** Build the daemon and the SDK addon from the same checkout in
+  the pinned toolchain image
+  `sha256:378b799ef43343fc64008b6a5ef456dd6bf0cb8f6ea4cec72e7b42dfc17d2cd6`
+  (Rust 1.85.1, arm64):
+  - the repository bound read-only at `/work`;
+  - `CARGO_TARGET_DIR=/work/core/target/cluster2-linux`;
+  - the host `~/.cargo/registry` bound read-only;
+  - `cargo build --offline --locked --release -j 6 -p layerfs-node --lib -p layerfs-daemon --bins`.
 
-Reuse this (do, and say so in the report):
+  Copy `liblayerfs_node.so` to `layerfs.node`, stage both binaries outside the
+  target, and record their SHA-256. A cloned target can carry stale artifacts:
+  touch the sources or check them before trusting a partial rebuild.
+- **Images, always by digest.**
+  - fs-bench measurement and Sandbox image: `sha256:66aeb6bbf7fc…`, built from
+    [fs-bench/computer/Dockerfile](fs-bench/computer/Dockerfile) plus
+    `gawk.Dockerfile` (on branch `fs-bench-sdk-main`, like the SDK scripts
+    below). Both arms use this image. With gawk, a statistic of
+    2.147 s or more is no longer capped by mawk's `%d`.
+  - SDK client runtime: `layerfs-352-runtime:node24` =
+    `sha256:d3773b4eac6a7a644887b17e36956cd1553786d47103f0170a3bb2b0ff6988de`
+    (Node 24).
+- **Store.** Disposable/WAL/OFF only (root AGENTS.md). Each LayerFS arm gets:
+  - a fresh named volume for the Store, mounted at `/layerfs-store`;
+  - a second fresh named volume for the SDK home.
 
-- `--setup clone` — the default and required choice for every
-  post-initialization case. The runner takes the closed, validated prepared
-  master and hands the sample an independent writable byte copy
-  (`closed_store_copy`; deliberately a byte copy, not an APFS clone), so no sample
-  re-pays preparation. `--setup fresh` exists only for initialization and
-  fresh-output cases, where the runner rejects `clone` outright. Preparation runs
-  automatically on a cache miss: never run a family's `setup.sh` before every
-  sample, never clear protected caches routinely, never reuse a mutated sample.
-  Paired arms use the identical qualified Store artifact and each mutation sample
-  gets its own fresh writable copy (hard links to the master are forbidden).
-- `--reuse-pass <verification.json>` — accept one identity-matched
-  `status=PASS`/cleanup-`PASS` verification instead of re-running it. It fails
-  closed on schema, identity, hard-limit or wall mismatch, and records
-  `reused_proof_identities` plus an explicit omission.
-- incremental host builds, the shared Cargo target, image layers keyed by the
-  compilation seal, immutable `binary-archive/<sha256>/` executables, and
-  `--prune-builds KEEP` for retention. A host-only Python/shell change may reuse
-  an image whose compilation seal still matches, but needs a new host identity.
+  Remove both after the receipts are copied. Export
+  `LAYERFS_CONSTRUCTION_WORKERS=1`.
+- **Load and neighbours.** Record the 1-minute load at each arm. Don't wait
+  for it to drop and don't rerun because of it. List other owners' running
+  containers as declared interference, and never touch them.
+- **Bounds.**
+  - No command runs longer than 2 minutes: collectors run under a 115 s alarm,
+    and long holders run in the background.
+  - A complete collector command is ≤ 15 s by default; record a miss, don't
+    hide it.
+  - Check free space with `python3 tools/cleanup.py check` before builds and
+    image work.
 
-A clone is setup reuse, **not** a cold claim: the receipt records
-`clone_method: closed-quiescent-byte-copy` and `master_unchanged`, and the
-QUICKSTART states plainly that clone is not an APFS clone and not a cold-OS-cache
-claim. Declare the method, treat ordinary OS-cache effects consistently, never
-pool clone and fresh rows, and never let the master's or the clone's warmed pages
-credit a timed phase.
+## LayerFS through the SDK and the Sandbox
 
-Never: warm starts, replaying an old receipt as a new sample, moving cold product
-work into setup, priming the paths a timed phase will read, dropping caches for
-one arm only, or pooling cold and warm rows. Anything reused must be visible in
-the receipt (`build_mode`, `dependency_reuse`, `clone_method`,
-`reused_proof_identities`, `cache_contract`, `swap_current_bytes`-style domains).
+A LayerFS arm measures LayerFS as an agent uses it. Every step is a call to the
+public JavaScript SDK (`@layerfs/sdk`, source `sdk/js/src` at the measured
+commit, with the Linux addon from the same build). Every command inside the
+Sandbox goes through `sandbox.exec`.
 
-### Budgets
+**Where the client runs.** SDK Store calls open the Store in-process and work
+on Linux only (#352 F-020). On this Mac, run every client in the runtime image
+with:
 
-- Prepared inputs are acquired **once per campaign and reused** with identity
-  checks: no per-selection fixture or image rebuild, no repeated setup before a
-  sample.
-- A performance selection's **complete command** (product timer + container
-  lifecycle + cleanup) is **≤ 15 s**; a small declared exception list may take up to
-  **25 s** (the 500 MiB and 25k members are the usual candidates). Declare the
-  exception with the measured wall time in the report — no sign-off blocks the run.
-- Verification stays **under 10 s**, and typically takes a fraction of a second.
-  There is no 60 s allowance to grow into.
-- A selection that cannot fit is either reused from a qualifying receipt with its
-  evidence cited, or recorded as `NOT_RUN` with its measured wall time and the reason.
-  Never move work outside the timer, enlarge a timeout, or reduce the workload to fit.
+- the Docker socket;
+- the Store volume at `/layerfs-store`;
+- `LAYERFS_HOME` on the shared SDK-home volume;
+- `LAYERFS_DOCKER`, `LAYERFS_IMAGE`, `LAYERFS_VOLUME`, `LAYERFS_DAEMON`,
+  `LAYERFS_NATIVE`, `LAYERFS_CONTAINER_PREFIX`;
+- `LAYERFS_STORE_PATH=/layerfs-store/global/store.sqlite`;
+- `LAYERFS_DAEMON_HOST=host.docker.internal`;
+- `LAYERFS_CONSTRUCTION_WORKERS=1`.
 
-What the harness already enforces, and where an agent must not fight it:
+This is the same setup as `sdk/js/test/verify/container.mjs`. A host folder
+can't be `LAYERFS_HOME`: the SDK requires a private home owned by the client
+user, and creates one on first use.
 
-- `shared/cold.py` (`namespace-100000-cold-v2`,
-  `darwin-shared-mmap-invalidate-mincore-v1`) invalidates source data pages
-  before the timed sample and verifies whole-input residency: any resident page
-  makes the row `INELIGIBLE`. Acquisition time is reported outside the operation
-  timer. That is the model to follow for a family that needs a declared cache
-  stance; an `INELIGIBLE` row keeps its raw timing and is not admission evidence.
-- Memory must stay domain-separated: cgroup anonymous, file cache, dirty,
-  writeback, shmem, kernel/slab and sockets, plus spool and Store disk as
-  separate fields. A cgroup `memory.peak` is a lifetime total unless it was
-  verifiably reset after setup; without a fresh or resettable cgroup with a
-  verified reset/readback the phase peak is *unavailable for the gate*, so the
-  row is `INCOMPLETE` — not `PASS` and not `FAIL`. Bounded process heap never
-  excuses file-size-proportional spool or cgroup page-cache growth.
-- Per-sample checklist: one sample per case/arm; fresh `--output`; declare the
-  cache stance; pin every identity; and append the exact numbers, limits,
-  arithmetic and reproduction command to the active ledger, including every
-  non-passing line. Exploratory selections default to performance only and
-  remain diagnostic until an exact-identity separate verification is required
-  for the final gate. Never add verifier wall to a performance comparison.
-- Keep iteration focused on the measured case and count-driven cause. Record
-  verifier defects or timeouts without repairing each one during performance
-  exploration, unless they block the run, invalidate its receipt, or block the
-  proof required for the current decision. The final qualification still needs
-  the separately bounded verifier; `SKIPPED` or failed proof never means PASS.
-- **Do not sample.** No repeat of an arm to confirm stability, characterise spread
-  or replace an inconvenient number, and no iterative verify/test loop. Diagnose an
-  anomaly from the receipts already taken, or with a labelled diagnostic that
-  measures the cause on a count-driven instrument. See root `AGENTS.md` §3.1.
+**Call order.**
 
-Worked example: `#151` B2 (ledger L18) — a 500 MiB payload written through FUSE
-was read back inside the measured Commit, so the transfer looked like 19 GB/s and
-the sandbox's reported memory looked like the payload itself. The spool now keeps
-a bounded resident window (≤2.6 MiB measured), the transfer pays a storage read,
-and six identical runs produced container lifetime peaks from 24.6 MB to 189.8 MB
-— which is why a lifetime cgroup number cannot decide a memory gate.
+```text
+new LayerFS(project)
+project.init(sourceDir)                    once per fresh volume
+sandbox.create(name, project, image)       installs the Store into the volume: before any Store call
+branch.fork(ownBranch, "main")             work on your own Branch; never mount main
+sandbox.mount(id, ownBranch)               returns the Workspace path, e.g. /workspaces/1
+sandbox.exec(id, path, command)            every command in the Sandbox, timed work included
+sandbox.commit(id, path, message)          only when the case measures Commit
+sandbox.unmount(id, path, discard)
+sandbox.close(id)
+layerfs.close()
+```
+
+**How `sandbox.exec` behaves.**
+
+- It runs `bash -c <command>` as the Sandbox identity (uid 501, gid 20) in the
+  Workspace directory, with only `HOME=/tmp` set. Put any environment the
+  command needs inside the command.
+- It keeps 1 MiB of each stream. Check `truncated` before trusting output.
+- A non-zero `exitCode` is a result, not a refusal.
+- A refusal throws `LayerFSError`: read it and stop. No retry.
+- Files the Sandbox writes are owned by 501:20. Run tools such as git as that
+  user, never as root ("dubious ownership").
+
+**Several processes, one Sandbox.** A later process reaches the same Sandbox
+through the shared `LAYERFS_HOME`, one process at a time. The SDK names the
+container `<LAYERFS_CONTAINER_PREFIX><id>`; find it by that name, not from the
+home's records.
+
+**Do not:**
+
+- use `layerfs_api::internal` or a Rust holder;
+- pass daemon settings the SDK doesn't use;
+- start a service Sandbox;
+- `docker exec` into the Sandbox for any measured or setup command (Docker
+  only reads metadata: `docker inspect`, `docker logs`);
+- use `fs.*` calls in place of work the case does on the mounted filesystem;
+- count client startup, setup, mount, Commit or unmount inside a timer the
+  case doesn't declare.
+
+**fs-bench scripts.**
+
+- [fs-bench/holder/](fs-bench/holder/) is a set of four scripts:
+  - `run-holder.sh` writes `deploy.env` and creates the SDK-home volume;
+  - `client.sh` runs any client in the runtime image;
+  - `holder.mjs` does setup and teardown, and holds the mount until stdin
+    closes;
+  - `exec.mjs` makes one `sandbox.exec` call.
+- `run.sh layerfs-core sdk SDK_HOME SANDBOX MOUNT PAIR` makes three
+  `sandbox.exec` calls: identity and mount check, stage+hash+run, then
+  collect+cleanup.
+- **As of 2026-10-20, these files and `run.sh` sdk mode are on worktree branch
+  `fs-bench-sdk-main`, uncommitted.** This checkout's `fs-bench/holder/`
+  still holds the retired Rust holder; don't use it.
+
+## Collecting and reporting
+
+- One sample per arm, in a fixed order. A change to the collector, image or
+  binaries means a new pair ID, not a retry.
+- Keep every pair's record, including INCOMPLETE and failed ones.
+- `compare.py` refuses saturated statistics and any row that isn't `OK`. A
+  written `VALID` from an older verifier is not upgraded or rewritten.
+- Raw receipts go to `benchmark-results/<suite>/<pair>/`, which Git ignores.
+  The campaign record goes in the suite's `records/`. A release result goes in
+  `data/<suite>/v<version>/` with its CSVs, the unchanged receipts and the
+  record.
+- Every commit states its production LOC comparison (root AGENTS.md §4). Data
+  and harness changes report delta 0.

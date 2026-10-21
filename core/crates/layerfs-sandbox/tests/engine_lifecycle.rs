@@ -336,3 +336,38 @@ fn marker_inside_truncated_frame_keeps_evidence_and_fails_readiness() {
     peer.finish();
     fs::remove_file(path).unwrap();
 }
+
+/// Reopening a saved Sandbox whose container the Engine answers for with `status` and `body`.
+fn reopened(status: u16, body: &[u8]) -> bool {
+    let (docker, peer) = Peer::new(vec![fixed(status, body)], 64);
+    let id = layerfs_sandbox::ContainerId::parse(CID).unwrap();
+    let Err(failure) = layerfs_sandbox::backend::docker::Sandbox::reopen(docker, id, request())
+    else {
+        panic!("reopen of an unanswered container fails");
+    };
+    let calls = peer.finish();
+    assert!(String::from_utf8_lossy(&calls[0]).contains(&format!("/containers/{CID}/json")));
+    failure.container_gone()
+}
+
+#[test]
+fn only_the_engines_no_such_container_answer_is_a_gone_container() {
+    let gone = format!(r#"{{"message":"No such container: {CID}"}}"#);
+    assert!(reopened(404, gone.as_bytes()));
+    assert!(!reopened(404, br#"{"message":"page not found"}"#));
+    assert!(!reopened(500, gone.as_bytes()));
+}
+
+#[test]
+fn a_stop_the_engine_answers_with_no_such_container_is_a_gone_container() {
+    let gone = format!(r#"{{"message":"No such container: {CID}"}}"#);
+    let (docker, peer) = Peer::new(vec![endpoint(), fixed(404, gone.as_bytes())], 64);
+    let id = layerfs_sandbox::ContainerId::parse(CID).unwrap();
+    let mut sandbox =
+        layerfs_sandbox::backend::docker::Sandbox::reopen(docker, id, request()).unwrap();
+    let failure = sandbox.stop(1).unwrap_err();
+    assert!(failure.container_gone());
+    assert!(!sandbox.disposition().stopped);
+    let calls = peer.finish();
+    assert!(String::from_utf8_lossy(&calls[1]).contains("/stop?t=1"));
+}

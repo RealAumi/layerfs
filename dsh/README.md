@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <img src="../docs/assets/demo/layerfs-dsh.gif" alt="The LayerFS tab in DeepSeek Harness: agents fork Branches, mount Workspaces, Commit and merge while the History graph grows" width="860">
+  <img src="../docs/assets/official_release/page3-demo.gif" alt="The LayerFS demo: agents on several Branches run tool calls in Sandboxes and fs, each call becomes a Commit, and the history tree grows" width="860">
 </p>
 
 <p align="center">
@@ -40,7 +40,7 @@ With the bundle, agents in a dsh session work on a LayerFS project from bash, th
 | Renderer | `@dsh-layerfs/view` | used by the client |
 | Mock model `layerfs-mock` (demo bundle `dsh-layerfs-demo`) | `@dsh-layerfs/mock` | "LayerFS mock · …" models in the model picker |
 
-The LayerFS tab is the only LayerFS UI. The standalone HTML pages that used to live in `sdk_sim/` (the terminal UI page and its design preview) and their live server are removed; do not build or revive a standalone HTML or TUI page. `sdk_sim/` keeps only the simulation engine: `simulation_engine/model.js` and `files.js`, which the client and the Host import, the terminal engine (`terminal.js`, `backend/sim.js`) and demo stories (`demo.js`) that the demos were written from, and the avatars (`avatars/`).
+The LayerFS tab is the only LayerFS UI. The standalone HTML pages that used to live in the root `sdk_sim/` (the terminal UI page and its design preview) and their live server are removed; do not build or revive a standalone HTML or TUI page. What remains, the simulation engine, lives in [`sim/`](sim/): `simulation_engine/model.js` and `files.js`, which the client and the Host import, the terminal engine (`terminal.js`, `backend/sim.js`) and demo stories (`demo.js`) that the demos were written from, and the avatars (`avatars/`).
 
 ### 🔌 Host plugin
 
@@ -86,7 +86,7 @@ The LayerFS tab is the only LayerFS UI. The standalone HTML pages that used to l
   - the project terminal with agent tags;
   - Branches and Sandboxes;
   - History and Files;
-  - the status bar and the avatars.
+  - the agents' avatars.
 
   An unbound session shows Setup: pick one of the folder's projects, or Init.
 
@@ -168,7 +168,7 @@ A root step may carry `checkpoint: { label, verdict?, note?, restore? }` (#352):
 
 `@name` in an argument is a subagent or job started earlier. A subagent's `description` is its name in the scenario. `order` places the demo in lists and `speed` sets how fast the mock runs it at first. Every scenario's `fixture` is `demo-workspace/`, the shared website; its install, build, test and serve are small shell scripts, not npm: test checks each page's heading and that every `@/…` import resolves, and serve answers each page's heading on localhost:3000 (with python3). The sandbox demo's scripts keep their notes between bash calls under `<temp>/dsh-layerfs/demo-notes/<project>/`, outside the workspace folder, because Init imports everything in it.
 
-The tour, conflicts, merge and agents demos are the simulation engine's demo stories ([`sdk_sim/demo.js`](../sdk_sim/demo.js)) step for step: each step is one bash call of [`scenarios/shared/terminal.mjs`](scenarios/shared/terminal.mjs), which makes the same SDK calls as that step's terminal line and prints what the terminal printed (`npm ci`, `npm run build`, `npm test` and `npm run start` become the shell scripts). An agent's call mounts a Workspace of its own in its Branch's shared Sandbox, runs, commits and unmounts; after a Conflict the Workspace is kept for the agent's next call, and a trailing `&` keeps it for the server. The lead wakes the agents of each step with send_message and waits for them; each agent's pause is the story's thinking time, and the call takes its typing and running time, so a burst's calls overlap and commit in the same order as in the story's schedule. The calls keep their notes (a terminal's Workspace, an agent's kept one, the C<n> labels) under the project's LayerFS home entry, which is removed with the project.
+The tour, conflicts, merge and agents demos are the simulation engine's demo stories ([`sim/demo.js`](sim/demo.js)) step for step: each step is one bash call of [`scenarios/shared/terminal.mjs`](scenarios/shared/terminal.mjs), which makes the same SDK calls as that step's terminal line and prints what the terminal printed (`npm ci`, `npm run build`, `npm test` and `npm run start` become the shell scripts). An agent's call mounts a Workspace of its own in its Branch's shared Sandbox, runs, commits and unmounts; after a Conflict the Workspace is kept for the agent's next call, and a trailing `&` keeps it for the server. The lead wakes the agents of each step with send_message and waits for them; each agent's pause is the story's thinking time, and the call takes its typing and running time, so a burst's calls overlap and commit in the same order as in the story's schedule. The calls keep their notes (a terminal's Workspace, an agent's kept one, the C<n> labels) under the project's LayerFS home entry, which is removed with the project.
 
 #### The demo workspace
 
@@ -195,7 +195,7 @@ The Host side is the mock plugin's `/layerfs-demo` route. It serves the workspac
 
 Sim needs no Docker, image or daemon. `POST /layerfs/init` with `backend: "sim"` imports the folder into the simulator (`packages/host/src/sim/`) instead of a Store. A simulated project's bash calls get the SDK on the simulator as `DSH_LAYERFS_SDK`, so the same scripts run on both:
 - `sim/sdk.js` is the SDK itself with `LAYERFS_NATIVE` set to `sim/binding.js`, a native binding in JavaScript. The SDK's argument checks, refusals and trace lines are unchanged.
-- The binding's decisions (Commits, stale Workspaces, merges, conflict markers, `.lww`, publish) are `sdk_sim`'s model. Its answers have the real binding's shapes and LayerFS's id formats, so the views and checks read both alike.
+- The binding's decisions (Commits, stale Workspaces, merges, conflict markers, `.lww`, publish) are the simulation engine's model (`sim/`). Its answers have the real binding's shapes and LayerFS's id formats, so the views and checks read both alike.
 - The state is `<LayerFS home>/<project>/sim/state.json`, changed by one call at a time under a lock file.
 - A mounted Workspace is a folder, `sim/ws/<sandbox>/<n>`. Commands run there with `/bin/sh`, and each call reads the folder back. On macOS a GNU-compatible `sed` (`sim/sed.js`) comes first on the command's PATH.
 - Background processes run detached and leave their exit code in `sim/proc/`. Removing the project stops them.
@@ -204,50 +204,188 @@ The Host's own reads of a simulated project (Init, state, trees, storage) go to 
 
 Known limits:
 - dsh's sidebar orders sessions by last activity by default, so the demo played last moves to the top. The manual order keeps each demo's place.
-- Sim imports the `sdk_sim` model from this repository, so the Host package needs the repository beside it to Init or read a simulated project.
+- Sim imports the simulation engine's model from `dsh/sim/`, so the Host package needs this `dsh/` tree beside it to Init or read a simulated project.
 - `demo-workspace` is inside this repository. A turn's "Edited" card lists every change made in the repository during the turn, including other work in the checkout.
 
 ## 📦 Install into a dsh profile
 
-You need:
-- Node 22.19 or newer, pnpm, and Docker;
-- a dsh checkout beside this repository (`../deepseek-harness`), or `DSH_SOURCE` set to one; the client bundle is built with its `tsdown` and `tsdown.client.ts`;
-- a LayerFS runtime image digest and a built Linux `layerfs-daemon`.
+These steps take a fresh clone of this repository to LayerFS × DSH in dsh web: first LayerFS itself, then the dsh bundle. Only dsh web is supported. dsh desktop serves the same web client but was not tested. The headless profile composes no preset registry, so it offers no preset; the Host and the bash environment still load there.
 
-1. Install and build:
+Sim projects run on the simulator and need only steps 2, 3, 5 and 6. Live projects run on real LayerFS and need steps 1 and 4 too.
 
-   ```sh
-   cd dsh && pnpm install && pnpm run build
-   ```
+### You need
 
-2. In the profile's `package.json` (`$DSH_HOME/profiles/<profile>/`), add the bundle as a dependency and to the profile's bundles. Then run `pnpm install` there:
+| What | For | Notes |
+|---|---|---|
+| Node 22.19 or newer, and pnpm | everything | |
+| A built deepseek-harness checkout | the client build and dsh itself | `../deepseek-harness` beside this repository, or `DSH_SOURCE=<path>` for the build. In it, `pnpm install && pnpm run build` (its README) |
+| Docker | Live | Docker Desktop on macOS. It builds LayerFS and runs its Sandboxes |
+| Network access | step 1 | crates and the base images |
 
-   ```json
-   {
-     "dependencies": { "dsh-layerfs": "link:/path/to/layerfs/dsh/packages/dsh-layerfs" },
-     "dsh": { "profile": { "bundles": ["@deepseek-ai/dsh-base", "@deepseek-ai/dsh-web-app", "dsh-layerfs"] } }
-   }
-   ```
+Below, `$LAYERFS` is this repository's absolute path and `$DSH` the deepseek-harness checkout's.
 
-3. Give the Host its deployment settings in the profile's `cordis.patch.yml`:
+### 1. Install LayerFS
 
-   ```yaml
-   - id: layerfs-host
-     config:
-       image: sha256:…          # LayerFS runtime image digest
-       daemon: /path/to/layerfs-daemon
-       # docker: /var/run/docker.sock   (default)
-       # stateDir: <profile>/dsh-layerfs  (bindings, agent names, line journal)
-       # home / traceDir: <os temp>/dsh-layerfs/{home,traces}
-   ```
+Live needs three things from this repository: the JavaScript SDK, a Linux build of the daemon and the SDK's native addon, and a runtime image. Nothing is published, so you build them here.
 
-   Keep `home` and `traceDir` in the OS temp area: bash calls in Workspace Write mode run in dsh's sandbox, which lets them write only there, and a LayerFS call there writes both (a `sandbox.create` elsewhere fails `PermissionDenied`).
+**The SDK** (`sdk/js`, `@layerfs/sdk` and `@layerfs/sdk/operator`) is plain JavaScript with no dependencies, so it needs no install or build step. The Host links it as `link:../../../sdk/js`, and step 2's `pnpm install` makes that link. Only its native addon is built, and a fresh clone has none (`sdk/js/native/layerfs.node`). On macOS the Host never loads an addon on the Mac: the Linux build below supplies it. On Linux, see step 4.
 
-4. Start dsh web (`pnpm dsh web` in the dsh checkout, with `DSH_HOME` set).
-   1. Open the LayerFS panel and Init a workspace.
-   2. Start a "New LayerFS session".
+**The Linux build.** Build `layerfs-daemon` and the addon in the Rust 1.85.1 image, from the repository root so Cargo picks up [`.cargo/config.toml`](../.cargo/config.toml) (the ARM64 profile). This is the recipe of [benchmark/AGENTS.md](../benchmark/AGENTS.md#environment), with the crates fetched into a Docker volume instead of the host's `~/.cargo/registry`:
 
-Only dsh web is checked; dsh desktop serves the same web client but was not tested. The headless profile composes no preset registry, so there the preset is not offered. The Host and the bash environment still work there.
+```sh
+cd "$LAYERFS"
+docker pull rust:1.85.1-bookworm
+docker volume create layerfs-cargo && docker volume create layerfs-target
+mkdir -p core/target/cluster2-linux
+docker run --rm -v "$LAYERFS":/work:ro -v layerfs-cargo:/usr/local/cargo/registry -w /work \
+  rust:1.85.1-bookworm cargo fetch --manifest-path core/Cargo.toml --locked
+docker run --rm -v "$LAYERFS":/work:ro -v layerfs-target:/work/core/target/cluster2-linux \
+  -v layerfs-cargo:/usr/local/cargo/registry:ro -e CARGO_TARGET_DIR=/work/core/target/cluster2-linux -w /work \
+  rust:1.85.1-bookworm cargo build --manifest-path core/Cargo.toml --offline --locked --release -j 6 \
+  -p layerfs-node --lib -p layerfs-daemon --bins
+```
+
+The fetch takes seconds; a cold release build took about 2.5 minutes at `-j 2` on an arm64 Mac with Docker limited to 8 CPUs. Agents in this repository keep every command under 2 minutes: put `timeout 110` before `cargo build` and run the same command again until it prints `Finished`, since Cargo keeps what it compiled.
+
+Then gather the build into one folder, the `bundle` (any folder Docker Desktop shares, such as one under your home):
+
+```sh
+BUNDLE=$HOME/layerfs-linux-build
+mkdir -p "$BUNDLE/sdk/js"
+docker run --rm -v layerfs-target:/t:ro -v "$BUNDLE":/out rust:1.85.1-bookworm sh -c \
+  "cp /t/release/layerfs-daemon /out/ && cp /t/release/liblayerfs_node.so /out/layerfs.node && chown $(id -u):$(id -g) /out/layerfs-daemon /out/layerfs.node"
+cp -R sdk/js/src sdk/js/operator sdk/js/package.json "$BUNDLE/sdk/js/"
+```
+
+On macOS the Host uses all three parts: the box runs `layerfs-daemon` and loads `layerfs.node`, and the Mac side imports `sdk/js` from the bundle.
+
+Instead, [`tools/worktree.py`](../tools/worktree.py) ([parallel worktrees](../docs/general/parallel-worktrees.md)) does the same with per-checkout caches, and seals the folder with a `manifest.json`. It needs the runtime image below to exist first, and was not tried for this guide:
+
+```sh
+python3 tools/worktree.py register --worktree "$LAYERFS" --owner dsh \
+  --build-image rust:1.85.1-bookworm --runtime-image layerfs-352-runtime:node24 --sandbox-image layerfs-352-runtime:node24
+python3 tools/worktree.py prepare --resources <printed resources.json> --platform linux
+python3 tools/worktree.py build --resources <printed resources.json> --platform linux --profile release --jobs 6
+```
+
+`build` prints the sealed folder, `~/.cache/layerfs-worktrees/<id>/artifacts/build-linux-<hash>`, which serves as `bundle`.
+
+**The runtime image** is the Linux image Sandboxes and the box run. The box runs `node` from it, so it must carry Node, plus whatever your agents' commands run in Workspaces. The one in use is built from [`tools/history/runtime/Dockerfile`](tools/history/runtime/Dockerfile): Node 24.21 on Debian bookworm (the daemon's own base), with corepack's pnpm and yarn prepared offline, and the base's git, python3, gcc and make.
+
+```sh
+docker build -t layerfs-352-runtime:node24 "$LAYERFS/dsh/tools/history/runtime"
+docker image inspect --format '{{.Id}}' layerfs-352-runtime:node24     # the image setting
+```
+
+Use the ID your machine prints: the same build can get a different ID in another image store. Images are never pulled for LayerFS (the box starts with `--pull never`).
+
+### 2. Build the dsh bundle
+
+```sh
+cd "$LAYERFS/dsh"
+pnpm install
+pnpm run build
+```
+
+`pnpm run build` bundles the client into `packages/client/lib/` with the checkout's `tsdown`: `$DSH_SOURCE/node_modules/.bin/tsdown`, else `../deepseek-harness` beside the repository. Give `DSH_SOURCE` as an absolute path (`DSH_SOURCE="$DSH" pnpm run build`); without either, the build stops with `tsdown: No such file or directory`. Run it again after changing the client.
+
+### 3. Make a profile
+
+Choose a `DSH_HOME` of your own, so your usual `~/.dsh` is not touched, and use its `web` profile. dsh's `plugin` command makes the profile from the shipped `web` template on first use, installs the packages there with pnpm, and adds each one that is a bundle to the profile's `dsh.profile.bundles`:
+
+```sh
+export DSH_HOME=$HOME/dsh-layerfs        # any empty folder
+pnpm --dir "$DSH" dsh plugin --profile web add \
+  "link:$LAYERFS/dsh/packages/dsh-layerfs" \
+  "link:$LAYERFS/dsh/packages/dsh-layerfs-demo"
+```
+
+`dsh-layerfs-demo` is optional: it adds the mock model and the demo workspace (see Mock model and demos). Leave it out for real agents only.
+
+The profile is `$DSH_HOME/profiles/web/`. Its `package.json` should now read:
+
+```json
+"dependencies": {
+  "dsh-layerfs": "link:…/dsh/packages/dsh-layerfs",
+  "dsh-layerfs-demo": "link:…/dsh/packages/dsh-layerfs-demo"
+},
+"dsh": { "profile": { "bundles": ["@deepseek-ai/dsh-base", "@deepseek-ai/dsh-web-app", "dsh-layerfs", "dsh-layerfs-demo"] } }
+```
+
+Making the profile by hand is the same: that `package.json`, then `pnpm install` in the profile folder. Keep the `pnpm-workspace.yaml` dsh writes there (`nodeLinker: hoisted`), so the bundle shares dsh's own packages.
+
+### 4. Configure Live
+
+The Host reads its deployment settings from `layerfs-host` in the profile's `cordis.patch.yml` ([`config.js`](packages/host/src/config.js)). dsh writes that file as `[]`; replace the `[]` with the entry list below.
+
+| Setting | Linux | macOS |
+|---|---|---|
+| `image` | required | required |
+| `daemon` | required | defaults to `<bundle>/layerfs-daemon` |
+| `bundle` | not used | required |
+| `docker` | `/var/run/docker.sock` by default | the same |
+| `home`, `traceDir` | `<OS temp>/dsh-layerfs/{home,traces}` by default | the same |
+| `stateDir` | `<profile>/dsh-layerfs` by default (bindings, agent names, journals) | the same |
+
+A Live Init without the required settings is refused with "LayerFS is not configured: set … for layerfs-host in the profile patch"; `GET /layerfs/status` lists what is `missing`.
+
+```yaml
+# $DSH_HOME/profiles/web/cordis.patch.yml
+- id: layerfs-host
+  config:
+    image: "sha256:<64 hex>"                   # step 1's image ID
+    bundle: /Users/<you>/layerfs-linux-build    # macOS: step 1's folder
+    # daemon: /path/to/layerfs-daemon           # Linux
+```
+
+**On macOS** the Mac runs no Store call itself. The Host starts one long-lived Linux container per LayerFS home and bundle, the LayerFS box (`dsh-layerfs-box-<hash>`, [`box.js`](packages/host/src/box.js)), and every SDK call of the Host and of agents' scripts runs there with the bundle's `layerfs.node`. A new `bundle` gets a new box.
+
+**On Linux** the Host and agents' scripts load the SDK in their own process, from `sdk/js` in this repository. It loads the addon from `LAYERFS_NATIVE`, or else `sdk/js/native/layerfs.node`: build it on that machine with `npm --prefix sdk/js run build:native` ([SDK README](../sdk/js/README.md#builds-and-compatibility); it needs Cargo 1.85.1 on the host), or set `LAYERFS_NATIVE` in dsh web's environment to a Linux build's `layerfs.node`. `daemon` is that build's `layerfs-daemon`. The Store must be on a local Linux filesystem (ext4, xfs or btrfs).
+
+**Running two dsh webs on one machine.** The default `home` and `traceDir` are the same for every profile, so two dsh webs would share projects and the box. Give each its own pair under the OS temp area:
+
+```yaml
+    home: /private/var/folders/…/T/dsh-layerfs-<name>/home        # node -p "require('fs').realpathSync(require('os').tmpdir())"
+    traceDir: /private/var/folders/…/T/dsh-layerfs-<name>/traces
+```
+
+Keep both in the OS temp area. Bash calls in Workspace Write mode run in dsh's sandbox, which lets them write only there, and a LayerFS call writes both (a `sandbox.create` elsewhere fails `PermissionDenied`).
+
+### 5. Start dsh web
+
+```sh
+DSH_HOME=$HOME/dsh-layerfs pnpm --dir "$DSH" dsh web --no-open --port 3090
+```
+
+Open the printed `http://127.0.0.1:3090/?token=…` link. Run the preset's sessions in Workspace Write mode; subagents inherit it. dsh's own model needs dsh's sign-in or keys, as usual; the mock models need none.
+
+What you see:
+- **LayerFS × DSH minimalist** is the default preset of a new session. A preset picked in dsh's settings still wins.
+- The New Session row has a **project chip** beside the preset chip. Its menu lists every project (the workspace folder's first) and "No LayerFS", with **New empty project** (a random name, such as calm-otter) and **Import project…** below. Import opens the directory picker and imports the folder as a new project; importing the same folder again gives `name-1`, `name-2`, …. Both make Live projects. Picking a project switches a blank session to the minimalist preset.
+- A session on a project has two more tabs beside Chat and Trajectory: **Work** (the agents' terminals, Branches and Sandboxes) and **History** (History and Files).
+- The sidebar's **LayerFS** page shows one project at a time, with a switcher of every project: its Files, History and Storage, a New session action, and Refresh and Remove.
+
+A **Sim project** needs no Docker, image or build, but the chip's Import makes Live projects. Get one either way:
+- With `dsh-layerfs-demo`, open a session of the DEMO workspace, choose Sim on the strip above the composer, and press Play. The demo's project is `demo-<id>-sim`. `shop`, `depot` and `crew` are Live only.
+- Ask the Host directly. The `?token=` link sets the cookie the route needs:
+
+  ```sh
+  curl -s -c jar.txt -o /dev/null 'http://127.0.0.1:3090/?token=…'
+  curl -s -b jar.txt -H 'content-type: application/json' \
+    -d '{"folder":"/abs/workspace/folder","backend":"sim","name":"my-sim"}' http://127.0.0.1:3090/layerfs/init
+  curl -s -b jar.txt http://127.0.0.1:3090/layerfs/init/<job id>     # until "step": "done"
+  ```
+
+  The project becomes that folder's default, and the chip lists it in every workspace. Leave out `backend` for a Live Init the same way.
+
+### 6. Check
+
+```sh
+cd "$LAYERFS/dsh" && pnpm test
+node tools/check-session.mjs 'http://127.0.0.1:3090/?token=…' <session id>
+```
+
+`pnpm test` runs the Host, simulator, model, mock, playback and history tests. `check-session.mjs` checks that a finished session's tabs draw what LayerFS reports; for a demo session, `tools/check-demo.mjs` (same arguments plus the demo's id) also checks its expected outcomes. The page's URL does not carry the session id: a session is the folder `$DSH_HOME/sessions/<workspace>/session-<uuid>`, whose name is the id, and each demo's current session is in `$DSH_HOME/profiles/web/dsh-layerfs-demo/sessions.json`.
 
 ## 🧰 Develop
 

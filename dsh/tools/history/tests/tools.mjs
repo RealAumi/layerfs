@@ -279,6 +279,8 @@ test("REBUILD.md §4: kind fields, the compatibility test for kinds 1-2, the fou
   assert.deepEqual(checkRecord("009-a1-x.md", record(rows.filter(([k]) => k !== "Compatibility test"))).length, 1);
   assert.deepEqual(checkRecord("009-a1-x.md", record([["Kind", "code path"], ...rows.slice(1)])), ["fixes/009-a1-x.md: kind is 1, 2 or 3 (REBUILD.md §2)"]);
   assert.deepEqual(checkRecord("002-a1-merge-ancestry.md", record([["Kind", "code path"]])), [], "records before REBUILD.md are exempt");
+  assert.deepEqual(checkRecord("017-359-x.md", record([["Kind", "code path only"]])), [], "another lane's record without kind 1-3 is not the fixer's");
+  assert.deepEqual(checkRecord("c01-x.md", record(rows.filter(([k]) => k !== "Compatibility test"))).length, 1, "another lane's record that declares a kind is checked");
   assert.deepEqual(checkRecord("009-a1-g.md", record([["Kind", "none: gate"], ["Recovery", "rerun"]])), [], "no product change");
   assert.deepEqual(checkRecord("009-a1-g.md", record([["Kind", "none"], ["Recovery", "rerun"]])).length, 1, "none says why");
   // every committed fixer record validates

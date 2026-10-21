@@ -55,6 +55,31 @@ records the bindings its root adds over the history root it was built on
 (`new_bindings`), in write transactions of at most 4,096 rows. Merge's own
 `locate` is unchanged.
 
+**Content flag, #352 F-073 (2026-10-20).** A file's content root depends on
+how it was built, not only on its bytes (CAS handbook §2). A localized edit
+keeps its predecessor's extents, so a file edited to other bytes and back can
+hold the same bytes under another root. A differing root therefore does not
+decide a change. Two regular files with different roots and the same length
+go through Content's
+[`compare/bytes.rs`](../../crates/layerfs-content/src/compare/bytes.rs)
+`same_file_bytes`. It skips each extent both files take from the same chunk at
+the same offset, compares the rest in 256 KiB windows from each side, and
+stops at the first window that differs. `read/compare.rs` uses it in three
+places:
+- the `content` flag of a `diff_commits` or `diff_branches` item;
+- whether a same-inode pair whose metadata is unchanged is listed at all;
+- `fs.diff_files`'s `contentEqual` for files that are not text.
+
+Merge uses `compare::same_content`, the same check on inode values, in two
+places:
+- the three-way decision (`Decider::same`): sides with equal bytes did not
+  both change a file;
+- merge-unit classification (`units.rs` `changed`).
+
+In the publication lane, a bounded merge (`MergeInput::bound`) compares bytes
+only for files of at most `MAXIMUM_TEXT_BYTES`, so the hold does not grow with
+a file's size. Larger files are compared by root there.
+
 Text is a regular file of at most `MAXIMUM_TEXT_BYTES` (1 MiB) that is valid
 UTF-8 with no NUL byte. Lines are the `\n`-separated pieces, as the simulator
 splits them.

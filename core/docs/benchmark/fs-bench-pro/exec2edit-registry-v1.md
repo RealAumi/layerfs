@@ -1,6 +1,6 @@
 # #232 Workspace Exec/FUSE edit registry v1 — frozen case and cache contract
 
-> **Current API boundary, 2026-10-12:** [sdk.md](../../../../sdk.md) describes
+> **Current API boundary, 2026-10-12:** [sdk.md](../../../../docs/general/sdk.md) describes
 > the implemented operation surface. Workspace exec now returns the ordinary
 > Sandbox runtime owner at the mount; it adds no daemon command registration,
 > automatic Commit/unmount or ordinary command timeout. This page retains its

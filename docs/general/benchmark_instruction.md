@@ -15,7 +15,7 @@ sampling and verdicts are governed by the root [AGENTS.md](../../AGENTS.md)
 sections 1 to 3, the [measurement workflow](agent-measurement-policy.md), the
 [benchmark rules](benchmark_rules.md) and the owning family contract; report
 layout for a registered benchmark family is governed by the
-[report template](../../benchmark_agent_report.md). The binding
+[report template](benchmark_agent_report.md). The binding
 performance-engineering rules are in the [optimization guide](optimization-guide.md)
 and the fuller procedure, counter groups and scaling checks in the
 [optimization handbook](optimization-handbook.md); this document is the short

@@ -89,7 +89,7 @@ status and any installation acknowledgement. Shared Store volumes remain borrowe
 close establishes container lifecycle, not graceful filesystem drain. Matching
 explicit existing-Store create retains the original ready startup and one Hello,
 without another install; a mismatched Project is refused before deployment.
-The complete surface and layout are in [sdk.md](../../../sdk.md).
+The complete surface and layout are in [sdk.md](../../../docs/general/sdk.md).
 
 EndSession now preserves terminal socket ownership: the daemon knows its final
 reply send completed, then waits once for caller EOF and fences once before slot

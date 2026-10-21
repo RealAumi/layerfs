@@ -6,7 +6,7 @@
 > Historical examples retain their original identity, scope and verdict.
 
 Read [root instructions](../../AGENTS.md), [core instructions](../../core/AGENTS.md),
-[benchmark rules](benchmark_rules.md), [report template](../../benchmark_agent_report.md)
+[benchmark rules](benchmark_rules.md), [report template](benchmark_agent_report.md)
 and the owning frozen family/profile before any invocation. Select the actual
 core or explicitly requested legacy reference entrypoint; closed handoffs are
 not current assignments. Existing family-specific exceptions retain their exact
@@ -169,7 +169,7 @@ exploratory performance-only default below; see
    command and every non-passing line. The issue151 ledger is historical evidence,
    not the default destination for new cluster-one/two campaigns. Report FAIL, INCOMPLETE and
    unrun work as plainly as PASS. **Before every benchmark invocation, read
-   [`benchmark_agent_report.md`](../../benchmark_agent_report.md); after it, use the
+   [`docs/general/benchmark_agent_report.md`](benchmark_agent_report.md); after it, use the
    applicable table in the round report and retain every registered case and
    its actual verdict.** A template placeholder never substitutes for a receipt.
 7. **Fit the budgets.** Preparation is fast and reusable — prepared inputs are

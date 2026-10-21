@@ -138,8 +138,8 @@ product mental model or campaign-specific benchmark procedures.
   and R9c retired the root reference
   ([R9c record](docs/issues/307/R9C-COMPLETION-20261010.md)).
   Add members only with real product boundaries and implementation.
-- Cluster-one work starts with the [handbook](../cluster_one_handbook.md) and
-  [CAS/CDC/delta guide](../cas_cdc_deltaencoding_handbook.md). Use public contracts,
+- Cluster-one work starts with the [handbook](../docs/general/cluster_one_handbook.md) and
+  [CAS/CDC/delta guide](../docs/general/cas_cdc_deltaencoding_handbook.md). Use public contracts,
   source pins and limitations; preserve canonical compatibility.
 - Cluster-two work starts with the [current design index](docs/issues/303/README.md)
   and relevant primary operation/engine/FUSE contracts plus
@@ -221,7 +221,7 @@ Sandbox setup or the external executor establishes command identity, mount
 visibility and protection of Store, Overlay and daemon credentials. Ordinary
 runtime execution owns standard I/O, exit status and caller-requested cancellation.
 SDK public organization is the eleven operations documented in
-[the implemented SDK surface](../sdk.md), with operation files under
+[the implemented SDK surface](../docs/general/sdk.md), with operation files under
 [layerfs-api/src](crates/layerfs-api/src/). Project offers init/fork/
 branches/commits; Sandbox offers create/close; Workspace offers mount/exec/
 commit/status/unmount. Shared control/recovery/diagnostic plumbing lives in
@@ -350,7 +350,7 @@ remain legitimate. Put API documentation with the API; examples outside src.
 | Public-API tests and their helpers/fixtures | Package `tests/` |
 | Runnable examples | Package `examples/` |
 | Package benchmarks | Package `benches/` |
-| Product-wide harness/diagnostics | `core/benchmark/`; inspect the actual harness manifest/entrypoint |
+| Product-wide harness/diagnostics | root `benchmark/`; inspect the actual harness manifest/entrypoint |
 | Development checks | `core/tools/` |
 
 Tests exercise the production library that normal consumers use. Do not
@@ -475,7 +475,7 @@ Migrations and refactors follow the root
 [delete-rather-than-nurse rule](../AGENTS.md#4-code-build-and-docs): delete a
 test that is tricky to adapt, keep or move only cheap tests of surviving
 behaviour, and re-cover any still-valid fix or contract on the new code.
-`core/benchmark/fs-bench-pro` is frozen and left broken (owner, 2026-10-18):
+`benchmark/fs-bench-pro` is frozen and left broken (owner, 2026-10-18):
 do not build, run, check or repair it.
 
 For docs-only changes, check links/anchors, status/claim accuracy and whitespace;
@@ -507,7 +507,7 @@ it. Documentation builds do not prove the binary profile.
 
 Measurement work additionally follows the
 [agent measurement workflow](../docs/general/agent-measurement-policy.md) and
-[owning core harness guide](benchmark/fs-bench-pro/AGENTS.md). Frozen identities,
+[owning core harness guide](../benchmark/fs-bench-pro/AGENTS.md). Frozen identities,
 cache states and budgets are evidence contracts, not product runtime limits.
 
 ### Fuser provenance and authorized-patch checks

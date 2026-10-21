@@ -1,7 +1,7 @@
 // Init LayerFS for a workspace folder. The source is the workspace folder by
 // default; another folder can be browsed to and picked: in the page when dsh
-// composes the browse picker, else in the Host's native folder dialog. Either way the new project is attached to the workspace folder,
-// which is where the session's agents work.
+// composes the browse picker, else in the Host's native folder dialog. Either way the new project becomes the workspace folder's
+// default, the project new sessions there use until they choose another.
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { api, type InitJob, type Project } from './api.ts'
@@ -97,7 +97,7 @@ export function InitDialog({ folder, directories, onDone, onClose }: {
         </label>
 
         <div style={{ color: muted }}>
-          The project is attached to the workspace <code style={{ overflowWrap: 'anywhere' }}>{folder}</code>, where the session's agents work{source !== folder ? '; its first version holds the files of the folder above' : ''}.
+          New sessions in <code style={{ overflowWrap: 'anywhere' }}>{folder}</code> use the project until they choose another{source !== folder ? '; its first version holds the files of the folder above' : ''}.
         </div>
         {job && busy && <InitProgress job={job} />}
         {error && <div style={{ color: 'var(--dsh-color-fg-danger, #d33)' }}>{error}</div>}

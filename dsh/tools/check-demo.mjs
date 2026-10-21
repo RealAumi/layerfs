@@ -19,6 +19,7 @@
 // Exit status 0 when every check holds; each failure is printed.
 import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { deploymentEnv } from "../packages/host/src/layerfs-client.js";
 import { loadScenarios } from "../packages/mock/src/scenario.js";
 import { expectedOutcomes, finalTreeFailures, openContainers, orderFailures } from "./checks/gates.mjs";
 
@@ -67,10 +68,11 @@ if (existsSync(finalFile) && view.project) {
   }
   report("closed", open.map((c) => `${c} still uses ${project.volume}`), ": no Sandbox of the run is open");
 
-  const deploy = { HOME: status.home, DOCKER: status.docker, IMAGE: project.image ?? status.image, VOLUME: project.volume, DAEMON: status.daemon };
+  // the Host's own settings for the project (on macOS, its ported SDK's too)
+  const deploy = deploymentEnv(status, project);
   for (const [k, v] of Object.entries(deploy)) process.env[`LAYERFS_${k}`] = v;
   const { LayerFS } = await import(status.sdk);
-  const { LayerFSOperator } = await import(new URL("../operator/index.js", status.sdk).href);
+  const { LayerFSOperator } = await import(status.operator ?? new URL("../operator/index.js", status.sdk).href);
   const creator = new LayerFS(project.name);
   const check = await creator.sandbox.create(`${project.name}-check`.slice(0, 63), project.name, deploy.IMAGE);
   const lf = new LayerFS(project.name, { sandbox: check });

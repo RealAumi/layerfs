@@ -17,11 +17,11 @@ export async function resolve(specifier, context, next) {
 const { resolveConfig } = await import("../src/config.js");
 const { BindingStore } = await import("../src/binding.js");
 const { Collector } = await import("../src/collector.js");
-const { contributor } = await import("../src/env.js");
+const { contributor, projectContext } = await import("../src/env.js");
 const { registerRoutes } = await import("../src/route.js");
 const { TreeReader } = await import("../src/trees.js");
 const { removeProject } = await import("../src/remove.js");
-const { prepareInit, scanSource, watching } = await import("../src/init.js");
+const { prepareInit, randomName, scanSource, watching } = await import("../src/init.js");
 const { InitJobs } = await import("../src/jobs.js");
 const { CALL, PROJECT } = await import("@dsh-layerfs/model/sources/records.js");
 
@@ -34,7 +34,7 @@ function session(id, cwd, parentSession) {
 }
 
 function host() {
-  const spec = resolveConfig({ image: "sha256:img", daemon: "/d/layerfs-daemon", home: join(dir, "home"), traceDir: join(dir, "traces") }, { dir: join(dir, "profile") });
+  const spec = resolveConfig({ image: "sha256:img", daemon: "/d/layerfs-daemon", bundle: "/b", home: join(dir, "home"), traceDir: join(dir, "traces") }, { dir: join(dir, "profile") });
   const live = new Map();
   const ctx = { sessions: { get: (id) => live.get(id) } };
   const bindings = new BindingStore(spec.stateDir);
@@ -55,11 +55,22 @@ try {
 
   // the folder's only project is used, locked at the first bash call and recorded on the root
   h.bindings.addProject(FOLDER, { name: "website", source: FOLDER, volume: "dsh-layerfs-website-1", created: 1 });
+  // the runtime context names it (a subagent sees its root's), before any bash call
+  assert.match(projectContext(h.bindings, h.collector, child), /^LayerFS project of this conversation: website \(live\)\./);
+  assert.equal(projectContext(h.bindings, h.collector, undefined), "");
   const vars = h.env.resolve({ agent: { session: child }, callId: "c1", rootCallId: "r1" });
   assert.equal(vars.DSH_LAYERFS_PROJECT, "website");
   assert.equal(vars.DSH_LAYERFS_VOLUME, "dsh-layerfs-website-1");
+  if (process.platform === "darwin") {
+    // macOS: the SDK is ported, its calls run in the LayerFS box (src/port/, src/box.js)
+    assert.match(vars.DSH_LAYERFS_SDK, /\/port\/sdk\.js$/);
+    assert.equal(vars.DSH_LAYERFS_STORE_PATH, "/var/lib/docker/volumes/dsh-layerfs-website-1/_data/global/store.sqlite");
+    assert.equal(vars.DSH_LAYERFS_DAEMON_HOST, "host.docker.internal");
+    assert.match(vars.DSH_LAYERFS_BOX, /^dsh-layerfs-box-[0-9a-f]{12}$/);
+    assert.equal(vars.DSH_LAYERFS_BUNDLE, "/b");
+  }
   assert.equal(vars.DSH_LAYERFS_IMAGE, "sha256:img");
-  assert.match(vars.DSH_LAYERFS_OPERATOR, /^file:.*\/operator\/index\.js$/);
+  assert.match(vars.DSH_LAYERFS_OPERATOR, process.platform === "darwin" ? /^file:.*\/port\/operator\.js$/ : /^file:.*\/operator\/index\.js$/);
   assert.equal(vars.DSH_LAYERFS_TRACE_STEP, "r1");
   assert.equal(vars.DSH_LAYERFS_TRACE, join(h.spec.traceDir, "child-1.jsonl"));
   assert.ok(Object.keys(vars).every((key) => key in h.env.variables), "every value is a declared variable");
@@ -113,16 +124,29 @@ try {
   rmSync(h.spec.traceDir, { recursive: true, force: true });
   assert.deepEqual(host().collector.snapshot("session-root").lines.map((l) => l.method), ["sandbox.create", "sandbox.exec"]);
 
-  // saved trees: dependency folders stay closed, long files are cut, a tree is read once
+  // Files reads (reads.js) on a fake client: a folder page, a file window, a binary
+  // file's size (the SDK refuses its text), changed paths and one file's diff
   const REF = "a".repeat(64), reads = [], closed = [];
   const fakeFs = {
     async list(ref, dir) {
-      const items = { "/": [{ path: "/node_modules", type: "dir", inode: 2 }, { path: "/src", type: "dir", inode: 3 }, { path: "/big.txt", type: "file", inode: 4 }], "/src": [{ path: "/src/a.js", type: "file", inode: 5 }, { path: "/src/link", type: "symlink", inode: 6 }] }[dir] ?? [];
+      const items = { "/": [{ path: "/node_modules", type: "dir", inode: 2 }, { path: "/src", type: "dir", inode: 3 }, { path: "/big.txt", type: "file", inode: 4 }, { path: "/.DS_Store", type: "file", inode: 7 }], "/src": [{ path: "/src/a.js", type: "file", inode: 5 }, { path: "/src/link", type: "symlink", inode: 6 }], "/node_modules": [{ path: "/node_modules/dep.js", type: "file", inode: 8 }] }[dir] ?? [];
       return { items, hasMore: false };
     },
-    async read(ref, path, line) { reads.push(path); return path === "/big.txt" ? { text: "x".repeat(100_000), nextLine: line + 1 } : { text: "ok\n", nextLine: null }; },
+    async read(ref, path, line) {
+      reads.push(path);
+      if (path === "/.DS_Store") throw Object.assign(new Error("Binary: text contains NUL or invalid UTF-8"), { code: "Binary" });
+      return path === "/big.txt" ? { text: "x".repeat(100_000), nextLine: line + 1 } : { text: "ok\n", nextLine: null };
+    },
+    async stat() { return { size: 6148 }; },
+    async blame(ref, path, from) { return { lines: [{ n: from, text: "ok", commit: ref, message: "m", lineTruncated: false }], versions: 1, nextLine: null }; },
+    async diff_files(from, path, to) { return { kind: "Text", hunks: [{ op: "+", text: "ok" }], hunksOmitted: false }; },
   };
-  const trees = new TreeReader(h.spec, async () => ({ layerfs: { fs: fakeFs, sandboxes: new Set(["sb_service"]), sandbox: { close: async (id) => closed.push(id) } } }));
+  const diffed = [];
+  // the root each Commit's diff answer reports: "f…" and "g…" are Commits of retired Branches, not in the snapshot
+  const rootOf = { ["a".repeat(64)]: "r1", ["b".repeat(64)]: "r0", ["f".repeat(64)]: "r7", ["0".repeat(64)]: "r6" };
+  const fakeBranch = { async diff_commits(from, to, size, position, options) { diffed.push([size, position, options]); return { from: { root: rootOf[from] }, to: { root: rootOf[to] }, items: [{ path: "/src/a.js", kind: "Modified", type: "file", hunks: [] }], hasMore: true, nextPagePos: 1000 }; } };
+  const trees = new TreeReader(h.spec, async () => ({ layerfs: { fs: fakeFs, branch: fakeBranch, sandboxes: new Set(["_service.p", "sb_other"]), sandbox: { close: async (id) => closed.push(id) }, close: async () => closed.push("store") },
+    operator: { inspect: { snapshot: async () => ({ commits: [{ id: "a".repeat(64), root: "r1" }, { id: "b".repeat(64), root: "r0" }], layers: [{ id: "c".repeat(64), root: "r1" }, { id: "d".repeat(64), root: "r9" }, { id: "e".repeat(64), root: "r7", sourceCommit: "f".repeat(64) }, { id: "9".repeat(64), root: "r8", sourceCommit: "0".repeat(64) }] }) } } }));
 
   // the route answers only requests Connection accepts
   let handler;
@@ -150,26 +174,62 @@ try {
   const cold = await call("GET", "/layerfs/session/child-1");
   assert.deepEqual([cold.body.root, cold.body.folder, cold.body.project.name, cold.body.agents["child-1"]], ["session-root", FOLDER, "website", "tester"]);
   assert.equal((await call("GET", "/layerfs/nope")).status, 404);
-  assert.equal((await call("GET", "/layerfs/session/child-1/tree?ref=main")).status, 400);
-  const tree = await call("GET", `/layerfs/session/child-1/tree?ref=${REF}`);
-  assert.deepEqual(Object.keys(tree.body.tree).sort(), ["/big.txt", "/node_modules", "/src", "/src/a.js", "/src/link"]);
-  assert.match(tree.body.tree["/big.txt"].content, /\[cut at 128 KB\]\n$/);
-  assert.equal(tree.body.tree["/src/link"].content, "→ symlink");
-  assert.match(tree.body.partial, /node_modules folders are not opened.*over 128 KB/);
-  const count = reads.length;
-  await call("GET", `/layerfs/session/child-1/tree?ref=${REF}`);
-  assert.equal(reads.length, count, "a saved tree is read once");
+  // Files reads: one SDK call each and kept; bad arguments are refused before any call
+  const B = "b".repeat(64), files = (q) => call("GET", `/layerfs/session/child-1/${q}`);
+  const page = await files(`list?ref=${REF}&dir=/src`);
+  assert.deepEqual([page.status, page.body.items.map((i) => i.path), page.body.next], [200, ["/src/a.js", "/src/link"], null]);
+  const before = reads.length;
+  assert.deepEqual((await files(`read?ref=${REF}&path=/src/a.js`)).body, { text: "ok\n", startLine: 1, nextLine: null, lineTruncated: false, size: null });
+  await files(`read?ref=${REF}&path=/src/a.js`);
+  assert.equal(reads.length, before + 1, "a window is read once");
+  assert.deepEqual((await files(`read?ref=${REF}&path=/.DS_Store`)).body, { binary: true, size: 6148 });
+  assert.deepEqual((await files(`blame?ref=${REF}&path=/src/a.js&line=3`)).body, { lines: [{ n: 3, text: "ok", lineTruncated: false, commit: REF, message: "m" }], versions: 1, nextLine: null });
+  const changes = await files(`changes?from=${B}&to=${REF}`);
+  assert.deepEqual([changes.body, diffed], [{ items: [{ path: "/src/a.js", kind: "Modified", type: "file" }], next: 1000 }, [[1000, 0, { hunks: false }]]]);
+  // a Layer is compared as the Commit with its files; one with none is refused
+  assert.deepEqual((await files(`changes?from=${"c".repeat(64)}&to=${REF}`)).body, { items: [], next: null });
+  assert.equal(diffed.length, 1, "same files: no diff call");
+  assert.deepEqual([(await files(`changes?from=${"d".repeat(64)}&to=${REF}`)).status, (await files(`changes?from=${"d".repeat(64)}&to=${REF}`)).body.code], [409, "NotComparable"]);
+  // a Layer whose source Commit is not listed is compared as that Commit when the diff shows its root; a merged publish is refused
+  assert.equal((await files(`changes?from=${"e".repeat(64)}&to=${REF}`)).body.items.length, 1);
+  assert.equal((await files(`changes?from=${"9".repeat(64)}&to=${REF}`)).body.code, "NotComparable");
+  assert.equal((await call("GET", `/layerfs/project/website/diff?from=${B}&to=${REF}&path=/src/a.js`)).body.kind, "Text");
+  for (const q of ["list?ref=nope", `read?ref=${REF}&path=/a/../b`, `read?ref=${REF}&path=/a&line=0`, `changes?from=${B}`])
+    assert.deepEqual([(await files(q)).status, (await files(q)).body.code], [400, "invalid-input"], q);
   await trees.dispose();
-  assert.deepEqual(closed, ["sb_service"]);
+  assert.deepEqual(closed, ["sb_other", "store"], "the shared service Sandbox stays open");
 
   // state reads go through the same per-project client: one service Sandbox start, not one per read
   let opened = 0;
   const empty = { project: "p", branches: [], commits: [], layers: [], sandboxes: [], store: {} };
-  const shared = new TreeReader(h.spec, async () => { opened++; return { layerfs: { fs: fakeFs, sandboxes: new Set(), sandbox: { close: async () => {} } }, operator: { inspect: { snapshot: async () => empty } } }; });
+  const shared = new TreeReader(h.spec, async () => { opened++; return { layerfs: { fs: fakeFs, sandboxes: new Set(), sandbox: { close: async () => {} }, close: async () => {} }, operator: { inspect: { snapshot: async () => empty } } }; });
   const P = { name: "p" };
-  const [stateA, stateB] = await Promise.all([shared.state(P, []), shared.state(P, []), shared.read(P, REF)]);
+  const [stateA, stateB] = await Promise.all([shared.state(P, []), shared.state(P, []), shared.files(P, "list", new URLSearchParams({ ref: REF }))]);
   assert.deepEqual([opened, typeof stateA.s, typeof stateB.labels], [1, "object", "object"]);
   await shared.dispose();
+  // a client whose service Sandbox another client closed is dropped, so the next read opens a new one
+  let made = 0;
+  const gone = Object.assign(new Error("NoSuchSandbox: no Sandbox named _service.p"), { code: "NoSuchSandbox" });
+  const stale = new TreeReader(h.spec, async () => { made++; return { layerfs: { sandboxes: new Set(), sandbox: { close: async () => {} }, close: async () => {} }, operator: { inspect: { snapshot: async () => { if (made === 1) throw gone; return empty; } } } }; });
+  await assert.rejects(stale.state(P, []), /NoSuchSandbox/);
+  assert.equal(typeof (await stale.state(P, [])).s, "object");
+  assert.equal(made, 2);
+  await stale.dispose();
+  // a service Sandbox whose container is gone is closed, once, to free its name; the read still fails
+  const lost = Object.assign(new Error("NoSuchSandbox: the container of Sandbox _service.p is gone; close it to free its name"), { code: "NoSuchSandbox", detail: { sandbox: "_service.p", container: "c".repeat(64), containerGone: true } });
+  const closings = [];
+  let built = 0;
+  const orphan = new TreeReader(h.spec, async () => { built++; return { layerfs: { sandboxes: new Set(), sandbox: { close: async (id) => closings.push(id) }, close: async () => {} }, operator: { inspect: { snapshot: async () => { if (built === 1) throw lost; return empty; } } } }; });
+  await assert.rejects(orphan.state(P, []), /container of Sandbox _service\.p is gone/);
+  assert.deepEqual(closings, ["_service.p"]);
+  assert.equal(typeof (await orphan.state(P, [])).s, "object");
+  assert.deepEqual([built, closings], [2, ["_service.p"]], "one close, then a new client");
+  await orphan.dispose();
+  // a plain NoSuchSandbox (another client closed it) closes nothing
+  const plain = new TreeReader(h.spec, async () => ({ layerfs: { sandboxes: new Set(), sandbox: { close: async (id) => closings.push(id) }, close: async () => {} }, operator: { inspect: { snapshot: async () => { throw gone; } } } }));
+  await assert.rejects(plain.state(P, []), /NoSuchSandbox/);
+  assert.equal(closings.length, 1);
+  await plain.dispose();
 
   // storage: Store totals and Init apart; every Branch's Commits once, newest first; main lists none
   const C = (id, time) => ({ id, time, message: id, via: "fs", logical: 10, newCanonical: 5, newStored: 3, newMetadata: 1 });
@@ -177,7 +237,7 @@ try {
   const listed = [];
   const stores = new TreeReader(h.spec, async () => ({
     layerfs: {
-      sandboxes: new Set(), sandbox: { close: async () => {} },
+      sandboxes: new Set(), sandbox: { close: async () => {} }, close: async () => {},
       project: { list_branches: async () => ({ items: ["main", "feature", "fix"].map((name) => ({ name })), hasMore: false }) },
       branch: { list_commits: async (b) => (listed.push(b), { items: commitsOf[b], hasMore: false }) },
     },
@@ -187,18 +247,19 @@ try {
   assert.deepEqual([storage.store, storage.init, storage.commits.map((c) => c.id), storage.branches, storage.partial, listed], [{ file: 4096, logical: 30 }, { entries: 3 }, ["c3", "c2", "c1"], 2, false, ["feature", "fix"]]);
   await stores.dispose();
 
-  // projects: listed with their folder; attach moves one, detach keeps sessions on it
+  // projects: any session may use any project; a folder only remembers its default
   const OTHER = "/work/other";
-  assert.deepEqual((await call("GET", "/layerfs/projects")).body.projects.map((p) => [p.name, p.folder]), [["website", FOLDER]]);
-  assert.equal((await call("POST", "/layerfs/project/website/attach", { folder: OTHER })).body.project.folder, OTHER);
-  assert.deepEqual([h.bindings.workspace(FOLDER).projects, h.bindings.workspace(OTHER).lastUsed], [[], "website"]);
-  assert.equal((await call("POST", "/layerfs/project/website/attach", { folder: null })).body.project.folder, null);
-  assert.equal(h.bindings.projectFor("session-root", FOLDER).name, "website", "a locked session keeps its detached project");
-  assert.equal(h.bindings.projectFor("session-other", FOLDER), null);
-  assert.equal((await call("POST", "/layerfs/project/website/attach", { folder: 3 })).status, 400);
-  assert.equal((await call("POST", "/layerfs/project/nope/attach", { folder: null })).status, 404);
+  const listedProjects = (await call("GET", "/layerfs/projects")).body;
+  assert.deepEqual([listedProjects.projects.map((p) => [p.name, "folder" in p]), listedProjects.defaults], [[["website", false]], { [FOLDER]: "website" }]);
+  assert.deepEqual([h.bindings.workspace(OTHER).projects.map((p) => p.name), h.bindings.projectFor("session-other", OTHER)], [["website"], null], "listed everywhere, nobody's default yet");
+  assert.equal((await call("POST", "/layerfs/workspace", { folder: OTHER, project: "website" })).body.lastUsed, "website");
+  assert.equal(h.bindings.projectFor("session-other", OTHER).name, "website", "a new session in the folder uses its default");
+  assert.equal(h.bindings.choose("session-third", "/work/third", "website"), true, "a session chooses a project imported elsewhere");
+  assert.equal(h.bindings.workspace("/work/third").lastUsed, "website");
+  assert.equal((await call("POST", "/layerfs/workspace", { folder: OTHER, project: 3 })).status, 400);
+  assert.equal((await call("POST", "/layerfs/workspace", { project: "website" })).status, 400);
+  assert.equal((await call("POST", "/layerfs/workspace", { folder: OTHER, project: "nope" })).status, 404);
   assert.equal((await call("GET", "/layerfs/project/nope/storage")).status, 404);
-  await call("POST", "/layerfs/project/website/attach", { folder: FOLDER });
 
   // Init: the source is counted first; the route answers a job, and the job its steps
   const src = join(dir, "src-folder");
@@ -211,7 +272,8 @@ try {
   const started = await call("POST", "/layerfs/init", { folder: dir, source: src });
   assert.deepEqual([started.status, started.body.job.name, started.body.job.step], [202, "src-folder", "scan"]);
   const second = await call("POST", "/layerfs/init", { folder: dir, source: src });
-  assert.equal(second.body.job.name, "src-folder-2", "a running Init keeps its name");
+  assert.equal(second.body.job.name, "src-folder-1", "a running Init keeps its name");
+  assert.equal(randomName(new Set(["amber-badger"]), join(dir, "no-home"), () => 0), "amber-badger-1", "the pairs run out: numbered");
   assert.equal((await call("POST", "/layerfs/init", { folder: "relative" })).status, 409);
   const job = (id) => call("GET", `/layerfs/init/${id}`).then((r) => r.body.job);
   runs[0].report({ step: "import", totals: { entries: 4, files: 2, bytes: 8 } });
@@ -246,12 +308,16 @@ try {
   assert.deepEqual([known.times, known.forks], [{ ["l".repeat(66)]: at }, { feature: at }]);
   assert.deepEqual(h.collector.nodesOf("other"), { authors: {}, times: {}, forks: {} });
 
-  // a version 1 file is read as version 2
-  const old = join(dir, "v1");
-  mkdirSync(old);
+  // version 1 and 2 files are read as version 3: no attached folder, and a folder's one attached project stays its default
+  const old = join(dir, "v1"), two = join(dir, "v2");
+  mkdirSync(old); mkdirSync(two);
   writeFileSync(join(old, "bindings.json"), JSON.stringify({ version: 1, workspaces: { [FOLDER]: { projects: [{ name: "a", source: FOLDER, volume: "v", created: 1 }], lastUsed: "a" } }, sessions: {}, agents: {} }));
   const upgraded = new BindingStore(old);
-  assert.deepEqual([upgraded.data.version, upgraded.byName("a").folder, upgraded.workspace(FOLDER).lastUsed], [2, FOLDER, "a"]);
+  assert.deepEqual([upgraded.data.version, "folder" in upgraded.byName("a"), upgraded.workspace(FOLDER).lastUsed], [3, false, "a"]);
+  const project = (name, folder) => ({ name, source: folder ?? "/s", volume: "v", created: 1, folder });
+  writeFileSync(join(two, "bindings.json"), JSON.stringify({ version: 2, projects: { a: project("a", "/one"), b: project("b", "/two"), c: project("c", "/two"), d: project("d", null) }, workspaces: { "/two": { lastUsed: null } }, sessions: {}, agents: {} }));
+  const v2 = new BindingStore(two);
+  assert.deepEqual([v2.data.version, v2.defaults(), Object.values(v2.data.projects).some((p) => "folder" in p)], [3, { "/one": "a" }, false]);
 
   // removal: confirmed by name, refused while a running container uses the volume; stopped ones go with it, then volume, home entry and binding
   assert.equal((await call("POST", "/layerfs/project/website/remove", { confirm: "web" })).status, 400);
@@ -267,6 +333,12 @@ try {
   mkdirSync(join(dir, "website"), { recursive: true });
   assert.equal(prepareInit(h.spec, h.bindings, { folder: dir, source: join(dir, "website") }).project.name, "website", "a removed name is free again at once");
   assert.equal(prepareInit(h.spec, h.bindings, { folder: dir, name: "website" }).project.name, "website");
+  // a new empty project: a random adjective-noun name, an empty folder of its own (runInit removes it)
+  const blank = prepareInit(h.spec, h.bindings, { folder: dir, empty: true }).project;
+  assert.match(blank.name, /^[a-z]+-[a-z]+$/);
+  assert.deepEqual([blank.empty, readdirSync(blank.source)], [true, []]);
+  rmSync(blank.source, { recursive: true });
+  assert.equal(prepareInit(h.spec, h.bindings, { folder: dir, empty: true, name: "blank" }).project.name, "blank");
   assert.equal(existsSync(join(h.spec.home, "website")), false);
   assert.deepEqual([h.bindings.byName("website"), h.bindings.workspace(FOLDER).lastUsed, h.bindings.session("session-root").project], [null, null, null]);
   assert.equal(h.bindings.projectFor("session-root", FOLDER), null, "a session on a removed project has none");
@@ -283,6 +355,23 @@ try {
   assert.deepEqual(await removeProject(h.spec, h.bindings, fakeTrees, "website", dockerWith("abc running\nold exited\n"), { stopSandboxes: true }), { removed: "website", volume: "dsh-layerfs-website-2" });
   assert.deepEqual(ran, ["ps -a --filter volume=dsh-layerfs-website-2 --format {{.ID}} {{.State}}", "rm -f abc old", "volume rm dsh-layerfs-website-2"]);
   assert.deepEqual(readdirSync(records), ["other-b"], "another project's Sandbox record stays");
+  // the snapshot keeps a few Commits per Branch: History gets the rest from
+  // branch.list_commits, so a cut-off Commit keeps its place as a parent
+  {
+    const { stateOf } = await import("../src/layerfs-client.js");
+    const id = (n) => "12" + String(n).padStart(64, "0"), L0 = "32" + "0".repeat(64);
+    const commit = (n, parent) => ({ id: id(n), branch: "feature", parent: parent && id(parent), base: L0, root: "a".repeat(63) + n, via: "fs", message: `c${n}`, time: n });
+    const all = [commit(4, 3), commit(3, 2), commit(2, 1), commit(1, null)];
+    const pages = [];
+    const client = {
+      operator: { inspect: { snapshot: async () => ({ project: "website", commits: all.slice(0, 3), more: { feature: "cursor" }, layers: [{ id: L0, parent: null, root: "b".repeat(64) }], branches: [{ name: "main", base: L0, head: null }, { name: "feature", base: L0, head: id(4) }], workspaces: [] }) } },
+      layerfs: { branch: { list_commits: async (branch, size, pos) => { pages.push([branch, pos]); return pos === 0 ? { items: all.slice(0, 2), hasMore: true, nextPagePos: 2 } : { items: all.slice(2), hasMore: false, nextPagePos: null }; } } },
+    };
+    const state = await stateOf(client, []);
+    assert.deepEqual(pages, [["feature", 0], ["feature", 2]]);
+    assert.equal(Object.keys(state.s.commits).length, 4, "the cut-off Commit is listed");
+    assert.equal(state.s.commits[state.labels[id(2)]].parent, state.labels[id(1)], "and is its child's parent");
+  }
   console.log("host: ok");
 } finally {
   rmSync(dir, { recursive: true, force: true });

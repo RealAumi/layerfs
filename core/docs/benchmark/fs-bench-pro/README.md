@@ -4,7 +4,7 @@
 > performance admission remain proposed. This page approves no numeric result.
 
 The current SDK implementation and its eleven operations are described in
-[sdk.md](../../../../sdk.md). The #319 owner follow-up completes this migration
+[sdk.md](../../../../docs/general/sdk.md). The #319 owner follow-up completes this migration
 before one consolidated host/Linux/harness and sealed count gate, then simplifies
 the harness and records a final baseline. Capped edits retain all five cases due
 to their stricter oracle. The declared selection is 157 cases: everyday 108 and

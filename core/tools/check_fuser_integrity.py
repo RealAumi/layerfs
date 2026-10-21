@@ -40,14 +40,8 @@ EXCLUSIVE_RECORD = Path("docs/mp2/fuser-receive-exclusive")
 EXCLUSIVE_PROVENANCE_CHECKSUM = "bd02321ad6f773457956112396536e788f1432d03481f7d6f272045e2a7d5ce0"
 EXCLUSIVE_PATCH_CHECKSUM = "6a4754200d479d736c3dad76b453814c6068e56c050da2d2f9b00bdb5dc5f562"
 EXCLUSIVE_FILES = {"Cargo.toml", "src/session.rs", "src/session/lifecycle.rs", "src/session/receive_stop.rs"}
-PATCH_MANIFESTS = {
-    "core/Cargo.toml": "vendor/fuser-0.18.0",
-    "core/benchmark/cluster-two/platform/Cargo.toml": "../../../vendor/fuser-0.18.0",
-    "core/benchmark/cluster-two/passthrough/Cargo.toml": "../../../vendor/fuser-0.18.0",
-}
-PATCH_LOCKS = {"core/Cargo.lock", "core/benchmark/cluster-two/platform/Cargo.lock",
-               "core/benchmark/cluster-two/passthrough/Cargo.lock",
-               "core/vendor/fuser-0.18.0/Cargo.lock"}
+PATCH_MANIFESTS = {"core/Cargo.toml": "vendor/fuser-0.18.0"}
+PATCH_LOCKS = {"core/Cargo.lock", "core/vendor/fuser-0.18.0/Cargo.lock"}
 
 
 def is_fuser(name, value):

@@ -15,5 +15,6 @@ for f in app/*.tsx app/*/*.tsx; do
   mkdir -p ".next/server/$(dirname "$f")"
   cp "$f" ".next/server/$f.html"
 done
-date +%s > .next/BUILD_ID
+# a new id per build, as next build makes: two builds in one second still differ
+echo "$(date +%s)-$(od -An -N4 -tu4 /dev/urandom | tr -d ' ')" > .next/BUILD_ID
 echo "Compiled successfully: $(find .next/server -name '*.html' | wc -l | tr -d ' ') pages"

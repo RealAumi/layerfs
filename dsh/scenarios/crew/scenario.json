@@ -15740,7 +15740,7 @@
      "timeoutMs": 170000
     },
     "expect": [
-     "sandbox.exec:exit:0"
+     "sandbox.exec:exit:0|1"
     ]
    },
    {

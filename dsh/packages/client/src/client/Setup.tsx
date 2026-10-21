@@ -1,5 +1,5 @@
-// A session without a LayerFS project: pick one of the folder's projects or
-// Init one from the folder. The choice holds until an agent's first bash call
+// A session without a LayerFS project: pick any project (the folder's imports
+// first) or Init one from the folder. The choice holds until an agent's first bash call
 // uses it; after that the session's project is fixed.
 import { useEffect, useState } from 'react'
 import { api, type SessionView, type Status } from './api.ts'
@@ -34,10 +34,10 @@ export function Setup({ sessionId, view, onChange, directories }: { sessionId: s
       </div>
       {view.choices.projects.length > 0 && (
         <div style={{ display: 'grid', gap: 6 }}>
-          <span>Projects of this folder</span>
+          <span>LayerFS projects</span>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
             {view.choices.projects.map((p) => (
-              <button key={p.name} style={button} disabled={!!busy || locked} onClick={choose(p.name)} title={`volume ${p.volume}`}>Use {p.name}</button>
+              <button key={p.name} style={button} disabled={!!busy || locked} onClick={choose(p.name)} title={`${p.empty ? 'started empty' : `imported from ${p.source}`} · volume ${p.volume}`}>Use {p.name}</button>
             ))}
           </div>
         </div>

@@ -1,10 +1,17 @@
 # `fs-bench`
 
+> **Status:** Current harness guide. Restored 2026-10-20 from the root
+> `benchmark/` removed in 6572d0c495, with the retired `layerfs-reference` arm
+> replaced by `layerfs-core`. No pair has run with the new arm yet; see the
+> [first-pair plan](FIRST-PAIR-PLAN.md).
+
 This package preserves Cloudflare Computer's frozen twelve-scenario real-FUSE
 microbenchmark and compares exactly two candidates:
 
 - pinned upstream Cloudflare Computer;
-- LayerFS V2 Reference placement.
+- LayerFS core: a Workspace mounted by the current core daemon inside its
+  Sandbox container (`layerfs-core`). The v0.1.6 `layerfs-reference` arm was
+  retired by R9c and is refused.
 
 C3, LayerFS Replica, multi-agent behavior, concurrency, durable edit
 checkpointing, and `fs-benchmark-pro` are intentionally excluded.
@@ -48,7 +55,16 @@ sparse-zero and page-cache behavior, not high-entropy storage throughput.
 ## Collect a pair
 
 Use one pair ID and identical `REPS`, `WARMUP`, and `RANDOMIZE_TARGETS` for both
-arms. `BASE` is rejected so each arm contains exactly the twelve mounted-FUSE
+arms. The defaults are `REPS=1 WARMUP=0 RANDOMIZE_TARGETS=0`: one sample per
+arm and no warmup, as the repository measurement rules require. Do not raise
+them to take a best-of or a warmed median.
+
+In docker mode the runner executes as each arm's mount user, recorded as
+`exec_user` in the manifest. `computer-upstream` runs as `0:0`, because
+computerd's files belong to root. `layerfs-core` runs as `501:20`, the
+Sandbox command identity that LayerFS projects as every inode's owner. As
+root, git refuses that repository as "dubious ownership". `EXEC_USER=UID:GID`
+overrides the default. Host mode runs as the caller. `BASE` is rejected so each arm contains exactly the twelve mounted-FUSE
 rows.
 
 For Linux-host-visible FUSE mountpoints:
@@ -56,7 +72,7 @@ For Linux-host-visible FUSE mountpoints:
 ```bash
 pair=$(date -u +%Y%m%dT%H%M%SZ)
 benchmark/fs-bench/run.sh computer-upstream host /computer-mount "$pair"
-benchmark/fs-bench/run.sh layerfs-reference host /layerfs-mount "$pair"
+benchmark/fs-bench/run.sh layerfs-core host /layerfs-mount "$pair"
 python3 benchmark/fs-bench/compare.py "$pair"
 ```
 
@@ -65,7 +81,7 @@ For a FUSE mount that exists only inside a running Docker container:
 ```bash
 pair=$(date -u +%Y%m%dT%H%M%SZ)
 benchmark/fs-bench/run.sh computer-upstream docker computer-container /workspace "$pair"
-benchmark/fs-bench/run.sh layerfs-reference docker layerfs-container /workspace "$pair"
+benchmark/fs-bench/run.sh layerfs-core docker layerfs-container /workspaces/<namespace> "$pair"
 python3 benchmark/fs-bench/compare.py "$pair"
 ```
 
@@ -73,6 +89,28 @@ The collector requires the supplied path to be the exact FUSE mountpoint in
 Linux `/proc/self/mountinfo`. Docker mode copies the frozen script into a
 unique `/tmp` path in the selected container, runs it there, copies out the raw
 JSON, and removes only those two temporary files.
+
+For `layerfs-core` as an agent runs it, use sdk mode. Every command in the
+Sandbox then goes through the public JS SDK's `sandbox.exec`:
+
+```bash
+benchmark/fs-bench/holder/run-holder.sh "$home" <image-digest> <volume> <linux-daemon> <linux-addon> fsbench <prefix>
+benchmark/fs-bench/run.sh layerfs-core sdk "$home" bench /workspaces/<namespace> "$pair"
+```
+
+[`holder/run-holder.sh`](holder/run-holder.sh) sets up the arm through the SDK
+(`project.init`, `sandbox.create`, `branch.fork`, `sandbox.mount`) in the Linux
+runtime image, and holds it until its stdin closes. `$home` is the SDK home it
+shares with run.sh. Sdk mode makes three `sandbox.exec` calls through
+[`holder/exec.mjs`](holder/exec.mjs):
+
+1. report the command identity and mountinfo;
+2. stage the frozen script under `/tmp`, check its SHA-256 and run it;
+3. return the JSON and remove both files.
+
+The runner user is the Sandbox's command identity, so `EXEC_USER` is refused.
+Docker is used only to inspect the container and image. Each manifest records
+its `command_route`.
 
 Host mode records candidate provenance as `unverified`: a caller-selected
 mount and commit label do not prove the mounted binary's source. Docker mode
@@ -98,7 +136,7 @@ benchmark-results/fs-bench/<PAIR_ID>/
     stderr.txt
     mountinfo.txt
     ...captured provenance evidence...
-  layerfs-reference/
+  layerfs-core/
     ...same evidence...
   comparison.json
   comparison.md

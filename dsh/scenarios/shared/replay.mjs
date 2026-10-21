@@ -11,7 +11,9 @@
 // has as UpToDate may come back Committed only if it changes no tracked file
 // (a tool's own cache, such as cargo's last-use times, is all it holds). A
 // command whose recorded failures were only tests that fail by chance (`flaky`)
-// may exit 0 or as recorded, and a failure must be the recorded one. A
+// may exit 0 or as recorded, and a failure must be the recorded one; a
+// process census written for the recorded runtime (`sandboxOwn`) may fail
+// only by finding the Sandbox's own processes (import/crew.mjs). A
 // verification-only command the scenario disables (`disabled`, with the run
 // file's `verification`, "off" or "no-browser") does not run; the step says so. The first call that
 // differs ends the step with exit code 1, which stops the demo there: a run
@@ -22,6 +24,7 @@
 // which is removed with the project.
 import { mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { differenceAt, runIndex } from "../../tools/checks/refs.mjs";
 
 const project = process.env.DSH_LAYERFS_PROJECT;
 if (!project) { console.log("no LayerFS project in this conversation"); process.exit(1); }
@@ -84,13 +87,29 @@ async function resolveRef(lf, ref) {
   }
   const [, branch, index] = /^(.+)#([0-9]+)$/.exec(ref) ?? [];
   if (!branch) return ref; // a Branch by name: its head now
+  const own = await ownCommits(lf, branch);
+  const at = runIndex(Number(index), note(commitsKey(branch)) ?? { skipped: [], extra: [] });
+  if (at < 0) throw new Mismatch(`${ref} and every Commit before it on ${branch} were not made by this run`);
+  if (!own[at]) throw new Mismatch(`${branch} has no Commit ${index} yet`);
+  return own[at].id;
+}
+
+/** A Branch's own Commits, oldest first (a merged Branch lists its first input's too, up to its fork point). */
+async function ownCommits(lf, branch) {
   const items = [];
   for (let pos = 0; ;) { const page = await lf.branch.list_commits(branch, 1000, pos); items.push(...page.items); if (!page.hasMore) break; pos += page.items.length; }
   const b = (await lf.project.list_branches(1000, 0)).items.find((x) => x.name === branch);
   const cut = items.findIndex((c) => c.id === b?.forkedFrom);
-  const own = (cut < 0 ? items : items.slice(0, cut)).reverse();
-  if (!own[Number(index)]) throw new Mismatch(`${branch} has no Commit ${index} yet`);
-  return own[Number(index)].id;
+  return (cut < 0 ? items : items.slice(0, cut)).reverse();
+}
+
+const commitsKey = (branch) => `commits-${encodeURIComponent(branch)}`;
+
+/** Notes that this run's Commits on `branch` differ from the record's: one skipped, or one extra. */
+async function noteDifference(lf, branch, kind) {
+  const key = commitsKey(branch), d = note(key) ?? { skipped: [], extra: [] };
+  d[kind].push(differenceAt(kind, (await ownCommits(lf, branch)).length, d));
+  keep(key, d);
 }
 
 export async function step(scenario, number) {
@@ -183,6 +202,15 @@ export async function step(scenario, number) {
             const unrecorded = call.flaky.tests ? failed.filter((t) => !call.flaky.tests.includes(t)) : [];
             if (unrecorded.length) console.log(`  (failed tests the record never reached: ${unrecorded.join(", ")})`);
           }
+          if (call.sandboxOwn && r.exitCode !== 0) {
+            // a census written for the recorded runtime: it may find only the Sandbox's own processes
+            const line = String(r.stdout ?? "").split("\n").find((l) => l.startsWith("{") && l.includes('"unexpected"'));
+            let census = null;
+            try { census = line ? JSON.parse(line) : null; } catch { /* not the census line */ }
+            const others = census?.unexpected?.filter((p) => !call.sandboxOwn.includes(p.comm)) ?? null;
+            if (!census?.unexpected?.length || others.length) throw new Mismatch(`the census found ${others?.length ? `processes other than the Sandbox's own: ${others.map((p) => `${p.pid} ${p.comm}`).join(", ")}` : "no census line"}`);
+            console.log(`  (the census found only the Sandbox's own ${census.unexpected.map((p) => p.comm).join(", ")}: the recorded runtime started commands under it, this one beside it)`);
+          }
           if (call.flaky) console.log(`  (the recorded exit came from a race only: ${call.flaky.tests?.join(", ") ?? `${call.flaky.errors.join(" or ")} in ${call.flaky.where}`}; this run exited ${r.exitCode})`);
           break;
         }
@@ -203,6 +231,8 @@ export async function step(scenario, number) {
             if (changes.length) throw new Mismatch(`sandbox.commit answered Committed with ${changes.length} tracked change(s), first ${changes[0].path}; the record has UpToDate`);
             console.log("  (only generated files changed; the record has UpToDate)");
           }
+          if (call.generated && outcome(r) === "Committed") await noteDifference(lf, ws.branch, "extra");
+          if (call.expect?.endsWith("Committed|UpToDate") && outcome(r) === "UpToDate") await noteDifference(lf, ws.branch, "skipped");
           console.log(`✓ commit · ${outcome(r)} ${r.commit ? short(r.commit.id) : ""}${r.merged ? " · merged with the head" : ""}`);
           break;
         }

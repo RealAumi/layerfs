@@ -6,7 +6,9 @@
 
 ```js
 import { LayerFS } from "@layerfs/sdk";
-const layerfs = new LayerFS("website"); // lazy; no filesystem/addon/network I/O
+// Lazy: no filesystem/addon/network I/O. Store calls open this file in this
+// process; here the project's volume is mounted at /layerfs-store.
+const layerfs = new LayerFS("website", { storePath: "/layerfs-store/global/store.sqlite" });
 await layerfs.project.init("./website");
 await layerfs.branch.fork("feature");
 await layerfs.fs.write("feature", "/README.md", "Hello\n", "Update introduction");
@@ -28,8 +30,16 @@ invalid policy is refused as `InvalidInput` before the project entry is made.
 The recorded policy governs the Store for its life. Project names use 1–63 lowercase ASCII
 letters, digits, `_`, `-`, `.` and start/end alphanumeric. Init is explicit;
 subsequent clients discover the existing project without reacquiring its source
-or reinstalling over live state. Ordinary Store calls lazily create or reopen a
-private service Sandbox. Mount does not scan or materialize the complete tree.
+or reinstalling over live state.
+
+Store calls (`fs`, `branch`, `project.list_branches`) run in this process: the
+first one opens the installed Store file at `storePath` (else
+`LAYERFS_STORE_PATH`) and `close()` releases it; no Sandbox is involved. That
+file is `global/store.sqlite` in the project's volume, so the process runs where
+that volume is mounted (`/layerfs-store` in a Sandbox). This is Linux only, with
+the Store on a local filesystem the daemons share (ext4, xfs, btrfs); anywhere
+else Store calls fail `Unsupported`, and without a `storePath` they fail
+`InvalidInput`. Mount does not scan or materialize the complete tree.
 A project is its home entry, `LAYERFS_HOME/<name>/`; the binding keeps no other
 record of which names it initialized. Init refuses a name whose entry exists
 (`Exists`). Once that entry is deleted, after the project's Sandboxes are closed,
@@ -38,16 +48,18 @@ The SDK has no remove method; a host that removes a project deletes the entry
 and the project's volume itself. `node sdk/js/test/reinit.mjs` checks this with
 the real binding: Init, `Exists`, delete the entry, Init again in one process.
 
-Parallel agents can select their own existing Sandbox for every file, Branch and
-operator Store call with `new LayerFS(project, { sandbox: id })`. The option also
-accepts `{ id }`. Construction remains lazy; `service()` returns that exact id
-without discovering or creating an automatic service. A missing, closed or
-unauthorized selection is refused by the attempted operation and never replaced.
+Parallel agents can select their own existing Sandbox for the operator entry
+point with `new LayerFS(project, { sandbox: id })`. The option also accepts
+`{ id }`. Construction remains lazy; `service()` returns that exact id without
+discovering or creating an automatic service. A missing, closed or unauthorized
+selection is refused by the attempted operation and never replaced. File and
+Branch calls do not use it: they run in this process against `storePath`.
 
 ```js
-const creator = new LayerFS("website");
-const id = await creator.sandbox.create();
-const worker = new LayerFS("website", { sandbox: id });
+const storePath = "/layerfs-store/global/store.sqlite";
+const creator = new LayerFS("website", { storePath });
+const id = await creator.sandbox.create("agent-1", "website", process.env.LAYERFS_IMAGE);
+const worker = new LayerFS("website", { sandbox: id, storePath });
 await worker.fs.read("feature", "/README.md");
 // Use this worker's id for mount/exec/commit/unmount, then save daemon logs and close.
 ```
@@ -60,26 +72,28 @@ connections, up to six (a Sandbox admits eight), so a read does not wait behind
 another call's Commit; each call's exchanges stay on one connection and are sent
 once. The binding sets `UV_THREADPOOL_SIZE` to 64 when the process has not set
 it, because every call, a long `exec` included, holds a Node worker thread.
-Keep each agent's operations sequential. The default automatic service is shared
-through discovery and has a bounded connection budget; it is not one private
-daemon per client. Selecting existing agent Sandboxes distributes control work
-across their own daemons, each directly opening the same Store. Finish a selected
-client when its Sandbox closes; construct a new client for a new Sandbox.
+Keep each agent's operations sequential. The automatic service the operator
+entry point uses is shared through discovery and has a bounded connection
+budget; it is not one private daemon per client. Selecting existing agent
+Sandboxes distributes control work across their own daemons, each directly
+opening the same Store. Finish a selected client when its Sandbox closes;
+construct a new client for a new Sandbox.
 
 | Environment | Meaning |
 | --- | --- |
 | `LAYERFS_HOME` | Absolute private directory for sealed provisioning and discovery. Created as 0700; existing directories must be owned by the current effective user with no group/other access. Records are 0600, not symlinks. |
 | `LAYERFS_DOCKER` | Local Engine Unix socket; `/var/run/docker.sock` is the default for `sandbox.create` and the service Sandbox. |
-| `LAYERFS_IMAGE` | Exact immutable runtime `sha256:...` digest of the service Sandbox that Store calls use. `sandbox.create` takes its image as an argument instead. |
+| `LAYERFS_IMAGE` | Exact immutable runtime `sha256:...` digest of the service Sandbox the operator entry point uses. `sandbox.create` takes its image as an argument instead. |
 | `LAYERFS_VOLUME` | Existing named local VM volume shared by the project's daemons. |
 | `LAYERFS_DAEMON` | Host path to the built Linux daemon executable. |
 | `LAYERFS_NATIVE` | Optional addon path; defaults to `native/layerfs.node`. |
+| `LAYERFS_STORE_PATH` | The installed Store file this client's Store calls open in this process; the client option `storePath` wins. It is `global/store.sqlite` in the project's volume, `/layerfs-store/global/store.sqlite` where that volume is mounted at `/layerfs-store`. Linux only, on a local filesystem the daemons share; elsewhere Store calls fail `Unsupported`. Unset, they fail `InvalidInput`. |
 | `LAYERFS_CONTAINER_PREFIX` | Optional. Names every container this client creates `<prefix><Sandbox id>`, the service Sandbox as `<prefix>service.<project>`, so a run can tell its own containers apart. Docker's name rule applies (an ASCII letter or digit, then letters, digits, `_`, `.`, `-`, at most 128). A name another container holds refuses the create before any effect. Unset, Docker chooses the name. |
 | `LAYERFS_DAEMON_HOST` | Optional; the client option `daemonHost` wins. The host this process dials for a daemon's port. Each daemon publishes its port on the Docker host's `127.0.0.1` only, and that stays so. A client inside a container does not share that loopback, so it names the host that reaches it, `host.docker.internal` on Docker Desktop. One resolution, its first address, one connect; nothing is tried again. Unset, the client dials `127.0.0.1`. |
 | `LAYERFS_TRACE` | Optional per-call trace file (see [Call trace](#call-trace)); unset means no trace. |
 | `LAYERFS_TRACE_STEP` | Optional step label put on each trace line as `step`; read at every call. |
 | `LAYERFS_TRACE_START` | `1` adds a start line before each traced call; read at every call. |
-| `DSH_LAYERFS_HOME`, `DSH_LAYERFS_DOCKER`, `DSH_LAYERFS_IMAGE`, `DSH_LAYERFS_VOLUME`, `DSH_LAYERFS_DAEMON`, `DSH_LAYERFS_TRACE`, `DSH_LAYERFS_TRACE_STEP`, `DSH_LAYERFS_TRACE_START` | Each is used when its `LAYERFS_` name is unset or empty. A host that may only set `DSH_*` names in a command's environment (deepseek-harness) configures and traces the SDK through these. |
+| `DSH_LAYERFS_HOME`, `DSH_LAYERFS_DOCKER`, `DSH_LAYERFS_IMAGE`, `DSH_LAYERFS_VOLUME`, `DSH_LAYERFS_DAEMON`, `DSH_LAYERFS_STORE_PATH`, `DSH_LAYERFS_TRACE`, `DSH_LAYERFS_TRACE_STEP`, `DSH_LAYERFS_TRACE_START` | Each is used when its `LAYERFS_` name is unset or empty. A host that may only set `DSH_*` names in a command's environment (deepseek-harness) configures and traces the SDK through these. |
 
 A Sandbox is named by its caller and bound to one project and one image for its
 life: `sandbox.create(name, project, image)` takes a name of 1–63 lowercase ASCII
@@ -100,6 +114,9 @@ by that path. Close removes the Sandbox's record directory, so its name can be
 created again. Close takes its locks before it removes anything: a named
 Sandbox needs only its own, the service Sandbox also its project's. A close
 refused as `Busy` has removed nothing, so closing again later completes it.
+A Sandbox whose container Docker no longer has (removed outside LayerFS)
+refuses its calls as `NoSuchSandbox` with `detail.containerGone`; its records
+still hold its name until a close removes them, which needs no container.
 
 The same authorized home permits a fresh Node process to use a Sandbox name and
 mount path directly. Reopening validates the full container id, deployment,
@@ -183,15 +200,11 @@ publication merges with it once: different paths are `Committed`; a path both
 changed is refused as `Conflict` (`detail.conflicts`, `detail.head`) with nothing
 committed. Nothing is resent or merged again.
 
-A write's file body (`write` content or bytes above 4 KiB, in `fs.write` and
-`fs.apply`) is not encoded into the request: it is streamed after it, in order,
-and the daemon writes it a record at a time, so no file size is capped and
-daemon memory does not grow with it. The rest of one SDK request (paths, edit
-texts, metadata and tracing fields) must fit a 65,519-byte encoded control
-record. Before-send size admission returns `TooLarge` with null detail; no change
-index exists because no change was attempted. Inspect the retained input before
-choosing a smaller call or an ordinary Sandbox step. Calls are never split or
-replayed automatically.
+A write's file body (`write` content or bytes, in `fs.write` and `fs.apply`)
+travels in the call itself: Store calls run in this process, so no control
+record bounds it. The engine writes it into the call's private Workspace a
+record at a time, so no file size is capped. Calls are never split or replayed
+automatically.
 
 Pages have `items` and `hasMore`; advance by `pagePos + items.length`.
 `diff_commits` and `diff_branches` also answer `nextCursor`, the last path the

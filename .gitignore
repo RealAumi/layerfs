@@ -11,6 +11,3 @@ benchmark-results/*
 !benchmark-results/fs-bench-pro/
 benchmark-results/fs-bench-pro/*
 !benchmark-results/fs-bench-pro/optimization-history.md
-
-# Persistent per-worktree advisory lock; never commit or unlink an active lock.
-/core/benchmark/fs-bench-pro-storage-content/.measurement.lock

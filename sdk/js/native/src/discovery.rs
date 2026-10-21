@@ -367,6 +367,28 @@ pub(crate) fn save_sandbox(
         ]),
     )
 }
+/// A Sandbox whose container the Engine no longer has: nothing runs it, and
+/// only its records hold its name, which `sandbox.close` frees.
+fn gone(id: &str, container: &str) -> SdkRefusal {
+    SdkRefusal {
+        code: "NoSuchSandbox".to_owned(),
+        message: format!("the container of Sandbox {id} is gone; close it to free its name"),
+        detail: SdkValue::map([
+            ("sandbox", SdkValue::text(id)),
+            ("container", SdkValue::text(container)),
+            ("containerGone", SdkValue::Bool(true)),
+        ]),
+    }
+}
+/// The container of a refusal from [`gone`].
+pub(crate) fn gone_container(refusal: &SdkRefusal) -> Option<&str> {
+    match refusal.detail.get("containerGone") {
+        Some(SdkValue::Bool(true)) if refusal.code == "NoSuchSandbox" => {
+            refusal.detail.get_text("container")
+        }
+        _ => None,
+    }
+}
 pub(crate) fn reopen(args: &SdkValue) -> Result<Arc<SandboxState>> {
     let id = registry::text(args, "sandbox")?;
     let directory = sandbox_dir(args, id)?;
@@ -381,9 +403,10 @@ pub(crate) fn reopen(args: &SdkValue) -> Result<Arc<SandboxState>> {
     let project = registry::text(&value, "project")?;
     let docker =
         Docker::new(registry::text(&value, "docker")?, Duration::from_secs(30)).map_err(failed)?;
+    let container = registry::text(&value, "container")?;
     let runtime = Sandbox::reopen(
         docker,
-        ContainerId::parse(registry::text(&value, "container")?).map_err(failed)?,
+        ContainerId::parse(container).map_err(failed)?,
         SandboxRequest {
             image: registry::text(&value, "image")?.to_owned(),
             store_volume: registry::text(&value, "volume")?.to_owned(),
@@ -392,7 +415,10 @@ pub(crate) fn reopen(args: &SdkValue) -> Result<Arc<SandboxState>> {
             volumes: crate::sandbox::read_only_volumes(&value)?,
         },
     )
-    .map_err(failed)?;
+    .map_err(|failure| match failure.container_gone() {
+        true => gone(id, container),
+        false => failed(failure),
+    })?;
     let dial = crate::pool::Dial {
         endpoint: runtime.endpoint().map_err(failed)?,
         host: crate::pool::daemon_host(args),
@@ -603,7 +629,10 @@ mod tests {
         let mut poll_fd = [signal_read.as_raw_fd(), POLLIN];
         assert_eq!(unsafe { poll(&mut poll_fd, 1, 10_000) }, 1, "fork signal");
         let mut pid = [0u8; 4];
-        assert_eq!(unsafe { read(signal_read.as_raw_fd(), pid.as_mut_ptr(), 4) }, 4);
+        assert_eq!(
+            unsafe { read(signal_read.as_raw_fd(), pid.as_mut_ptr(), 4) },
+            4
+        );
         let child = i32::from_ne_bytes(pid);
         let lock = directory.join("ownership.lock");
         let copied = fs::read_dir(format!("/proc/{child}/fd"))
@@ -618,6 +647,9 @@ mod tests {
         drop(release_write);
         assert!(spawner.join().unwrap().success());
         let _ = fs::remove_dir_all(&directory);
-        assert!(taken.is_ok(), "lock still held through the child's copy: {taken:?}");
+        assert!(
+            taken.is_ok(),
+            "lock still held through the child's copy: {taken:?}"
+        );
     }
 }

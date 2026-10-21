@@ -127,7 +127,7 @@ to [`control/force.rs`](../../crates/layerfs-daemon/src/control/force.rs); the
 current public SDK operation is `WorkspaceApi::unmount(token, true)`. It retains
 forced outcome facts and passes false for unknown-custody relinquishment. The
 original explicit relinquishment flag remains in the hidden component-proof
-helper; see [the SDK surface](../../../sdk.md).
+helper; see [the SDK surface](../../../docs/general/sdk.md).
 
 A Commit failure that leaves the registry `Uncertain` always answers `Unknown`:
 besides an unreleased reader or owner, that now includes a definite failure
@@ -233,7 +233,7 @@ malicious nesting, observed facade scope, and authentic Linux binary observation
 
 ## SDK facade and Branch pages — 2026-10-12
 
-The [implemented SDK](../../../sdk.md) folds bind/attach into mount and normal/
+The [implemented SDK](../../../docs/general/sdk.md) folds bind/attach into mount and normal/
 forced teardown into unmount(force). Raw control, recovery and diagnostic borrows
 remain hidden for component proofs and benchmark count attribution. This changes
 no earlier request/reply tag or publication/ownership semantics.

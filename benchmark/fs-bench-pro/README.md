@@ -1,170 +1,157 @@
-# fs-bench-pro
+# fs-bench-pro workload benchmark
 
-See the [benchmark quick note](QUICKSTART.md) for the current environment and fast iteration commands.
+> **Status:** First iteration closed with failures and not-applicable cases; no release admission is established.
 
-Selected benchmarks with real LayerFS daemon/FUSE execution. The only supported
-topology is `host-store`: SDK/Workspace/SQLite run on macOS; Docker Linux runs
-the daemon, FUSE, and workload helper. Docker-owned SQLite is permanently
-prohibited. The container image does not include the benchmark coordinator.
-No project bind mounts, data volumes or Docker socket are used.
+The [implementation spec](../../core/docs/benchmark/fs-bench-pro/implementation-spec.md)
+and [rollout ledger](../../core/docs/benchmark/fs-bench-pro/ROLLOUT-LEDGER.md) define
+the first iteration: port the 25 frozen v0.1.6 workload families, run each
+case once, verify results and cleanup, and fix correctness bugs. No speed,
+comparison or release gate is selected.
 
-## Source layout
+Stage 0.1 has harvested all 461 released source rows into
+[the reference catalogue](baselines/v0.1.6/README.md). Stage 0.2 has moved the
+working SDK runtime here and separated cluster-one and cluster-two harnesses.
+The first-iteration catalogue contained all 25 original families and 273 cases. All seven batches
+are truthfully closed: 192 functional/verifier/clean-close passes, 50 failed
+outcomes, three actual cases unrun after failed preparation, and 28 complete
+reliability cases not applicable. Source-only reliability parity preserves the
+missing physical accounting and creation-profile requirements; it is not a
+native or mounted proof. The [iteration completion](../../core/docs/benchmark/fs-bench-pro/ITERATION-1-COMPLETION.md)
+records every case, failed or unavailable scope, limit miss, fix, decision,
+source pair and production LOC. Raw receipts and claims remain append-only;
+closed results are not authorization to repeat an unchanged sample.
 
-```text
-benchmark/fs-bench-pro/
-  Cargo.toml
-  Dockerfile.layerfs
-  README.md
-  QUICKSTART.md
-  verify-selected.py
-  shared/
-    runner.py
-    runtime.py
-    daemon-entrypoint.sh
-    test_*.py
-  families/<family>/
-    mod.rs
-    setup.sh
-    perf.sh
-    verify.sh
-  src/
-    main.rs
-    infra.rs
-    ... shared operation and oracle implementations
-  workload/
-    main.rs
-    workspace_common.rs
-    workspace_registry.rs
-    ordinary_workloads.rs
-    dedup_workloads.rs
-    reliability_workloads.rs
-    sdk_edit_common.rs
-```
+Current issue319 owner direction retires `workspace_reliability` and its28
+cases, including the engine/runtime routes and dedicated tests. The active
+registry has24 families and245 unique cases. All3 `repository_history` cases
+remain selectable and are NOT_RUN — set aside by owner, leaving242 cases for
+the terminal campaign. Historical reliability receipts and baseline CSVs stay
+unchanged. This retirement tests the current contract scope, not performance;
+no failing/slow ordinary case is removed. See the
+[retirement record](../../core/docs/issues/319/checks/phase11-retirement.json).
 
-The 18 current family folders are the public entrypoints. Their shell scripts
-only bind the family and forward arguments to shared infrastructure. Every
-family uses the same `mod.rs` plus `setup.sh`/`perf.sh`/`verify.sh` layout.
+Use `bench.py build --out <fresh-results-path>`, then
+`bench.py prepare empty|big64m --build <seal> --out <fresh-results-path>`.
+A stage 0.4 run uses `bench.py run cluster-two/cells --case Cxx --build <seal>
+--prepared <master-receipt> --out <source-fixed-run>`. Run each case under its
+own checkout lock and explicit wall stop. Both masters can also be placed in
+`<prepared-parent>/empty` and `<prepared-parent>/big64m` for automatic selection.
+`bench.py verify <run>` reads retained independent evidence; `bench.py report
+<run>` creates the two CSVs once, including all twelve registered cells.
 
-`src/` contains the SDK/Store coordinator and verification code. `workload/`
-contains the standalone workload helper and Rust code it shares with the
-coordinator. `sdk_edit_common.rs` supplies fixtures, plans, and identities for
-the three current SDK edit families. The retired `edit_same_count` and
-`edit_count_changing` definitions, commands, and tests have been removed.
-`shared/` contains Python infrastructure and its tests.
+Each `bench.py run` case has a read-only kernel observer beside it
+([engine/io_observer.py](engine/io_observer.py)). It runs
+[`cgroup_observer.py`](../../core/docs/issues/320/tools/cgroup_observer.py) in its
+own container of the pinned image, outside every timer, and keeps its rows in
+`<sample>/io-observer/`. Before the receipt is written, the receipt's
+interference line declares the observer and `io_observer` records, for each
+Commit, the counts of
+[`commit_kernel_window.py`](../../core/docs/issues/320/tools/commit_kernel_window.py):
+container I/O pressure, container dirty-page peak, VM dirty plus write-back
+peak with its two limits, and container and VM pages scanned. Its `label` is
+`IO_STALLED` when the container waited on I/O for more than 20% of the
+observed Commit interval, else `NOT_STALLED`; `NO_COMMIT` and `UNAVAILABLE`
+say why there is none. The threshold comes from four dense-rewrite samples:
+unstalled 0.1% and 8.5%, stalled 38.0% and 43.7% ("Issue 321 follow-up —
+Store-write stall cause" in [PROGRESS](../../core/docs/issues/320/PROGRESS.md)). The
+label is diagnostic: no status, verdict or limit depends on it; `report` only
+appends it to the row's tag.
 
-## Build and run
+Read [AGENTS.md](AGENTS.md) before changing or running the harness. It identifies
+current paths, profiles, lock and test requirements. The frozen root harness
+remains read-only. Durable remains disabled. All first-iteration numbers will
+be raw one-sample observations with their cache eligibility, not comparisons.
 
-Run these commands from this directory:
+The Init family uses `prepare <namespace-case>` to create and completely verify
+native inputs without running Init early. `parity init_namespace --prepared
+<parent> --out <fresh-results-path>` compares each of the four prepared cases
+with the frozen registry, fixture digest and agent review. `run init_namespace`
+selects one public Init/seal per case, a fresh Store and a separate-process
+sampled reopen proof. Use `--case` to bound each invocation independently.
+This host route has no daemon/FUSE counts; those observations are UNAVAILABLE.
+The source is setup-warm and host cold metadata is unverified, so its raw
+observations remain INELIGIBLE even if functional verification passes.
 
-```bash
-python3 shared/runner.py --build-host
-export LAYERFS_BENCH_IMAGE="$(python3 shared/runner.py --build-image)"
+Payload preparation uses `prepare <payload-case>` to generate and fully verify
+original native fixture/expected states, then provision a sealed master through
+public Init/install. `parity payload_create_read --prepared <parent> --out
+<fresh-results-path>` checks all eight cases. Each `run payload_create_read
+--case <id>` clones its master, runs the original ordinary syscall program,
+commits through the SDK, terminally unmounts, verifies a fresh published-root
+mount and performs a separate offline current-format persisted proof. The
+runtime's `verify-workspace` mode is an independent harness oracle over a closed
+sample Store; the live daemon data path stays in-process in the shared volume.
 
-families/init_namespace/setup.sh --smoke
-families/init_namespace/perf.sh --smoke
+M1 recipe-history preparation retains the pristine native source and the full
+checkpoint manifests, selective scopes, summaries, generator identities and SDK
+assets. Each generated checkpoint payload tree is removed after those records
+are authored and checked, before sealing preparation. Its recorded `native_root`
+is the former materialization path. These None-mode expected trees are separate
+from actual mounted/Storage proofs: every selected measured root and its frozen
+byte/metadata scope remains independently verified. Other contextual/historical
+preparations retain their required native trees.
 
-families/edit_length_changing/perf.sh \
-  --case insert-middle-4k-on-500mib-result-capped-v2-ops-1 \
-  --repetition 1 --perf-fast
-```
+Ordinary resource guards remain root observers in the exact owned daemon
+container, separate from the product's admitted nonroot Exec. The controller
+uses the same Engine Exec create/start/inspect operations through a private
+synchronous Python calls in the existing controller, without a host helper child. The fixed observer script,
+protected Store path, actual cgroup fields, every pre-/post-Commit check and
+frozen apparent/allocated/OOM/swap limits remain unchanged. Append-only attempt/completion and stdout/stderr artifacts describe the actual
+remote observer argv; host PID/group and unknown remote exit remain explicit
+null. One absolute allowance starts before evidence setup and covers all three
+exchanges and output close. Post-write checks refuse late completion; only an
+owned provisional success link is revoked, retaining its exact attempt bytes.
+An acknowledged remote Exec ID is retained on failure; closing a local socket
+or killing the host child does not establish remote cancellation. No request
+is retried and a running/unavailable/nonzero terminal observation fails.
+The helper uses one deadline across its three exchanges; the original outer
+child wall stop also covers Python startup. Eight KiB stream windows retain
+HTTP upgrade read-ahead and exact partial output. Observer wall remains excluded
+from product time and charged to the absolute watchdog, including failures.
 
-Preparation is optional prewarming: a performance run acquires a compatible
-prepared input or creates it when missing. Use `--image` instead of the
-environment variable when selecting an image explicitly.
+Topology transcripts retain every acknowledged Commit in role-local order.
+Only the frozen selected payload checkpoints carry a manifest and, for M1,
+the created-mode binding. Omitted checkpoints carry `-` in both scope columns;
+their Commit tuples still participate in complete public Branch/History and
+physical-object census checks. The independent runtime oracle enforces this
+binding before selected-root Storage readback.
 
-| Entry point / option | Meaning |
-| --- | --- |
-| `setup.sh` | Prepare the selected input without running performance. |
-| `perf.sh --perf-fast` | One full selected sample; the default mode. |
-| `perf.sh --perf-samples N` | Legacy only; do not use for current evidence. The v0.1.7 successor omits it. |
-| `perf.sh --setup fresh\|clone` | Rebuild the initial Store or copy an authenticated prepared Store, outside operation timing. |
-| `verify.sh` | One identity-pinned verification invocation; never a performance campaign. |
+The native M1 verifier visits each namespace path once, using that visit's
+`symlink_metadata` directly for the existing type, length, mode, timestamp,
+inode-class and declared-range checks. It traverses directories without
+following symlinks and verifies the complete sorted path set. It keeps the
+existing path list and class maps, plus two fixed scratch buffers; it does
+not retain a second whole-tree metadata snapshot.
 
-Initialization cases reuse source fixtures but always create a fresh output
-Store. They reject `--setup clone`. Proof-only families reject performance.
-`--smoke` excludes high operation tiers and requires no more than 50,000,000
-fixture bytes and 1,000 regular paths. The 500 MiB capped-result replacements
-are large-only, not automatically reduced or executed as smokes.
+Closed Store normalization computes the initial raw file digests during the
+existing bounded scratch copy. Scratch remains an independent byte copy of
+every allowed regular main/WAL/SHM file; the verifier hashes those copies
+independently before SQLite opens them. It also retains the complete raw-after
+hash, bounded read-only WAL backup into a separate WAL/OFF target, unchanged
+absolute deadline and strict typed Storage/census readback. This removes one
+raw stream read without reducing the source/copy/output identity checks.
 
-## Verification
+The independent typed tree proof lazily allocates its existing two 1 MiB
+payload windows once per verified root and reuses them for that root's files.
+Every read still clears the observed window and compares the exact requested
+byte count, including a final partial window. A membership-only proof allocates
+neither payload buffer. All metadata, alias, mapping and complete inode-census
+checks remain in the same verifier; no scope or cache bound changes.
 
-Supply the exact case, seed/repetition, image, source and input identities
-recorded in the performance header:
+Typed namespace traversal retains authenticated directory serials and acquires
+each listing's inode values as one bounded batch, using the existing 128-entry
+and 16,384-byte limits. It queues directories and holds only one listing page;
+file values leave that page after their complete verification. Every listed
+name still undergoes the existing point lookup against its authenticated parent
+and must return the same serial. This retains child-level and sibling-bound
+refusals that listing alone does not supply. Symlink decoding and the final
+complete inode census remain unchanged. Each delivered path still passes the
+existing LogicalPath validation, including its whole-path limits.
 
-```bash
-families/init_namespace/verify.sh \
-  --case namespace-100-compact-v3 --seed 1 \
-  --image "$IMAGE" --source "$SOURCE_SEAL" --input "$INPUT_ID"
-```
-
-Inherited SDK cases use `--repetition` instead of `--seed`. Include the
-matching `--setup` strategy for post-initialization cases. All family
-launchers use the one `verify-selected.py` implementation and existing
-independent Rust oracles.
-
-Verification has a 45-second work allowance within a hard 59-second
-end-to-end deadline, including setup, cleanup and receipt publication.
-Outcomes are PASS, FAIL, TIMEOUT or INCOMPLETE. Unsupported long proofs
-are not shortened and called passed. Verification never runs concurrently
-with performance.
-
-## Results and retention
-
-Each invocation creates a unique output directory by default; `--output`
-selects an explicit directory. Normal retained output is one `perf.jsonl`
-or `verification.json`, plus a bounded `failure.log` when needed.
-Performance logs contain identities, sample timers/resources, status and a
-summary. A performance PASS does not imply verification PASS.
-
-Prepared data is a bounded disposable host cache. Independent host sample
-Stores and Linux runtime containers are removed after each run. Cached/copied
-input is not claimed to be cold.
-
-Compact-v2 ordinary/reuse fixtures and compact-v3 namespace profiles have
-distinct identities from historical lower tiers. Do not mix unlike profiles
-in scaling comparisons.
-
-## Historical entrypoints
-
-Root-level shell wrappers and the obsolete host-based runner/custody/report
-pipeline have been removed. There is no compatibility or archive directory.
-Frozen Git revisions preserve historical commands and reports for inspection.
-They do not authorize new Docker-owned SQLite runs; current family scripts
-are the supported interface.
-Historical roadmap/results documents remain historical records, not
-instructions to run deleted scripts on this revision.
-
-See the [current infrastructure specification](../../docs/roadmap/0.1/0.1.3/benchmark-infrastructure-optimization-spec.md)
-and [issue #45](https://github.com/Ephemeral-AI-Lab/layerfs/issues/45).
-
-
-### Host-owned SQLite execution
-
-All enabled families use host-owned SQLite. `--topology host-store` remains an optional explicit spelling; `--topology docker` is rejected. Unregistered families fail explicitly and have no Docker fallback. The remaining ordinary/dedup/Git/reliability families are admitted through the same host-store runner. Build the host coordinator with `python3 shared/runner.py --build-host`, then use the same family `perf.sh`/`verify.sh`, selectors and seeds. Pass the frozen compatible Linux image with `--image`; host and image product seals must match. Host binary identity is sealed beside `target/release/fs-benchmark-pro`. The Linux image keeps its original source identity. Default host performance output is `benchmark-results/host-store/results/run-…`; pass an explicit host results directory for verification.
-
-Example (from this directory):
-
-```sh
-python3 shared/runner.py --build-host
-families/payload_create_read/perf.sh --topology host-store --image "$IMAGE" \
-  --case payload-create-500m --seed 1 --setup clone --perf-fast \
-  --output ../../benchmark-results/host-store/results/payload-500-s1
-```
-
-The host owns the SDK, Workspace manager/capture/spool and local SQLite Store. The existing authenticated ContainerBinding/ProxyHost route connects to the real Linux daemon/FUSE/workload. Docker has no data-sharing mounts or socket; the daemon has one loopback-only published TCP port. The existing container guards still validate resources, image, ownership, device and capabilities. The 2 CPU/2 GiB container limit does **not** cap the host coordinator. Report host process CPU/RSS/I/O separately; moving file cache out of the cgroup and using additional host workers is not a pure efficiency gain.
-
-Prepared cache and samples are local to the ignored project `benchmark-results/host-store/`: `prepared/`, `fixtures/`, `samples/`, `results/`. Workspace masters are closed, self-contained and protected; every invocation byte-copies to an absent independent writable Store, fsyncs, quick-checks and verifies equal hashes/distinct inodes before timing. WAL/SHM/journal sidecars are rejected: this helper is deliberately not a live-database snapshot API. Native imports reuse source fixtures with original modes and always create a fresh output Store. Masters are checked again after samples. Cache compatibility uses schema/format/fixture/seed/initial-state identity, separately from producing and executing code/image provenance. Bump the versioned compatibility contract if canonical format or byte-generation semantics change outside the fixture descriptors. Reuse is bounded to 8 prepared/fixture entries and 10 GiB; only marked benchmark-owned data can be evicted. Completed sample data is removed.
-
-Prepared cache entries are evictable, and samples are disposable. Git ignore is not a backup mechanism. Durable backups require separate storage and retention; ordinary product Store locations remain caller-selected and are outside these cleanup paths. Docker-only results remain evidence for their original topology and must never be relabeled as host qualification.
-
-## Tiny-file churn mixed bulk v3
-
-The approved [mixed-v3 contract](../../docs/roadmap/0.1/0.1.3/tiny-file-churn-mixed-v3.md) replaces only the high-tier bulk rows with `tiny-bulk-create-100-mixed-v3`, `tiny-bulk-delete-100-mixed-v3`, `tiny-bulk-create-500-mixed-v3`, and `tiny-bulk-delete-500-mixed-v3`. Family membership remains 20. Tier 100 affects 1,000 files / 100 MiB; tier 500 affects 5,000 files / 500 MiB. Both retain the separate 200-file / 1 MiB witness. Low-tier compact and individual create/stat/unlink cases are unchanged. Old IDs and receipts are historical; fewer operations do not establish a product speedup.
-
-After building the host binary and workload image, select one revised case:
-
-```bash
-python3 benchmark/fs-bench-pro/shared/runner.py --topology host-store --family tiny_file_churn --case tiny-bulk-create-100-mixed-v3 --seed 1 --setup clone --perf-fast
-```
-
-Use `tiny-bulk-delete-100-mixed-v3` for the separate serial delete sample on the same source. The broader family target remains 15 seconds; the sample also records the separate strict #47 assessment (`pure_call_sum_ns < 1,000,000,000`) for the revised tier-100 pair. Tier-500 performance and independent final proofs are deferred. Proof selection includes every large file with three 64 KiB ranges (beginning, midpoint, end), declared small/medium paths, and the witness; delete checks corresponding absence. Report omissions explicitly.
+Historical access setup first creates a new complete closed original producer.
+For a paired selection of that same producer, use `bench.py prepare <access-case>
+--build <seal> --reuse-producer <first-access-prepared-folder> --out <fresh-path>`.
+The adapter admits original source/helper/graph/custody seals, preserves the
+original producer identity and installs a new independent complete Store byte
+copy. This reuses setup only; each original access gets its own fresh mount,
+reader and verifier, with zero performance samples and one proof attempt.

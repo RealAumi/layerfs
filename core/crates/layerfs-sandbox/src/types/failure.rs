@@ -50,6 +50,20 @@ pub struct WireFailure {
     /// Original error-body prefix/count/completion, never claimed as full command output.
     pub error_body: Option<ErrorDiagnostic>,
 }
+impl WireFailure {
+    /// The Engine answered that the requested container does not exist: a 404
+    /// whose error body says so ("No such container"), not any other 404.
+    pub fn container_gone(&self) -> bool {
+        const GONE: &[u8] = b"No such container";
+        self.requested_container.is_some()
+            && self.status == Some(404)
+            && matches!(self.cause, RuntimeError::Http(404))
+            && self
+                .error_body
+                .as_ref()
+                .is_some_and(|body| body.prefix.windows(GONE.len()).any(|w| w == GONE))
+    }
+}
 
 /// Original bounded HTTP error diagnostic; bytes beyond this window are explicitly unobserved.
 pub struct ErrorDiagnostic {

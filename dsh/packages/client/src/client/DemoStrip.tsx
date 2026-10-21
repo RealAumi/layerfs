@@ -8,6 +8,7 @@
 // (Checkpoints.tsx). Other Sessions render nothing.
 import { useEffect, useState, useSyncExternalStore } from 'react'
 import { Button, IconPlayOutlineRegular, IconRefreshOutlineRegular } from '@deepseek-ai/dsh-client-ui-primitives'
+import { api } from './api.ts'
 import { demoApi, playDemo, SPEEDS, speedLabel, type Demo, type DemoInfo, type DemoMode, type DemoServices, type PlayStep } from './demo.ts'
 import { useDemoSessionLock } from './lockdown.ts'
 import { ProgressBar, jobFraction, jobText, useClock } from './Progress.tsx'
@@ -44,6 +45,13 @@ export function DemoStrip({ sessionId, services }: DemoStripProps) {
   // the start picker: closed (null), or open with the chosen checkpoint (-1 = the beginning);
   // Replay opens it on the latest checkpoint a run can start after
   const [picking, setPicking] = useState<number | null>(null)
+  // what Live LayerFS lacks on this host (its image or daemon); null until read
+  const [liveMissing, setLiveMissing] = useState<string[] | null>(null)
+  useEffect(() => {
+    let on = true
+    api.status().then((s) => { if (on) setLiveMissing(s.configured ? [] : s.missing) }, () => { /* unread: Live stays offered */ })
+    return () => { on = false }
+  }, [])
 
   useEffect(() => {
     let live = true
@@ -75,8 +83,9 @@ export function DemoStrip({ sessionId, services }: DemoStripProps) {
   const checkpoints = demo.checkpoints?.length
     ? demo.checkpoints.map((c) => (run ? c : { ...c, reachedAt: null }))
     : null
-  // a replayed run's demo plays on Live LayerFS only
-  const mode: DemoMode = demo.live ? 'live' : chosen
+  // a replayed run's demo plays on Live LayerFS only; a host without Live plays Sim
+  const liveOff = !!liveMissing?.length
+  const mode: DemoMode = demo.live ? 'live' : liveOff ? 'sim' : chosen
 
   const play = (startAfter: string | null = null) => {
     setError(null)
@@ -105,10 +114,14 @@ export function DemoStrip({ sessionId, services }: DemoStripProps) {
     line = `${demo.agents.length} agent${demo.agents.length === 1 ? '' : 's'} · ready to play`
   }
 
-  const choice = (value: DemoMode, label: string) => (
-    <button type="button" aria-pressed={mode === value} onClick={() => { setMode(value); saveMode(value) }}
-      style={{ border: 0, padding: '2px 10px', font: 'inherit', fontSize: 12, cursor: 'pointer', color: 'inherit', background: mode === value ? 'color-mix(in srgb, currentColor 14%, transparent)' : 'transparent' }}>{label}</button>
-  )
+  const choice = (value: DemoMode, label: string) => {
+    const off = value === 'live' && liveOff && !demo.live
+    return (
+      <button type="button" aria-pressed={mode === value} disabled={off} onClick={() => { setMode(value); saveMode(value) }}
+        title={off ? `Live LayerFS is not set up on this host: set ${liveMissing!.join(' and ')} for layerfs-host in the profile patch` : undefined}
+        style={{ border: 0, padding: '2px 10px', font: 'inherit', fontSize: 12, cursor: off ? 'not-allowed' : 'pointer', opacity: off ? 0.45 : 1, color: 'inherit', background: mode === value ? 'color-mix(in srgb, currentColor 14%, transparent)' : 'transparent' }}>{label}</button>
+    )
+  }
   const pace = (value: number) => (
     <button type="button" key={value} aria-pressed={demo.speed === value} onClick={() => { demoApi.setSpeed(demo.id, value as typeof SPEEDS[number]).then(setDemo, (e: Error) => setError(e.message)) }}
       title={value ? (value > 1 ? `The demo's pauses and typing ÷ ${value}` : "The demo's own pauses and typing") + '; commands take their own time' : 'No pauses or typing; commands take their own time'}

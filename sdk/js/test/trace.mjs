@@ -1,5 +1,5 @@
 // Per-call trace checks over a stand-in binding; each case is one command:
-//   node sdk/js/test/trace.mjs on|off|failure|dsh-env|start|ids|no-content|store
+//   node sdk/js/test/trace.mjs on|off|failure|dsh-env|start|ids|no-content|store|daemon-host
 // No Docker, Store or daemon is used.
 import assert from "node:assert/strict";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from "node:fs";
@@ -13,7 +13,7 @@ Object.assign(process.env, {
   LAYERFS_IMAGE: "fake-image", LAYERFS_VOLUME: "fake-volume", LAYERFS_DAEMON: "/fake/daemon",
   LAYERFS_STORE_PATH: "/fake/store.sqlite",
 });
-for (const name of ["TRACE", "TRACE_STEP", "TRACE_START"]) {
+for (const name of ["TRACE", "TRACE_STEP", "TRACE_START", "DAEMON_HOST"]) {
   delete process.env[`LAYERFS_${name}`];
   delete process.env[`DSH_LAYERFS_${name}`];
 }
@@ -275,8 +275,21 @@ try {
     assert.deepEqual(native.args.at(-1).policy, { wholeFileDepth: 8, chunkDepth: 4 });
     await new LayerFS("website3").project.init("/src/website");
     assert.equal("policy" in native.args.at(-1), false);
+  } else if (selected === "daemon-host") {
+    // A client in a container dials its daemonHost on every call that names
+    // a Sandbox, operator calls included: the binding reopens the Sandbox
+    // with the call's deploy.
+    const native = (await import(FAKE)).default;
+    await script(new LayerFS("website", { daemonHost: "host.docker.internal" }));
+    const named = native.calls.filter((_, index) => "sandbox" in native.args[index]);
+    for (const method of ["operator.workspace.overlay", "operator.workspace.changes", "operator.inspect.snapshot", "operator.process.start", "operator.process.list", "operator.process.cancel"]) {
+      assert.ok(named.includes(method), method);
+    }
+    for (const [index, args] of native.args.entries()) {
+      if ("sandbox" in args) assert.equal(args.deploy?.daemonHost, "host.docker.internal", native.calls[index]);
+    }
   } else {
-    console.error("usage: trace.mjs on|off|failure|dsh-env|start|ids|no-content|store");
+    console.error("usage: trace.mjs on|off|failure|dsh-env|start|ids|no-content|store|daemon-host");
     process.exit(2);
   }
   console.log(`PASS trace ${selected}`);

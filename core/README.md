@@ -1,115 +1,100 @@
-# LayerFS core (replacement product workspace)
+# LayerFS core
 
-> **Status:** Current general guide.
+> **Status:** Current general guide. Crate list and production line counts are
+> pinned to `664d02864e`. Implementation rules live in [AGENTS.md](AGENTS.md).
 
-The active workspace has thirteen packages: six cluster-one libraries (content,
-storage, history, persistence, Project Init and telemetry), plus Overlay,
-Workspace, Fuse, Daemon, Sandbox, SDK and Bridge. Storage/history are
-engine-independent domains. Host Project Init seals one SQLite Store for
-installation; each Linux daemon opens the shared Store directly afterwards.
-Objects/Metadata and History share it with separate bounded acknowledgements.
-The global profile is Disposable/WAL/OFF. Daemon Overlay owns a separate local
-MEMORY/OFF/EXCLUSIVE database.
+`core/` is the LayerFS product: one Rust Cargo workspace with fourteen crates,
+plus the JavaScript SDK's Node binding at [`../sdk/js/native`](../sdk/js/native).
+It is the only product at HEAD. The v0.1.6 reference implementation that lived
+under root `crates/` was retired on 2026-10-10 (R9c) and can be read at local tag
+`reference-v0.1.6-final`; nothing in `core/` depends on it.
 
-The [cluster-two design](docs/issues/303/README.md) and current
-[rollout ledger](docs/issues/307/ROLLOUT-LEDGER-20261008.md) own implementation
-and qualification status. SDK supplies host Init/install and authenticated
-controls; each daemon directly opens the shared Store. Bridge and the replacement
-Sandbox provide the verified R1 startup/control and ordinary execution boundary.
-The [replacement Fuse request service](docs/architecture/75-native-request-service.md)
-is active with deferred engine/Store reads, native callbacks, real Ready and
-normal drain. Live Commit and scoped forced teardown are implemented; their
-remaining proof limits are recorded in the R5/R6 completion records linked by
-the ledger. R7 and R7-retire are closed. All seven excluded predecessors and
-the Server were retired. R9b closed without removal; R9c (2026-10-10) then
-retired the root reference and the archived `reference-tests` under the owner's
-close instruction. Both are recoverable at
-local tag `reference-v0.1.6-final` (`d296981ac`, `crates` tree `498dd1917812`).
-The fixture-seal test reads nothing outside `core/`, and the product runtime
-has no reference dependency or fallback.
+## How the pieces fit
 
-Project Init includes ignored/dependency/cache/output/.git paths and opaque symlink
-targets, and has removed the inherited4GiB refusal. Native acquisition uses
-indexed backing and preserves regular hard-link identity. Component checks
-retain their declared scopes; complete integrated R8 qualification remains open
-(the R8b requalification closed not qualified, with the full-byte mounted
-fixture proof passing).
-Historical cluster-one evidence below
-retains its source/profile/cache pins and original verdicts.
+- **One global Store.** All committed state (content objects, metadata and
+  history) lives in one SQLite Store file, opened with the Disposable profile
+  (WAL, `synchronous=OFF`). Project Init builds and seals it; it is then
+  installed on a volume the daemons share.
+- **Store calls run in the SDK's process.** The JavaScript SDK
+  ([`sdk/js`](../sdk/js/README.md)) calls `layerfs-api` through the Node
+  binding. Its fs, branch, project and operator methods run on
+  `layerfs-store-service` against the Store the SDK process opened directly.
+  This is the only route, and it is Linux only; elsewhere these calls fail
+  `Unsupported`. See [direct Store access](docs/issues/352/DIRECT_STORE.md).
+- **Workspace calls go to the daemon.** `layerfs-daemon` runs inside a Sandbox
+  container that `layerfs-api` creates through `layerfs-sandbox` (Docker) and
+  reaches over an authenticated `layerfs-bridge` channel. It serves mount, exec,
+  Commit, status and unmount.
+- **A Workspace is a full mutable view.** Mount binds a FUSE filesystem
+  (`layerfs-fuse`) over an immutable committed root (`layerfs-workspace`). Each
+  Workspace has its own overlay SQLite file (`layerfs-overlay`), copied from a
+  template at mount and deleted at unmount. Any process that can see the mount
+  uses it through ordinary filesystem calls; the daemon does not supervise
+  commands.
+- **Commit publishes the Workspace's changes.** It captures what the Workspace
+  has published locally, builds new objects with the same content, storage and
+  persistence libraries Project Init uses, and publishes in one short step.
+  Writers take turns: heavy work happens first, and only the final publish holds
+  the single write lane. See the
+  [Store concurrency model](docs/architecture/83-store-concurrency-model.md).
 
-The source/LOC, locked dependency and verification rules remain in
-[AGENTS.md](AGENTS.md). No CI or aggregate preflight gate is used.
+## Crates
 
-## Architecture
+Production lines from `tools/production_loc.py` at `664d02864e`. Only the crate
+directories are shown; the total is all of `core/crates/`.
 
-[`docs/architecture/`](docs/architecture/) describes what this workspace's
-packages actually do: the C1/C2 boundary and its two traits, the canonical object
-model, the construction/edit/filesystem algorithms, the storage schema and
-physical formats, and every declared limit with the check that enforces it. It is
-a source-backed description pinned to a commit — descriptive, not a contract, and
-carrying no performance or qualification claim.
+```
+core/crates/                       [96,473]
+  layerfs-content/                 [25,942]  (canonical objects, file construction, bounded reads)
+  layerfs-storage/                  [8,993]  (content-addressed encoding and packs)
+  layerfs-history/                    [990]  (LayerStacks, Branches, Commits, Layers)
+  layerfs-persistence/              [8,398]  (shared SQLite adapter and profiles)
+  layerfs-project/                  [1,667]  (namespace Init over the libraries above)
+  layerfs-telemetry/                [2,280]  (parent/child timing trees)
+  layerfs-overlay/                  [9,730]  (one Workspace's disposable overlay database)
+  layerfs-workspace/                [8,991]  (Workspace filesystem semantics)
+  layerfs-fuse/                     [4,523]  (kernel connection and request service)
+  layerfs-daemon/                   [6,019]  (Workspaces, Commit, the layerfs-daemon binary)
+  layerfs-store-service/            [9,821]  (Store engine: reads, file changes, history)
+  layerfs-api/                      [2,291]  (SDK surface, one function per method)
+  layerfs-bridge/                   [3,517]  (authenticated bounded channels)
+  layerfs-sandbox/                  [3,311]  (container commands, streams, status)
+```
 
-Start with the [index](docs/architecture/README.md), which maps the descriptive
-papers and the `proposal/` and `deferred/` subtrees beside them. It describes
-**this** workspace; the retired v0.1.6 reference that lived under the
-repository-root `crates/` was a different product with different identifiers
-and formats.
+The first six crates are the content, storage, history, persistence, Project Init
+and telemetry libraries (cluster one; see the
+[cluster-one handbook](../docs/general/cluster_one_handbook.md)). The rest are the
+Workspace runtime, the Store engine and the SDK surface (cluster two; see the
+[design index](docs/issues/303/README.md)). [Cargo.toml](Cargo.toml) decides what
+is built.
 
-## Commands
+## Other folders
 
-Build selected packages first using `cargo +1.85.1 test --manifest-path
-core/Cargo.toml --locked -p <package> --all-targets --no-run`. Run each selected
-actual test command with an explicit wall timeout at most120s; retain/diagnose
-any timeout as FAILED before a source-driven repair. Package/target selection
-keeps unrelated campaigns separate. Required changed-scope checks also include:
+- [`docs/architecture/`](docs/architecture/README.md): source-backed descriptions
+  of what the crates do, including the
+  [global SQLite Store](docs/architecture/84-global-sqlite-store.md) and the
+  [SDK call channel](docs/architecture/82-sdk-call-channel.md).
+- [`docs/issues/`](docs/issues/): per-issue designs, fix records and evidence.
+  Closed issues are historical records.
+- [`tools/`](tools/): the product boundary guard, the fuser integrity check and
+  telemetry report tools, each with its tests.
+- `patches/` and `vendor/`: fuser 0.18.0 with the owner-authorized patches; see
+  [fuser provenance](AGENTS.md#fuser-provenance-and-authorized-patch-checks).
+
+## Checks
+
+Run from the repository root with the pinned toolchain. Build tests first with
+`--no-run`, then run each test command under an explicit timeout of at most
+120 s, selecting by package when the whole suite does not fit:
 
 ```sh
-cargo +1.85.1 clippy --manifest-path core/Cargo.toml --locked -p <package> --all-targets -- -D warnings
+cargo +1.85.1 test --manifest-path core/Cargo.toml --locked -p <package> --all-targets --no-run
+cargo +1.85.1 test --manifest-path core/Cargo.toml --locked -p <package> --all-targets
+cargo +1.85.1 clippy --manifest-path core/Cargo.toml --locked --all-targets -- -D warnings
 cargo +1.85.1 fmt --manifest-path core/Cargo.toml --all -- --check
 python3 -B core/tools/check_product_boundary.py
+python3 -B -m unittest discover -s core/tools -p 'test_*.py'
 ```
 
-Core/tool self-tests require the same explicit wall timeout. See the current
-[check contract](AGENTS.md#checks-and-completion) for exact scope and ARM64 flags.
-
-### Real component runs
-
-`examples/measure_components.rs` runs one real sample per mode against an
-explicit input and a fresh output path. These smoke runs prove wiring and
-readback; they are not release-admissible benchmarks.
-
-```sh
-run="$(mktemp -d /tmp/layerfs-stage02.XXXXXX)"
-python3 -c 'from pathlib import Path; import sys; Path(sys.argv[1]).write_bytes(bytes(range(256)) * 64)' "$run/input.bin"
-cargo +1.85.1 run --manifest-path core/Cargo.toml --locked -p layerfs-storage --example measure_components -- --mode c1 --input "$run/input.bin" --timings "$run/c1.json"
-cargo +1.85.1 run --manifest-path core/Cargo.toml --locked -p layerfs-storage --example measure_components -- --mode c2 --input "$run/input.bin" --store "$run/c2.sqlite" --timings "$run/c2.json"
-cargo +1.85.1 run --manifest-path core/Cargo.toml --locked -p layerfs-storage --example measure_components -- --mode pipeline --input "$run/input.bin" --store "$run/pipeline.sqlite" --timings "$run/pipeline.json"
-```
-
-The commands above use the core manifest, the only Cargo workspace at HEAD.
-There is no aggregate repository gate —
-`tools/preflight.sh` is permanently retired by owner decision (ledger L32), and it
-runs no checks. Do not restore it.
-
-```sh
-python3 core/tools/check_product_boundary.py
-python3 -m unittest discover -s core/tools -p 'test_*.py'
-```
-
-Design and migration: [`docs/roadmap/0.1/0.1.7/component-decoupling/`](../docs/roadmap/0.1/0.1.7/component-decoupling/README.md).
-
-Stages 3-4 status: the batch (#168 / #169 under #165) is closed out against the
-independent review of the pinned snapshot; the completion gate table, the evidence
-round and the two open owner decisions are in
-[`stages-3-4-closeout-report.md`](../docs/roadmap/0.1/0.1.7/component-decoupling/stages-3-4-closeout-report.md).
-The three packages are C1 `layerfs-content`, C2 `layerfs-storage` and
-`layerfs-telemetry`. Three earlier figures are on record and **none of them
-describes the current tree**: the closeout packet reported 10,983 for the snapshot
-it measured (`aa4b5a9e4`), the batch tip recorded 11,058, and the architecture
-set's authoring pin (`1884e3eca`) counted 18,792 across 116 files. At `9f35c49ad`
-the counter reports **20,116 production lines across 121 files**
-(`layerfs-content` 12,512; `layerfs-storage` 6,841; `layerfs-telemetry` 763),
-alongside the then-present reference tree at 65,417 and a combined 85,533. Counted
-with `tools/production_loc.py`, which excludes comments, blanks, tests, examples,
-docs and manifests, and includes shipped runtime SQL; a physical `wc -l` total is
-a different measure (26,831 at `9f35c49ad`) and must not be quoted as this one.
+There is no CI or aggregate pre-push gate. The full check contract, including
+the aarch64 build flags, is in [AGENTS.md](AGENTS.md#checks-and-completion).

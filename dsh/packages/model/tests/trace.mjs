@@ -1,6 +1,6 @@
 // Replays a recorded SDK trace through the view model: the Branches, heads
 // and Sandboxes LayerFS reported, attribution, and the merge cases of #347
-// row 51. Ported from sdk_sim/test_dsh_view.mjs's trace mode.
+// row 51. Ported from the former sdk_sim/test_dsh_view.mjs's trace mode.
 //   node dsh/packages/model/tests/trace.mjs [trace.jsonl]
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";

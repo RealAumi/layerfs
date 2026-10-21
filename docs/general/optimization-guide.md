@@ -6,8 +6,8 @@
 > benchmark qualification or measured improvement.
 
 Read [root instructions](../../AGENTS.md), [core instructions](../../core/AGENTS.md),
-the [cluster-one handbook](../../cluster_one_handbook.md),
-[CAS/CDC/delta contracts](../../cas_cdc_deltaencoding_handbook.md) and the
+the [cluster-one handbook](cluster_one_handbook.md),
+[CAS/CDC/delta contracts](cas_cdc_deltaencoding_handbook.md) and the
 [cluster-two design](../../core/docs/issues/303/README.md) for the owning contract.
 Both workstreams implement in `core/`; root `crates/` is the v0.1.6 reference
 until cluster two completes. Historical plans and experiments do not select a new
@@ -397,7 +397,7 @@ The review record must state:
 6. Correctness, coherence, authority, publication/cancellation and custody proof.
 7. Exact commands/evidence, outcomes, remaining findings and unrun work.
 
-Use the [report template](../../benchmark_agent_report.md) for actual invocations;
+Use the [report template](benchmark_agent_report.md) for actual invocations;
 this record does not replace a frozen benchmark contract or receipt. A quadratic
 finding, hidden global scan, unsupported plan or unbounded retained structure
 blocks optimization acceptance until corrected; a small timing win cannot waive it.

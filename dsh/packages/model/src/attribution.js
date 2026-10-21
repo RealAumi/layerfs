@@ -13,7 +13,7 @@ export function createView(engine, { lead = "main" } = {}) {
   return {
     engine, lead, clock: 0, seq: 0, tick: 0,
     agents: { [lead]: newAgent() },
-    panes: {}, fsLog: {}, hist: [], attrib: {}, touched: {}, names: {}, sbBy: {},
+    panes: {}, fsLog: {}, hist: [], attrib: {}, touched: {}, names: {}, sbBy: {}, sbAt: {},
     flash: {}, newNodes: new Set(), lastTab: "main", last: null, check: null,
   };
 }
@@ -57,6 +57,15 @@ export function record(W, st, p, o, shOut, calls) {
   if (W.last.node) W.attrib[W.last.node] ??= n;
   if (o.ok && call === "sandbox.create") { W.sbBy[o.result.id] = { made: n }; if (st.as) W.names[st.as] = o.result.id; }
   if (o.ok && call === "sandbox.close") (W.sbBy[args.sandbox] ||= {}).closed = n;
+  // each Sandbox's use by the view clock, for the Sandboxes list: made, last used, closed, calls and commands
+  const sbId = call === "sandbox.create" ? o.ok && o.result.id : args.sandbox;
+  if (sbId) {
+    const at = (W.sbAt[sbId] ||= { calls: 0, execs: 0 });
+    at.last = W.clock; at.calls = (at.calls || 0) + 1;
+    if (call === "sandbox.exec") at.execs = (at.execs || 0) + 1;
+    if (call === "sandbox.create") Object.assign(at, { made: W.clock, image: args.image || null });
+    if (o.ok && call === "sandbox.close") at.closed = W.clock;
+  }
   if (o.ok && (o.code === "Forked" || o.code === "Merged")) W.attrib["fork:" + o.result.branch] = n;
 
   // which terminal and which line: cli.js
@@ -72,12 +81,14 @@ export function record(W, st, p, o, shOut, calls) {
       A.ws = { sandbox: o.result.sandbox, path: o.result.path };
       if (st.as) W.names[st.as] = A.ws;
       const k = `${A.ws.sandbox}:${A.ws.path}`;
-      W.panes[k] = { agent: n, born: seq, lines: [{ dim, text, out, t: seq, calls, group }] };
+      W.panes[k] = { agent: n, born: seq, branch, lines: [{ dim, text, out, t: seq, calls, group }] };
       A.lastLoc = { kind: "ws", branch, ws: k };
     } else { W.hist.push({ agent: n, text, out, t: seq, calls, group }); A.lastLoc = { kind: "hist" }; }
   } else if (paneCall) {
     (W.panes[pane] ||= { agent: n, born: seq, lines: [] }).lines.push({ text, out, t: seq, calls, group, dim });
     if (call === "sandbox.unmount" && o.ok) {
+      // when it left, so a view can fade it out even if it never drew it mounted
+      Object.assign(W.panes[pane], { left: seq, branch: W.panes[pane].branch ?? branch });
       // the agent may still hold other Workspaces (a script's fan-out): it stays on the latest one
       const left = Object.keys(W.panes).filter((k) => k !== pane && W.panes[k].agent === n && (engWs(s, k) || {}).mounted).pop();
       if (left) { const i = left.indexOf(":"); A.ws = { sandbox: left.slice(0, i), path: left.slice(i + 1) }; A.lastLoc = { kind: "ws", branch: engWs(s, left).branch, ws: left }; }

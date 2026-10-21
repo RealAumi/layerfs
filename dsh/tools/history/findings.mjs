@@ -123,10 +123,13 @@ export function recordHeader(text) {
  * for kind 3 the four justifications (rows "Why not kind 1", "Why not kind 2",
  * "Rebuild cost", "Start snapshot"). Records before REBUILD.md are exempt. A
  * cause closed without a product change has Kind "none: <why>" and a Recovery.
+ * §4 binds the fixer's `NNN-aK-<slug>.md`; another lane's record (`NNN-359-…`,
+ * `c01-…`) is checked only when it declares kind 1, 2 or 3 (owner, 2026-10-21).
  */
 export function checkRecord(name, text) {
   if (name === "README.md" || PRE_REBUILD_RECORDS.has(name)) return [];
   const h = recordHeader(text), cell = (...ks) => ks.map((k) => h.get(k)).find((v) => v != null);
+  if (!/^\d{3}-a\d+-/.test(name) && !/^\**\s*[123]\b/.test(cell("kind") ?? "")) return [];
   // A cause closed without a product change (README.md): "none: <why>", with its recovery.
   if (/^\**\s*none\b/i.test(cell("kind") ?? "")) {
     const p = [];

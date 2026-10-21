@@ -1,13 +1,13 @@
 // One internal read model over the client's current service and Sandboxes.
-import { invokeOperator } from "../../src/client.js";
+import { invokeOperator, sandboxArgs } from "../../src/client.js";
 
 export async function snapshot(client, since) {
   const service = await client.service();
   const ids = [...new Set([service, ...client.sandboxes])];
-  const answers = await Promise.all(ids.map((sandbox) => invokeOperator("operator.inspect.snapshot", { project: client.projectName, home: client.options.home, sandbox }, client.options)));
+  const answers = await Promise.all(ids.map((sandbox) => invokeOperator("operator.inspect.snapshot", sandboxArgs(client, sandbox), client.options)));
   await Promise.all(answers.map(async (answer, index) => {
     await Promise.all(answer.workspaces.filter(w => w.mounted && w.directory).map(async workspace => {
-      workspace.overlay = await invokeOperator("operator.workspace.overlay", { project: client.projectName, home: client.options.home, sandbox: ids[index], path: workspace.directory }, client.options);
+      workspace.overlay = await invokeOperator("operator.workspace.overlay", { ...sandboxArgs(client, ids[index]), path: workspace.directory }, client.options);
     }));
   }));
   const version = answers.map((answer) => answer.version).join(".");

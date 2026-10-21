@@ -437,7 +437,7 @@ a retained layer per Commit.
    fixture; the per-file residency check. These are harness code under
    `core/benchmark/`, not product code. Read the
    [core harness guide](../../core/benchmark/fs-bench-pro/AGENTS.md) and the
-   [report template](../../benchmark_agent_report.md) before each run.
+   [report template](benchmark_agent_report.md) before each run.
 2. **Baseline.** Every cell once, labelled exploratory and ineligible.
 3. **Triage.** Split each cell by phase. Rank by gap to passthrough and
    native, weighted by how often a tool call pays it.

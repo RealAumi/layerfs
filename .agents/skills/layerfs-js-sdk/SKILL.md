@@ -12,6 +12,39 @@ description: Use when building, editing, testing or inspecting a project through
 Your project lives in LayerFS, not on your local disk. You read and change it through
 the SDK, from small Node scripts you run with `node`.
 
+## Inside dsh: start here
+
+If `echo $DSH_LAYERFS_PROJECT` prints a name, dsh has set everything up. Skip
+[Import the SDK](#import-the-sdk) and [Connect to a project](#connect-to-a-project):
+
+- There's no npm install. Import the SDK with `await import(process.env.DSH_LAYERFS_SDK)`,
+  in a module script. A static `import` of a variable is a syntax error.
+- `new LayerFS(process.env.DSH_LAYERFS_PROJECT)` reads every other setting from the
+  `DSH_LAYERFS_*` variables. The `LAYERFS_*` names in this guide are their twins; in
+  dsh they're unset. Pass `process.env.DSH_LAYERFS_IMAGE` to `sandbox.create`.
+- Don't look into Docker, the LayerFS box, Store files or the dsh host's source.
+  Nothing there helps, and the SDK is the only way in.
+- Your current folder is the dsh workspace the user selected. It's for temporary files
+  only: your scripts, notes and scratch output. Files you find there may be an old copy,
+  not the project. Do all
+  work on the project through the SDK: `fs.*` and the Sandbox for files and commands, and
+  `project.*` and `branch.*` for versioning, as you would use git.
+- `node "$DSH_LAYERFS_CLI" status` lists the Branches. The same CLI does `log`, `ls`, `cat`,
+  `grep`, `diff`, `fork` and `write` (content from stdin), and `run <branch> "<bash>"`. That
+  runs a command in a new Workspace and Commits what it changed. Use the CLI for single
+  steps and an SDK script for anything more.
+- **Always unmount.** Put every `sandbox.unmount` in a `finally` block. Forgotten
+  Workspaces fill the Sandbox's daemon (16 Workspaces) and every later mount there fails
+  with `Failed` / `Capacity`, for every agent sharing it. To clear idle, clean leftovers,
+  see [Clearing idle Workspaces](references/methods/sandbox.md#clearing-idle-workspaces).
+- **Never close the service Sandbox** (`_service.<project>`). In dsh, every agent's
+  script and the dsh view share it, so the cleanup in this guide's setup sections and in
+  `sandbox.md` doesn't apply: close only the Sandboxes you created, then `await lf.close()`.
+- **`main` is read-only.** It's published, not a Branch: read it and fork from it, but
+  don't write, edit, mount or commit to it. Those calls, and `branch.list_commits("main")`,
+  are refused with `NoSuchBranch`. Fork a Branch, work there, and publish it. A new
+  project's `main` is empty.
+
 ## How an agent works in LayerFS
 
 Every tool call an agent makes is one **step**, and every step that changes files becomes

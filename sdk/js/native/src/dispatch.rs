@@ -51,14 +51,15 @@ fn dispatch(op: &str, args: SdkValue) -> Outcome {
 }
 
 /// A daemon operator call through the named Sandbox: its Workspaces and the
-/// read model that lists them.
+/// read model that lists them. `deploy` only selects how this process dials
+/// the daemon, so it is not sent on.
 fn daemon_operator(op: &str, args: SdkValue) -> Outcome {
     let state = registry::sandbox(&args)?;
     let args = match args {
         SdkValue::Map(fields) => SdkValue::Map(
             fields
                 .into_iter()
-                .filter(|(name, _)| name != "sandbox")
+                .filter(|(name, _)| !matches!(name.as_str(), "sandbox" | "deploy"))
                 .collect(),
         ),
         other => other,
