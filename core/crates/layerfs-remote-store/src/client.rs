@@ -5,6 +5,12 @@
 //! presence checks change nothing, uploaded objects are content-addressed and
 //! reused, and a serial range whose answer was lost just stays consumed. A
 //! Commit is never resent; its lost answer stays unknown.
+//!
+//! A connection can also die without failing: after a machine is paused and
+//! resumed, or once a proxy drops it while idle, a request goes out and no
+//! answer ever comes. So a request on a quiet channel first sends a probe
+//! that waits only briefly, and the request itself goes out on a new
+//! connection when the probe gets no answer.
 use crate::{
     cache::Cache,
     config::Config,
@@ -29,30 +35,38 @@ use std::{
     },
     time::{Duration, Instant},
 };
-/// A Commit on a channel quiet for longer than this is preceded by a probe,
-/// so that a connection cut while idle (a paused machine, a proxy's idle
-/// limit) is found and replaced before the one request that is never resent.
+/// A request on a channel quiet for longer than this is preceded by a probe.
 const PROBE_AFTER: Duration = Duration::from_secs(1);
+/// How long a probe waits. A live Store answers an empty presence check at
+/// once; a connection silent this long is treated as cut.
+const PROBE_WAIT: Duration = Duration::from_secs(2);
+/// How long every other send or receive waits.
+const WAIT: Duration = Duration::from_secs(10);
 struct Dial {
     address: SocketAddr,
     token: [u8; 32],
     server_key: [u8; 32],
 }
 impl Dial {
-    fn open(&self) -> Result<Connection> {
+    fn open(&self) -> Result<Link> {
         let stream =
             TcpStream::connect_timeout(&self.address, Duration::from_secs(5)).map_err(error)?;
-        stream
-            .set_read_timeout(Some(Duration::from_secs(10)))
-            .map_err(error)?;
-        stream
-            .set_write_timeout(Some(Duration::from_secs(10)))
-            .map_err(error)?;
-        duplex::initiate(stream, &self.token, self.server_key).map_err(error)
+        stream.set_read_timeout(Some(WAIT)).map_err(error)?;
+        stream.set_write_timeout(Some(WAIT)).map_err(error)?;
+        let socket = stream.try_clone().map_err(error)?;
+        Ok(Link {
+            connection: duplex::initiate(stream, &self.token, self.server_key).map_err(error)?,
+            socket,
+        })
     }
 }
+struct Link {
+    connection: Connection,
+    /// The same socket, to change how long a receive waits.
+    socket: TcpStream,
+}
 struct Channel {
-    connection: Option<Connection>,
+    connection: Option<Link>,
     next: u64,
     /// When this channel last received an answer.
     answered: Instant,
@@ -120,11 +134,8 @@ impl Client {
         self.exchange(&mut *channel.lock().map_err(error)?, opcode, body)
     }
     fn exchange(&self, channel: &mut Channel, opcode: u8, body: Encode) -> Result<Vec<u8>> {
-        if opcode == wire::COMMIT && channel.answered.elapsed() > PROBE_AFTER {
-            // An empty presence check: answered by any live Store, changes nothing.
-            let mut probe = Encode::new();
-            wire::put_ids(&mut probe, &[]);
-            self.exchange(channel, wire::LACKING, probe)?;
+        if channel.answered.elapsed() > PROBE_AFTER {
+            self.probe(channel);
         }
         match self.attempt(channel, opcode, &body) {
             Err(Failure::Lost(first)) if opcode != wire::COMMIT => {
@@ -137,6 +148,25 @@ impl Client {
             result => result.map_err(Failure::error),
         }
     }
+    /// An empty presence check, which changes nothing, waiting at most
+    /// `PROBE_WAIT`. A connection that does not answer is dropped, so the
+    /// request that follows opens a new one.
+    fn probe(&self, channel: &mut Channel) {
+        let Some(link) = &channel.connection else {
+            return;
+        };
+        if link.socket.set_read_timeout(Some(PROBE_WAIT)).is_ok() {
+            let mut body = Encode::new();
+            wire::put_ids(&mut body, &[]);
+            // A probe that got no answer has already dropped its connection.
+            let _ = self.attempt(channel, wire::LACKING, &body);
+        }
+        if let Some(link) = &channel.connection {
+            if link.socket.set_read_timeout(Some(WAIT)).is_err() {
+                channel.connection = None;
+            }
+        }
+    }
     fn attempt(
         &self,
         channel: &mut Channel,
@@ -146,7 +176,11 @@ impl Client {
         if channel.connection.is_none() {
             channel.connection = Some(self.0.dial.open().map_err(Failure::Lost)?);
         }
-        let connection = channel.connection.as_mut().expect("opened connection");
+        let connection = &mut channel
+            .connection
+            .as_mut()
+            .expect("opened connection")
+            .connection;
         let id = channel.next;
         channel.next += 1;
         let mut request = Encode::new();
@@ -470,7 +504,7 @@ mod tests {
             let running: Vec<_> = scripts
                 .into_iter()
                 .map(|script| {
-                    let until = Instant::now() + Duration::from_secs(3);
+                    let until = Instant::now() + Duration::from_secs(10);
                     let stream = loop {
                         match listener.accept() {
                             Ok((stream, _)) => break stream,
@@ -551,19 +585,39 @@ mod tests {
         let (client, worker, directory) = fake(vec![
             Box::new(idle),
             Box::new(idle),
-            Box::new(|mut write| {
-                let mut present = Encode::new();
-                present.raw(&[]);
-                serve(&mut write, wire::LACKING, Some(present));
-                serve(&mut write, wire::COMMIT, Some(Encode::new()));
-            }),
+            Box::new(|mut write| serve(&mut write, wire::COMMIT, Some(Encode::new()))),
         ]);
         thread::sleep(PROBE_AFTER + Duration::from_millis(100));
         assert!(client
             .call(true, wire::COMMIT, Encode::new())
             .unwrap()
             .is_empty());
-        assert_eq!(client.round_trips(), 3, "lost probe, resent probe, Commit");
+        assert_eq!(client.round_trips(), 2, "lost probe, Commit");
+        worker.join().unwrap();
+        fs::remove_dir_all(directory).unwrap();
+    }
+    #[test]
+    fn a_silent_connection_is_replaced_after_the_probe_wait() {
+        let (client, worker, directory) = fake(vec![
+            // Takes the probe and never answers, like a resumed machine's connection.
+            Box::new(|mut read| {
+                let _ = wire::receive(&mut read).unwrap();
+                thread::sleep(PROBE_WAIT + Duration::from_secs(1));
+            }),
+            Box::new(idle),
+            Box::new(|mut read| {
+                let mut lengths = Encode::new();
+                lengths.number(1);
+                lengths.number(7);
+                serve(&mut read, wire::LENGTHS, Some(lengths));
+            }),
+        ]);
+        thread::sleep(PROBE_AFTER + Duration::from_millis(100));
+        let started = Instant::now();
+        assert_eq!(client.lengths(&[ObjectId::for_bytes(b"a")]).unwrap(), [7]);
+        let waited = started.elapsed();
+        assert!(waited >= PROBE_WAIT && waited < WAIT, "{waited:?}");
+        assert_eq!(client.round_trips(), 2, "silent probe, read");
         worker.join().unwrap();
         fs::remove_dir_all(directory).unwrap();
     }

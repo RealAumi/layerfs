@@ -1313,25 +1313,36 @@ new one (`layerfs-remote-store/src/client.rs`).
     already do.
 - **A Commit is never resent.** A lost Commit answer stays unknown and keeps
   the existing custody.
-- **An idle channel is probed before a Commit.** When the write channel has had
-  no answer for over a second, an empty presence check runs first. A connection
-  cut while idle is therefore found and replaced by a resendable request, not by
-  the Commit.
+- **A quiet channel is probed before any request.** When a channel has had no
+  answer for over a second, an empty presence check goes first and waits at most
+  two seconds. A connection that died without failing, after a pause or an idle
+  cut, is dropped there, so the request itself, a Commit included, goes out on a
+  new connection. A live Store answers the probe at once; a late answer only
+  costs a reconnect.
 - **The server closes a connection that sends nothing for 15 minutes.** A client
   that vanished without closing, such as a paused or deleted machine, frees its
   slot; a live client reopens on its next request.
 
-No heartbeat was added: reopening on demand covers both events. After a pause,
-the first request still waits for the ten-second deadline before it reopens.
+No heartbeat was added: reopening on demand covers both events. The probe costs
+one extra round trip for the first request after a quiet second.
 
-Three unit tests drive a fake Store over real Noise channels:
+Four unit tests drive a fake Store over real Noise channels:
 - a lost read is resent on a new connection;
 - a lost Commit opens no new connection and returns unknown;
-- an idle Commit replaces a cut connection through the probe.
+- an idle Commit replaces a cut connection through the probe;
+- a read whose probe gets no answer completes on a new connection within the
+  probe wait.
 
 `cargo test --locked -p layerfs-remote-store` passes on Linux with Rust 1.85.1,
 including the two existing transport tests. On macOS those two existing tests fail
 before and after this change. An accepted socket there inherits the listener's
 non-blocking flag, so the tests are Linux-only as written.
 
-The pause and idle cases have not been rerun on the sandboxes with this change.
+On the sandboxes, the first version of this change, without the probe before
+every request, passed both cases. After a 60 s pause, a cold read, a Commit and
+the tests passed, but each channel's first request waited out the ten seconds.
+After 7.7 idle minutes, a cold read took 0.08 s and a Commit 0.09 s.
+
+A local proxy that silences the open connections and lets new ones through
+measured the probe, one sample each: a cold read went from 10.98 s to 2.51 s and
+a Commit from 10.67 s to 2.26 s. The probe has not yet run on the sandboxes.
