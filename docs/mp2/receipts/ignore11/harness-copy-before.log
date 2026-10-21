@@ -1,0 +1,17 @@
+.F.
+======================================================================
+FAIL: test_copied_logs_are_redacted (__main__.Hygiene.test_copied_logs_are_redacted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "~/Developer/layerfs-ignore/docs/mp2/test_ignore_hygiene.py", line 47, in test_copied_logs_are_redacted
+    self.assertEqual(destination.read_text(), '~/daemon')
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '~/daemon' != '~/daemon'
+- ~/daemon
++ ~/daemon
+
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.032s
+
+FAILED (failures=1)

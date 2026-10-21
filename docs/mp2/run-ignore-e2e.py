@@ -35,8 +35,16 @@ JSONL = RECEIPTS / 'e2e-receipts.jsonl'
 CONSOLE = RECEIPTS / 'console.log'
 
 
+def redact(text):
+    return text.replace(str(pathlib.Path.home()), '~')
+
+
+def receipt(path, text):
+    path.write_text(redact(text))
+
+
 def say(*parts):
-    line = ' '.join(str(p) for p in parts)
+    line = redact(' '.join(str(p) for p in parts))
     print(line, flush=True)
     with CONSOLE.open('a') as f:
         f.write(line + '\n')
@@ -49,9 +57,9 @@ def run(args, expected=0, wall=120, log=True, input=None):
                        stderr=subprocess.STDOUT, timeout=wall, input=input)
     elapsed = time.monotonic_ns() - before
     if log:
-        out = p.stdout
+        out = redact(p.stdout)
         with JSONL.open('a') as f:
-            f.write(json.dumps(dict(command=args, exit=p.returncode, wall_ns=elapsed,
+            f.write(json.dumps(dict(command=[redact(a) for a in args], exit=p.returncode, wall_ns=elapsed,
                                     output_len=len(out), output=out[:8000] + ('...[cut]' if len(out) > 8000 else ''))) + '\n')
     if expected is not None:
         assert p.returncode == expected, (args, p.returncode, p.stdout[-4000:])
@@ -108,14 +116,14 @@ def _build():
     for label, cargo in steps:
         t = time.monotonic()
         p = docker(*cargo_container('cxi-build', *cargo), wall=3000)
-        (build_dir / f'{label}.log').write_text(p.stdout)
+        receipt(build_dir / f'{label}.log', p.stdout)
         say(f'BUILD {label}: ok in {time.monotonic() - t:.0f}s: {p.stdout.strip().splitlines()[-1]}')
     t = time.monotonic()
     args = ['docker', *cargo_container('cxi-build', 'test', *CARGO_COMMON, '--no-run', '--message-format=json',
                                        '-p', 'layerfs-remote-store', '--test', 'remote_driver')]
     p = subprocess.run(args, text=True, capture_output=True, timeout=3000)
-    (build_dir / 'driver.json').write_text(p.stdout)
-    (build_dir / 'driver.log').write_text(p.stderr)
+    receipt(build_dir / 'driver.json', p.stdout)
+    receipt(build_dir / 'driver.log', p.stderr)
     assert p.returncode == 0, p.stderr[-4000:]
     driver = None
     for line in p.stdout.splitlines():
@@ -134,7 +142,7 @@ def _build():
     lines = []
     for n in ['layerfs-store', 'layerfs-remote', 'layerfs-remote-daemon', 'remote_driver', 'tcp-cut.py']:
         lines.append(f'{hashlib.sha256((BIN / n).read_bytes()).hexdigest()}  bin/{n}')
-    (RECEIPTS / 'tested-identities.txt').write_text('\n'.join(lines) + f'\nsource-sha256 {h.hexdigest()}\n')
+    receipt(RECEIPTS / 'tested-identities.txt', '\n'.join(lines) + f'\nsource-sha256 {h.hexdigest()}\n')
     say('BUILD artifacts:\n' + '\n'.join(lines))
 
 
@@ -682,11 +690,11 @@ def s8_comparison():
 # ---------------------------------------------------------------- environment
 
 class Env:
-    """Server A + sandboxes B1 (ignore=git) and B2 (plain), all `ign-` prefixed; removed on exit."""
+    """Server A + sandboxes B1 (ignore=git) and B2 (plain), all `cxi-` prefixed; removed on exit."""
 
     def __enter__(self):
-        existing = [x for x in (out('ps', '-a', '--format', '{{.Names}}').split() + out('network', 'ls', '--format', '{{.Name}}').split()
-                                + out('volume', 'ls', '--format', '{{.Name}}').split()) if x in {A, B1, B2, NET_A, NET_B, LINK, V_SERVER, V_B1, V_B2, 'cxi-init', 'cxi-seed'}]
+        existing = [x for x in (out('ps', '-a', '--filter', 'name=cxi-', '--format', '{{.Names}}').split() + out('network', 'ls', '--filter', 'name=cxi-', '--format', '{{.Name}}').split()
+                                + out('volume', 'ls', '--filter', 'name=cxi-', '--format', '{{.Name}}').split()) if x in {A, B1, B2, NET_A, NET_B, LINK, V_SERVER, V_B1, V_B2, 'cxi-init', 'cxi-seed'}]
         assert not existing, f'leftover cxi- resources: {existing}'
         for n in ['layerfs-store', 'layerfs-remote', 'layerfs-remote-daemon', 'remote_driver', 'tcp-cut.py']:
             assert (BIN / n).is_file(), f'{n} missing: run the build phase first'
@@ -731,7 +739,9 @@ class Env:
     def __exit__(self, *exc):
         for b in self.owned:
             for name in ['server.log', 'daemon.log', 'proxy.log']:
-                subprocess.run(['docker', 'cp', f'{b}:/state/{name}', str(RECEIPTS / f'{b}-{name}')], capture_output=True, timeout=30)
+                p = subprocess.run(['docker', 'exec', b, 'cat', f'/state/{name}'], capture_output=True, text=True, timeout=30)
+                if p.returncode == 0:
+                    receipt(RECEIPTS / f'{b}-{name}', p.stdout)
         for b in [B1, B2]:
             if b in self.owned:
                 p = subprocess.run(['docker', 'exec', b, 'bash', '-c', 'grep -ciE "error|panic|refused" /state/daemon.log'], capture_output=True, text=True)
@@ -861,7 +871,7 @@ def e2e(restart_only=False):
     summary = {}
     for scn, checks in RESULTS.items():
         summary[scn] = dict(result='PASS' if all(c['ok'] for c in checks) else 'FAIL', checks=checks)
-    (RECEIPTS / 'results.json').write_text(json.dumps(dict(scenarios=summary, facts=FACTS), indent=2))
+    receipt(RECEIPTS / 'results.json', json.dumps(dict(scenarios=summary, facts=FACTS), indent=2))
     say('\nSUMMARY')
     for scn, v in summary.items():
         failed = [c['check'] for c in v['checks'] if not c['ok']]
@@ -883,12 +893,12 @@ def _transport():
     t = time.monotonic()
     docker(*cargo_container('cxi-transport-build', 'test', *CARGO_COMMON, '-p', 'layerfs-remote-store', '--test', 'transport', '--no-run'), wall=3000)
     p = docker(*cargo_container('cxi-transport', 'test', *CARGO_COMMON, '-p', 'layerfs-remote-store', '--test', 'transport'), expected=None, wall=120)
-    (RECEIPTS / 'transport-tests.log').write_text(p.stdout)
+    receipt(RECEIPTS / 'transport-tests.log', p.stdout)
     tail = '\n'.join(p.stdout.strip().splitlines()[-25:])
     say(f'=== {s}: exit {p.returncode} in {time.monotonic() - t:.0f}s\n{tail}')
     r = re.search(r'test result: (\w+)\. (\d+) passed; (\d+) failed', p.stdout)
     RESULTS[s] = [dict(check='cargo test -p layerfs-remote-store --test transport', ok=p.returncode == 0, evidence=r[0] if r else tail)]
-    (RECEIPTS / 'transport-result.json').write_text(json.dumps(RESULTS[s], indent=2))
+    receipt(RECEIPTS / 'transport-result.json', json.dumps(RESULTS[s], indent=2))
 
 
 if __name__ == '__main__':

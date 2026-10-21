@@ -1,0 +1,11 @@
+{
+  "command": [
+    "timeout",
+    "120s",
+    "python3",
+    "-B",
+    "docs/mp2/test_ignore_hygiene.py"
+  ],
+  "exit": 1,
+  "seconds": 0.18338990211486816
+}
