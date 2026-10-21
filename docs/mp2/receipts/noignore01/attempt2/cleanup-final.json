@@ -1,0 +1,600 @@
+{
+  "operations": [
+    {
+      "command": [
+        "docker",
+        "exec",
+        "cxn-v2-maven-b-base",
+        "timeout",
+        "25",
+        "/bins/off/layerfs-remote",
+        "/state/daemon.setup",
+        "unmount",
+        "aa12b69bb2c21f0d042ee2d0b8fc155abae270b24fcccd629e6c878d6246781e",
+        "1",
+        "discard"
+      ],
+      "exit": 0,
+      "wall_ns": 321242708,
+      "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(aa12b69bb2c21f0d042ee2d0b8fc155abae270b24fcccd629e6c878d6246781e), namespace: 1 })\nwall_ns=83648680\n"
+    },
+    {
+      "retained": "cxn-v2-maven-c-off-cold-final-daemon.log",
+      "container": "cxn-v2-maven-c-off-cold"
+    },
+    {
+      "retained": "cxn-v2-maven-c-off-cold-final-proxy.log",
+      "container": "cxn-v2-maven-c-off-cold"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-c-off-cold"
+      ],
+      "exit": 0,
+      "wall_ns": 417779125,
+      "output": "cxn-v2-maven-c-off-cold\n"
+    },
+    {
+      "retained": "cxn-v2-maven-c-off-server-final-server.log",
+      "container": "cxn-v2-maven-c-off-server"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-c-off-server"
+      ],
+      "exit": 0,
+      "wall_ns": 168233750,
+      "output": "cxn-v2-maven-c-off-server\n"
+    },
+    {
+      "retained": "cxn-v2-maven-a-off-merge-final-daemon.log",
+      "container": "cxn-v2-maven-a-off-merge"
+    },
+    {
+      "retained": "cxn-v2-maven-a-off-merge-final-proxy.log",
+      "container": "cxn-v2-maven-a-off-merge"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-a-off-merge"
+      ],
+      "exit": 0,
+      "wall_ns": 173929500,
+      "output": "cxn-v2-maven-a-off-merge\n"
+    },
+    {
+      "retained": "cxn-v2-maven-a-on-resume-final-daemon.log",
+      "container": "cxn-v2-maven-a-on-resume"
+    },
+    {
+      "retained": "cxn-v2-maven-a-on-resume-final-proxy.log",
+      "container": "cxn-v2-maven-a-on-resume"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-a-on-resume"
+      ],
+      "exit": 0,
+      "wall_ns": 185373958,
+      "output": "cxn-v2-maven-a-on-resume\n"
+    },
+    {
+      "retained": "cxn-v2-maven-a-on-cold-final-daemon.log",
+      "container": "cxn-v2-maven-a-on-cold"
+    },
+    {
+      "retained": "cxn-v2-maven-a-on-cold-final-proxy.log",
+      "container": "cxn-v2-maven-a-on-cold"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-a-on-cold"
+      ],
+      "exit": 0,
+      "wall_ns": 172842000,
+      "output": "cxn-v2-maven-a-on-cold\n"
+    },
+    {
+      "retained": "cxn-v2-maven-a-on-server-final-server.log",
+      "container": "cxn-v2-maven-a-on-server"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-a-on-server"
+      ],
+      "exit": 0,
+      "wall_ns": 163092583,
+      "output": "cxn-v2-maven-a-on-server\n"
+    },
+    {
+      "retained": "cxn-v2-maven-a-off-resume-final-daemon.log",
+      "container": "cxn-v2-maven-a-off-resume"
+    },
+    {
+      "retained": "cxn-v2-maven-a-off-resume-final-proxy.log",
+      "container": "cxn-v2-maven-a-off-resume"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-a-off-resume"
+      ],
+      "exit": 0,
+      "wall_ns": 169403833,
+      "output": "cxn-v2-maven-a-off-resume\n"
+    },
+    {
+      "retained": "cxn-v2-maven-a-off-cold-final-daemon.log",
+      "container": "cxn-v2-maven-a-off-cold"
+    },
+    {
+      "retained": "cxn-v2-maven-a-off-cold-final-proxy.log",
+      "container": "cxn-v2-maven-a-off-cold"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-a-off-cold"
+      ],
+      "exit": 0,
+      "wall_ns": 181322417,
+      "output": "cxn-v2-maven-a-off-cold\n"
+    },
+    {
+      "retained": "cxn-v2-maven-a-off-server-final-server.log",
+      "container": "cxn-v2-maven-a-off-server"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-a-off-server"
+      ],
+      "exit": 0,
+      "wall_ns": 167959042,
+      "output": "cxn-v2-maven-a-off-server\n"
+    },
+    {
+      "retained": "cxn-v2-maven-c-base-final-daemon.log",
+      "container": "cxn-v2-maven-c-base"
+    },
+    {
+      "retained": "cxn-v2-maven-c-base-final-proxy.log",
+      "container": "cxn-v2-maven-c-base"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-c-base"
+      ],
+      "exit": 0,
+      "wall_ns": 182496084,
+      "output": "cxn-v2-maven-c-base\n"
+    },
+    {
+      "retained": "cxn-v2-maven-c-server-final-server.log",
+      "container": "cxn-v2-maven-c-server"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-c-server"
+      ],
+      "exit": 0,
+      "wall_ns": 61643375,
+      "output": "cxn-v2-maven-c-server\n"
+    },
+    {
+      "retained": "cxn-v2-maven-a-builder-final-daemon.log",
+      "container": "cxn-v2-maven-a-builder"
+    },
+    {
+      "retained": "cxn-v2-maven-a-builder-final-proxy.log",
+      "container": "cxn-v2-maven-a-builder"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-a-builder"
+      ],
+      "exit": 0,
+      "wall_ns": 180809666,
+      "output": "cxn-v2-maven-a-builder\n"
+    },
+    {
+      "retained": "cxn-v2-maven-a-base-final-daemon.log",
+      "container": "cxn-v2-maven-a-base"
+    },
+    {
+      "retained": "cxn-v2-maven-a-base-final-proxy.log",
+      "container": "cxn-v2-maven-a-base"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-a-base"
+      ],
+      "exit": 0,
+      "wall_ns": 220616417,
+      "output": "cxn-v2-maven-a-base\n"
+    },
+    {
+      "retained": "cxn-v2-maven-a-server-final-server.log",
+      "container": "cxn-v2-maven-a-server"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-a-server"
+      ],
+      "exit": 0,
+      "wall_ns": 53912542,
+      "output": "cxn-v2-maven-a-server\n"
+    },
+    {
+      "retained": "cxn-v2-maven-b-base-final-daemon.log",
+      "container": "cxn-v2-maven-b-base"
+    },
+    {
+      "retained": "cxn-v2-maven-b-base-final-proxy.log",
+      "container": "cxn-v2-maven-b-base"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-b-base"
+      ],
+      "exit": 0,
+      "wall_ns": 183074625,
+      "output": "cxn-v2-maven-b-base\n"
+    },
+    {
+      "retained": "cxn-v2-maven-b-server-final-server.log",
+      "container": "cxn-v2-maven-b-server"
+    },
+    {
+      "command": [
+        "docker",
+        "rm",
+        "-f",
+        "cxn-v2-maven-b-server"
+      ],
+      "exit": 0,
+      "wall_ns": 179822708,
+      "output": "cxn-v2-maven-b-server\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-a-base-local"
+      ],
+      "exit": 0,
+      "wall_ns": 50331709,
+      "output": "cxn-v2-maven-a-base-local\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-a-builder-local"
+      ],
+      "exit": 0,
+      "wall_ns": 33024750,
+      "output": "cxn-v2-maven-a-builder-local\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-a-off-cold-local"
+      ],
+      "exit": 0,
+      "wall_ns": 30700916,
+      "output": "cxn-v2-maven-a-off-cold-local\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-a-off-merge-local"
+      ],
+      "exit": 0,
+      "wall_ns": 29924000,
+      "output": "cxn-v2-maven-a-off-merge-local\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-a-off-resume-local"
+      ],
+      "exit": 0,
+      "wall_ns": 40432500,
+      "output": "cxn-v2-maven-a-off-resume-local\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-a-off-shared-cache"
+      ],
+      "exit": 0,
+      "wall_ns": 102805750,
+      "output": "cxn-v2-maven-a-off-shared-cache\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-a-off-store"
+      ],
+      "exit": 0,
+      "wall_ns": 39689958,
+      "output": "cxn-v2-maven-a-off-store\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-a-on-cold-local"
+      ],
+      "exit": 0,
+      "wall_ns": 28223416,
+      "output": "cxn-v2-maven-a-on-cold-local\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-a-on-resume-local"
+      ],
+      "exit": 0,
+      "wall_ns": 23589041,
+      "output": "cxn-v2-maven-a-on-resume-local\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-a-on-shared-cache"
+      ],
+      "exit": 0,
+      "wall_ns": 93582792,
+      "output": "cxn-v2-maven-a-on-shared-cache\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-a-on-store"
+      ],
+      "exit": 0,
+      "wall_ns": 25761875,
+      "output": "cxn-v2-maven-a-on-store\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-a-shared-cache"
+      ],
+      "exit": 0,
+      "wall_ns": 114683209,
+      "output": "cxn-v2-maven-a-shared-cache\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-a-store"
+      ],
+      "exit": 0,
+      "wall_ns": 26440041,
+      "output": "cxn-v2-maven-a-store\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-b-base-local"
+      ],
+      "exit": 0,
+      "wall_ns": 27179542,
+      "output": "cxn-v2-maven-b-base-local\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-b-store"
+      ],
+      "exit": 0,
+      "wall_ns": 23779583,
+      "output": "cxn-v2-maven-b-store\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-c-base-local"
+      ],
+      "exit": 0,
+      "wall_ns": 24925875,
+      "output": "cxn-v2-maven-c-base-local\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-c-off-cold-local"
+      ],
+      "exit": 0,
+      "wall_ns": 24185750,
+      "output": "cxn-v2-maven-c-off-cold-local\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-c-off-store"
+      ],
+      "exit": 0,
+      "wall_ns": 23796917,
+      "output": "cxn-v2-maven-c-off-store\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "rm",
+        "cxn-v2-maven-c-store"
+      ],
+      "exit": 0,
+      "wall_ns": 23933916,
+      "output": "cxn-v2-maven-c-store\n"
+    },
+    {
+      "command": [
+        "docker",
+        "network",
+        "rm",
+        "cxn-v2-maven-a-net"
+      ],
+      "exit": 0,
+      "wall_ns": 93598875,
+      "output": "cxn-v2-maven-a-net\n"
+    },
+    {
+      "command": [
+        "docker",
+        "network",
+        "rm",
+        "cxn-v2-maven-b-net"
+      ],
+      "exit": 0,
+      "wall_ns": 92849000,
+      "output": "cxn-v2-maven-b-net\n"
+    },
+    {
+      "command": [
+        "docker",
+        "network",
+        "rm",
+        "cxn-v2-maven-c-net"
+      ],
+      "exit": 0,
+      "wall_ns": 111749542,
+      "output": "cxn-v2-maven-c-net\n"
+    },
+    {
+      "command": [
+        "docker",
+        "image",
+        "rm",
+        "cxn-tools:noignore02-node20"
+      ],
+      "exit": 0,
+      "wall_ns": 70603291,
+      "output": "Untagged: cxn-tools:noignore02-node20\nDeleted: sha256:a52efa30b55b3f219742fbd5b4c7f71ef397a586b027d3e9b33d62f2bbaf1722\n"
+    },
+    {
+      "command": [
+        "docker",
+        "image",
+        "rm",
+        "cxn-tools:noignore02-pnpm"
+      ],
+      "exit": 0,
+      "wall_ns": 113258708,
+      "output": "Untagged: cxn-tools:noignore02-pnpm\nDeleted: sha256:4e59f55fdfe53fe70bcf0fb9d89a90df2b6958d46cb3d30586fe72d4c09ed476\n"
+    },
+    {
+      "command": [
+        "docker",
+        "image",
+        "rm",
+        "cxn-tools:noignore02"
+      ],
+      "exit": 0,
+      "wall_ns": 155882917,
+      "output": "Untagged: cxn-tools:noignore02\nDeleted: sha256:90c152c3a8a0d9468ab3ac32ba95c80166e55be15c226689457e394e2b5d4869\n"
+    },
+    {
+      "command": [
+        "docker",
+        "volume",
+        "inspect",
+        "cxi-target",
+        "--format",
+        "{{.Name}}"
+      ],
+      "exit": 0,
+      "wall_ns": 37218667,
+      "output": "cxi-target\n"
+    }
+  ],
+  "remaining": {
+    "containers": [],
+    "networks": [],
+    "volumes": []
+  },
+  "host_free_before": 50243907584,
+  "host_free_after": 50532962304,
+  "net_host_free_change": 289054720,
+  "kept": "cxi-target",
+  "failed_store_payloads": "deleted after receipt capture; not available for proof reuse"
+}

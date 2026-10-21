@@ -1,0 +1,27 @@
+
+> vite@6.1.0 build-bundle /workspaces/1/packages/vite
+> rollup --config rollup.config.ts --configPlugin esbuild
+
+[36m
+[1m/workspaces/1/packages/vite/src/client/env.ts[22m → [1mdist/client/env.mjs[22m...[39m
+[32mcreated [1mdist/client/env.mjs[22m in [1m11ms[22m[39m
+[36m
+[1m/workspaces/1/packages/vite/src/client/client.ts[22m → [1mdist/client/client.mjs[22m...[39m
+[32mcreated [1mdist/client/client.mjs[22m in [1m50ms[22m[39m
+[36m
+[1m/workspaces/1/packages/vite/src/node/index.ts, /workspaces/1/packages/vite/src/node/cli.ts, /workspaces/1/packages/vite/src/node/constants.ts[22m → [1m./dist[22m...[39m
+shimmed: fsevents-handler.js
+shimmed: postcss-import/index.js
+shimmed: postcss-import/lib/parse-styles.js
+shimmed: postcss-load-config/src/req.js
+shimmed: process-content.js
+shimmed: lilconfig/src/index.js
+patched cjs context: node/chunks/dep-!~{001}~.js
+patched cjs context: node/chunks/dep-!~{003}~.js
+[32mcreated [1m./dist[22m in [1m3.8s[22m[39m
+[36m
+[1m/workspaces/1/packages/vite/src/module-runner/index.ts[22m → [1m./dist[22m...[39m
+[32mcreated [1m./dist[22m in [1m56ms[22m[39m
+[36m
+[1m/workspaces/1/packages/vite/src/node/publicUtils.ts[22m → [1m./dist[22m...[39m
+[32mcreated [1m./dist[22m in [1m182ms[22m[39m

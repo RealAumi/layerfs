@@ -1,0 +1,3 @@
+path=/workspaces/1 workspace=4f46c4572e8fac95bf6e8dae1964e3890ef29e92c481f84117d8fe2e6423252f namespace=1
+Ready(ReadyMount { token: WorkspaceToken { workspace: WorkspaceId(4f46c4572e8fac95bf6e8dae1964e3890ef29e92c481f84117d8fe2e6423252f), namespace: 1 }, directory: "/workspaces/1", receipt: MountReceipt { mount: 1, root: 1, mount_id: 624, device_major: 0, device_minor: 143, abi_major: 7, abi_minor: 45, offered: 6585057279995, selected: 4194337, max_write: 131072, max_readahead: 131072, max_background: 1, congestion_threshold: 1, page_size: 4096, loops: 2, abort_bound: false } })
+wall_ns=821462081

@@ -1,0 +1,22 @@
+warning: Patch `fuser v0.18.0 (/src/core/vendor/fuser-0.18.0)` was not used in the crate graph.
+Check that the patched package version and available features are compatible
+with the dependency requirements. If the patch has a different version from
+what is locked in the Cargo.lock file, run `cargo update` to use the new
+version. This may also occur with an optional dependency that is not enabled.
+   Compiling layerfs-telemetry v0.1.7 (/src/core/crates/layerfs-telemetry)
+   Compiling nix v0.31.3
+   Compiling layerfs-content v0.1.7 (/src/core/crates/layerfs-content)
+   Compiling layerfs-overlay v0.1.7 (/src/core/crates/layerfs-overlay)
+   Compiling layerfs-history v0.1.7 (/src/core/crates/layerfs-history)
+   Compiling layerfs-storage v0.1.7 (/src/core/crates/layerfs-storage)
+   Compiling layerfs-persistence v0.1.7 (/src/core/crates/layerfs-persistence)
+   Compiling layerfs-bridge v0.1.7 (/src/core/crates/layerfs-bridge)
+   Compiling layerfs-workspace v0.1.7 (/src/core/crates/layerfs-workspace)
+   Compiling layerfs-store-service v0.1.7 (/src/core/crates/layerfs-store-service)
+   Compiling layerfs-project v0.1.7 (/src/core/crates/layerfs-project)
+   Compiling layerfs-sandbox v0.1.7 (/src/core/crates/layerfs-sandbox)
+   Compiling layerfs-api v0.1.7 (/src/core/crates/layerfs-api)
+   Compiling layerfs-remote-store v0.1.7 (/src/core/crates/layerfs-remote-store)
+   Compiling cxn-noignore-driver v0.1.0 (/src/docs/mp2/noignore-driver)
+    Finished `release` profile [optimized] target(s) in 43.56s
+55c14fed8e235e6cd6e94af178ad0b8d94d6f0630ed31594042dc4829af69361  /target/cxn-noignore01/cxn-noignore-driver

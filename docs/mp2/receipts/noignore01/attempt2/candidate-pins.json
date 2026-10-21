@@ -1,0 +1,22 @@
+[
+  {
+    "command": [
+      "git",
+      "ls-remote",
+      "https://github.com/vitejs/vite.git",
+      "refs/tags/v6.1.0*"
+    ],
+    "exit": 0,
+    "output": "051370a332df99d107365ed6beab418ef017eff6\trefs/tags/v6.1.0\na4245b03159a438c827c949f6c5e8ebb7d03fd0a\trefs/tags/v6.1.0-beta.0\n132a5dd07d875d3672abb45f8dc1efb6361fb5dd\trefs/tags/v6.1.0-beta.1\n5ce7443462068c5d8ee76144dd23376762a7b3fe\trefs/tags/v6.1.0-beta.2\n"
+  },
+  {
+    "command": [
+      "git",
+      "ls-remote",
+      "https://github.com/spring-projects/spring-petclinic.git",
+      "refs/heads/*"
+    ],
+    "exit": 0,
+    "output": "24eac813cfc442f81d97ee5870184d6b1267d9c7\trefs/heads/3310\nb3c85600ca79c990c8d15f95c5ab064c19c65588\trefs/heads/detached\n30e16ab3fea583da295e0fdf88eaf0aa980d4927\trefs/heads/efficient-webjars\n193b38a561ae246301a1b3f7f8e4b854546dc8d7\trefs/heads/gh-pages\nb3ee2c53e76e9267f03551a7cd36b0983c859c56\trefs/heads/gradle-remove-redundancies\na2672fef9bac82ea5ef2e73e09d4dafda2095f18\trefs/heads/hacking/mysql\n500158f732419217507c7656904b8e6aa1bcc0d6\trefs/heads/main\n809e6f1c1cb04e112ba3ef87ebda5f99f0e4f624\trefs/heads/spring-ai\ndade7fcf31248b21eb158985b250c436b2e9eb54\trefs/heads/springboot3\nbf0452d6f2df564c6bb1cafecd0f6893473de3c5\trefs/heads/wavefront\n"
+  }
+]

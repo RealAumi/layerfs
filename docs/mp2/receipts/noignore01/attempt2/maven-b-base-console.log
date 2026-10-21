@@ -1,0 +1,29 @@
+v2-maven-b-network 0 0.239
+v2-maven-b-volume-store 0 0.055
+v2-maven-b-volume-local 0 0.051
+v2-maven-b-server-create 0 0.423
+v2-maven-b-init 0 0.145
+v2-maven-b-fork-base 0 0.062
+v2-maven-b-server-start 0 0.084
+v2-maven-b-config-copy 0 0.403
+v2-maven-b-daemon-create 0 0.281
+v2-maven-b-proxy-start 0 0.094
+v2-maven-b-daemon-start 0 0.074
+v2-maven-b-base-id 0 0.061
+v2-maven-b-mount-base 0 0.082
+v2-maven-b-base-start-stats 0 0.071
+v2-maven-b-clone 0 1.451
+v2-maven-b-lww 0 0.054
+v2-maven-b-cache-rules 0 0.069
+v2-maven-b-install 0 422.889
+v2-maven-b-build 1 8.848
+Traceback (most recent call last):
+  File "~/Developer/layerfs-ignore/docs/mp2/no-ignore-maven.py", line 114, in <module>
+    if sys.argv[1]=='base':base(sys.argv[2])
+                           ~~~~^^^^^^^^^^^^^
+  File "~/Developer/layerfs-ignore/docs/mp2/no-ignore-maven.py", line 57, in base
+    sc.work(s,name+'-build',mvn(s)+' -Dtest=ValidatorTests package',110)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "~/Developer/layerfs-ignore/docs/mp2/no-ignore-scenarios.py", line 81, in work
+    raise RuntimeError('workload failure: '+label)
+RuntimeError: workload failure: v2-maven-b-build

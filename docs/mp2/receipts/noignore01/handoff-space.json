@@ -1,0 +1,6 @@
+{
+  "host_free_bytes": 59896725504,
+  "300_GB_reclaim_target_met": false,
+  "shortfall_bytes": 300000000000,
+  "active_cache_preserved": "cxi-target"
+}

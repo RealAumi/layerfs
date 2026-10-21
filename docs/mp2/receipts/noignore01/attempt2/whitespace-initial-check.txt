@@ -1,0 +1,1 @@
+The first final staged whitespace check returned exit 2 for an extra blank line at EOF in five generated/raw artifacts: native-diagnostic-tests.log, v2-vite-off3-S2-test.log, v2-vite-on3-S2-test.log, tables-interim.md, tables.md. Their exact bytes are retained in losslessly verified .gz artifacts; no result or failure was edited.

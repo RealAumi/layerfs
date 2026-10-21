@@ -1,0 +1,8 @@
+warning: Patch `fuser v0.18.0 (/src/core/vendor/fuser-0.18.0)` was not used in the crate graph.
+Check that the patched package version and available features are compatible
+with the dependency requirements. If the patch has a different version from
+what is locked in the Cargo.lock file, run `cargo update` to use the new
+version. This may also occur with an optional dependency that is not enabled.
+   Compiling cxn-noignore-driver v0.1.0 (/src/docs/mp2/noignore-driver)
+    Finished `release` profile [optimized] target(s) in 1.45s
+8fa7aef4ba88f9eb381e872fc17cc2e0fb7d37bcd07126b568c209eb7836df37  /target/cxn-noignore01/cxn-noignore-driver

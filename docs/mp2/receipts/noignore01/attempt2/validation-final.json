@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "scope": "receipt arithmetic/cardinality, expected failures, frozen attempt1, links, Python syntax and cleanup",
+  "workspace_commits": 63,
+  "successful_sdk_merge_commits": 2,
+  "edit_iterations": 40,
+  "final_cold_tests_passed": 5,
+  "resume_tests_passed": 2,
+  "resume_tests_failed_retained": 2,
+  "lww_decisions": {
+    "node": 3,
+    "maven": 4
+  },
+  "source_conflict_controls": 2,
+  "multi_workspace_observations": 2,
+  "cache_base_unchanged": true,
+  "attempt1_files_unchanged": 66,
+  "table_rows": 78,
+  "harness_sha256": {
+    "no-ignore-cleanup.py": "1faf8482c20c55f401495f2fa6c01f62095a25b5100ce02daafd2ac6b0e8924a",
+    "no-ignore-hygiene.py": "553dd4058e405fcec4db77942c9ba8ba8d22ca7746c16ff66bfa8b48a73f646e",
+    "no-ignore-maven.py": "9e27e9c533b484b8146b6291d46449212b6933cc848f4b1f3b8b8c490fdff943",
+    "no-ignore-native-diagnostic.py": "4a8400c3e87fb3710b1abef4455b80366904256002aebec513971e6ca1534560",
+    "no-ignore-prepare.py": "c1a3d63b76c51dfcd0db1061149a0d35ef2c2121ef007e5f66c195a8800a59a2",
+    "no-ignore-proxy.py": "486108724995bfaa6c6938e2d086954eb4e4d326f2ea27c31e5c844a9e0ab0a0",
+    "no-ignore-report.py": "e0d7026f3b64eca01f0335433a039eefa723874bf8144e96b798a25e3ef2bd36",
+    "no-ignore-run.py": "fac168f6746dd32ae32a5c3141a1e1037e2461218be4a66fda03a85e2e71f82e",
+    "no-ignore-scenarios.py": "b3bbb69b12c65e52b28122733aa8cfb7e3ac0677acd4e802b57e5eec7b3c8f85",
+    "no-ignore-v2-hygiene.py": "7c2ba55ebaacca8d11154ab71260ef8261b080fcc66d41f967b9ccc9546390b5",
+    "no-ignore-v2.py": "8760706592f686684f9af1c566857d66a7643e93863b1e02c4c223d042db13d6",
+    "no-ignore-validate.py": "fb34485182ba088045a7c1487183b85a3a7ebb74f6e250cab79a365d723068ef"
+  },
+  "new_product_tests_run": 0,
+  "performance_admission": false
+}

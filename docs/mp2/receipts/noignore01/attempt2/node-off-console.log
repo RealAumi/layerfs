@@ -1,0 +1,17 @@
+v2-vite-off-store-volume 0 0.04
+v2-vite-off-store-clone 0 0.466
+v2-vite-off-server-create 0 0.176
+v2-vite-off-server-start 0 0.06
+Traceback (most recent call last):
+  File "~/Developer/layerfs-ignore/docs/mp2/no-ignore-scenarios.py", line 122, in <module>
+    elif sys.argv[1]=='node-arm':node_arm(sys.argv[2])
+                                 ~~~~~~~~^^^^^^^^^^^^^
+  File "~/Developer/layerfs-ignore/docs/mp2/no-ignore-scenarios.py", line 89, in node_arm
+    name='v2-vite-'+arm;s=start_server(v.load('v2-vite'),name,arm)
+                          ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "~/Developer/layerfs-ignore/docs/mp2/no-ignore-scenarios.py", line 31, in start_server
+    h.ready(s['server'],'/state/server.log','REMOTE_STORE_READY');v.save(s)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "~/Developer/layerfs-ignore/docs/mp2/no-ignore-run.py", line 62, in ready
+    raise RuntimeError('readiness deadline: ' + container + ' ' + marker)
+RuntimeError: readiness deadline: cxn-v2-vite-off-server REMOTE_STORE_READY

@@ -1,0 +1,11 @@
+{
+  "ref": "801e9360fdbd177e8e126b89f2730bb9b5213d44",
+  "scope": [
+    "core",
+    "sdk",
+    ".cargo",
+    "patches"
+  ],
+  "git_blob_files_checked": 47198,
+  "mismatches": []
+}

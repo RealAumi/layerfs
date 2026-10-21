@@ -1,0 +1,32 @@
+[
+  {
+    "logical": "native-diagnostic-tests.log",
+    "artifact": "native-diagnostic-tests.log.gz",
+    "uncompressed_sha256": "bc239ec65a97ad0a9eb68108c62fa9736e9efabcc8a0da63ff73edc1c7427039",
+    "reason": "Retain raw trailing blank lines losslessly; staged whitespace check flagged EOF blank lines."
+  },
+  {
+    "logical": "v2-vite-off3-S2-test.log",
+    "artifact": "v2-vite-off3-S2-test.log.gz",
+    "uncompressed_sha256": "447655fde747ea395796ef36b0d5336d0ada010090393d7d23a1576a9cd1736b",
+    "reason": "Retain raw trailing blank lines losslessly; staged whitespace check flagged EOF blank lines."
+  },
+  {
+    "logical": "v2-vite-on3-S2-test.log",
+    "artifact": "v2-vite-on3-S2-test.log.gz",
+    "uncompressed_sha256": "14681e65ddaa5ee34399d397b6b2c1dee92c47c0144375b8e8d34f3608a225e6",
+    "reason": "Retain raw trailing blank lines losslessly; staged whitespace check flagged EOF blank lines."
+  },
+  {
+    "logical": "tables-interim.md",
+    "artifact": "tables-interim.md.gz",
+    "uncompressed_sha256": "27446a7abdfff8c05e3ba8fba4de3d44474232563d38798d540d88dbd25fdcc8",
+    "reason": "Retain raw trailing blank lines losslessly; staged whitespace check flagged EOF blank lines."
+  },
+  {
+    "logical": "tables.md",
+    "artifact": "tables.md.gz",
+    "uncompressed_sha256": "436d63de5fb1793f818514bda127c8791c0f2fb0a07583986cd7155e07a28c44",
+    "reason": "Retain raw trailing blank lines losslessly; staged whitespace check flagged EOF blank lines."
+  }
+]

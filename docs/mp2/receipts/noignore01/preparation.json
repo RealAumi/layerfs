@@ -1,0 +1,17 @@
+{
+  "off": "af9f2cec80b19d4613eec1e48b79c8a1cff93e14",
+  "on": "801e9360fdbd177e8e126b89f2730bb9b5213d44",
+  "docker_free_bytes": 63084584960,
+  "docker_min_bytes": 16106127360,
+  "host_free_bytes": 66465521664,
+  "host_cleanup_target_bytes": 300000000000,
+  "scope": "cxn- resources only; preserve cxi-target; no existing resources released",
+  "docker_space_probe": {
+    "command": "docker run --name cxn-space --network none --rm alpine:3.24 df -Pk /",
+    "exit": 0,
+    "output": "overlay 110493696 48887656 61606040 44% /",
+    "sample_count": 1
+  },
+  "profile": "Disposable",
+  "construction_workers": 1
+}

@@ -1,0 +1,1 @@
+Initial audit failed parsing the intentionally retained empty fuser-on.json stdout from the failed provenance invocation: JSONDecodeError: Expecting value: line 1 column 1 (char 0). Corrected scanner skips structured parsing of empty stdout, while still scanning every receipt byte for forbidden text. No receipt discarded.

@@ -1,0 +1,304 @@
+[
+  {
+    "saved": "cxn-v2-vite-off3-merge-final-daemon.log",
+    "container": "cxn-v2-vite-off3-merge"
+  },
+  {
+    "saved": "cxn-v2-vite-off3-merge-final-proxy.log",
+    "container": "cxn-v2-vite-off3-merge"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-v2-vite-off3-merge"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-off3-merge\n"
+  },
+  {
+    "saved": "cxn-v2-vite-on3-resume-final-daemon.log",
+    "container": "cxn-v2-vite-on3-resume"
+  },
+  {
+    "saved": "cxn-v2-vite-on3-resume-final-proxy.log",
+    "container": "cxn-v2-vite-on3-resume"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-v2-vite-on3-resume"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-on3-resume\n"
+  },
+  {
+    "saved": "cxn-v2-vite-on3-cold-final-daemon.log",
+    "container": "cxn-v2-vite-on3-cold"
+  },
+  {
+    "saved": "cxn-v2-vite-on3-cold-final-proxy.log",
+    "container": "cxn-v2-vite-on3-cold"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-v2-vite-on3-cold"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-on3-cold\n"
+  },
+  {
+    "saved": "cxn-v2-vite-on3-server-final-server.log",
+    "container": "cxn-v2-vite-on3-server"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-v2-vite-on3-server"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-on3-server\n"
+  },
+  {
+    "saved": "cxn-v2-vite-off3-resume-final-daemon.log",
+    "container": "cxn-v2-vite-off3-resume"
+  },
+  {
+    "saved": "cxn-v2-vite-off3-resume-final-proxy.log",
+    "container": "cxn-v2-vite-off3-resume"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-v2-vite-off3-resume"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-off3-resume\n"
+  },
+  {
+    "saved": "cxn-v2-vite-off3-cold-final-daemon.log",
+    "container": "cxn-v2-vite-off3-cold"
+  },
+  {
+    "saved": "cxn-v2-vite-off3-cold-final-proxy.log",
+    "container": "cxn-v2-vite-off3-cold"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-v2-vite-off3-cold"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-off3-cold\n"
+  },
+  {
+    "saved": "cxn-v2-vite-off3-server-final-server.log",
+    "container": "cxn-v2-vite-off3-server"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-v2-vite-off3-server"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-off3-server\n"
+  },
+  {
+    "saved": "cxn-v2-vite-fullbase-builder-final-daemon.log",
+    "container": "cxn-v2-vite-fullbase-builder"
+  },
+  {
+    "saved": "cxn-v2-vite-fullbase-builder-final-proxy.log",
+    "container": "cxn-v2-vite-fullbase-builder"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-v2-vite-fullbase-builder"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-fullbase-builder\n"
+  },
+  {
+    "saved": "cxn-v2-vite-fullbase-server-final-server.log",
+    "container": "cxn-v2-vite-fullbase-server"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-v2-vite-fullbase-server"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-fullbase-server\n"
+  },
+  {
+    "saved": "cxn-v2-vite-base-final-daemon.log",
+    "container": "cxn-v2-vite-base"
+  },
+  {
+    "saved": "cxn-v2-vite-base-final-proxy.log",
+    "container": "cxn-v2-vite-base"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-v2-vite-base"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-base\n"
+  },
+  {
+    "saved": "cxn-v2-vite-server-final-server.log",
+    "container": "cxn-v2-vite-server"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-v2-vite-server"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-server\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-v2-vite-base-local"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-base-local\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-v2-vite-fullbase-builder-local"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-fullbase-builder-local\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-v2-vite-fullbase-store"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-fullbase-store\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-v2-vite-off3-cold-local"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-off3-cold-local\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-v2-vite-off3-merge-local"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-off3-merge-local\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-v2-vite-off3-resume-local"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-off3-resume-local\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-v2-vite-off3-store"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-off3-store\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-v2-vite-on3-cold-local"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-on3-cold-local\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-v2-vite-on3-resume-local"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-on3-resume-local\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-v2-vite-on3-store"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-on3-store\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-v2-vite-store"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-store\n"
+  },
+  {
+    "command": [
+      "docker",
+      "network",
+      "rm",
+      "cxn-v2-vite-net"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-net\n"
+  }
+]

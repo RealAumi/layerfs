@@ -1,0 +1,334 @@
+{
+  "home_redactions": [
+    {
+      "file": "node-off-console.log",
+      "replacements": 4,
+      "pre_export_sha256": "e3091083942830aa7a11e541bc32fec2f37b5ad1b47b3f4b916abb48b43be719"
+    },
+    {
+      "file": "node-off2-console.log",
+      "replacements": 2,
+      "pre_export_sha256": "e38137097b1fe468bb98ccc5df64947f723bcd6b1ed6bb8d0db340740317be49"
+    },
+    {
+      "file": "maven-b-base-console.log",
+      "replacements": 3,
+      "pre_export_sha256": "2c73efee4f93f599c20084353b403b17f86167b99c013b4be4c1af6a5c7a7a39"
+    }
+  ],
+  "lossless_compression": [
+    {
+      "logical": "v2-maven-a-off-S6-offline-test.log",
+      "artifact": "v2-maven-a-off-S6-offline-test.log.gz",
+      "uncompressed_sha256": "0dd29c8f8b01a198d36d3770dddaf769c5ed24d64c5d27c4f118a73d7d284188",
+      "bytes": 6702
+    },
+    {
+      "logical": "v2-maven-c-install.log",
+      "artifact": "v2-maven-c-install.log.gz",
+      "uncompressed_sha256": "4737d54013ac5971f810056ed1339983884a1a6d980e29bfd52a0d5bffb543b3",
+      "bytes": 26048
+    },
+    {
+      "logical": "v2-maven-a-on-S3-06-incremental.log",
+      "artifact": "v2-maven-a-on-S3-06-incremental.log.gz",
+      "uncompressed_sha256": "9dd6bd4e7ffee6cb6be64fdbdf9e9c817791c25c1c5d15908f7b63fc4c5cd6f3",
+      "bytes": 7205
+    },
+    {
+      "logical": "v2-maven-a-off-S3-06-incremental.log",
+      "artifact": "v2-maven-a-off-S3-06-incremental.log.gz",
+      "uncompressed_sha256": "1082ca4fa95ef082b7acd125899efc7db2e6ebda6c75cae4f40d45f5dd650fc8",
+      "bytes": 6982
+    },
+    {
+      "logical": "v2-maven-a-on-S3-09-incremental.log",
+      "artifact": "v2-maven-a-on-S3-09-incremental.log.gz",
+      "uncompressed_sha256": "77525c39158cdaf3ecdc0f8d357f1ef2d419c4a0ec8b86cc119ca45be4f2ec63",
+      "bytes": 6982
+    },
+    {
+      "logical": "v2-maven-a-off-S3-09-incremental.log",
+      "artifact": "v2-maven-a-off-S3-09-incremental.log.gz",
+      "uncompressed_sha256": "73536e30fe9eefc162d4a04d6b29cbdb367fb20451149fbe6eaded46d549952f",
+      "bytes": 10230
+    },
+    {
+      "logical": "v2-maven-a-off-S3-10-incremental.log",
+      "artifact": "v2-maven-a-off-S3-10-incremental.log.gz",
+      "uncompressed_sha256": "d7f1588f232d4c85f34e3c74cedd2725b56e4089696003fb8352a688204f7b8d",
+      "bytes": 6982
+    },
+    {
+      "logical": "v2-maven-a-on-S3-10-incremental.log",
+      "artifact": "v2-maven-a-on-S3-10-incremental.log.gz",
+      "uncompressed_sha256": "9b15c301adc5a5bf0565e519e0818a37efea468c92379d3dfd9412489a9370d7",
+      "bytes": 6982
+    },
+    {
+      "logical": "v2-maven-c-build.log",
+      "artifact": "v2-maven-c-build.log.gz",
+      "uncompressed_sha256": "9eab1026e093c2a437682255929b79d02dba7c1bf9af58c0d3aa9e7d0a782aec",
+      "bytes": 8220
+    },
+    {
+      "logical": "v2-maven-b-clone.log",
+      "artifact": "v2-maven-b-clone.log.gz",
+      "uncompressed_sha256": "f96bc8647c4e0d96b362622a5d42890af10714b0219e1c07dd1408116e3fbb0e",
+      "bytes": 776
+    },
+    {
+      "logical": "v2-vite-install.log",
+      "artifact": "v2-vite-install.log.gz",
+      "uncompressed_sha256": "33e16f22475eeac80822a36142999f467dd14a8751b0006c3d4c30fc2846aedc",
+      "bytes": 15129
+    },
+    {
+      "logical": "v2-maven-a-off-S3-01-incremental.log",
+      "artifact": "v2-maven-a-off-S3-01-incremental.log.gz",
+      "uncompressed_sha256": "7b6ee0db109d712e0be1646a829700bda6791558dbe5f549eead4d955284d134",
+      "bytes": 8175
+    },
+    {
+      "logical": "v2-maven-a-on-S3-01-incremental.log",
+      "artifact": "v2-maven-a-on-S3-01-incremental.log.gz",
+      "uncompressed_sha256": "1a61bd7d7801e66eebacc936a0288150e691698539a6f87c87f2d0b2aa5a47d1",
+      "bytes": 7692
+    },
+    {
+      "logical": "native-diagnostic-before.log",
+      "artifact": "native-diagnostic-before.log.gz",
+      "uncompressed_sha256": "f2d537e72ed79a695ee3c5c4fd1ad12d71912ef58b5508940ed6bb9ad08aafd9",
+      "bytes": 164
+    },
+    {
+      "logical": "v2-maven-a-off-S2-offline-test.log",
+      "artifact": "v2-maven-a-off-S2-offline-test.log.gz",
+      "uncompressed_sha256": "e6eeb3d4c5ce161c9459208e8d0ee6e8924e6358bcfd60b124e8028c0e3e8cc4",
+      "bytes": 6691
+    },
+    {
+      "logical": "v2-maven-a-on-S6-reinstall-rebuild.log",
+      "artifact": "v2-maven-a-on-S6-reinstall-rebuild.log.gz",
+      "uncompressed_sha256": "66443ee78741848932dd2ed3ca6099000c414cace9a0226d25574c5b2e7d6cf5",
+      "bytes": 7689
+    },
+    {
+      "logical": "on-live-source-map-fixture.log",
+      "artifact": "on-live-source-map-fixture.log.gz",
+      "uncompressed_sha256": "9897713d6b65b899355ae9b1fdfd5f3cf2fea997878f9080f9aed214cedc0ba1",
+      "bytes": 212
+    },
+    {
+      "logical": "v2-maven-a-off-S3-07-incremental.log",
+      "artifact": "v2-maven-a-off-S3-07-incremental.log.gz",
+      "uncompressed_sha256": "96dfc4c060a9d0cf4a0bca40033ec369b28a8b3f76f027010a7679ab195f87d1",
+      "bytes": 6982
+    },
+    {
+      "logical": "v2-maven-c-clone.log",
+      "artifact": "v2-maven-c-clone.log.gz",
+      "uncompressed_sha256": "f96bc8647c4e0d96b362622a5d42890af10714b0219e1c07dd1408116e3fbb0e",
+      "bytes": 776
+    },
+    {
+      "logical": "v2-maven-b-build.log",
+      "artifact": "v2-maven-b-build.log.gz",
+      "uncompressed_sha256": "e0026a8c79de290db83e358425466c19a3fce42eb9884ee166f2479b3e300662",
+      "bytes": 784049
+    },
+    {
+      "logical": "v2-maven-a-on-S3-07-incremental.log",
+      "artifact": "v2-maven-a-on-S3-07-incremental.log.gz",
+      "uncompressed_sha256": "f3693278788d85ef050dc8b02e9ecaf1f9879003d3ae5e768cb4b6a20351fdfd",
+      "bytes": 10270
+    },
+    {
+      "logical": "v2-maven-a-off-S3-08-incremental.log",
+      "artifact": "v2-maven-a-off-S3-08-incremental.log.gz",
+      "uncompressed_sha256": "e90a56dd0d08cfc39c25592d8b1b4c2ab85fcc3e263748136b9a032534b55b12",
+      "bytes": 6982
+    },
+    {
+      "logical": "v2-maven-a-on-S3-08-incremental.log",
+      "artifact": "v2-maven-a-on-S3-08-incremental.log.gz",
+      "uncompressed_sha256": "ce38f49bb26b8229fd8b12acf3a0dd7f4ad32562be6dd2fd2d3032b954691167",
+      "bytes": 6982
+    },
+    {
+      "logical": "v2-maven-a-off-S7-right-build.log",
+      "artifact": "v2-maven-a-off-S7-right-build.log.gz",
+      "uncompressed_sha256": "7ac82f74944ef625ba34e6c2a90b6cabdf4a6081a470298b793a9e50bc1ed85c",
+      "bytes": 8135
+    },
+    {
+      "logical": "v2-maven-a-on-S4-clean-build.log",
+      "artifact": "v2-maven-a-on-S4-clean-build.log.gz",
+      "uncompressed_sha256": "780cc79b218791632ae27a14060b591c3798038a2d77652115e1799b002484cb",
+      "bytes": 6814
+    },
+    {
+      "logical": "v2-maven-c-off-S5-download-build.log",
+      "artifact": "v2-maven-c-off-S5-download-build.log.gz",
+      "uncompressed_sha256": "58e9588017ef787d801e07e57fdfd4f5154d14505a214e3b13368af1cc08dff0",
+      "bytes": 7688
+    },
+    {
+      "logical": "v2-maven-a-on-S3-02-incremental.log",
+      "artifact": "v2-maven-a-on-S3-02-incremental.log.gz",
+      "uncompressed_sha256": "7331c9e54cfed2e39f7657b0da92bb5537c5bfade42e01bd7845add132b87141",
+      "bytes": 9874
+    },
+    {
+      "logical": "v2-vite-off2-S2-test.log",
+      "artifact": "v2-vite-off2-S2-test.log.gz",
+      "uncompressed_sha256": "1029d329389cdd410365f1dd479374ee2b5d356a18a2224be20d1f03a20ffae2",
+      "bytes": 53771
+    },
+    {
+      "logical": "v2-maven-a-off-S3-02-incremental.log",
+      "artifact": "v2-maven-a-off-S3-02-incremental.log.gz",
+      "uncompressed_sha256": "21c2dd86b3e982b0496d06c26b58285c3bed2d5072b3b7921f5045f7316daa7d",
+      "bytes": 6982
+    },
+    {
+      "logical": "v2-maven-a-off-S3-05-incremental.log",
+      "artifact": "v2-maven-a-off-S3-05-incremental.log.gz",
+      "uncompressed_sha256": "17232f6ea3104272e720f0523bb47fb4cbcecdf811267151183befb7df73534c",
+      "bytes": 6982
+    },
+    {
+      "logical": "v2-maven-a-build.log",
+      "artifact": "v2-maven-a-build.log.gz",
+      "uncompressed_sha256": "28d3761075e10e3cdb71340fa217d438bb2c9a68b64b94744b9fa0bab9910aba",
+      "bytes": 8220
+    },
+    {
+      "logical": "v2-maven-a-on-S3-05-incremental.log",
+      "artifact": "v2-maven-a-on-S3-05-incremental.log.gz",
+      "uncompressed_sha256": "3741e8b0d6c105d1a893e87a21dc1f231c90dc354fcb72456c31380807667104",
+      "bytes": 6982
+    },
+    {
+      "logical": "v2-maven-b-install.log",
+      "artifact": "v2-maven-b-install.log.gz",
+      "uncompressed_sha256": "0aaad04b57338d734cbe58a97f4af4f90ca4dbeb2c420cf47e4eca59aeef9416",
+      "bytes": 26048
+    },
+    {
+      "logical": "v2-vite-on3-S6-test.log",
+      "artifact": "v2-vite-on3-S6-test.log.gz",
+      "uncompressed_sha256": "4054be2ab39b7d9f0f99e29444fb787ab4422adf7a033a8cafd967e64f46ec0f",
+      "bytes": 13270
+    },
+    {
+      "logical": "v2-maven-a-on-S3-04-incremental.log",
+      "artifact": "v2-maven-a-on-S3-04-incremental.log.gz",
+      "uncompressed_sha256": "aa896bd74d8b8c356cbd3b72f50661cd051ae66b8d633045f74248e330f958c7",
+      "bytes": 7566
+    },
+    {
+      "logical": "v2-maven-a-off-S3-04-incremental.log",
+      "artifact": "v2-maven-a-off-S3-04-incremental.log.gz",
+      "uncompressed_sha256": "7a70192dab9bb5cddbb3d4f7abf380a756ce86a001103b632afd1a9d0d47f609",
+      "bytes": 10230
+    },
+    {
+      "logical": "v2-vite-clone.log",
+      "artifact": "v2-vite-clone.log.gz",
+      "uncompressed_sha256": "60a40145cc046f86253342a56d07b27f8722aaef468bab6427771cfae9cd0b9e",
+      "bytes": 692
+    },
+    {
+      "logical": "v2-maven-a-off-S5-download-build.log",
+      "artifact": "v2-maven-a-off-S5-download-build.log.gz",
+      "uncompressed_sha256": "64633b11e8b10b48b90bd96d9b5f0eaaa6c97cc7d8eac911b8d0033eed22b65f",
+      "bytes": 7643
+    },
+    {
+      "logical": "v2-maven-a-install.log",
+      "artifact": "v2-maven-a-install.log.gz",
+      "uncompressed_sha256": "6977989b6a9505ef4648f5e5dd13e32901c12ab739e7520f0021f59fb7dd5541",
+      "bytes": 26048
+    },
+    {
+      "logical": "v2-maven-a-on-S5-download-build.log",
+      "artifact": "v2-maven-a-on-S5-download-build.log.gz",
+      "uncompressed_sha256": "0fc99daecbf351d14763c983b36d3df3d0e4b51fd0604760176b295be06545e0",
+      "bytes": 7643
+    },
+    {
+      "logical": "v2-maven-a-off-S7-left-build.log",
+      "artifact": "v2-maven-a-off-S7-left-build.log.gz",
+      "uncompressed_sha256": "6542e9a617bf727c0feb2cd096def39754003180655f32def184fe03f811486a",
+      "bytes": 7925
+    },
+    {
+      "logical": "runtime-pnpm-image.log",
+      "artifact": "runtime-pnpm-image.log.gz",
+      "uncompressed_sha256": "65519f6e0dcf4065a1b720df16af67d815ade47cfa07e918228c1a8a5be941fb",
+      "bytes": 1831
+    },
+    {
+      "logical": "v2-maven-a-on-S2-offline-test.log",
+      "artifact": "v2-maven-a-on-S2-offline-test.log.gz",
+      "uncompressed_sha256": "599d884f1eca7f570ab5c14bc0d840f4e76e3605cd1ed971a75296c38d56f21f",
+      "bytes": 6691
+    },
+    {
+      "logical": "native-diagnostic-after.log",
+      "artifact": "native-diagnostic-after.log.gz",
+      "uncompressed_sha256": "f2d537e72ed79a695ee3c5c4fd1ad12d71912ef58b5508940ed6bb9ad08aafd9",
+      "bytes": 164
+    },
+    {
+      "logical": "v2-maven-a-clone.log",
+      "artifact": "v2-maven-a-clone.log.gz",
+      "uncompressed_sha256": "f96bc8647c4e0d96b362622a5d42890af10714b0219e1c07dd1408116e3fbb0e",
+      "bytes": 776
+    },
+    {
+      "logical": "off-committed-source-map-fixture.log",
+      "artifact": "off-committed-source-map-fixture.log.gz",
+      "uncompressed_sha256": "9897713d6b65b899355ae9b1fdfd5f3cf2fea997878f9080f9aed214cedc0ba1",
+      "bytes": 212
+    },
+    {
+      "logical": "v2-maven-a-on-S6-offline-test.log",
+      "artifact": "v2-maven-a-on-S6-offline-test.log.gz",
+      "uncompressed_sha256": "27124a1a3a5df926ca89eaad3e4fe279e025a18f8d74918fa0151c9de6c75f73",
+      "bytes": 6707
+    },
+    {
+      "logical": "v2-maven-c-off-S2-offline-test.log",
+      "artifact": "v2-maven-c-off-S2-offline-test.log.gz",
+      "uncompressed_sha256": "43687e0f11e96b420f88d7ec8c121d8b1e057da14e647d8c06c8d61cb9834367",
+      "bytes": 6691
+    },
+    {
+      "logical": "v2-vite-off3-S6-test.log",
+      "artifact": "v2-vite-off3-S6-test.log.gz",
+      "uncompressed_sha256": "f4168fb542325d84885553f5d84adf8e0553c5bda3cdb91e4bbeec85a0d44015",
+      "bytes": 9508
+    },
+    {
+      "logical": "v2-maven-a-off-S4-clean-build.log",
+      "artifact": "v2-maven-a-off-S4-clean-build.log.gz",
+      "uncompressed_sha256": "05bd1eb1c438682df783255cbd615eb6e1a4d96f3dac19036299e6641280d7bc",
+      "bytes": 8636
+    },
+    {
+      "logical": "v2-maven-a-off-S3-03-incremental.log",
+      "artifact": "v2-maven-a-off-S3-03-incremental.log.gz",
+      "uncompressed_sha256": "d2b62c16a485490df21e6d14ab3812f4bc0725d587458a0ff2e7c7feba8eb7ac",
+      "bytes": 8140
+    },
+    {
+      "logical": "v2-maven-a-on-S3-03-incremental.log",
+      "artifact": "v2-maven-a-on-S3-03-incremental.log.gz",
+      "uncompressed_sha256": "9ce39cf2bdab8743d46560830adad5cec732626ca515d40033d7be437f56b29b",
+      "bytes": 8180
+    }
+  ],
+  "attempt1_changed": false
+}

@@ -1,0 +1,24 @@
+Unable to find image 'public.ecr.aws/docker/library/rust:1.85.1-bookworm' locally
+1.85.1-bookworm: Pulling from docker/library/rust
+50edd9a93fcd: Pulling fs layer
+255774e0027b: Pulling fs layer
+353e14e5cc47: Pulling fs layer
+7cd785773db4: Pulling fs layer
+091eb8249475: Pulling fs layer
+0854a88e981d: Download complete
+ad4409c787d6: Download complete
+091eb8249475: Download complete
+255774e0027b: Download complete
+7cd785773db4: Download complete
+7cd785773db4: Pull complete
+091eb8249475: Pull complete
+255774e0027b: Pull complete
+353e14e5cc47: Download complete
+353e14e5cc47: Pull complete
+50edd9a93fcd: Download complete
+50edd9a93fcd: Pull complete
+Digest: sha256:e51d0265072d2d9d5d320f6a44dde6b9ef13653b035098febd68cce8fa7c0bc4
+Status: Image is up to date for public.ecr.aws/docker/library/rust:1.85.1-bookworm
+bash: line 1: rustc: command not found
+bash: line 1: cargo: command not found
+bash: line 1: cargo: command not found

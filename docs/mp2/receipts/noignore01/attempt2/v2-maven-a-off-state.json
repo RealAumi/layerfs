@@ -1,0 +1,13 @@
+{
+  "repo": "v2-maven-a-off",
+  "arm": "off",
+  "kind": "maven",
+  "server": "cxn-v2-maven-a-off-server",
+  "store": "cxn-v2-maven-a-off-store",
+  "network": "cxn-v2-maven-a-net",
+  "variant": "a",
+  "shared_cache": "cxn-v2-maven-a-off-shared-cache",
+  "daemon": "cxn-v2-maven-a-off-cold",
+  "local": "cxn-v2-maven-a-off-cold-local",
+  "branch": "thread"
+}

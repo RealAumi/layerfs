@@ -1,0 +1,62 @@
+[
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-v2-vite-off2-cold"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-off2-cold\n"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-v2-vite-off2-server"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-off2-server\n"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-v2-vite-off-server"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-off-server\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-v2-vite-off2-cold-local"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-off2-cold-local\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-v2-vite-off2-store"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-off2-store\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-v2-vite-off-store"
+    ],
+    "exit": 0,
+    "output": "cxn-v2-vite-off-store\n"
+  }
+]

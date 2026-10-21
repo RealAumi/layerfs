@@ -1,0 +1,29 @@
+[
+  {
+    "id": "P1",
+    "phase": "archive extraction",
+    "outcome": "AssertionError checking git archive producer after tar exited successfully",
+    "command": "git archive ignore | tar -x -C ~/Developer/cxn-ignore-source-noignore01",
+    "limitation": "producer exit value was not printed; all extracted build inputs will be verified against Git blobs; not workload evidence"
+  },
+  {
+    "id": "P2",
+    "phase": "archive provenance",
+    "outcome": "git ls-files returned 128: archive has no .git",
+    "action": "initialized empty scratch Git metadata; no git config changed; provenance check then passed",
+    "receipt": "fuser-on-after-scratch-git.json"
+  },
+  {
+    "id": "P3",
+    "phase": "build launcher",
+    "outcome": "exit 127, login bash could not find rustc or cargo; no compilation",
+    "receipt": "build-off.log",
+    "action": "use non-login bash and native arm64 platform for both arms; separate receipt, no workload rerun"
+  },
+  {
+    "id": "P4",
+    "phase": "public repo metadata",
+    "outcome": "HTTP 404 for package.json at Nest annotated tag object 685ab228612a1dd3a598adcfedddff9a4bf6058c",
+    "action": "resolve peeled commit 35c3ded6dbf3f23f917ae88d0ed966932788cae6; no workload attempted"
+  }
+]

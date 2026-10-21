@@ -1,0 +1,11 @@
+{
+  "off_on_same_sha256": true,
+  "scope": [
+    "pnpm-lock.yaml",
+    "package.json",
+    "packages/vite/src/node/constants.ts",
+    "source-map fixture"
+  ],
+  "observation": "Both published Thread Branches contain the same modified source-map fixture; native full-suite control restored it. Root cause remains unresolved; no LayerFS error or content-mismatch assertion has been isolated. Both S6 rows remain failed.",
+  "proof_repeated_workload": false
+}

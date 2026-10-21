@@ -1,0 +1,52 @@
+ WARN  `node_modules` is present. Lockfile only installation will make it out-of-date
+Progress: resolved 1, reused 0, downloaded 0, added 0
+ WARN  deprecated conventional-changelog-cli@5.0.0: This package is no longer maintained. Please use the conventional-changelog package instead.
+
+   ╭───────────────────────────────────────────────────────────────────╮
+   │                                                                   │
+   │                Update available! 9.15.5 → 12.14.0.                │
+   │   Changelog: https://github.com/pnpm/pnpm/releases/tag/v12.14.0   │
+   │                 Run "pnpm add -g pnpm" to update.                 │
+   │                                                                   │
+   ╰───────────────────────────────────────────────────────────────────╯
+
+ WARN  deprecated eslint@9.19.0: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+Progress: resolved 75, reused 0, downloaded 0, added 0
+packages/vite                            |  WARN  deprecated tsconfck@3.1.4
+Progress: resolved 228, reused 0, downloaded 0, added 0
+Progress: resolved 302, reused 0, downloaded 0, added 0
+Progress: resolved 374, reused 0, downloaded 0, added 0
+Progress: resolved 457, reused 0, downloaded 0, added 0
+Progress: resolved 545, reused 0, downloaded 0, added 0
+Progress: resolved 634, reused 0, downloaded 0, added 0
+Progress: resolved 724, reused 0, downloaded 0, added 0
+Progress: resolved 838, reused 0, downloaded 0, added 0
+Progress: resolved 925, reused 0, downloaded 0, added 0
+Progress: resolved 1011, reused 0, downloaded 0, added 0
+Progress: resolved 1081, reused 0, downloaded 0, added 0
+Progress: resolved 1169, reused 0, downloaded 0, added 0
+Progress: resolved 1253, reused 0, downloaded 0, added 0
+Progress: resolved 1328, reused 0, downloaded 0, added 0
+ WARN  21 deprecated subdependencies found: @ungap/structured-clone@1.2.0, are-we-there-yet@2.0.0, conventional-changelog-atom@5.0.0, conventional-changelog-codemirror@5.0.0, conventional-changelog-core@8.0.0, conventional-changelog-ember@5.0.0, conventional-changelog-eslint@6.0.0, conventional-changelog-express@5.0.0, conventional-changelog-jquery@6.0.0, conventional-changelog-jshint@5.0.0, gauge@3.0.2, git-raw-commits@5.0.0, git-semver-tags@8.0.0, glob@10.4.5, glob@7.2.3, inflight@1.0.6, node-domexception@1.0.0, npmlog@5.0.1, rimraf@3.0.2, sourcemap-codec@1.4.8, tar@6.2.1
+Progress: resolved 1336, reused 0, downloaded 0, added 0, done
+
+devDependencies:
++ decimal.js 10.4.3
+
+ WARN  Issues with peer dependencies found
+packages/create-vite
+└─┬ unbuild 3.3.1
+  └── ✕ unmet peer typescript@^5.7.3: found 5.7.2
+
+playground/external
+└─┬ vue 3.2.47
+  └─┬ @vue/server-renderer 3.2.47
+    └── ✕ unmet peer vue@3.2.47: found 3.5.13
+
+Packages: +1
++
+. postinstall$ simple-git-hooks
+. postinstall: [INFO] Successfully set the pre-commit with command: pnpm exec lint-staged --concurrent false
+. postinstall: [INFO] Successfully set all git hooks
+. postinstall: Done
+Done in 17s

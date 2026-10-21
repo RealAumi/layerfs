@@ -1,0 +1,162 @@
+[
+  {
+    "command": [
+      "docker",
+      "exec",
+      "cxn-node2-base",
+      "timeout",
+      "25",
+      "/bins/off/layerfs-remote",
+      "/state/daemon.setup",
+      "unmount",
+      "44bee0388e286531e1713aafddcd3149d67e10c209943b0e3f5d063b2ea9632a",
+      "1",
+      "discard"
+    ],
+    "exit": 0,
+    "wall_ns": 222736709,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(44bee0388e286531e1713aafddcd3149d67e10c209943b0e3f5d063b2ea9632a), namespace: 1 })\nwall_ns=25748991\n"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-node2-base"
+    ],
+    "exit": 0,
+    "wall_ns": 237719500,
+    "output": "cxn-node2-base\n"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-node2-server"
+    ],
+    "exit": 0,
+    "wall_ns": 201670708,
+    "output": "cxn-node2-server\n"
+  },
+  {
+    "command": [
+      "docker",
+      "rm",
+      "-f",
+      "cxn-node-server"
+    ],
+    "exit": 0,
+    "wall_ns": 191780084,
+    "output": "cxn-node-server\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-node2-base-local"
+    ],
+    "exit": 0,
+    "wall_ns": 76179708,
+    "output": "cxn-node2-base-local\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-node2-store"
+    ],
+    "exit": 0,
+    "wall_ns": 134926083,
+    "output": "cxn-node2-store\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-node-base-local"
+    ],
+    "exit": 0,
+    "wall_ns": 60979292,
+    "output": "cxn-node-base-local\n"
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "rm",
+      "cxn-node-store"
+    ],
+    "exit": 0,
+    "wall_ns": 34776958,
+    "output": "cxn-node-store\n"
+  },
+  {
+    "command": [
+      "docker",
+      "network",
+      "rm",
+      "cxn-work-net-node2"
+    ],
+    "exit": 0,
+    "wall_ns": 101436083,
+    "output": "cxn-work-net-node2\n"
+  },
+  {
+    "command": [
+      "docker",
+      "network",
+      "rm",
+      "cxn-work-net"
+    ],
+    "exit": 0,
+    "wall_ns": 108551958,
+    "output": "cxn-work-net\n"
+  },
+  {
+    "command": [
+      "docker",
+      "network",
+      "rm",
+      "cxn-build-net"
+    ],
+    "exit": 0,
+    "wall_ns": 114341416,
+    "output": "cxn-build-net\n"
+  },
+  {
+    "command": [
+      "docker",
+      "image",
+      "rm",
+      "cxn-tools:noignore01"
+    ],
+    "exit": 0,
+    "wall_ns": 170165334,
+    "output": "Untagged: cxn-tools:noignore01\nDeleted: sha256:2a2eebe84ec4eaac9b9a12462f49b80846aa8987a4b3b46a971d86a37c43eef8\n"
+  },
+  {
+    "removed_path": "~/Developer/cxn-ignore-source-noignore01",
+    "exists_after": false
+  },
+  {
+    "removed_path": "~/Developer/cxn-cleanup-noignore01",
+    "exists_after": false
+  },
+  {
+    "command": [
+      "docker",
+      "volume",
+      "inspect",
+      "cxi-target",
+      "--format",
+      "{{.Name}}"
+    ],
+    "exit": 0,
+    "wall_ns": 68952583,
+    "output": "cxi-target\n"
+  }
+]

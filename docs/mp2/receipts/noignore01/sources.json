@@ -1,0 +1,15 @@
+{
+  "node": {
+    "url": "https://github.com/nestjs/nest.git",
+    "tag": "v11.1.6",
+    "tag_object": "685ab228612a1dd3a598adcfedddff9a4bf6058c",
+    "commit": "35c3ded6dbf3f23f917ae88d0ed966932788cae6",
+    "pin_verified_by": "git ls-remote peeled tag and actual shallow checkout"
+  },
+  "maven": {
+    "url": "https://github.com/spring-projects/spring-petclinic.git",
+    "commit": "500158f732419217507c7656904b8e6aa1bcc0d6",
+    "pin_verified_by": "git ls-remote HEAD on 2026-10-21; public raw POM read",
+    "workload_run": false
+  }
+}

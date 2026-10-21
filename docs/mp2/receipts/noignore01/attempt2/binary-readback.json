@@ -1,0 +1,22 @@
+{
+  "command": [
+    "docker",
+    "run",
+    "--rm",
+    "--name",
+    "cxn-binary-readback",
+    "--network",
+    "none",
+    "-v",
+    "cxi-target:/target:ro",
+    "public.ecr.aws/docker/library/rust@sha256:e51d0265072d2d9d5d320f6a44dde6b9ef13653b035098febd68cce8fa7c0bc4",
+    "sha256sum",
+    "/target/cxn-noignore01/off/layerfs-remote-daemon",
+    "/target/cxn-noignore01/on/layerfs-remote-daemon",
+    "/target/cxn-noignore01/cxn-noignore-driver"
+  ],
+  "exit": 0,
+  "output": "eaf5c38b2719057633e4b163f44419adee906a01c34728fa814c128295d4e90d  /target/cxn-noignore01/off/layerfs-remote-daemon\nbfd1d36ae1d3f97b0cab192b90a02aa5307295535294cafa65f88aa82c3a9efe  /target/cxn-noignore01/on/layerfs-remote-daemon\n8fa7aef4ba88f9eb381e872fc17cc2e0fb7d37bcd07126b568c209eb7836df37  /target/cxn-noignore01/cxn-noignore-driver\n",
+  "driver_source_sha256": "8e2bef7b59383bffcce37092aedf1de07ede4e1dd4c3628d0b023ec28c4dbcd9",
+  "driver_lock_sha256": "bb9913002492a4bf815bead196eeaab6011e00f82404668ac897fc3b40109ba9"
+}

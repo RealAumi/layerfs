@@ -1,0 +1,21 @@
+[package]
+name = "cxn-noignore-driver"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.85"
+
+[workspace]
+
+[dependencies]
+layerfs-api = { path = "../../../core/crates/layerfs-api" }
+layerfs-bridge = { path = "../../../core/crates/layerfs-bridge" }
+layerfs-history = { path = "../../../core/crates/layerfs-history" }
+layerfs-remote-store = { path = "../../../core/crates/layerfs-remote-store" }
+layerfs-store-service = { path = "../../../core/crates/layerfs-store-service" }
+layerfs-persistence = { path = "../../../core/crates/layerfs-persistence" }
+layerfs-project = { path = "../../../core/crates/layerfs-project" }
+layerfs-storage = { path = "../../../core/crates/layerfs-storage" }
+layerfs-telemetry = { path = "../../../core/crates/layerfs-telemetry" }
+
+[patch.crates-io]
+fuser = { version = "=0.18.0", path = "../../../core/vendor/fuser-0.18.0" }

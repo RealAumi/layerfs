@@ -1,0 +1,2 @@
+Dirty(DirtyReport { token: WorkspaceToken { workspace: WorkspaceId(cb5bec3f69a70af32b2a401d8f93f61a4394f1ab1c653389081a647b2c0c2969), namespace: 1 }, paths: ["/.git/hooks/pre-commit"], inodes: 0, entries: 0, pending_merge: true, truncated: true })
+wall_ns=392965670

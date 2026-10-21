@@ -1,0 +1,5 @@
+{
+  "pom_and_source_hashes_match": true,
+  "new_dependency_jar_sha256_match": true,
+  "cache_volumes": "independent byte copies per arm, shared only across machines of that arm"
+}

@@ -1,0 +1,11 @@
+v22.23.3
+10.9.9
+[1mApache Maven 3.8.7[m
+Maven home: /usr/share/maven
+Java version: 17.0.20.1, vendor: Debian, runtime: /usr/lib/jvm/java-17-openjdk-arm64
+Default locale: en_US, platform encoding: ANSI_X3.4-1968
+OS name: "linux", version: "7.2.9-orbstack-00391-g2b298d05fbd4", arch: "aarch64", family: "unix"
+[0mopenjdk version "17.0.20.1" 2026-08-18
+OpenJDK Runtime Environment (build 17.0.20.1+1-1-deb12u1-Debian)
+OpenJDK 64-Bit Server VM (build 17.0.20.1+1-1-deb12u1-Debian, mixed mode, sharing)
+[0m

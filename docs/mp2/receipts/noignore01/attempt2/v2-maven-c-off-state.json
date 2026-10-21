@@ -1,0 +1,12 @@
+{
+  "repo": "v2-maven-c-off",
+  "arm": "off",
+  "kind": "maven",
+  "server": "cxn-v2-maven-c-off-server",
+  "store": "cxn-v2-maven-c-off-store",
+  "network": "cxn-v2-maven-c-net",
+  "variant": "c",
+  "daemon": "cxn-v2-maven-c-off-cold",
+  "local": "cxn-v2-maven-c-off-cold-local",
+  "branch": "thread"
+}

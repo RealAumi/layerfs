@@ -1,0 +1,2 @@
+Sdk(Map([("roundTrips", Int(2273)), ("uploadedObjects", Int(21)), ("uploadedBytes", Int(55718)), ("restore", Text("not-requested"))]))
+wall_ns=300915

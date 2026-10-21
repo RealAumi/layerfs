@@ -1,0 +1,26 @@
+node2-network 0 0.213
+node2-volume-store 0 0.031
+node2-volume-local 0 0.032
+node2-server-create 0 0.237
+node2-init 0 0.176
+node2-fork-base 0 0.058
+node2-server-start 0 0.049
+node2-config-copy 0 0.285
+node2-daemon-create 0 0.165
+node2-proxy-start 0 0.059
+node2-daemon-start 0 0.048
+node2-base-id 0 0.037
+node2-mount-base 0 0.059
+node2-clone 0 2.242
+node2-rules 0 0.042
+node2-install 1 2.971
+Traceback (most recent call last):
+  File "~/Developer/layerfs-ignore/docs/mp2/no-ignore-run.py", line 166, in <module>
+    base(sys.argv[1])
+    ~~~~^^^^^^^^^^^^^
+  File "~/Developer/layerfs-ignore/docs/mp2/no-ignore-run.py", line 156, in base
+    workload(s, repo+'-install', 'npm ci --registry=https://registry.npmjs.org --no-audit --no-fund', 600)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "~/Developer/layerfs-ignore/docs/mp2/no-ignore-run.py", line 105, in workload
+    raise RuntimeError('workload failed: ' + label)
+RuntimeError: workload failed: node2-install

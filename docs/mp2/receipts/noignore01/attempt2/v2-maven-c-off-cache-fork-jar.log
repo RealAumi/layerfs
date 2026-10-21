@@ -1,0 +1,2 @@
+Ok(Map([("kind", Text("ok")), ("snapshot", Text("cache-thread@7eb2dbeda082")), ("root", Text("410db1f7cfa1445488d8f7607b9ce3d907ca37a6b67bba62bb561d3a92fd9416")), ("path", Text("/repository/com/google/zxing/core/3.5.3/core-3.5.3.jar")), ("type", Text("file")), ("inode", Int(11282)), ("size", Int(607650))]))
+wall_ns=898124

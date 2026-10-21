@@ -1,0 +1,22 @@
+{
+  "vite": {
+    "failed_selection": "v2-vite-off2-S2-test",
+    "failures": [
+      "create-vite was not built by the initial Vite-only build",
+      "Node 22 native TypeScript behavior differs from pinned test expectations"
+    ],
+    "retained_as": "failed cold sample, not replaced",
+    "revised_selection": "full monorepo build, Node 20.19.0, independent fresh forks for both arms",
+    "dependency_preparation_reuse": "closed v2-vite Store, unmodified frozen-lockfile installation; no reinstallation sample"
+  },
+  "petclinic_S8b": {
+    "install": "v2-maven-b-install: succeeded with real public dependency download",
+    "build": "v2-maven-b-build: failed with 3757 NoHttp violations under .m2",
+    "cause": "build scanner includes repo-local dependency POMs despite Git exclude",
+    "disposition": "S8b remains failed, no skipped checks or source workaround; S8a selected for full Maven off/on loop, S8c independent cache Branch remains selected"
+  },
+  "harness_syntax": {
+    "failure": "Python SyntaxError during editing the Java-loop command string; no workload launched",
+    "correction": "quoted multiline Python payload; syntax check passed before execution"
+  }
+}

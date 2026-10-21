@@ -1,0 +1,20 @@
+{
+  "cargo_failures": {
+    "receipts": [
+      "build-on-native.log",
+      "build-on-isolated-source.log"
+    ],
+    "cause": "Archive source timestamps preceded shared-target artifacts. Compiler cited /src main dependency APIs, despite /src-on ignore files. Changed mount path alone did not invalidate dependency artifacts. Arm-specific target compiled successfully without product edits.",
+    "disposition": "INELIGIBLE build attempts; no workload samples"
+  },
+  "init_refusal": {
+    "receipt": "node-init.log",
+    "cause": "Harness omitted SqliteAcquisitionSchema::Tables. AcquisitionProvider refuses units when tables disabled; explicit setting matches existing Init caller contract.",
+    "disposition": "FAILED setup, empty source only, no workload; retain failed Store until cleanup; fresh node2 fixture with corrected harness"
+  },
+  "artifact_pins": {
+    "off_daemon": "eaf5c38b2719057633e4b163f44419adee906a01c34728fa814c128295d4e90d",
+    "on_daemon": "bfd1d36ae1d3f97b0cab192b90a02aa5307295535294cafa65f88aa82c3a9efe"
+  },
+  "product_edits": 0
+}

@@ -1,0 +1,17 @@
+{
+  "repo": "v2-maven-a",
+  "arm": "off",
+  "server": "cxn-v2-maven-a-server",
+  "daemon": "cxn-v2-maven-a-builder",
+  "store": "cxn-v2-maven-a-store",
+  "local": "cxn-v2-maven-a-builder-local",
+  "path": "/workspaces/1",
+  "workspace": "cb992a7ea069060e9d5bde9b084eedfb6d08167a2f1e7875503aad67bce20104",
+  "namespace": "1",
+  "network": "cxn-v2-maven-a-net",
+  "kind": "maven",
+  "variant": "a",
+  "shared_cache": "cxn-v2-maven-a-shared-cache",
+  "branch": "base",
+  "closed_base": true
+}

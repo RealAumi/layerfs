@@ -1,0 +1,24 @@
+Scope: all 233 workspace projects
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +85
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+   ╭───────────────────────────────────────────────────────────────────╮
+   │                                                                   │
+   │                Update available! 9.15.5 → 12.14.0.                │
+   │   Changelog: https://github.com/pnpm/pnpm/releases/tag/v12.14.0   │
+   │                 Run "pnpm add -g pnpm" to update.                 │
+   │                                                                   │
+   ╰───────────────────────────────────────────────────────────────────╯
+
+Progress: resolved 85, reused 84, downloaded 1, added 85, done
+
+devDependencies:
++ decimal.js 10.4.3
+
+. postinstall$ simple-git-hooks
+. postinstall: [INFO] Successfully set the pre-commit with command: pnpm exec lint-staged --concurrent false
+. postinstall: [INFO] Successfully set all git hooks
+. postinstall: Done
+Done in 1.9s

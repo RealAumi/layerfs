@@ -1,0 +1,15 @@
+{
+  "repo": "v2-vite",
+  "arm": "off",
+  "server": "cxn-v2-vite-server",
+  "daemon": "cxn-v2-vite-base",
+  "store": "cxn-v2-vite-store",
+  "local": "cxn-v2-vite-base-local",
+  "path": "/workspaces/1",
+  "workspace": "ba7223996db0bfac291cc5744c92f99ac672b72b365c94c71a09e60222aa452d",
+  "namespace": "1",
+  "network": "cxn-v2-vite-net",
+  "kind": "node",
+  "qualified": true,
+  "closed_base": true
+}

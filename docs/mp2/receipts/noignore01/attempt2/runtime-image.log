@@ -1,0 +1,44 @@
+#0 building with "orbstack" instance using docker driver
+
+#1 [internal] load build definition from no-ignore.Dockerfile
+#1 transferring dockerfile: 593B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for public.ecr.aws/docker/library/rust:1.85.1-bookworm
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/node:22-bookworm
+#3 DONE 1.3s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [stage-1 1/4] FROM public.ecr.aws/docker/library/rust:1.85.1-bookworm@sha256:e51d0265072d2d9d5d320f6a44dde6b9ef13653b035098febd68cce8fa7c0bc4
+#5 resolve public.ecr.aws/docker/library/rust:1.85.1-bookworm@sha256:e51d0265072d2d9d5d320f6a44dde6b9ef13653b035098febd68cce8fa7c0bc4 0.0s done
+#5 DONE 0.0s
+
+#6 [node 1/1] FROM docker.io/library/node:22-bookworm@sha256:0e5f906573693feaa1e21057ebdcfdb5bd5021f050b2dc7c9deceb629c7da2a8
+#6 resolve docker.io/library/node:22-bookworm@sha256:0e5f906573693feaa1e21057ebdcfdb5bd5021f050b2dc7c9deceb629c7da2a8 0.0s done
+#6 DONE 0.0s
+
+#7 [stage-1 3/4] COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
+#7 CACHED
+
+#8 [stage-1 2/4] COPY --from=node /usr/local/bin/node /usr/local/bin/node
+#8 CACHED
+
+#9 [stage-1 4/4] RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm  && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx  && apt-get update  && apt-get install -y --no-install-recommends openjdk-17-jdk-headless maven python3  && rm -rf /var/lib/apt/lists/*  && useradd -m -u 1000 runner
+#9 CACHED
+
+#10 exporting to image
+#10 exporting layers done
+#10 exporting manifest sha256:5ea0f9f47f9adbb15c7b1afb2b4a8fc4c565c084bc82cd8e8ed628c9a078426f done
+#10 exporting config sha256:fbabed6dfbabb6f22fd1bc97a66210b5da61db23e30ec9ebe8ca958b9ebd389e done
+#10 exporting attestation manifest sha256:71fe8bd6d0b79005c2c636695c6e888dd579a94763b9f0eada5dfe0d605bb280
+#10 exporting attestation manifest sha256:71fe8bd6d0b79005c2c636695c6e888dd579a94763b9f0eada5dfe0d605bb280 0.0s done
+#10 exporting manifest list sha256:90c152c3a8a0d9468ab3ac32ba95c80166e55be15c226689457e394e2b5d4869 0.0s done
+#10 naming to docker.io/library/cxn-tools:noignore02 done
+#10 unpacking to docker.io/library/cxn-tools:noignore02
+#10 unpacking to docker.io/library/cxn-tools:noignore02 1.8s done
+#10 DONE 1.9s

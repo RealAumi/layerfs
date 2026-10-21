@@ -1,0 +1,14 @@
+Transcribed from tool output; preparatory errors, not workload observations.
+
+Archive producer check:
+Traceback (most recent call last):
+  File "<stdin>", line 4, in <module>
+AssertionError
+
+Archive provenance before scratch Git metadata:
+fatal: not a git repository (or any of the parent directories): .git
+subprocess.CalledProcessError: git ls-files returned non-zero exit status 128.
+
+Public metadata probe:
+curl: (56) The requested URL returned error: 404
+FileNotFoundError: /tmp/cxn-nest-package.json

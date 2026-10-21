@@ -1,0 +1,36 @@
+{
+  "node": {
+    "commit": "12b0e55eba7094fca98bb62afc4086a9cece6e4e11ea7d1766e8f56262540dee90",
+    "root": "ae333af4ff568f213616562bf4e63a2351f8c12242cf916818a0afa09d8f1eca",
+    "fork_receipts": [
+      "v2-vite-off3-thread-fork.log",
+      "v2-vite-on3-thread-fork.log"
+    ],
+    "identical_fork_head_verified": true
+  },
+  "maven-a": {
+    "commit": "12c91a3833a06f18e6f57e7194057c672e7404675e4648ed62ee9e99ac93f17da6",
+    "root": "3567c5c5c939b954445b75ebc94e5c55abf8cb37f9417026a6f84e89c8024f00",
+    "fork_receipts": [
+      "v2-maven-a-off-repo-fork.log",
+      "v2-maven-a-on-repo-fork.log"
+    ],
+    "identical_fork_head_verified": true
+  },
+  "maven-c-repo": {
+    "commit": "12629df256ab3d7831fbabf9e1b28ac4c923b03612382398815861000f5e7f3d0f",
+    "root": "a3fcbe16f8a6405bd2ef87ad0817318c6c3b326b406093fccd5174bdb010374b",
+    "fork_receipts": [
+      "v2-maven-c-off-repo-fork.log"
+    ],
+    "identical_fork_head_verified": true
+  },
+  "maven-c-cache": {
+    "commit": "12f885bd119c2a153e58d43128022a5c417e21cc4390940c6707b8661d9acb33f2",
+    "root": "2a6f7c7817573ea84e4bfd534e5ebc1a1f69ad4f3a077ad3cb3f1205ec7deac7",
+    "fork_receipts": [
+      "v2-maven-c-off-cache-fork.log"
+    ],
+    "identical_fork_head_verified": true
+  }
+}

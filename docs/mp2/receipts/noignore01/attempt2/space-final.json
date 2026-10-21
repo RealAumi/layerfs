@@ -1,0 +1,7 @@
+{
+  "docker_free_bytes": 50432139264,
+  "minimum_bytes": 16106127360,
+  "host_free_bytes": 53133578240,
+  "initial_300GB_reclaim_target_met": false,
+  "initial_shortfall_bytes": 300000000000
+}

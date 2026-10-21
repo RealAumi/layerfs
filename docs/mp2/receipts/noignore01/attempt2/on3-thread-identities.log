@@ -1,0 +1,4 @@
+2f0f31a854ac9e4b67b43c81fdf37f1fbdf688a4302aa2c9250c2ab94b9ff84e  pnpm-lock.yaml
+5b022da57aef96d150a2b0e77fbaf4ea52453a08de9deb45d4a0c1d41fc23167  package.json
+497adb5e5fd8d2e769abab13ff0651304b26b28ca8721f12e89ff4a7b9b2c0d2  packages/vite/src/node/constants.ts
+f4b628cf67a6f77cbc4214fe5601d831126f798ba447d9a65acb9fec45328d93  packages/vite/src/node/ssr/runtime/__tests__/fixtures/throws-error-method.ts

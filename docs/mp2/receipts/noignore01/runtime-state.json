@@ -1,0 +1,11 @@
+{
+  "repo": "node2",
+  "arm": "off",
+  "server": "cxn-node2-server",
+  "daemon": "cxn-node2-base",
+  "store": "cxn-node2-store",
+  "local": "cxn-node2-base-local",
+  "path": "/workspaces/1",
+  "workspace": "44bee0388e286531e1713aafddcd3149d67e10c209943b0e3f5d063b2ea9632a",
+  "namespace": "1"
+}

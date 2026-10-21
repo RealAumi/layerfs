@@ -1,0 +1,127 @@
+{
+  "parent": "af9f2cec80b19d4613eec1e48b79c8a1cff93e14",
+  "staged_tree_before_receipt": "ce357a953b80a2b278dc4e283832591565358bb7",
+  "product_subtrees": {
+    "core": {
+      "parent": "625f9587ff6b0ec04b6523c0ef78057b0a089746",
+      "staged": "625f9587ff6b0ec04b6523c0ef78057b0a089746"
+    },
+    "sdk": {
+      "parent": "63159612bc78870098fb40b94127616f96d312a7",
+      "staged": "63159612bc78870098fb40b94127616f96d312a7"
+    },
+    "dsh": {
+      "parent": "0497e5576b313dd47bd0efc8268ca82233f23ab0",
+      "staged": "0497e5576b313dd47bd0efc8268ca82233f23ab0"
+    },
+    "tools/production_loc.py": {
+      "parent": "e6d94d1a731b402ccc9159f49cef1eba5a74cfe0",
+      "staged": "e6d94d1a731b402ccc9159f49cef1eba5a74cfe0"
+    }
+  },
+  "method": "Pinned tools/production_loc.py --json on exact Git-blob materialization; final staged production entries equal parent; docs/harness/tests excluded. Final commit subtree equality to be read back.",
+  "counter_sha256": "09f2b9028cf4480a076b706e38a6a1742f4eddf63cfbe9445c7829c81f9d86bc",
+  "production_files": 968,
+  "before": {
+    "combined": 109419,
+    "scopes": {
+      "core": {
+        "crates": {
+          "layerfs-api": 2291,
+          "layerfs-bridge": 3536,
+          "layerfs-content": 25942,
+          "layerfs-daemon": 6201,
+          "layerfs-fuse": 4524,
+          "layerfs-history": 990,
+          "layerfs-overlay": 9730,
+          "layerfs-persistence": 8398,
+          "layerfs-project": 1667,
+          "layerfs-remote-store": 1435,
+          "layerfs-sandbox": 3311,
+          "layerfs-storage": 8993,
+          "layerfs-store-service": 10278,
+          "layerfs-telemetry": 2280,
+          "layerfs-workspace": 8991
+        },
+        "files": 828,
+        "lines": 98567
+      },
+      "dsh": {
+        "crates": {
+          "@dsh-layerfs/client": 1610,
+          "@dsh-layerfs/host": 1972,
+          "@dsh-layerfs/mock": 739,
+          "@dsh-layerfs/model": 938,
+          "@dsh-layerfs/view": 2665
+        },
+        "files": 88,
+        "lines": 7924
+      },
+      "reference": {
+        "crates": {},
+        "files": 0,
+        "lines": 0
+      },
+      "sdk": {
+        "crates": {
+          "@layerfs/sdk": 552,
+          "layerfs-node": 2376
+        },
+        "files": 52,
+        "lines": 2928
+      }
+    }
+  },
+  "after": {
+    "combined": 109419,
+    "scopes": {
+      "core": {
+        "crates": {
+          "layerfs-api": 2291,
+          "layerfs-bridge": 3536,
+          "layerfs-content": 25942,
+          "layerfs-daemon": 6201,
+          "layerfs-fuse": 4524,
+          "layerfs-history": 990,
+          "layerfs-overlay": 9730,
+          "layerfs-persistence": 8398,
+          "layerfs-project": 1667,
+          "layerfs-remote-store": 1435,
+          "layerfs-sandbox": 3311,
+          "layerfs-storage": 8993,
+          "layerfs-store-service": 10278,
+          "layerfs-telemetry": 2280,
+          "layerfs-workspace": 8991
+        },
+        "files": 828,
+        "lines": 98567
+      },
+      "dsh": {
+        "crates": {
+          "@dsh-layerfs/client": 1610,
+          "@dsh-layerfs/host": 1972,
+          "@dsh-layerfs/mock": 739,
+          "@dsh-layerfs/model": 938,
+          "@dsh-layerfs/view": 2665
+        },
+        "files": 88,
+        "lines": 7924
+      },
+      "reference": {
+        "crates": {},
+        "files": 0,
+        "lines": 0
+      },
+      "sdk": {
+        "crates": {
+          "@layerfs/sdk": 552,
+          "layerfs-node": 2376
+        },
+        "files": 52,
+        "lines": 2928
+      }
+    }
+  },
+  "delta": 0,
+  "reference": "reference absent (retired R9c; last counted 65,417 at tree 498dd1917812)"
+}

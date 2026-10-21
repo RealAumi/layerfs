@@ -1,0 +1,3 @@
+Filesystem           1024-blocks    Used Available Capacity Mounted on
+overlay              105250816  56000680  49250136  53% /
+WARNING: The requested image's platform (linux/amd64) does not match the detected host platform (linux/arm64/v8) and no specific platform was requested

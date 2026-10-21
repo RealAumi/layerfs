@@ -1,0 +1,1278 @@
+[
+  {
+    "repo": "Node",
+    "scenario": "S1 shared warm base",
+    "mode": "off builder",
+    "time": "clone 3.954; install 58.422; builds 7.363 + 18.515; Commits 18.452 + 0.077",
+    "uploaded_bytes": 512651948,
+    "fetched_wire_bytes": 52033562,
+    "store_growth_bytes": 189661184,
+    "note": "Initial partial build/Node 22 cold test failed; full build revised on Node 20, reusing installed base. Final 71,585 files / 1,182,803,886 B.",
+    "evidence_labels": [
+      "v2-vite",
+      "v2-vite-fullbase"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S2 cold mount + test",
+    "mode": "off",
+    "time": "6.037",
+    "uploaded_bytes": 0,
+    "fetched_wire_bytes": 37860746,
+    "store_growth_bytes": 0,
+    "note": "No reinstall",
+    "evidence_labels": [
+      "v2-vite-off3-S2"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S6 mount \u2192 tests finish",
+    "mode": "off",
+    "time": "5.887 FAIL",
+    "uploaded_bytes": 0,
+    "fetched_wire_bytes": 37997907,
+    "store_growth_bytes": 0,
+    "note": "Failed test; not time to pass",
+    "evidence_labels": [
+      "v2-vite-off3-S6"
+    ],
+    "status": "FAIL",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 01",
+    "mode": "off",
+    "time": "work 2.619; Commit 0.053",
+    "uploaded_bytes": 175280,
+    "fetched_wire_bytes": 12723215,
+    "store_growth_bytes": 73728,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S3-01-edit",
+      "v2-vite-off3-S3-01-commit",
+      "v2-vite-off3-S3-01-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 02",
+    "mode": "off",
+    "time": "work 2.358; Commit 0.020",
+    "uploaded_bytes": 132878,
+    "fetched_wire_bytes": 1040,
+    "store_growth_bytes": 24576,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S3-02-edit",
+      "v2-vite-off3-S3-02-commit",
+      "v2-vite-off3-S3-02-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 03",
+    "mode": "off",
+    "time": "work 2.406; Commit 0.022",
+    "uploaded_bytes": 132879,
+    "fetched_wire_bytes": 1040,
+    "store_growth_bytes": 24576,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S3-03-edit",
+      "v2-vite-off3-S3-03-commit",
+      "v2-vite-off3-S3-03-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 04",
+    "mode": "off",
+    "time": "work 2.373; Commit 0.020",
+    "uploaded_bytes": 132880,
+    "fetched_wire_bytes": 1040,
+    "store_growth_bytes": 20480,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S3-04-edit",
+      "v2-vite-off3-S3-04-commit",
+      "v2-vite-off3-S3-04-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 05",
+    "mode": "off",
+    "time": "work 2.375; Commit 0.020",
+    "uploaded_bytes": 132881,
+    "fetched_wire_bytes": 1040,
+    "store_growth_bytes": 24576,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S3-05-edit",
+      "v2-vite-off3-S3-05-commit",
+      "v2-vite-off3-S3-05-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 06",
+    "mode": "off",
+    "time": "work 2.393; Commit 0.020",
+    "uploaded_bytes": 132882,
+    "fetched_wire_bytes": 1040,
+    "store_growth_bytes": 28672,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S3-06-edit",
+      "v2-vite-off3-S3-06-commit",
+      "v2-vite-off3-S3-06-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 07",
+    "mode": "off",
+    "time": "work 2.432; Commit 0.020",
+    "uploaded_bytes": 132883,
+    "fetched_wire_bytes": 1040,
+    "store_growth_bytes": 24576,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S3-07-edit",
+      "v2-vite-off3-S3-07-commit",
+      "v2-vite-off3-S3-07-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 08",
+    "mode": "off",
+    "time": "work 2.364; Commit 0.020",
+    "uploaded_bytes": 132884,
+    "fetched_wire_bytes": 1040,
+    "store_growth_bytes": 24576,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S3-08-edit",
+      "v2-vite-off3-S3-08-commit",
+      "v2-vite-off3-S3-08-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 09",
+    "mode": "off",
+    "time": "work 2.436; Commit 0.020",
+    "uploaded_bytes": 132885,
+    "fetched_wire_bytes": 1040,
+    "store_growth_bytes": 24576,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S3-09-edit",
+      "v2-vite-off3-S3-09-commit",
+      "v2-vite-off3-S3-09-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 10",
+    "mode": "off",
+    "time": "work 2.453; Commit 0.020",
+    "uploaded_bytes": 132888,
+    "fetched_wire_bytes": 1040,
+    "store_growth_bytes": 24576,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S3-10-edit",
+      "v2-vite-off3-S3-10-commit",
+      "v2-vite-off3-S3-10-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S4 clean build",
+    "mode": "off",
+    "time": "work 16.641; Commit 0.064",
+    "uploaded_bytes": 53773,
+    "fetched_wire_bytes": 23005467,
+    "store_growth_bytes": 57344,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S4-clean-build",
+      "v2-vite-off3-S4-commit"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S5 dependency change",
+    "mode": "off",
+    "time": "work 17.170; Commit 0.068",
+    "uploaded_bytes": 664099,
+    "fetched_wire_bytes": 1393249,
+    "store_growth_bytes": 323584,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S5-add",
+      "v2-vite-off3-S5-commit",
+      "v2-vite-off3-S5-add"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S2 cold mount + test",
+    "mode": "on",
+    "time": "5.718",
+    "uploaded_bytes": 0,
+    "fetched_wire_bytes": 37937372,
+    "store_growth_bytes": 0,
+    "note": "No reinstall",
+    "evidence_labels": [
+      "v2-vite-on3-S2"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S6 mount \u2192 tests finish",
+    "mode": "on",
+    "time": "25.880 FAIL",
+    "uploaded_bytes": 0,
+    "fetched_wire_bytes": 74061358,
+    "store_growth_bytes": 0,
+    "note": "Failed test; not time to pass",
+    "evidence_labels": [
+      "v2-vite-on3-S6"
+    ],
+    "status": "FAIL",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 01",
+    "mode": "on",
+    "time": "work 2.752; Commit 0.056",
+    "uploaded_bytes": 30041,
+    "fetched_wire_bytes": 13007798,
+    "store_growth_bytes": 32768,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-on3-S3-01-edit",
+      "v2-vite-on3-S3-01-commit",
+      "v2-vite-on3-S3-01-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 02",
+    "mode": "on",
+    "time": "work 2.304; Commit 0.017",
+    "uploaded_bytes": 12838,
+    "fetched_wire_bytes": 887,
+    "store_growth_bytes": 8192,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-on3-S3-02-edit",
+      "v2-vite-on3-S3-02-commit",
+      "v2-vite-on3-S3-02-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 03",
+    "mode": "on",
+    "time": "work 2.366; Commit 0.014",
+    "uploaded_bytes": 12839,
+    "fetched_wire_bytes": 887,
+    "store_growth_bytes": 8192,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-on3-S3-03-edit",
+      "v2-vite-on3-S3-03-commit",
+      "v2-vite-on3-S3-03-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 04",
+    "mode": "on",
+    "time": "work 2.289; Commit 0.015",
+    "uploaded_bytes": 12840,
+    "fetched_wire_bytes": 887,
+    "store_growth_bytes": 8192,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-on3-S3-04-edit",
+      "v2-vite-on3-S3-04-commit",
+      "v2-vite-on3-S3-04-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 05",
+    "mode": "on",
+    "time": "work 2.456; Commit 0.015",
+    "uploaded_bytes": 12841,
+    "fetched_wire_bytes": 887,
+    "store_growth_bytes": 8192,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-on3-S3-05-edit",
+      "v2-vite-on3-S3-05-commit",
+      "v2-vite-on3-S3-05-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 06",
+    "mode": "on",
+    "time": "work 2.540; Commit 0.016",
+    "uploaded_bytes": 12842,
+    "fetched_wire_bytes": 887,
+    "store_growth_bytes": 12288,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-on3-S3-06-edit",
+      "v2-vite-on3-S3-06-commit",
+      "v2-vite-on3-S3-06-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 07",
+    "mode": "on",
+    "time": "work 2.507; Commit 0.015",
+    "uploaded_bytes": 12843,
+    "fetched_wire_bytes": 887,
+    "store_growth_bytes": 8192,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-on3-S3-07-edit",
+      "v2-vite-on3-S3-07-commit",
+      "v2-vite-on3-S3-07-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 08",
+    "mode": "on",
+    "time": "work 2.546; Commit 0.016",
+    "uploaded_bytes": 12844,
+    "fetched_wire_bytes": 887,
+    "store_growth_bytes": 8192,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-on3-S3-08-edit",
+      "v2-vite-on3-S3-08-commit",
+      "v2-vite-on3-S3-08-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 09",
+    "mode": "on",
+    "time": "work 2.562; Commit 0.015",
+    "uploaded_bytes": 12845,
+    "fetched_wire_bytes": 887,
+    "store_growth_bytes": 8192,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-on3-S3-09-edit",
+      "v2-vite-on3-S3-09-commit",
+      "v2-vite-on3-S3-09-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S3 edit 10",
+    "mode": "on",
+    "time": "work 2.515; Commit 0.017",
+    "uploaded_bytes": 12847,
+    "fetched_wire_bytes": 887,
+    "store_growth_bytes": 8192,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-on3-S3-10-edit",
+      "v2-vite-on3-S3-10-commit",
+      "v2-vite-on3-S3-10-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S4 clean build",
+    "mode": "on",
+    "time": "work 17.910; Commit 0.039",
+    "uploaded_bytes": 0,
+    "fetched_wire_bytes": 23160736,
+    "store_growth_bytes": 0,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-on3-S4-clean-build",
+      "v2-vite-on3-S4-commit"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S5 dependency change",
+    "mode": "on",
+    "time": "work 16.988; Commit 0.069",
+    "uploaded_bytes": 210600,
+    "fetched_wire_bytes": 1295415,
+    "store_growth_bytes": 106496,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-on3-S5-add",
+      "v2-vite-on3-S5-commit",
+      "v2-vite-on3-S5-add"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S7 rebuild left",
+    "mode": "off",
+    "time": "work 19.445; Commit 0.093",
+    "uploaded_bytes": 174140,
+    "fetched_wire_bytes": 51828215,
+    "store_growth_bytes": 69632,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S7-left-edit",
+      "v2-vite-off3-S7-left-commit",
+      "v2-vite-off3-S7-left-build"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S7 rebuild right",
+    "mode": "off",
+    "time": "work 17.741; Commit 0.077",
+    "uploaded_bytes": 186043,
+    "fetched_wire_bytes": 18575,
+    "store_growth_bytes": 61440,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S7-right-edit",
+      "v2-vite-off3-S7-right-commit",
+      "v2-vite-off3-S7-right-build"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S7 generated merge",
+    "mode": "off",
+    "time": "SDK 0.013",
+    "uploaded_bytes": null,
+    "fetched_wire_bytes": null,
+    "store_growth_bytes": 4096,
+    "note": "3 LWW decisions; no conflicts. Growth interval includes preceding unmount; SDK is Store-local.",
+    "evidence_labels": [
+      "v2-vite-off3-S7"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S7 source-control left",
+    "mode": "off",
+    "time": "work 0.048; Commit 0.014",
+    "uploaded_bytes": 15311,
+    "fetched_wire_bytes": 818,
+    "store_growth_bytes": 16384,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S7-source-left-edit",
+      "v2-vite-off3-S7-source-left-commit"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S7 source-control right",
+    "mode": "off",
+    "time": "work 0.042; Commit 0.011",
+    "uploaded_bytes": 15312,
+    "fetched_wire_bytes": 819,
+    "store_growth_bytes": 8192,
+    "note": "",
+    "evidence_labels": [
+      "v2-vite-off3-S7-source-right-edit",
+      "v2-vite-off3-S7-source-right-commit"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Node",
+    "scenario": "S7 source conflict",
+    "mode": "off",
+    "time": "SDK 0.003",
+    "uploaded_bytes": null,
+    "fetched_wire_bytes": null,
+    "store_growth_bytes": null,
+    "note": "Expected Conflict; no merge Commit",
+    "evidence_labels": [
+      "v2-vite-off3-S7-source"
+    ],
+    "status": "EXPECTED_CONFLICT",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S1 / S8a shared warm base",
+    "mode": "off builder",
+    "time": "clone 1.421; install 414.735; build/test 11.728; Commit 0.911",
+    "uploaded_bytes": 69412328,
+    "fetched_wire_bytes": 14171,
+    "store_growth_bytes": 64937984,
+    "note": "360 repo files / 70,465,522 B; .m2 on separate shared volume.",
+    "evidence_labels": [
+      "v2-maven-a"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S2 cold mount + test",
+    "mode": "off",
+    "time": "3.582",
+    "uploaded_bytes": 0,
+    "fetched_wire_bytes": 1634337,
+    "store_growth_bytes": 0,
+    "note": "No reinstall",
+    "evidence_labels": [
+      "v2-maven-a-off-S2"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S6 mount \u2192 tests finish",
+    "mode": "off",
+    "time": "3.311",
+    "uploaded_bytes": 0,
+    "fetched_wire_bytes": 1648509,
+    "store_growth_bytes": 0,
+    "note": "No reinstall",
+    "evidence_labels": [
+      "v2-maven-a-off-S6"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 01",
+    "mode": "off",
+    "time": "work 3.765; Commit 0.500",
+    "uploaded_bytes": 563887,
+    "fetched_wire_bytes": 1207273,
+    "store_growth_bytes": 163840,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S3-01-edit",
+      "v2-maven-a-off-S3-01-repo-commit",
+      "v2-maven-a-off-S3-01-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 02",
+    "mode": "off",
+    "time": "work 3.559; Commit 0.457",
+    "uploaded_bytes": 150938,
+    "fetched_wire_bytes": 7238,
+    "store_growth_bytes": 126976,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S3-02-edit",
+      "v2-maven-a-off-S3-02-repo-commit",
+      "v2-maven-a-off-S3-02-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 03",
+    "mode": "off",
+    "time": "work 4.301; Commit 0.553",
+    "uploaded_bytes": 159970,
+    "fetched_wire_bytes": 6495,
+    "store_growth_bytes": 131072,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S3-03-edit",
+      "v2-maven-a-off-S3-03-repo-commit",
+      "v2-maven-a-off-S3-03-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 04",
+    "mode": "off",
+    "time": "work 4.131; Commit 0.452",
+    "uploaded_bytes": 145731,
+    "fetched_wire_bytes": 6495,
+    "store_growth_bytes": 114688,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S3-04-edit",
+      "v2-maven-a-off-S3-04-repo-commit",
+      "v2-maven-a-off-S3-04-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 05",
+    "mode": "off",
+    "time": "work 4.126; Commit 0.415",
+    "uploaded_bytes": 151048,
+    "fetched_wire_bytes": 6499,
+    "store_growth_bytes": 126976,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S3-05-edit",
+      "v2-maven-a-off-S3-05-repo-commit",
+      "v2-maven-a-off-S3-05-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 06",
+    "mode": "off",
+    "time": "work 3.983; Commit 0.442",
+    "uploaded_bytes": 151182,
+    "fetched_wire_bytes": 6499,
+    "store_growth_bytes": 126976,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S3-06-edit",
+      "v2-maven-a-off-S3-06-repo-commit",
+      "v2-maven-a-off-S3-06-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 07",
+    "mode": "off",
+    "time": "work 3.713; Commit 0.442",
+    "uploaded_bytes": 151316,
+    "fetched_wire_bytes": 6499,
+    "store_growth_bytes": 126976,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S3-07-edit",
+      "v2-maven-a-off-S3-07-repo-commit",
+      "v2-maven-a-off-S3-07-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 08",
+    "mode": "off",
+    "time": "work 3.784; Commit 0.447",
+    "uploaded_bytes": 164941,
+    "fetched_wire_bytes": 6498,
+    "store_growth_bytes": 131072,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S3-08-edit",
+      "v2-maven-a-off-S3-08-repo-commit",
+      "v2-maven-a-off-S3-08-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 09",
+    "mode": "off",
+    "time": "work 3.808; Commit 0.411",
+    "uploaded_bytes": 146051,
+    "fetched_wire_bytes": 6495,
+    "store_growth_bytes": 118784,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S3-09-edit",
+      "v2-maven-a-off-S3-09-repo-commit",
+      "v2-maven-a-off-S3-09-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 10",
+    "mode": "off",
+    "time": "work 3.721; Commit 0.467",
+    "uploaded_bytes": 150843,
+    "fetched_wire_bytes": 6498,
+    "store_growth_bytes": 122880,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S3-10-edit",
+      "v2-maven-a-off-S3-10-repo-commit",
+      "v2-maven-a-off-S3-10-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S4 clean build",
+    "mode": "off",
+    "time": "work 3.740; Commit 0.605",
+    "uploaded_bytes": 354698,
+    "fetched_wire_bytes": 151762,
+    "store_growth_bytes": 303104,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S4-clean-build",
+      "v2-maven-a-off-S4-repo-commit"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S5 dependency change",
+    "mode": "off",
+    "time": "work 7.887; Commit 0.578",
+    "uploaded_bytes": 1195342,
+    "fetched_wire_bytes": 6520,
+    "store_growth_bytes": 1069056,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S5-jar-absent",
+      "v2-maven-a-off-S5-repo-commit",
+      "v2-maven-a-off-S5-download-build"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S2 cold mount + test",
+    "mode": "on",
+    "time": "5.114",
+    "uploaded_bytes": 0,
+    "fetched_wire_bytes": 1634535,
+    "store_growth_bytes": 0,
+    "note": "No reinstall",
+    "evidence_labels": [
+      "v2-maven-a-on-S2"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S6 mount \u2192 tests finish",
+    "mode": "on",
+    "time": "9.118",
+    "uploaded_bytes": 0,
+    "fetched_wire_bytes": 1827495,
+    "store_growth_bytes": 0,
+    "note": "Recovery includes reinstall/rebuild",
+    "evidence_labels": [
+      "v2-maven-a-on-S6"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 01",
+    "mode": "on",
+    "time": "work 4.511; Commit 0.481",
+    "uploaded_bytes": 16898,
+    "fetched_wire_bytes": 1201904,
+    "store_growth_bytes": 24576,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-on-S3-01-edit",
+      "v2-maven-a-on-S3-01-repo-commit",
+      "v2-maven-a-on-S3-01-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 02",
+    "mode": "on",
+    "time": "work 4.349; Commit 0.342",
+    "uploaded_bytes": 5838,
+    "fetched_wire_bytes": 886,
+    "store_growth_bytes": 4096,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-on-S3-02-edit",
+      "v2-maven-a-on-S3-02-repo-commit",
+      "v2-maven-a-on-S3-02-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 03",
+    "mode": "on",
+    "time": "work 4.326; Commit 0.450",
+    "uploaded_bytes": 5838,
+    "fetched_wire_bytes": 886,
+    "store_growth_bytes": 8192,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-on-S3-03-edit",
+      "v2-maven-a-on-S3-03-repo-commit",
+      "v2-maven-a-on-S3-03-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 04",
+    "mode": "on",
+    "time": "work 4.304; Commit 0.322",
+    "uploaded_bytes": 5838,
+    "fetched_wire_bytes": 886,
+    "store_growth_bytes": 8192,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-on-S3-04-edit",
+      "v2-maven-a-on-S3-04-repo-commit",
+      "v2-maven-a-on-S3-04-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 05",
+    "mode": "on",
+    "time": "work 4.063; Commit 0.331",
+    "uploaded_bytes": 16906,
+    "fetched_wire_bytes": 890,
+    "store_growth_bytes": 16384,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-on-S3-05-edit",
+      "v2-maven-a-on-S3-05-repo-commit",
+      "v2-maven-a-on-S3-05-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 06",
+    "mode": "on",
+    "time": "work 3.935; Commit 0.315",
+    "uploaded_bytes": 5838,
+    "fetched_wire_bytes": 886,
+    "store_growth_bytes": 8192,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-on-S3-06-edit",
+      "v2-maven-a-on-S3-06-repo-commit",
+      "v2-maven-a-on-S3-06-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 07",
+    "mode": "on",
+    "time": "work 4.112; Commit 0.303",
+    "uploaded_bytes": 5838,
+    "fetched_wire_bytes": 886,
+    "store_growth_bytes": 4096,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-on-S3-07-edit",
+      "v2-maven-a-on-S3-07-repo-commit",
+      "v2-maven-a-on-S3-07-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 08",
+    "mode": "on",
+    "time": "work 3.887; Commit 0.321",
+    "uploaded_bytes": 17040,
+    "fetched_wire_bytes": 890,
+    "store_growth_bytes": 16384,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-on-S3-08-edit",
+      "v2-maven-a-on-S3-08-repo-commit",
+      "v2-maven-a-on-S3-08-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 09",
+    "mode": "on",
+    "time": "work 4.059; Commit 0.376",
+    "uploaded_bytes": 17150,
+    "fetched_wire_bytes": 889,
+    "store_growth_bytes": 16384,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-on-S3-09-edit",
+      "v2-maven-a-on-S3-09-repo-commit",
+      "v2-maven-a-on-S3-09-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S3 edit 10",
+    "mode": "on",
+    "time": "work 4.156; Commit 0.349",
+    "uploaded_bytes": 17285,
+    "fetched_wire_bytes": 963,
+    "store_growth_bytes": 20480,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-on-S3-10-edit",
+      "v2-maven-a-on-S3-10-repo-commit",
+      "v2-maven-a-on-S3-10-incremental"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S4 clean build",
+    "mode": "on",
+    "time": "work 4.637; Commit 0.312",
+    "uploaded_bytes": 12113,
+    "fetched_wire_bytes": 146038,
+    "store_growth_bytes": 12288,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-on-S4-clean-build",
+      "v2-maven-a-on-S4-repo-commit"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S5 dependency change",
+    "mode": "on",
+    "time": "work 7.774; Commit 0.307",
+    "uploaded_bytes": 20749,
+    "fetched_wire_bytes": 886,
+    "store_growth_bytes": 8192,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-on-S5-jar-absent",
+      "v2-maven-a-on-S5-repo-commit",
+      "v2-maven-a-on-S5-download-build"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S7 rebuild left",
+    "mode": "off",
+    "time": "work 3.236; Commit 0.620",
+    "uploaded_bytes": 165820,
+    "fetched_wire_bytes": 2203651,
+    "store_growth_bytes": 135168,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S7-left-edit",
+      "v2-maven-a-off-S7-left-commit",
+      "v2-maven-a-off-S7-left-build"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S7 rebuild right",
+    "mode": "off",
+    "time": "work 3.902; Commit 0.446",
+    "uploaded_bytes": 139429,
+    "fetched_wire_bytes": 188288,
+    "store_growth_bytes": 86016,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S7-right-edit",
+      "v2-maven-a-off-S7-right-commit",
+      "v2-maven-a-off-S7-right-build"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S7 generated merge",
+    "mode": "off",
+    "time": "SDK 0.004",
+    "uploaded_bytes": null,
+    "fetched_wire_bytes": null,
+    "store_growth_bytes": 4096,
+    "note": "4 LWW decisions; no conflicts. Growth interval includes preceding unmount; SDK is Store-local.",
+    "evidence_labels": [
+      "v2-maven-a-off-S7"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S7 source-control left",
+    "mode": "off",
+    "time": "work 0.038; Commit 0.005",
+    "uploaded_bytes": 5743,
+    "fetched_wire_bytes": 817,
+    "store_growth_bytes": 20480,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S7-source-left-edit",
+      "v2-maven-a-off-S7-source-left-commit"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S7 source-control right",
+    "mode": "off",
+    "time": "work 0.037; Commit 0.005",
+    "uploaded_bytes": 5744,
+    "fetched_wire_bytes": 818,
+    "store_growth_bytes": 4096,
+    "note": "",
+    "evidence_labels": [
+      "v2-maven-a-off-S7-source-right-edit",
+      "v2-maven-a-off-S7-source-right-commit"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S7 source conflict",
+    "mode": "off",
+    "time": "SDK 0.002",
+    "uploaded_bytes": null,
+    "fetched_wire_bytes": null,
+    "store_growth_bytes": null,
+    "note": "Expected Conflict; no merge Commit",
+    "evidence_labels": [
+      "v2-maven-a-off-S7-source"
+    ],
+    "status": "EXPECTED_CONFLICT",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S8b repo-local .m2",
+    "mode": "off",
+    "time": "install 422.889; build 8.848 FAIL",
+    "uploaded_bytes": 0,
+    "fetched_wire_bytes": null,
+    "store_growth_bytes": null,
+    "note": "3,757 NoHTTP violations in downloaded POMs; no warm-base Commit or cold sample",
+    "evidence_labels": [
+      "v2-maven-b-install",
+      "v2-maven-b-build"
+    ],
+    "status": "FAIL",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S8c base, two Workspaces",
+    "mode": "off",
+    "time": "install 422.994; build/test 12.931; cache Commit 3.855; repo Commit 0.721",
+    "uploaded_bytes": 235354623,
+    "fetched_wire_bytes": 155194,
+    "store_growth_bytes": 213155840,
+    "note": "One daemon; 3,823 cache files / 226,857,786 B.",
+    "evidence_labels": [
+      "v2-maven-c"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S8c cold repo + cache forks",
+    "mode": "off",
+    "time": "6.662",
+    "uploaded_bytes": 0,
+    "fetched_wire_bytes": 56602286,
+    "store_growth_bytes": 0,
+    "note": "No reinstall",
+    "evidence_labels": [
+      "v2-maven-c-off-S2"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S8c thread fork",
+    "mode": "off",
+    "time": "0.077",
+    "uploaded_bytes": 0,
+    "fetched_wire_bytes": null,
+    "store_growth_bytes": 0,
+    "note": "Independent writable Branch; metadata-only fork",
+    "evidence_labels": [
+      "v2-maven-c-off-repo-fork"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S8c cache-thread fork",
+    "mode": "off",
+    "time": "0.047",
+    "uploaded_bytes": 0,
+    "fetched_wire_bytes": null,
+    "store_growth_bytes": 0,
+    "note": "Independent writable Branch; metadata-only fork",
+    "evidence_labels": [
+      "v2-maven-c-off-cache-fork"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S8c S5 complete change",
+    "mode": "off",
+    "time": "work 9.566; Commits 0.717",
+    "uploaded_bytes": 1608478,
+    "fetched_wire_bytes": 87406511,
+    "store_growth_bytes": 1081344,
+    "note": "Total row; following rows split the two explicit Commits",
+    "evidence_labels": [
+      "v2-maven-c-off-S5"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S8c S5 cache Commit",
+    "mode": "off",
+    "time": "0.026",
+    "uploaded_bytes": 657958,
+    "fetched_wire_bytes": 866,
+    "store_growth_bytes": 614400,
+    "note": "ZXing core 3.5.3; cache fork never merged back",
+    "evidence_labels": [
+      "v2-maven-c-off-S5-cache-commit"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  },
+  {
+    "repo": "Maven",
+    "scenario": "S8c S5 repo Commit",
+    "mode": "off",
+    "time": "0.691",
+    "uploaded_bytes": 950520,
+    "fetched_wire_bytes": 979797,
+    "store_growth_bytes": 466944,
+    "note": "ZXing core 3.5.3; cache fork never merged back",
+    "evidence_labels": [
+      "v2-maven-c-off-S5-repo-commit"
+    ],
+    "status": "PASS",
+    "sample_count": 1
+  }
+]

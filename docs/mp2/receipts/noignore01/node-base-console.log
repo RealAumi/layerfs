@@ -1,0 +1,23 @@
+node-network 0 0.115
+node-volume-store 0 0.03
+node-volume-local 0 0.038
+node-server-create 0 0.2
+node-init 101 0.174
+Traceback (most recent call last):
+  File "~/Developer/layerfs-ignore/docs/mp2/no-ignore-run.py", line 166, in <module>
+    base(sys.argv[1])
+    ~~~~^^^^^^^^^^^^^
+  File "~/Developer/layerfs-ignore/docs/mp2/no-ignore-run.py", line 150, in base
+    s = start(repo)
+  File "~/Developer/layerfs-ignore/docs/mp2/no-ignore-run.py", line 121, in start
+    docker(repo+'-init', 'exec', s['server'], 'bash', '-c',
+    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           'set -e; ln -s /cache/cxn-noignore01 /bins; mkdir -p /state/initial; '
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           'chown 1000:1000 /state/initial; chmod 700 /state; timeout 10 /bins/cxn-noignore-driver init')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "~/Developer/layerfs-ignore/docs/mp2/no-ignore-run.py", line 47, in docker
+    return run(label, ['docker', *args], **kw)
+  File "~/Developer/layerfs-ignore/docs/mp2/no-ignore-run.py", line 42, in run
+    raise RuntimeError(json.dumps(row))
+RuntimeError: {"label": "node-init", "command": ["docker", "exec", "cxn-node-server", "bash", "-c", "set -e; ln -s /cache/cxn-noignore01 /bins; mkdir -p /state/initial; chown 1000:1000 /state/initial; chmod 700 /state; timeout 10 /bins/cxn-noignore-driver init"], "wall_ns": 173699625, "exit": 101, "output": "node-init.log", "sample_count": 1}

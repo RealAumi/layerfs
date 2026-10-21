@@ -1,0 +1,14 @@
+{
+  "repo": "v2-maven-b",
+  "arm": "off",
+  "server": "cxn-v2-maven-b-server",
+  "daemon": "cxn-v2-maven-b-base",
+  "store": "cxn-v2-maven-b-store",
+  "local": "cxn-v2-maven-b-base-local",
+  "path": "/workspaces/1",
+  "workspace": "aa12b69bb2c21f0d042ee2d0b8fc155abae270b24fcccd629e6c878d6246781e",
+  "namespace": "1",
+  "network": "cxn-v2-maven-b-net",
+  "kind": "maven",
+  "variant": "b"
+}

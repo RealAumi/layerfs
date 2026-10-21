@@ -1,0 +1,8 @@
+{
+  "selected_actions": 0,
+  "removed": 0,
+  "net_reclaimed_bytes": 0,
+  "target_bytes": 300000000000,
+  "shortfall_bytes": 300000000000,
+  "reason": "No existing resources released in authorized cxn- scope; cxi-target protected. No global cleanup."
+}

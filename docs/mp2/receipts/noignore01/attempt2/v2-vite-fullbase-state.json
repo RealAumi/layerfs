@@ -1,0 +1,15 @@
+{
+  "repo": "v2-vite-fullbase",
+  "arm": "off",
+  "kind": "node",
+  "server": "cxn-v2-vite-fullbase-server",
+  "store": "cxn-v2-vite-fullbase-store",
+  "network": "cxn-v2-vite-net",
+  "daemon": "cxn-v2-vite-fullbase-builder",
+  "local": "cxn-v2-vite-fullbase-builder-local",
+  "path": "/workspaces/1",
+  "workspace": "281dd480f4d4ecc7dabe3c575903b84ee0b4c44fc01288239685e5cb2776f128",
+  "namespace": "1",
+  "branch": "base",
+  "closed_base": true
+}

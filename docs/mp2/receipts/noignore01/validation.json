@@ -1,0 +1,18 @@
+{
+  "document_links": "PASS",
+  "timing_table_against_raw_ns": "PASS",
+  "python_ast_files": [
+    "no-ignore-prepare.py",
+    "no-ignore-proxy.py",
+    "no-ignore-run.py",
+    "no-ignore-hygiene.py"
+  ],
+  "python_syntax": "PASS",
+  "daemon_builds": "PASS Rust 1.85.1 release, both arms",
+  "driver_build": "PASS public API harness, explicit acquisition tables",
+  "production_changes": 0,
+  "tests_run": 0,
+  "commits_measured": 0,
+  "comparison": "INCOMPLETE",
+  "raw_terminal_whitespace": "preserved losslessly in compressed logs; initial check receipt retained"
+}

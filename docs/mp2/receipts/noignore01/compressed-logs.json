@@ -1,0 +1,17 @@
+{
+  "reason": "Lossless preservation of raw terminal output including trailing whitespace and carriage returns. Command receipts retain original logical log names; read their .gz artifacts.",
+  "files": [
+    {
+      "original": "node2-clone.log",
+      "retained": "node2-clone.log.gz",
+      "uncompressed_sha256": "3001d2179d0852b600dac93f465b47dc72d5943b9cf3b0d17b76ea7336136935",
+      "bytes": 715
+    },
+    {
+      "original": "runtime-image.log",
+      "retained": "runtime-image.log.gz",
+      "uncompressed_sha256": "a34ac638e8de9c7c71c756ce0691ac77a36fa8020a4b2cf5a4ecfa6377f0b28e",
+      "bytes": 37934
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+0 verbose cli /usr/local/bin/node /usr/local/bin/npm
+1 info using npm@10.9.9
+2 info using node@v22.23.3
+3 silly config load:file:/usr/local/lib/node_modules/npm/npmrc
+4 silly config load:file:/workspaces/1/.npmrc
+5 silly config load:file:/home/runner/.npmrc
+6 silly config load:file:/usr/local/etc/npmrc
+7 verbose title npm ci
+8 verbose argv "ci" "--registry" "https://registry.npmjs.org" "--no-audit" "--no-fund"
+9 verbose logfile logs-max:10 dir:/home/runner/.npm/_logs/2026-10-21T05_26_16_529Z-
+10 verbose logfile /home/runner/.npm/_logs/2026-10-21T05_26_16_529Z-debug-0.log
+11 silly logfile done cleaning log files
+12 silly packumentCache heap:2197815296 maxSize:549453824 maxEntrySize:274726912
+13 silly idealTree buildDeps
+14 silly fetch manifest eslint-plugin-prettier@5.5.4
+15 silly packumentCache full:https://registry.npmjs.org/eslint-plugin-prettier cache-miss
+16 http fetch GET 200 https://registry.npmjs.org/eslint-plugin-prettier 558ms (cache miss)
+17 silly packumentCache full:https://registry.npmjs.org/eslint-plugin-prettier set size:undefined disposed:false
+18 silly fetch manifest @types/eslint@>=8.0.0
+19 silly packumentCache full:https://registry.npmjs.org/@types%2feslint cache-miss
+20 http fetch GET 200 https://registry.npmjs.org/npm 1146ms
+21 http fetch GET 200 https://registry.npmjs.org/@types%2feslint 246ms (cache miss)
+22 silly packumentCache full:https://registry.npmjs.org/@types%2feslint set size:undefined disposed:false
+23 silly fetch manifest eslint@9.32.0
+24 silly packumentCache full:https://registry.npmjs.org/eslint cache-miss
+25 http fetch GET 200 https://registry.npmjs.org/eslint 247ms (cache miss)
+26 silly packumentCache full:https://registry.npmjs.org/eslint set size:undefined disposed:false
+27 silly fetch manifest jiti@*
+28 silly packumentCache full:https://registry.npmjs.org/jiti cache-miss
+29 http fetch GET 200 https://registry.npmjs.org/jiti 203ms (cache miss)
+30 silly packumentCache full:https://registry.npmjs.org/jiti set size:undefined disposed:false
+31 silly fetch manifest eslint-config-prettier@10.1.8
+32 silly packumentCache full:https://registry.npmjs.org/eslint-config-prettier cache-miss
+33 http fetch GET 200 https://registry.npmjs.org/eslint-config-prettier 199ms (cache miss)
+34 silly packumentCache full:https://registry.npmjs.org/eslint-config-prettier set size:undefined disposed:false
+35 silly fetch manifest prettier@3.6.2
+36 silly packumentCache full:https://registry.npmjs.org/prettier cache-miss
+37 http fetch GET 200 https://registry.npmjs.org/prettier 212ms (cache miss)
+38 silly packumentCache full:https://registry.npmjs.org/prettier set size:undefined disposed:false
+39 silly placeDep ROOT eslint-plugin-prettier@5.5.4 REPLACE for: @nestjs/core@11.1.1 want: 5.5.4
+40 silly fetch manifest ts-morph@^20.0.0 || ^21.0.0 || ^24.0.0 || ^25.0.0
+41 silly packumentCache full:https://registry.npmjs.org/ts-morph cache-miss
+42 http fetch GET 200 https://registry.npmjs.org/ts-morph 208ms (cache miss)
+43 silly packumentCache full:https://registry.npmjs.org/ts-morph set size:undefined disposed:false
+44 verbose stack Error: could not resolve
+44 verbose stack     at PlaceDep.failPeerConflict (/usr/local/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/place-dep.js:503:25)
+44 verbose stack     at new PlaceDep (/usr/local/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/place-dep.js:157:21)
+44 verbose stack     at #buildDepStep (/usr/local/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:920:18)
+44 verbose stack     at async Arborist.buildIdealTree (/usr/local/lib/node_modules/npm/node_modules/@npmcli/arborist/lib/arborist/build-ideal-tree.js:181:7)
+44 verbose stack     at async CI.exec (/usr/local/lib/node_modules/npm/lib/commands/ci.js:63:5)
+44 verbose stack     at async Npm.exec (/usr/local/lib/node_modules/npm/lib/npm.js:207:9)
+44 verbose stack     at async module.exports (/usr/local/lib/node_modules/npm/lib/cli/entry.js:74:5)
+45 error code ERESOLVE
+46 error ERESOLVE could not resolve
+47 error
+48 error While resolving: @nestjs/graphql@13.1.0
+48 error Found: ts-morph@26.0.0
+48 error node_modules/ts-morph
+48 error   dev ts-morph@"26.0.0" from the root project
+48 error
+48 error Could not resolve dependency:
+48 error peerOptional ts-morph@"^20.0.0 || ^21.0.0 || ^24.0.0 || ^25.0.0" from @nestjs/graphql@13.1.0
+48 error node_modules/@nestjs/graphql
+48 error   dev @nestjs/graphql@"13.1.0" from the root project
+48 error   peer @nestjs/graphql@"^13.0.0" from @nestjs/apollo@13.1.0
+48 error   node_modules/@nestjs/apollo
+48 error     dev @nestjs/apollo@"13.1.0" from the root project
+48 error
+48 error Conflicting peer dependency: ts-morph@25.0.1
+48 error node_modules/ts-morph
+48 error   peerOptional ts-morph@"^20.0.0 || ^21.0.0 || ^24.0.0 || ^25.0.0" from @nestjs/graphql@13.1.0
+48 error   node_modules/@nestjs/graphql
+48 error     dev @nestjs/graphql@"13.1.0" from the root project
+48 error     peer @nestjs/graphql@"^13.0.0" from @nestjs/apollo@13.1.0
+48 error     node_modules/@nestjs/apollo
+48 error       dev @nestjs/apollo@"13.1.0" from the root project
+48 error
+48 error Fix the upstream dependency conflict, or retry
+48 error this command with --force or --legacy-peer-deps
+48 error to accept an incorrect (and potentially broken) dependency resolution.
+49 error
+49 error
+49 error For a full report see:
+49 error /home/runner/.npm/_logs/2026-10-21T05_26_16_529Z-eresolve-report.txt
+50 silly unfinished npm timer idealTree:buildDeps 1792560377287
+51 silly unfinished npm timer idealTree:node_modules/@nestjs/graphql 1792560378997
+52 verbose cwd /workspaces/1
+53 verbose os Linux 7.2.9-orbstack-00391-g2b298d05fbd4
+54 verbose node v22.23.3
+55 verbose npm  v10.9.9
+56 notice
+56 notice New major version of npm available! 10.9.9 -> 12.2.0
+56 notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+56 notice To update run: npm install -g npm@12.2.0
+56 notice  { force: true, [Symbol(proc-log.meta)]: true }
+57 verbose exit 1
+58 verbose code 1
+59 error A complete log of this run can be found in: /home/runner/.npm/_logs/2026-10-21T05_26_16_529Z-debug-0.log

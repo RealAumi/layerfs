@@ -1,0 +1,7 @@
+{
+  "failure": "off-clone-startup-refusal.log",
+  "cause": "Harness copied daemon incarnation-local server overlay template together with closed global Store; fresh startup correctly refuses AlreadyExists.",
+  "correction": "Fresh clone fixture copies only /state/store and private setup files; no existing failed fixture is modified or replayed.",
+  "product_change": false,
+  "workload_started": false
+}

@@ -1,0 +1,4 @@
+{
+  "policy": "host home path replaced with ~; no result, exit code, timing or failure changed",
+  "replacements": 8
+}

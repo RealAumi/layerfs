@@ -1,0 +1,24 @@
+{
+  "home_path_matches": 0,
+  "out_of_prefix_resource_names": 0,
+  "internal_host_platform_matches": 0,
+  "named_resources": [
+    "cxi-target",
+    "cxn-build-net",
+    "cxn-build-off",
+    "cxn-build-on",
+    "cxn-config",
+    "cxn-driver-build",
+    "cxn-node-base-local",
+    "cxn-node-server",
+    "cxn-node-store",
+    "cxn-node2-base",
+    "cxn-node2-base-local",
+    "cxn-node2-server",
+    "cxn-node2-store",
+    "cxn-work-net",
+    "cxn-work-net-node2"
+  ],
+  "method": "rg over all receipt text and decompressed logs; structured Docker command resource extraction",
+  "disallowed_resources": []
+}
