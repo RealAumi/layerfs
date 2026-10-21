@@ -1,0 +1,11 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "/tmp/cxi-ignore11-premerge/core/tools/check_fuser_integrity.py",
+    "--root",
+    "/tmp/cxi-ignore11-premerge"
+  ],
+  "exit": 1,
+  "seconds": 0.11138415336608887
+}

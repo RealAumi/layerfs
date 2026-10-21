@@ -1,0 +1,2 @@
+Filesystem     1K-blocks     Used Available Use% Mounted on
+/dev/vdb1       76677120 64070760  12606360  84% /target

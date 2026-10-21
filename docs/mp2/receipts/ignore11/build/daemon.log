@@ -1,0 +1,7 @@
+   Compiling layerfs-workspace v0.1.7 (/work/core/crates/layerfs-workspace)
+   Compiling layerfs-persistence v0.1.7 (/work/core/crates/layerfs-persistence)
+   Compiling layerfs-store-service v0.1.7 (/work/core/crates/layerfs-store-service)
+   Compiling layerfs-remote-store v0.1.7 (/work/core/crates/layerfs-remote-store)
+   Compiling layerfs-fuse v0.1.7 (/work/core/crates/layerfs-fuse)
+   Compiling layerfs-daemon v0.1.7 (/work/core/crates/layerfs-daemon)
+    Finished `test` profile [optimized + debuginfo] target(s) in 12.35s

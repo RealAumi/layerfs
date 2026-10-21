@@ -1,0 +1,27 @@
+{
+  "command": [
+    "python3",
+    "/tmp/cxi-ignore11-worktree.py",
+    "cargo",
+    "--resources",
+    "~/.cache/layerfs-worktrees/layerfs-ignore-8d2e7d3efdc3/resources.json",
+    "--platform",
+    "macos",
+    "--",
+    "test",
+    "-p",
+    "layerfs-store-service",
+    "-p",
+    "layerfs-remote-store",
+    "-p",
+    "layerfs-daemon",
+    "-p",
+    "layerfs-bridge",
+    "-p",
+    "layerfs-api",
+    "--all-targets",
+    "--no-run"
+  ],
+  "exit": 0,
+  "seconds": 113.0120267868042
+}

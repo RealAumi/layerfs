@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "core/tools/check_fuser_integrity.py"
+  ],
+  "exit": 0,
+  "seconds": 0.9693570137023926
+}

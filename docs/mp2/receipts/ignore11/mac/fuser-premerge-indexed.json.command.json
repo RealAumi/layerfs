@@ -1,0 +1,15 @@
+{
+  "command": [
+    "env",
+    "GIT_DIR=~/Developer/layerfs/.git/worktrees/layerfs-ignore",
+    "GIT_INDEX_FILE=/tmp/cxi-ignore11-premerge.index",
+    "GIT_WORK_TREE=/tmp/cxi-ignore11-premerge",
+    "python3",
+    "-B",
+    "/tmp/cxi-ignore11-premerge/core/tools/check_fuser_integrity.py",
+    "--root",
+    "/tmp/cxi-ignore11-premerge"
+  ],
+  "exit": 0,
+  "seconds": 0.1846170425415039
+}

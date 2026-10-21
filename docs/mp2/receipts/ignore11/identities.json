@@ -1,0 +1,14 @@
+{
+  "source": "c5925f3f5521eb834e1ae71bebb9c66b6ca6c3b0",
+  "core_tree": "8d0076c40b05660ad11310730cb8595ecb727818",
+  "product_changes": [],
+  "harness_sha256": "8bfd20d95f8f59dd38f652d0492d4ce8017f2f5de16f60f3823aad64274a9dcc",
+  "mac_toolchain": "1.98.1",
+  "linux_toolchain": "1.85.1",
+  "construction_workers": 1,
+  "linux_build_jobs": 2,
+  "linux_target": "cxi-target",
+  "linux_image": "sha256:e51d0265072d2d9d5d320f6a44dde6b9ef13653b035098febd68cce8fa7c0bc4",
+  "root_cargo_config_sha256": "f54e4d536550625b3df978a6b506c44a51fa84dac85a4e2d0293dad1727be8c8",
+  "core_lock_sha256": "e84ddb05446086a0a079a9beb29ee268c245ec64404e7dae10146d2c8858808a"
+}

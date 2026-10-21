@@ -1,0 +1,10 @@
+{
+  "command": [
+    "python3",
+    "-B",
+    "docs/mp2/run-ignore-e2e.py",
+    "build"
+  ],
+  "exit": 0,
+  "seconds": 54.534465074539185
+}

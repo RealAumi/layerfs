@@ -1,0 +1,21 @@
+{
+  "command": [
+    "docker",
+    "--context",
+    "orbstack",
+    "run",
+    "--rm",
+    "--name",
+    "cxi-space",
+    "--network",
+    "none",
+    "-v",
+    "cxi-target:/target:ro",
+    "public.ecr.aws/docker/library/rust:1.85.1-bookworm",
+    "df",
+    "-k",
+    "/target"
+  ],
+  "exit": 0,
+  "seconds": 0.7001767158508301
+}

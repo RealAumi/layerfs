@@ -1,0 +1,11 @@
+{
+  "command": [
+    "timeout",
+    "120s",
+    "python3",
+    "-B",
+    "docs/mp2/receipts/ignore11/run-e2e.py"
+  ],
+  "exit": 0,
+  "seconds": 83.55813503265381
+}

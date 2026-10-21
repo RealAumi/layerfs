@@ -1,0 +1,5 @@
+Initial audit script stopped on a Docker command form it had not classified; no hygiene verdict was produced. Tool stderr (home redacted):
+Traceback (most recent call last):
+  File "~/Developer/layerfs-ignore/docs/mp2/receipts/ignore11/audit-hygiene.py", line 55, in <module>
+    raise AssertionError(a)
+AssertionError: ['cp', 'cxi-b1:/state/daemon.log', '~/Developer/layerfs-ignore/docs/mp2/receipts/ignore11/cxi-b1-before-restart-daemon.log']

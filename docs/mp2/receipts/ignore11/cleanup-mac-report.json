@@ -1,0 +1,74 @@
+{
+  "finished_utc": "2026-10-21T03:11:21.881843+00:00",
+  "before": {
+    "at_utc": "2026-10-21T03:11:20.313703+00:00",
+    "filesystem_path": "~/Developer/layerfs-ignore",
+    "free_bytes": 10843906048,
+    "free_GB": 10.843906048,
+    "free_GiB": 10.099174499511719
+  },
+  "after": {
+    "at_utc": "2026-10-21T03:11:21.881817+00:00",
+    "filesystem_path": "~/Developer/layerfs-ignore",
+    "free_bytes": 10843643904,
+    "free_GB": 10.843643904,
+    "free_GiB": 10.098930358886719
+  },
+  "outcome": "attempted",
+  "net_free_bytes_change": -262144,
+  "results": [
+    {
+      "state": "failed_or_preserved",
+      "action": {
+        "owner": "cxi-ignore11",
+        "reason": "ignore11 checks complete; release Mac compiler cache only; cxi-target remains pinned by owner",
+        "released": true,
+        "kind": "cargo-cache",
+        "path": "~/Developer/layerfs-ignore/core/target/debug",
+        "target_root": "~/Developer/layerfs-ignore/core/target",
+        "guard_path": "~/Developer/layerfs-ignore/core/target/debug",
+        "cache_snapshots": {
+          "~/Developer/layerfs-ignore/core/target/debug/incremental": {
+            "fingerprint": "95f35bcfd86dfd29a065d99ac9994b229c0554acd06edbcf37a7e06b7527ed88",
+            "files": 41653,
+            "allocated_bytes": 12519174144
+          },
+          "~/Developer/layerfs-ignore/core/target/debug/deps": {
+            "fingerprint": "7e283c6324098e495d1f9908b05293308932266283f2f20f884e486c3f72783a",
+            "files": 31694,
+            "allocated_bytes": 8257458176
+          },
+          "~/Developer/layerfs-ignore/core/target/debug/build": {
+            "fingerprint": "50a07cf45621098f8d315a77913461dda04d30551b735e7f13d683c3f217839c",
+            "files": 616,
+            "allocated_bytes": 165609472
+          },
+          "~/Developer/layerfs-ignore/core/target/debug/.fingerprint": {
+            "fingerprint": "2229531dccdc75fbba1520a376b05bd5a9a1b6b1c16a3cd7020a3cb1335d5969",
+            "files": 4843,
+            "allocated_bytes": 15671296
+          },
+          "~/Developer/layerfs-ignore/core/target/debug/examples": {
+            "fingerprint": "0b6f873c492cd8f86f75e60c276f0cf468a8e9ab432b8954b1fa00f0bdf9d3e2",
+            "files": 76,
+            "allocated_bytes": 9306112
+          }
+        }
+      },
+      "error": "Cache changed since plan; preserve the whole profile",
+      "at_utc": "2026-10-21T03:11:21.880726+00:00"
+    }
+  ],
+  "protected_presence": {
+    "~/.cache/layerfs-worktrees/layerfs-ignore-8d2e7d3efdc3": true,
+    "~/.cache/cxi-ignore11/bin": true
+  },
+  "lost_pins": [],
+  "not_attempted": [],
+  "uncertain_actions": [],
+  "interrupted": false,
+  "blocked_at_plan": [],
+  "note": "Net change includes concurrent I/O; allocation estimates are not physical recovery. Keep recovery refs/objects and manifests. No product build, test, Store call, global prune or measurement scheduling is performed. Only explicitly selected retired daemons may be stopped; container actions retain their mounted data.",
+  "reclaim_target_bytes": 300000000000,
+  "reclaim_target_met": false
+}

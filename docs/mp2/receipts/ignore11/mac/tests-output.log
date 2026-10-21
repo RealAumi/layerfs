@@ -1,0 +1,114 @@
+    Finished `test` profile [optimized + debuginfo] target(s) in 0.04s
+     Running tests/control_records.rs (core/target/debug/deps/control_records-18b0fc20e15b826d)
+
+running 4 tests
+test branch_page_bounds_are_checked_before_encoding_or_allocating_records ... ok
+test duplex_block_is_additive_and_bounded_fields_are_refused_before_send ... ok
+test commands_are_bounded_exact_and_reject_every_truncated_prefix ... ok
+test replies_preserve_scoped_status_conflict_and_known_publication ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/mount_control.rs (core/target/debug/deps/mount_control-22709347c652e0d4)
+
+running 9 tests
+CONTROL_UNRESOLVED original_error=Storage(Busy) locally_settled=false local_done=false local_error=Some(Unattempted { cause: Stopped, input: original input retained }) published=None reply_code=Unknown reply_phase=Commit Construct registry=Uncertain force_unattached=Invalid
+CONTROL_UNRESOLVED_MOVED original_error=History(HeadMoved(MovedState { expected_head: None, actual_head: None, expected_base: LayerId(321eed39ab4c20a1007d20c96cf01657892017d4940726517295ec3bd8afa29465), actual_base: LayerId(321eed39ab4c20a1007d20c96cf01657892017d4940726517295ec3bd8afa29465) })) locally_settled=false reply_code=Unknown reply_moved=None reply_phase=Commit Construct detail_keeps_moved_state=true registry=Uncertain
+CONTROL_FORCE_UNATTACHED code=Invalid phase=force:admission relinquish_unknown=both stale_namespace=Invalid absent=Missing epoch_unchanged=true activity=Idle
+CONTROL_UNKNOWN producer_original_retained=true normal_unmount=Unknown another_commit=Unknown no_reentry=true
+test a_definite_commit_failure_whose_capture_is_not_resolved_answers_unknown ... ok
+test an_unresolved_moved_head_failure_is_answered_and_not_dropped ... ok
+CONTROL_LOCAL_FAILURE known_publication=retained engine=unavailable Store_SQL_for_status=0 normal_unmount=Unknown
+test forced_unmount_refuses_a_workspace_without_a_connection_before_any_effect ... ok
+CONTROL_CONCURRENT status_while_constructing=true Store_SQL_for_status=0 unmount=Busy_before_effect later_commit=Committed
+CONTROL_LOST_ORIGINAL client=ControlFailure { call: Call { id: 2, request: Commit(CommitControl { token: WorkspaceToken { workspace: WorkspaceId(5555555555555555555555555555555555555555555555555555555555555555), namespace: 1 }, force: false, message: None }) }, phase: Receive, attempted: true, received: None, cause: Channel(CloseFailed { original: Io(Kind(UnexpectedEof)), close: Os { code: 57, kind: NotConnected, message: "Socket is not connected" } }), fence_error: None } daemon_reply=Committed(Committed { record: CommitRecord { id: CommitId(12a7fd4eaf3607db351a98467f22d7978d8eca38c27d029c302d7e8ebcdf5b4352), stack: LayerStackId(3136363636363636363636363636363636), root: ObjectId("620850246845ce9d65385a20fc816c75effd09a08e995567acfa51a8886ba7f8"), parent: None, base_layer: LayerId(32ce7a015d2c8d88170ec417a179601fe558824c88a7e334682f8a3d02c5a9fcf8), second_parent: None, meta: CommitMeta { branch: Some(BranchId(1137373737373737373737373737373737)), via: Workspace, message: Some("Commit Workspace changes"), merged_from: None, lww: [], lww_truncated: false, units: [], statistics: CommitStatistics { logical: 300048, new_canonical: 33717, new_stored: 899, new_metadata: 570 }, displaced: None, time_ms: 1792551902707 } }, displaced: None }) capture=Some(Capture { engine: 14, generation: Generation(1), revision: 1, base_root: [73, 62, 23, 42, 227, 3, 62, 210, 7, 74, 6, 115, 213, 43, 220, 148, 143, 151, 138, 129, 127, 105, 245, 176, 110, 47, 105, 211, 234, 149, 177, 21] })
+CONTROL_LOST_REPLY client_original_unknown=true daemon_original_known_commit=true replay=false observer_does_not_settle=true
+test an_original_unknown_blocks_another_commit_and_normal_unmount ... ok
+PRODUCT_COMMIT inode_rows=1 entry_rows=0 files=1 record_jobs=34 released=2
+test status_retains_known_publication_when_the_engine_is_unavailable ... ok
+test another_control_channel_observes_running_commit_and_refuses_unmount_before_effect ... ok
+test original_lost_control_reply_is_not_replayed_or_settled_by_an_observer ... ok
+test product_control_commit_captures_the_frontier_releases_its_owners_and_is_then_up_to_date ... ok
+CONTROL_COMMIT writes=4 initial=1 refills=0 publication=2 history=1
+test control_busy_keeps_the_channel_healthy_for_a_later_explicit_call ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+     Running tests/restore_cache.rs (core/target/debug/deps/restore_cache-d97041f28ac7af92)
+
+running 12 tests
+test cache_uses_a_process_crash_safe_journal ... ok
+test saving_restore_does_not_read_the_unchanged_object_graph ... ok
+test trailing_manifest_is_an_invalid_record ... ok
+test remote_objects_are_not_required_in_manifest_and_corruption_has_reason ... ok
+test restore_presence_does_not_materialize_file_payload_leaves ... ok
+test absent_local_references_are_resolved_in_one_batch ... ok
+test save_failure_preserves_previous_record_and_exposes_status ... ok
+test sqlite_validation_refuses_bind_then_retry_restores_unchanged_record ... ok
+test transient_lacking_refuses_bind_then_retry_restores_unchanged_record ... ok
+test missing_local_root_rejects_record ... ok
+test missing_local_leaf_rejects_record ... ok
+test restart_atomic_last_writer_and_scoped_keys ... ok
+
+test result: ok. 12 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/transport.rs (core/target/debug/deps/transport-d83bac2c174bfcf6)
+
+running 5 tests
+test production_style_blocking_listener_returns_blocking_sockets ... ok
+test fragments_cross_noise_records_and_reject_a_bad_offset ... ok
+test wrong_canonical_identity_is_not_cached_or_replayed ... ok
+test upload_lost_ack_keeps_local_objects_and_quarantines_without_replay ... ok
+test upload_window_failure_keeps_local_objects_and_never_sends_unreachable_bytes ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.08s
+
+     Running tests/ignore.rs (core/target/debug/deps/ignore-80bc6545bec0bfb4)
+
+running 42 tests
+test ignored_changes_stay_local ... ok
+test directories_moved_while_ignored_leave_their_old_name_when_kept ... ok
+test cleans_stay_local ... ok
+test moved_heads_rebase_the_local_base ... ok
+test review_ignored_hardlinks_without_complete_hints_do_not_leak ... ok
+test moves_out_of_ignored_directories_carry_local_content ... ok
+test newly_tracked_paths_are_published ... ok
+test review_ignored_rule_rewrite_without_hints_reconciles ... ok
+test review_move_twice_from_shared_ignored_parents ... ok
+test review_seed_1_tracking_a_locally_deleted_directory ... ok
+test review_seed_130_moved_nested_negation ... ok
+test review_server_delete_preserves_local_ignored_descendants ... ok
+test review_server_rule_flip_keeps_views_equal ... ok
+test review_unignore_after_local_delete_removes_stale_published_name ... ok
+test review_unreadable_index_does_not_publish_ignored_bytes ... ok
+test round4::deleted_nested_rule_reconciles_a_retained_directory_absent_from_q ... ok
+test round4::hardlinks_beyond_hint_capacity_are_all_classified ... ok
+test review_seed_2_disjoint_server_changes ... ok
+test round4::kept_write_below_pruned_directory_reaches_next_publication ... ok
+test round4::pending_flips_survive_projection_failure_and_unacknowledged_publish ... ok
+test round4::server_delete_prunes_two_levels_but_preserves_local_only_file ... ok
+test round4::server_move_carries_local_only_descendants_without_pruning ... ok
+test round4::server_nested_rules_exclude_and_index_flip_on_next_noop_commit ... ok
+test round4::server_rebind_prunes_old_directory_with_local_only_names ... ok
+test round4::split_index_uses_patterns_and_reports_unreadable ... ok
+test round4::unreadable_index_withholds_tracked_ignored_edits_until_readable ... ok
+test review_seed_31_moved_directory_ignored_values ... ok
+test tracked_files_in_ignored_directories ... ok
+test trees_without_ignored_changes_publish_as_built ... ok
+test rule_changes_publish_what_they_unignore ... ok
+test faults::published_install_read_failure_retains_custody_and_refuses_next_commit ... ok
+test faults::published_rebase_write_failure_retains_custody_and_refuses_next_commit ... ok
+test faults::definite_upload_refusal_preserves_the_next_explicit_commit ... ok
+test faults::restore::remount_restores_last_successful_commit ... ok
+PLACEMENT_PROBE_READS=16 files=1000 probe_directories=16
+test faults::restore::pending_server_rule_flip_survives_and_next_noop_publishes ... ok
+test faults::restore::restored_old_binding_merges_head_moved_while_down ... ok
+test faults::restore::failed_record_write_leaves_commit_successful_and_workspace_usable ... ok
+test faults::restore::restart_restores_last_successful_commit ... ok
+test faults::restore::absent_key_and_ignore_off_do_not_restore_or_save ... ok
+test faults::restore::same_key_last_commit_replaces_root_snapshot_and_seeds_together ... ok
+test round4::missing_hints_for_1000_rewrites_list_probe_directories_once ... ok
+test review_model_200_seeds_30_steps ... ok
+
+test result: ok. 42 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.07s
+

@@ -1,0 +1,15 @@
+{
+  "command": [
+    "docker",
+    "--context",
+    "orbstack",
+    "ps",
+    "-a",
+    "--filter",
+    "name=cxi-",
+    "--format",
+    "{{.Names}}"
+  ],
+  "exit": 0,
+  "seconds": 0.19246315956115723
+}

@@ -1,0 +1,9 @@
+{
+  "command": [
+    "python3",
+    "tools/cleanup.py",
+    "check"
+  ],
+  "exit": 2,
+  "seconds": 0.06200122833251953
+}

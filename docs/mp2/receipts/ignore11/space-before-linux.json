@@ -1,0 +1,12 @@
+{
+  "at_utc": "2026-10-21T03:05:18.891070+00:00",
+  "filesystem_path": "~/Developer/layerfs-ignore",
+  "free_bytes": 13612412928,
+  "free_GB": 13.612412928,
+  "free_GiB": 12.677547454833984,
+  "min_free_bytes": 100000000000,
+  "reclaim_target_bytes": 300000000000,
+  "units": "GB = 1,000,000,000 bytes; GiB = 1,073,741,824 bytes",
+  "cleanup_required": true,
+  "action": "Plan with --discover --authorization or an exact scope, then apply. Preserve active work and pins."
+}

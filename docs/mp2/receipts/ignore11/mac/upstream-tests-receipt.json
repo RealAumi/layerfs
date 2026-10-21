@@ -1,0 +1,25 @@
+{
+  "status": "passed",
+  "command": [
+    "cargo",
+    "+1.98.1",
+    "test",
+    "--manifest-path",
+    "core/Cargo.toml",
+    "--locked",
+    "--offline",
+    "-p",
+    "layerfs-api",
+    "-p",
+    "layerfs-daemon",
+    "--test",
+    "sdk_written_back",
+    "--test",
+    "write_refusals",
+    "--test",
+    "lane_merge",
+    "--",
+    "--nocapture"
+  ],
+  "at": "2026-10-21T03:05:46.256178+00:00"
+}

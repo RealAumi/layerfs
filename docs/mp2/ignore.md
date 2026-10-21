@@ -226,3 +226,12 @@ uncommitted edits remain outside this proof.
 one-shot LACKING and SQLite errors refuse bind, explicit retry restores an
 unchanged record, and trailing manifest bytes produce `invalid-record` fallback.
 All 59 targeted tests pass, including the 200 × 30 model run; no Docker was needed.
+
+[ignore11](receipts/ignore11/README.md) qualifies the upstream merge `c5925f3f5`:
+72 targeted Mac tests plus nine upstream semantic regressions pass, including
+200 × 30 model steps; the first/only full Linux e2e passes all 11 scenarios and
+185 checks. F-073 changes equal-byte decisions in remote publication's Content
+merge; ignore replay and the path/byte oracle remain unchanged. All 23 explicit
+unmount samples passed; two other Workspaces ended with the intentional daemon
+kill. Intermittent unmount reliability remains unqualified. Receipt writers now
+scope Docker listings to `cxi-` and redact home paths.

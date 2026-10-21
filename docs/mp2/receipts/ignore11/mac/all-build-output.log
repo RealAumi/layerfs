@@ -1,0 +1,207 @@
+   Compiling cfg-if v1.0.4
+   Compiling libc v0.2.189
+   Compiling typenum v1.20.1
+   Compiling version_check v0.9.5
+   Compiling generic-array v0.14.7
+   Compiling jobserver v0.1.35
+   Compiling find-msvc-tools v0.1.12
+   Compiling shlex v2.0.1
+   Compiling cc v1.4.5
+   Compiling getrandom v0.2.17
+   Compiling rand_core v0.6.4
+   Compiling crypto-common v0.1.7
+   Compiling subtle v2.6.1
+   Compiling arrayvec v0.7.8
+   Compiling blake3 v1.8.5
+   Compiling arrayref v0.3.9
+   Compiling constant_time_eq v0.4.2
+   Compiling zeroize v1.9.0
+   Compiling inout v0.1.4
+   Compiling semver v1.0.28
+   Compiling rustc_version v0.4.1
+   Compiling cipher v0.4.4
+   Compiling universal-hash v0.5.1
+   Compiling cpufeatures v0.2.17
+   Compiling pkg-config v0.3.34
+   Compiling layerfs-content v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-content)
+   Compiling opaque-debug v0.3.1
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling polyval v0.6.2
+   Compiling curve25519-dalek v4.1.3
+   Compiling aead v0.5.2
+   Compiling layerfs-history v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-history)
+   Compiling ghash v0.5.1
+   Compiling poly1305 v0.8.0
+   Compiling aes v0.8.4
+   Compiling ctr v0.9.2
+   Compiling chacha20 v0.9.1
+   Compiling snow v0.9.6
+   Compiling autocfg v1.5.1
+   Compiling memoffset v0.9.1
+   Compiling chacha20poly1305 v0.10.1
+   Compiling aes-gcm v0.10.3
+   Compiling blake2 v0.10.6
+   Compiling sha2 v0.10.9
+   Compiling cfg_aliases v0.2.2
+   Compiling vcpkg v0.2.15
+   Compiling libsqlite3-sys v0.38.2
+   Compiling nix v0.31.3
+   Compiling hybrid-array v0.4.15
+   Compiling bitflags v2.13.1
+   Compiling foldhash v0.2.0
+   Compiling hashbrown v0.17.1
+   Compiling hashlink v0.12.2
+   Compiling crypto-common v0.2.2
+   Compiling block-buffer v0.12.1
+   Compiling layerfs-bridge v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-bridge)
+   Compiling zstd-sys v2.0.16+zstd.1.5.7
+   Compiling fallible-iterator v0.3.0
+   Compiling const-oid v0.10.2
+   Compiling smallvec v1.16.0
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling rusqlite v0.40.2
+   Compiling digest v0.11.3
+   Compiling cpufeatures v0.3.1
+   Compiling sha2 v0.11.0
+   Compiling layerfs-overlay v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-overlay)
+   Compiling layerfs-storage v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-storage)
+   Compiling layerfs-workspace v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-workspace)
+   Compiling layerfs-persistence v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-persistence)
+   Compiling layerfs-store-service v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-store-service)
+   Compiling layerfs-project v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-project)
+   Compiling layerfs-sandbox v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-sandbox)
+   Compiling layerfs-api v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-api)
+   Compiling layerfs-remote-store v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-remote-store)
+   Compiling layerfs-fuse v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-fuse)
+   Compiling layerfs-daemon v0.1.7 (~/Developer/layerfs-ignore/core/crates/layerfs-daemon)
+    Finished `test` profile [optimized + debuginfo] target(s) in 1m 52s
+  Executable unittests src/lib.rs (core/target/debug/deps/layerfs_api-bdabf8c47fe793a1)
+  Executable tests/diff_replay.rs (core/target/debug/deps/diff_replay-66804a67a9faf8f8)
+  Executable tests/diff_resume.rs (core/target/debug/deps/diff_resume-c17ad6c9ecea2afc)
+  Executable tests/history_ancestry_oracle.rs (core/target/debug/deps/history_ancestry_oracle-1ab7e49b9ea99b64)
+  Executable tests/history_diff_oracle.rs (core/target/debug/deps/history_diff_oracle-6e6d0aad0b4c85cd)
+  Executable tests/init.rs (core/target/debug/deps/init-23cdd65034778278)
+  Executable tests/merge_by_serial.rs (core/target/debug/deps/merge_by_serial-4de614524b8c02df)
+  Executable tests/merge_forms_fixture.rs (core/target/debug/deps/merge_forms_fixture-4b6c8cef0be33c5a)
+  Executable tests/merge_metadata_only.rs (core/target/debug/deps/merge_metadata_only-785def26c8ef49bf)
+  Executable tests/merge_mixed_forms.rs (core/target/debug/deps/merge_mixed_forms-01b6278f7f43f45a)
+  Executable tests/merge_root_oracle.rs (core/target/debug/deps/merge_root_oracle-8c07d961fef41ba3)
+  Executable tests/merge_units.rs (core/target/debug/deps/merge_units-07c5522479c0fec5)
+  Executable tests/method_refusal_order.rs (core/target/debug/deps/method_refusal_order-8a0bc1dd574ae7f7)
+  Executable tests/observed_control.rs (core/target/debug/deps/observed_control-aa88b4f93a4da0f5)
+  Executable tests/refresh_lookups.rs (core/target/debug/deps/refresh_lookups-5b18307b2ca58592)
+  Executable tests/relink_commit.rs (core/target/debug/deps/relink_commit-b0b94315e245951d)
+  Executable tests/replay_merges.rs (core/target/debug/deps/replay_merges-972327c2666481d7)
+  Executable tests/sandbox_operations.rs (core/target/debug/deps/sandbox_operations-dcdba8fdcb54688f)
+  Executable tests/scale_lineage_cap.rs (core/target/debug/deps/scale_lineage_cap-1d04464bc79cb69e)
+  Executable tests/sdk_branch_count.rs (core/target/debug/deps/sdk_branch_count-567aed0db5a10011)
+  Executable tests/sdk_chunk_deltas.rs (core/target/debug/deps/sdk_chunk_deltas-1932d8524aeb9301)
+  Executable tests/sdk_compare.rs (core/target/debug/deps/sdk_compare-058fe77f715cea24)
+  Executable tests/sdk_diff_entries.rs (core/target/debug/deps/sdk_diff_entries-df67549679edd41b)
+  Executable tests/sdk_diff_pages.rs (core/target/debug/deps/sdk_diff_pages-6dfccf81107fdf88)
+  Executable tests/sdk_diff_size.rs (core/target/debug/deps/sdk_diff_size-50f62b9175c38de3)
+  Executable tests/sdk_fixed_costs.rs (core/target/debug/deps/sdk_fixed_costs-e4bc2c4fc3f8256f)
+  Executable tests/sdk_fs_reads_replay.rs (core/target/debug/deps/sdk_fs_reads_replay-a8394b8b4ec87f84)
+  Executable tests/sdk_grep_reads.rs (core/target/debug/deps/sdk_grep_reads-77886190d9c5c1e7)
+  Executable tests/sdk_history_depth.rs (core/target/debug/deps/sdk_history_depth-fd7595d1814574e8)
+  Executable tests/sdk_list_entries.rs (core/target/debug/deps/sdk_list_entries-74197b94c7d4df7c)
+  Executable tests/sdk_merge_diagnostics.rs (core/target/debug/deps/sdk_merge_diagnostics-1b9e843b0def4529)
+  Executable tests/sdk_merge_paths.rs (core/target/debug/deps/sdk_merge_paths-f36b600c3c7f23ff)
+  Executable tests/sdk_merge_scale.rs (core/target/debug/deps/sdk_merge_scale-90233e7196122b85)
+  Executable tests/sdk_method_golden.rs (core/target/debug/deps/sdk_method_golden-5a1a033abd70b64e)
+  Executable tests/sdk_mount_lookup.rs (core/target/debug/deps/sdk_mount_lookup-c04e1132be482344)
+  Executable tests/sdk_project_count.rs (core/target/debug/deps/sdk_project_count-9a57047f26ddaadc)
+  Executable tests/sdk_reads_during_publish.rs (core/target/debug/deps/sdk_reads_during_publish-cfee65484ca1df0a)
+  Executable tests/sdk_reads_under_publish.rs (core/target/debug/deps/sdk_reads_under_publish-fbc3d102177dd6b7)
+  Executable tests/sdk_text_scan.rs (core/target/debug/deps/sdk_text_scan-7c12e12ccd677369)
+  Executable tests/sdk_timing_coverage.rs (core/target/debug/deps/sdk_timing_coverage-96c546f787662d2f)
+  Executable tests/sdk_written_back.rs (core/target/debug/deps/sdk_written_back-f093ca74093f8ec5)
+  Executable tests/workspace_reader_cache.rs (core/target/debug/deps/workspace_reader_cache-1f80862242bec6f9)
+  Executable tests/write_cost.rs (core/target/debug/deps/write_cost-061d71b1c6ff7c43)
+  Executable tests/write_refusals.rs (core/target/debug/deps/write_refusals-0306b00dfaaa1422)
+  Executable unittests examples/issue367_rm_probe.rs (core/target/debug/examples/issue367_rm_probe-5c2066f4c74bca53)
+  Executable unittests examples/sandbox_kernel_mount.rs (core/target/debug/examples/sandbox_kernel_mount-775a413ee5336602)
+  Executable unittests examples/sandbox_lifecycle.rs (core/target/debug/examples/sandbox_lifecycle-ef2a1f981d64184b)
+  Executable unittests src/lib.rs (core/target/debug/deps/layerfs_bridge-049d63d9fe5fe4f0)
+  Executable tests/control_records.rs (core/target/debug/deps/control_records-18b0fc20e15b826d)
+  Executable tests/duplex.rs (core/target/debug/deps/duplex-1c5336eabd113f07)
+  Executable tests/install_records.rs (core/target/debug/deps/install_records-35848aa124643b48)
+  Executable tests/observed_records.rs (core/target/debug/deps/observed_records-616478aed798a067)
+  Executable tests/sdk_merge_values.rs (core/target/debug/deps/sdk_merge_values-0be852d4f993acdb)
+  Executable unittests src/lib.rs (core/target/debug/deps/layerfs_daemon-fcf177d9573247f3)
+  Executable unittests src/bin/layerfs-daemon.rs (core/target/debug/deps/layerfs_daemon-a653cec397b07c55)
+  Executable unittests src/bin/layerfs-remote-daemon.rs (core/target/debug/deps/layerfs_remote_daemon-ccb07e2f4015537c)
+  Executable tests/complete_installed_roots.rs (core/target/debug/deps/complete_installed_roots-bc2806e6007876b7)
+  Executable tests/concurrent_commits.rs (core/target/debug/deps/concurrent_commits-822addafdd99c935)
+  Executable tests/f046_fork_reference.rs (core/target/debug/deps/f046_fork_reference-26d8574994fcf57e)
+  Executable tests/file_digests.rs (core/target/debug/deps/file_digests-f8a54f12b590d63b)
+  Executable tests/forced_producers.rs (core/target/debug/deps/forced_producers-6fa484ad95f6fb7e)
+  Executable tests/forced_smoke.rs (core/target/debug/deps/forced_smoke-c60662bd4a2fcbf0)
+  Executable tests/forced_unavailable.rs (core/target/debug/deps/forced_unavailable-ac0854dd8a4511ae)
+  Executable tests/forced_unmount.rs (core/target/debug/deps/forced_unmount-e36795e643dcd7d0)
+  Executable tests/fp21_detach_stages.rs (core/target/debug/deps/fp21_detach_stages-086c8df0661099ea)
+  Executable tests/fp27_reader_health.rs (core/target/debug/deps/fp27_reader_health-6c0eaef009a3303e)
+  Executable tests/fp2_negotiation_flags.rs (core/target/debug/deps/fp2_negotiation_flags-b00206aae0022b66)
+  Executable tests/fp31_forget_underflow.rs (core/target/debug/deps/fp31_forget_underflow-51906515f04cef6d)
+  Executable tests/host_handoff.rs (core/target/debug/deps/host_handoff-cd61371178305839)
+  Executable tests/host_install.rs (core/target/debug/deps/host_install-2a8f4334c04f6926)
+  Executable tests/installed_store.rs (core/target/debug/deps/installed_store-d26a647b6a8c79c1)
+  Executable tests/kernel_application.rs (core/target/debug/deps/kernel_application-8f381d9194e6e358)
+  Executable tests/kernel_coherence.rs (core/target/debug/deps/kernel_coherence-ccdea68c7cbabb26)
+  Executable tests/kernel_custody.rs (core/target/debug/deps/kernel_custody-2bd1876e5355b9e4)
+  Executable tests/kernel_mount.rs (core/target/debug/deps/kernel_mount-fb1ae750a4ff2b1b)
+  Executable tests/kernel_mount_routes.rs (core/target/debug/deps/kernel_mount_routes-e1b4d6ace08f21ab)
+  Executable tests/kernel_mutation.rs (core/target/debug/deps/kernel_mutation-35db6825e3b129c6)
+  Executable tests/lane_merge.rs (core/target/debug/deps/lane_merge-7d988a953300066b)
+  Executable tests/merge_report.rs (core/target/debug/deps/merge_report-c29bcd22e7e93d79)
+  Executable tests/mount_control.rs (core/target/debug/deps/mount_control-22709347c652e0d4)
+  Executable tests/mounted_commit.rs (core/target/debug/deps/mounted_commit-5fd60d171f3ce673)
+  Executable tests/mounted_commit_failures.rs (core/target/debug/deps/mounted_commit_failures-4194909944c5677f)
+  Executable tests/mounted_concurrency.rs (core/target/debug/deps/mounted_concurrency-e7af63e1e098ecdc)
+  Executable tests/mounted_cycles.rs (core/target/debug/deps/mounted_cycles-f571fbcc207fb147)
+  Executable tests/mounted_drain.rs (core/target/debug/deps/mounted_drain-df2b563acf090625)
+  Executable tests/mounted_execute.rs (core/target/debug/deps/mounted_execute-a7f45b76ed29c790)
+  Executable tests/mounted_failure_scope.rs (core/target/debug/deps/mounted_failure_scope-e4754f187b63db20)
+  Executable tests/mounted_fusectl.rs (core/target/debug/deps/mounted_fusectl-d93645ecd9fa9160)
+  Executable tests/mounted_install.rs (core/target/debug/deps/mounted_install-89358827cff8f2af)
+  Executable tests/mounted_links.rs (core/target/debug/deps/mounted_links-b21884afbbdd23ec)
+  Executable tests/mounted_listing_reads.rs (core/target/debug/deps/mounted_listing_reads-4335c7491df12287)
+  Executable tests/mounted_low_water.rs (core/target/debug/deps/mounted_low_water-605f0a69716c322f)
+  Executable tests/mounted_parallel_commits.rs (core/target/debug/deps/mounted_parallel_commits-2951cf98652437a2)
+  Executable tests/mounted_patterns.rs (core/target/debug/deps/mounted_patterns-f2dc1e54e7f1d091)
+  Executable tests/mounted_recognizer.rs (core/target/debug/deps/mounted_recognizer-6563539ce3e9b0ed)
+  Executable tests/mounted_rewind.rs (core/target/debug/deps/mounted_rewind-7a2129acf3219120)
+  Executable tests/mounted_serial_admission.rs (core/target/debug/deps/mounted_serial_admission-4f343bf8d7c5a3e1)
+  Executable tests/mounted_sqlite_full.rs (core/target/debug/deps/mounted_sqlite_full-29ac1915a39e57a5)
+  Executable tests/mounted_store_read.rs (core/target/debug/deps/mounted_store_read-aa329dfeaacadc59)
+  Executable tests/negative_entries.rs (core/target/debug/deps/negative_entries-213eeef8403cdb6a)
+  Executable tests/observed_application.rs (core/target/debug/deps/observed_application-a52ffaa7428b4854)
+  Executable tests/r5_10_producer_profile.rs (core/target/debug/deps/r5_10_producer_profile-725667ae232c090d)
+  Executable tests/r5_1_actual_daemon_commit.rs (core/target/debug/deps/r5_1_actual_daemon_commit-a2c4f12abf78d812)
+  Executable tests/r5_5_install_survival.rs (core/target/debug/deps/r5_5_install_survival-e679adf22fbf9b71)
+  Executable tests/r5_9_dirty_mapping.rs (core/target/debug/deps/r5_9_dirty_mapping-164a29850b52be20)
+  Executable tests/remote_refresh_gate.rs (core/target/debug/deps/remote_refresh_gate-76d2c7357569da49)
+  Executable tests/rename_predecessor.rs (core/target/debug/deps/rename_predecessor-990b1bac2b579b98)
+  Executable tests/shared_cache_pressure.rs (core/target/debug/deps/shared_cache_pressure-a81b90efc6c08f7a)
+  Executable tests/store_commit.rs (core/target/debug/deps/store_commit-08b745c29af39581)
+  Executable tests/store_reader_lifecycle.rs (core/target/debug/deps/store_reader_lifecycle-fb68617e76421256)
+  Executable tests/telemetry_recording.rs (core/target/debug/deps/telemetry_recording-808c365f198722fe)
+  Executable tests/workspace_databases.rs (core/target/debug/deps/workspace_databases-81a1ecb514df1572)
+  Executable unittests examples/resource_growth.rs (core/target/debug/examples/resource_growth-3f3138c25a065afb)
+  Executable unittests examples/resource_prepare.rs (core/target/debug/examples/resource_prepare-13e7e56e634ce639)
+  Executable unittests examples/store_accounting.rs (core/target/debug/examples/store_accounting-c83c9fa80755610e)
+  Executable unittests src/lib.rs (core/target/debug/deps/layerfs_remote_store-3efb4f1efeefe954)
+  Executable unittests src/bin/layerfs-remote.rs (core/target/debug/deps/layerfs_remote-c3d047cfa2a22e2c)
+  Executable unittests src/bin/layerfs-store.rs (core/target/debug/deps/layerfs_store-dfc9435fd26c46c6)
+  Executable tests/metadata.rs (core/target/debug/deps/metadata-02ff562e768374b9)
+  Executable tests/receive_observe.rs (core/target/debug/deps/receive_observe-d07d419a8848e34a)
+  Executable tests/remote_driver.rs (core/target/debug/deps/remote_driver-2b09db9606631137)
+  Executable tests/request_paths.rs (core/target/debug/deps/request_paths-1e548f4fdc0a5869)
+  Executable tests/restore_cache.rs (core/target/debug/deps/restore_cache-d97041f28ac7af92)
+  Executable tests/transport.rs (core/target/debug/deps/transport-d83bac2c174bfcf6)
+  Executable unittests src/lib.rs (core/target/debug/deps/layerfs_store_service-41cf5bc802622099)
+  Executable tests/ignore.rs (core/target/debug/deps/ignore-80bc6545bec0bfb4)
+  Executable tests/kept_plans.rs (core/target/debug/deps/kept_plans-73dd66319e2828cd)
+  Executable tests/kernel_guard.rs (core/target/debug/deps/kernel_guard-ef04c40fe0c15058)
+  Executable tests/sdk_root_batches.rs (core/target/debug/deps/sdk_root_batches-b3e390c352acfe4c)

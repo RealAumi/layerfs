@@ -1,0 +1,23 @@
+{
+  "home_path_files": 0,
+  "non_cxi_resource_names": 0,
+  "resource_references_checked": 603,
+  "unique_resources": [
+    "cxi-a",
+    "cxi-b1",
+    "cxi-b1-data",
+    "cxi-b2",
+    "cxi-b2-data",
+    "cxi-build",
+    "cxi-build-net",
+    "cxi-collect",
+    "cxi-init",
+    "cxi-link",
+    "cxi-sandbox-net",
+    "cxi-seed",
+    "cxi-server-data",
+    "cxi-server-net",
+    "cxi-target"
+  ],
+  "scope": "all new receipt files for home grep; all Docker command/listing and mount-control resource identities"
+}

@@ -15,7 +15,7 @@ machine"). Every container, network and volume is prefixed `cxi-`; `cxi-target`
 Receipts: docs/mp2/receipts/$IGN_RECEIPTS/ (default ignore01).  Work dir (binaries, seed): $IGN_WORK,
 default ~/.cache/cxi-ignore-e2e. Docker uses the local OrbStack context.
 """
-import hashlib, json, os, pathlib, re, subprocess, sys, time, shutil
+import hashlib, json, os, pathlib, re, subprocess, sys, time, shutil, tempfile
 
 os.environ['DOCKER_CONTEXT'] = 'orbstack'
 REPO = pathlib.Path(__file__).resolve().parents[2]
@@ -68,6 +68,14 @@ def run(args, expected=0, wall=120, log=True, input=None):
 
 
 def docker(*args, **kw):
+    if args[0] == 'cp' and pathlib.Path(args[-1]).parent == RECEIPTS:
+        # A stopped daemon still needs docker cp; sanitize before recording.
+        with tempfile.TemporaryDirectory(prefix='cxi-receipt-') as tmp:
+            copied = pathlib.Path(tmp) / 'log'
+            result = run(['docker', *args[:-1], copied], **kw)
+            if result.returncode == 0:
+                receipt(pathlib.Path(args[-1]), copied.read_text(errors='replace'))
+            return result
     return run(['docker', *args], **kw)
 
 

@@ -1,0 +1,271 @@
+[
+  {
+    "container": "cxi-b2",
+    "workspace": "4bb0f4b0f56b9bd8722971f4f7a6b925a558b9cea59f8f8fc1d690be32097955",
+    "namespace": 1,
+    "mounted_ns": 89920312736458,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 50.384875,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(4bb0f4b0f56b9bd8722971f4f7a6b925a558b9cea59f8f8fc1d690be32097955), namespace: 1 })\nwall_ns=14852310\n",
+    "discard": false
+  },
+  {
+    "container": "cxi-b1",
+    "workspace": "f38db45fd00dc157297786cc939555997ca1593e962cb8b5d5594c44ed7e8741",
+    "namespace": 1,
+    "mounted_ns": 89923333428041,
+    "outcome": "no explicit unmount: daemon killed by restart scenario",
+    "elapsed_ms": null
+  },
+  {
+    "container": "cxi-b2",
+    "workspace": "ea071ebc89cecaa37e27c4903eae7f67aae1121aa37361756a0f32502c6d5566",
+    "namespace": 2,
+    "mounted_ns": 89929944974000,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 55.590625,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(ea071ebc89cecaa37e27c4903eae7f67aae1121aa37361756a0f32502c6d5566), namespace: 2 })\nwall_ns=7500364\n",
+    "discard": true
+  },
+  {
+    "container": "cxi-b2",
+    "workspace": "1b705f6c5dd499d6832d762b09725c2da03b3567f164182b91c0aa5876a6ac1e",
+    "namespace": 3,
+    "mounted_ns": 89934809262500,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 49.246708,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(1b705f6c5dd499d6832d762b09725c2da03b3567f164182b91c0aa5876a6ac1e), namespace: 3 })\nwall_ns=7224489\n",
+    "discard": true
+  },
+  {
+    "container": "cxi-b2",
+    "workspace": "b6da1a7b97b870533b4b453b1608ab0d9c045bf9ef47c2e36a522e60a6467276",
+    "namespace": 4,
+    "mounted_ns": 89938731779416,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 46.630042,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(b6da1a7b97b870533b4b453b1608ab0d9c045bf9ef47c2e36a522e60a6467276), namespace: 4 })\nwall_ns=6455090\n",
+    "discard": true
+  },
+  {
+    "container": "cxi-b2",
+    "workspace": "ef0e15da0d35a371595e2017890678011af0d899ce7c34b8bbb0bf042712b634",
+    "namespace": 5,
+    "mounted_ns": 89942545107166,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 75.807833,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(ef0e15da0d35a371595e2017890678011af0d899ce7c34b8bbb0bf042712b634), namespace: 5 })\nwall_ns=8790854\n",
+    "discard": true
+  },
+  {
+    "container": "cxi-b2",
+    "workspace": "9a8cb0fd2c1c7f18d9915c18074ac357b8d85d8dcc0e41234322209514bca44b",
+    "namespace": 6,
+    "mounted_ns": 89946342972291,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 46.960292,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(9a8cb0fd2c1c7f18d9915c18074ac357b8d85d8dcc0e41234322209514bca44b), namespace: 6 })\nwall_ns=7266622\n",
+    "discard": true
+  },
+  {
+    "container": "cxi-b2",
+    "workspace": "3ba5cbbe14d196324eb05632a8dbbd1ae5313c284810fb6b0f92ea3045dd454c",
+    "namespace": 7,
+    "mounted_ns": 89950444355166,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 53.314125,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(3ba5cbbe14d196324eb05632a8dbbd1ae5313c284810fb6b0f92ea3045dd454c), namespace: 7 })\nwall_ns=6116303\n",
+    "discard": true
+  },
+  {
+    "container": "cxi-b2",
+    "workspace": "b3643bb38f8dc16eb04f3941cde70f856881287243a1dec68f21c44d711c1e18",
+    "namespace": 8,
+    "mounted_ns": 89954271251416,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 51.404416,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(b3643bb38f8dc16eb04f3941cde70f856881287243a1dec68f21c44d711c1e18), namespace: 8 })\nwall_ns=7174581\n",
+    "discard": true
+  },
+  {
+    "container": "cxi-b2",
+    "workspace": "afc03a20c5bbd9515661768a17ac20ccf3cf8223614e691dd518742cd3eaff24",
+    "namespace": 9,
+    "mounted_ns": 89957983851375,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 47.516833,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(afc03a20c5bbd9515661768a17ac20ccf3cf8223614e691dd518742cd3eaff24), namespace: 9 })\nwall_ns=4637111\n",
+    "discard": true
+  },
+  {
+    "container": "cxi-b2",
+    "workspace": "8356425c278e5e01b950f6a369b180ae119a25500b0645adef448fd5637b2f7f",
+    "namespace": 10,
+    "mounted_ns": 89962006979208,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 35.233333,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(8356425c278e5e01b950f6a369b180ae119a25500b0645adef448fd5637b2f7f), namespace: 10 })\nwall_ns=1246943\n",
+    "discard": true
+  },
+  {
+    "container": "cxi-b2",
+    "workspace": "c1e301bda1f1c03d918b7aa459b7e603f56096158531f2ad5e39774d33b5b012",
+    "namespace": 11,
+    "mounted_ns": 89966265437666,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 42.39625,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(c1e301bda1f1c03d918b7aa459b7e603f56096158531f2ad5e39774d33b5b012), namespace: 11 })\nwall_ns=4731902\n",
+    "discard": true
+  },
+  {
+    "container": "cxi-b2",
+    "workspace": "7388a3909c86abcf5d2c5c69be3e434fddae3c3a0078501673ca57da450d5e6a",
+    "namespace": 12,
+    "mounted_ns": 89970196147666,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 37.543458,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(7388a3909c86abcf5d2c5c69be3e434fddae3c3a0078501673ca57da450d5e6a), namespace: 12 })\nwall_ns=1185194\n",
+    "discard": false
+  },
+  {
+    "container": "cxi-b2",
+    "workspace": "f1e4d67b157ed4864aa6772d2486cc17bb41245aabd9cf4b67dc16384d4fa129",
+    "namespace": 13,
+    "mounted_ns": 89977878505125,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 47.243541,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(f1e4d67b157ed4864aa6772d2486cc17bb41245aabd9cf4b67dc16384d4fa129), namespace: 13 })\nwall_ns=4507238\n",
+    "discard": true
+  },
+  {
+    "container": "cxi-b2",
+    "workspace": "27e0d0f79c273ff072f277a240f60d96f4541ef4373995c590130b6bb626f518",
+    "namespace": 14,
+    "mounted_ns": 89986203897833,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 41.90675,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(27e0d0f79c273ff072f277a240f60d96f4541ef4373995c590130b6bb626f518), namespace: 14 })\nwall_ns=1170569\n",
+    "discard": false
+  },
+  {
+    "container": "cxi-b2",
+    "workspace": "7e3e034484d7aaaab8b68b601067ce97cc382938f5c75b4b5fd8f647f6d01d16",
+    "namespace": 15,
+    "mounted_ns": 89990534736500,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 45.015958,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(7e3e034484d7aaaab8b68b601067ce97cc382938f5c75b4b5fd8f647f6d01d16), namespace: 15 })\nwall_ns=5825865\n",
+    "discard": true
+  },
+  {
+    "container": "cxi-b2",
+    "workspace": "a913a5f1a744bafcd1f44db6a4500b12904be9d9cb9f9719cb125217369ba327",
+    "namespace": 16,
+    "mounted_ns": 89990843130583,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 49.17175,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(a913a5f1a744bafcd1f44db6a4500b12904be9d9cb9f9719cb125217369ba327), namespace: 16 })\nwall_ns=11681605\n",
+    "discard": false
+  },
+  {
+    "container": "cxi-b1",
+    "workspace": "e5749bdc1f4051ffd976858a9b13965d8e4bfe17ff299202cc0cbf3de0fc6304",
+    "namespace": 2,
+    "mounted_ns": 89993073924291,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 40.20775,
+    "output": "Dirty(DirtyReport { token: WorkspaceToken { workspace: WorkspaceId(e5749bdc1f4051ffd976858a9b13965d8e4bfe17ff299202cc0cbf3de0fc6304), namespace: 2 }, paths: [], inodes: 0, entries: 0, pending_merge: true, truncated: false })\nwall_ns=491499\n",
+    "discard": false
+  },
+  {
+    "container": "cxi-b1",
+    "workspace": "fd1732d38edfaf9ba588323bb8b00e5340ac7a5f0780f9ed19a5ca81c4ee8810",
+    "namespace": 3,
+    "mounted_ns": 89994338403375,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 38.439666,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(fd1732d38edfaf9ba588323bb8b00e5340ac7a5f0780f9ed19a5ca81c4ee8810), namespace: 3 })\nwall_ns=1291372\n",
+    "discard": true
+  },
+  {
+    "container": "cxi-b1",
+    "workspace": "7aaed9fb02aa305f3b23bfa8d855daa91e6999a84b51f80d52a0510e5f704e7e",
+    "namespace": 4,
+    "mounted_ns": 89994764284625,
+    "outcome": "no explicit unmount: daemon killed by restart scenario",
+    "elapsed_ms": null
+  },
+  {
+    "container": "cxi-b1",
+    "workspace": "7ac3bff52d2c4a8a535bb517f347604868757b099a21d673eb5ed8382d0d2804",
+    "namespace": 1,
+    "mounted_ns": 89996311071458,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 36.24725,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(7ac3bff52d2c4a8a535bb517f347604868757b099a21d673eb5ed8382d0d2804), namespace: 1 })\nwall_ns=973957\n",
+    "discard": true
+  },
+  {
+    "container": "cxi-b1",
+    "workspace": "992343d1e25cb6b3d3877dcda0f296131ce9036b1e41148185cb27f485fbc836",
+    "namespace": 2,
+    "mounted_ns": 89996742876500,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 41.901958,
+    "output": "Dirty(DirtyReport { token: WorkspaceToken { workspace: WorkspaceId(992343d1e25cb6b3d3877dcda0f296131ce9036b1e41148185cb27f485fbc836), namespace: 2 }, paths: [\"/.gitignore\", \"/node_modules/restart/index.js\", \"/src/restart.txt\", \"/target/restart.bin\"], inodes: 0, entries: 0, pending_merge: true, truncated: false })\nwall_ns=2798620\n",
+    "discard": false
+  },
+  {
+    "container": "cxi-b1",
+    "workspace": "b4266dcf3858b2389acb48523111b1981ee057af958e0221eda0371e46a7e760",
+    "namespace": 3,
+    "mounted_ns": 89997125463833,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 87.958958,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(b4266dcf3858b2389acb48523111b1981ee057af958e0221eda0371e46a7e760), namespace: 3 })\nwall_ns=1249206\n",
+    "discard": false
+  },
+  {
+    "container": "cxi-b1",
+    "workspace": "7f705abaed7458a8d233100e8814b31d02365fbfd3537f9ce08703e569c2203a",
+    "namespace": 4,
+    "mounted_ns": 89997511062875,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 34.5565,
+    "output": "Dirty(DirtyReport { token: WorkspaceToken { workspace: WorkspaceId(7f705abaed7458a8d233100e8814b31d02365fbfd3537f9ce08703e569c2203a), namespace: 4 }, paths: [\"/.gitignore\", \"/src/restart.txt\"], inodes: 0, entries: 0, pending_merge: true, truncated: false })\nwall_ns=2096038\n",
+    "discard": false
+  },
+  {
+    "container": "cxi-b1",
+    "workspace": "513bc43c258ab931653df865baa794e17cdeee840044cba353022c8ead56bb3a",
+    "namespace": 5,
+    "mounted_ns": 89997877413250,
+    "outcome": "clean",
+    "exit": 0,
+    "elapsed_ms": 39.245916,
+    "output": "Unmounted(WorkspaceToken { workspace: WorkspaceId(513bc43c258ab931653df865baa794e17cdeee840044cba353022c8ead56bb3a), namespace: 5 })\nwall_ns=1027540\n",
+    "discard": false
+  }
+]
