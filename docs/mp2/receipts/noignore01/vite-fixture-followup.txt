@@ -1,0 +1,46 @@
+Vite source-map fixture follow-up, 2026-10-21. Single samples unless counted.
+
+Fixture: packages/vite/src/node/ssr/runtime/__tests__/fixtures/throws-error-method.ts (v6.1.0)
+sha256 original              1efb34a7c923b583cf2c41696028561f2f48868e18bfbbc8f1b0c26ddc7bf853
+sha256 five-line test edit   f4b628cf67a6f77cbc4214fe5601d831126f798ba447d9a65acb9fec45328d93
+sha256 in both published Threads (off3/on3-thread-identities.log): f4b628cf... (the test edit)
+
+Cause: vitest.config.ts sets isolate: false. The restore hook is a module-level
+afterEach in __tests__/utils.ts, which server-hmr, server-no-hmr, server-runtime
+and server-source-maps all import. A worker evaluates utils.ts once, so the hook
+attaches only to the first of those files that worker runs. When server-source-maps
+runs after another of them in the same worker, its edit is never restored.
+
+Plain container disk, no LayerFS (Node 20, pnpm 9.15.5, fresh clone and build):
+server-hmr.spec.ts server-no-hmr.spec.ts server-runtime.spec.ts server-source-maps.spec.ts
+before leadingNL 0
+alone 1 ok
+alone-1 leadingNL 0
+alone 2 ok
+alone-2 leadingNL 0
+alone 3 ok
+alone-3 leadingNL 0
+one-worker 1 ok
+✓ packages/vite/src/node/ssr/runtime/__tests__/server-runtime.spec.ts ([2
+✓ packages/vite/src/node/ssr/runtime/__tests__/server-source-maps.spec.ts
+one-worker-1 leadingNL 5
+one-worker 2 ok
+✓ packages/vite/src/node/ssr/runtime/__tests__/server-runtime.spec.ts ([2
+✓ packages/vite/src/node/ssr/runtime/__tests__/server-source-maps.spec.ts
+one-worker-2 leadingNL 5
+full 1 ok
+full-1 leadingNL 0
+full 2 ok
+full-2 leadingNL 0
+full 3 ok
+full-3 leadingNL 0
+
+alone = vitest run server-source-maps.spec.ts
+one-worker = vitest run --no-file-parallelism server-runtime.spec.ts server-source-maps.spec.ts
+full = pnpm test-unit (worker assignment varies by run)
+
+LayerFS replay with the original off binaries, two containers and the counting proxy:
+machine 1 (S2 unit run, ten edit Commits, clean build, dependency add): fixture
+original after every step. Machine 2 (resume): unit run passed, fixture left as the
+test edit. Machine 3: Node edit-and-restore, two single-file runs and one unit run
+left it original; the next unit run left it edited, and its Commit stored f4b628cf.

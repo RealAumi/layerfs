@@ -7,8 +7,8 @@ The measured incremental cost of storing everything was modest in these two
 workloads. Across ten edits, Vite added 184,320 B more Store space and 38.55 ms
 more total Commit time than `ignore=git`; Petclinic added 1,163,264 B and 0.996 s.
 Maven resumed successfully without rebuilding in `off`. Node's resume test
-failed in both modes, so this experiment does **not** establish reliable Node
-resume or an unconditional recommendation to drop ignore.
+failed in both modes. A follow-up traced that failure to Vite's own test cleanup,
+not to LayerFS, but no passing Node resume was measured.
 
 The owner's separate cache-Branch design worked with **one daemon and two
 Workspaces**. A cold machine mounted writable forks of both Branches and passed
@@ -223,12 +223,18 @@ as expected. Both cold unit runs passed 510 tests, with one skipped.
 
 Both resume runs failed the same source-map assertion: the prior unit run's
 five-line fixture edit remained in the published Thread. The actual committed
-fixture and post-S5 sources matched across modes. One full-suite diagnostic on
-a plain container filesystem passed and restored the fixture. This narrows the
-issue to filesystem-dependent test/cleanup behavior but does not isolate a
-LayerFS fault or its cause. No production fix, test assertion change, or successful
-rerun replaced either failed resume. The failed elapsed times are **not time to
-passing tests**. [Readback comparison](receipts/noignore01/attempt2/thread-input-equivalence.json),
+fixture and post-S5 sources matched across modes. The cause is Vite's test suite,
+not LayerFS. `vitest.config.ts` sets `isolate: false`, and the fixture restore is a
+module-level `afterEach` in a helper four spec files import. A worker evaluates
+that helper once, so the hook attaches only to the first of those files the
+worker runs. On a plain container disk, running `server-runtime` and then
+`server-source-maps` in one worker left the edit in place 2 of 2 times. Whether
+the full suite does so depends on how files land on workers, which is why one
+plain-disk full run passed. A replay with the original binaries reproduced the
+Thread's exact edited fixture hash. No production fix, test assertion change, or
+successful rerun replaced either failed resume. The failed elapsed times are
+**not time to passing tests**. [Follow-up](receipts/noignore01/vite-fixture-followup.txt),
+[readback comparison](receipts/noignore01/attempt2/thread-input-equivalence.json),
 [native diagnostic](receipts/noignore01/attempt2/native-diagnostic-console.log),
 [off failure](receipts/noignore01/attempt2/v2-vite-off3-S6-test.log.gz),
 [on failure](receipts/noignore01/attempt2/v2-vite-on3-S6-test.log.gz).
@@ -265,8 +271,9 @@ The repo and cache are separate Commits; no cross-Branch atomicity claim is made
 cost blocker for these workloads. Maven demonstrates the recovery benefit, and
 the selected separate-cache-Branch design works locally. The measured cold-cache
 fetch cost is real and should not be described as a free materialized environment.
-Node resume remains an unresolved functional gap common to both modes; these
-samples do not establish its reliability or performance on a real remote link.
+Node resume failed for a test-suite reason, not a LayerFS one, but it still has
+no passing sample; these samples do not establish its reliability or performance
+on a real remote link.
 
 ## Evidence, hygiene and closeout
 
