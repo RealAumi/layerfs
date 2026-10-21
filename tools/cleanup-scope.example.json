@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "protected_paths": [],
+  "protected_volumes": [],
+  "protected_containers": [],
+  "scan_roots": [],
+  "actions": []
+}

@@ -6,7 +6,7 @@ Written 2026-10-10 against `main` at `84323b47a`. It describes what will be
 built and in what order. It claims no implementation, measurement or
 comparison. The [measurement workflow](../../../../docs/general/agent-measurement-policy.md),
 [benchmark rules](../../../../docs/general/benchmark_rules.md) and
-[report template](../../../../benchmark_agent_report.md) stay binding; where
+[report template](../../../../docs/general/benchmark_agent_report.md) stay binding; where
 this page and they disagree, they win.
 
 ## 1. Goal
@@ -60,7 +60,7 @@ implement them, run them and fix bugs, not to optimize.
 | SDK surface | `ProjectApi` init and install; `WorkspaceApi` bind, mount, commit, status, unmount, force unmount, cleanup; `SandboxApi` create, exec, status. `ProjectApi::fork` and `ProjectApi::history` are already public thin methods over the existing control requests (source correction, 2026-10-10) |
 
 The table above is a historical source snapshot, not the current SDK contract.
-The 2026-10-12 owner follow-up is implemented at the [SDK surface](../../../../sdk.md):
+The 2026-10-12 owner follow-up is implemented at the [SDK surface](../../../../docs/general/sdk.md):
 Project init/fork/branches/commits, Sandbox create/close and Workspace mount/exec/
 commit/status/unmount. One file per operation and base/ replace the earlier layout.
 Control/recovery/observation borrows are hidden. Project commits sends the original
@@ -278,7 +278,7 @@ The original family name separates recorded runs that share one clean source
 commit; otherwise two independent reports would collide on the same filenames.
 Already recorded run directories retain their original paths and contents.
 They are generated from the receipts and never filled by hand. The columns extend the v0.1.6 release tables
-(`release-notes/0.1.6/derive_tables.py`) with the phase split, the counts and
+(`docs/release-notes/0.1.6/derive_tables.py`) with the phase split, the counts and
 the reference columns of the v0.1.5 table. Times are raw nanoseconds.
 
 The stage 0.4 `cluster-two/cells` selection uses the same two CSV schemas
@@ -371,9 +371,9 @@ The released records already hold more than the v0.1.6 closeout alone:
 
 | Source | Families with a timing | Rows |
 | --- | --- | --- |
-| `release-notes/0.1.6/benchmark-performance.csv` | 5: `branch_development`, `dedup_branch_history`, `file_size_transition`, `mixed_load_bearing`, `multi_workspace_development`. `historical_access` has six rows, all verification only | 36, of which 28 timed |
-| `release-notes/0.1.5/benchmark-performance.csv` | 16: `dedup_branch_history`, `dedup_cdc_locality`, `dedup_cross_file`, `dedup_workspace_reuse`, `directory_construction_traversal`, `edit_canonical_chunk_count`, `edit_length_changing`, `edit_length_preserving`, `git_tool_workflow`, `init_namespace`, `mixed_load_bearing`, `namespace_mutation`, `payload_create_read`, `store_footprint`, `tiny_file_churn`, `workspace_change_locality` | 198 |
-| `release-notes/0.1.5/benchmark-verification.csv` | `workspace_reliability` adds 28 verification-only rows; the other 199 rows retain the released proofs for the remaining selections | 227 total |
+| `docs/release-notes/0.1.6/benchmark-performance.csv` | 5: `branch_development`, `dedup_branch_history`, `file_size_transition`, `mixed_load_bearing`, `multi_workspace_development`. `historical_access` has six rows, all verification only | 36, of which 28 timed |
+| `docs/release-notes/0.1.5/benchmark-performance.csv` | 16: `dedup_branch_history`, `dedup_cdc_locality`, `dedup_cross_file`, `dedup_workspace_reuse`, `directory_construction_traversal`, `edit_canonical_chunk_count`, `edit_length_changing`, `edit_length_preserving`, `git_tool_workflow`, `init_namespace`, `mixed_load_bearing`, `namespace_mutation`, `payload_create_read`, `store_footprint`, `tiny_file_churn`, `workspace_change_locality` | 198 |
+| `docs/release-notes/0.1.5/benchmark-verification.csv` | `workspace_reliability` adds 28 verification-only rows; the other 199 rows retain the released proofs for the remaining selections | 227 total |
 | No released number found | `edit_length_changing_capped`, `local_snapshot`, `repository_history`, `small_file_delta_smoke` | — |
 
 So 19 families have a released timing: 3 only in the 0.1.6 record, 14 only in

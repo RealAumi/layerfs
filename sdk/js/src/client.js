@@ -66,6 +66,13 @@ export function invokeClient(client, op, args) {
   return invoke(op, { ...args, project: client.projectName, home: client.options.home, deploy: client.options.deploy, ...storeArgs(client) }, client.options);
 }
 
+/** An operator call's fields for a named Sandbox: discovery home and the
+ * client's deployment, whose daemonHost the binding dials when it reopens
+ * the Sandbox from its record. */
+export function sandboxArgs(client, sandbox) {
+  return { project: client.projectName, home: client.options.home, deploy: client.options.deploy, sandbox: sandboxId(sandbox) };
+}
+
 const storeArgs = (client) => (client.options.storePath ? { storePath: client.options.storePath } : {});
 
 /** Opens the client's Store in this process (one more client of it). */

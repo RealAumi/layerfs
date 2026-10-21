@@ -13,7 +13,8 @@ use crate::store::{CatalogHints, Store, StorePorts};
 use layerfs_bridge::control::{SdkRefusal, SdkValue};
 use layerfs_content::compare::tree::{same_inode, same_metadata};
 use layerfs_content::compare::{
-    line_diff, ChangeKind, ChangeWalk, DiffLine, EntryFacts, LineOp, Memo, PathChange, Plan,
+    line_diff, same_file_bytes, ChangeKind, ChangeWalk, DiffLine, EntryFacts, LineOp, Memo,
+    PathChange, Plan,
 };
 use layerfs_content::filesystem::path::PathName;
 use layerfs_content::object::inode_leaf::InodeKind;
@@ -48,6 +49,35 @@ fn hunks(lines: &[DiffLine], budget: &mut usize) -> Option<SdkValue> {
             })
             .collect(),
     ))
+}
+
+/// Whether two entries hold the same content: the same kind and root, or two
+/// regular files whose different roots hold the same bytes. A root depends on
+/// how the file was built, so a file edited away and back can keep its bytes
+/// under a new root (#352 F-073).
+fn same_content(
+    reader: &StorePorts,
+    left: &EntryFacts,
+    right: &EntryFacts,
+) -> Result<bool, SdkRefusal> {
+    if left.value.kind != right.value.kind {
+        return Ok(false);
+    }
+    if left.value.content_root == right.value.content_root {
+        return Ok(true);
+    }
+    if left.value.kind != InodeKind::RegularFile {
+        return Ok(false);
+    }
+    crate::telemetry::timed("sdk.compare", |timing| {
+        same_file_bytes(
+            reader,
+            left.value.content_root,
+            right.value.content_root,
+            timing.child("content.compare"),
+        )
+    })
+    .map_err(args::content)
 }
 
 /// `fs.diff_files({ left: { path, commit? }, right: { path, commit? } },
@@ -97,7 +127,7 @@ pub fn diff_files(
             ("Text", false, hunks(&line_diff(l, r), &mut budget))
         }
         _ => {
-            let equal = left.2.value.content_root == right.2.value.content_root;
+            let equal = same_content(&reader, &left.2, &right.2)?;
             (
                 if equal { "Equal" } else { "Binary" },
                 equal,
@@ -156,8 +186,7 @@ fn change(
         if directories && !identity && !metadata {
             return Ok(None);
         }
-        content = !directories
-            && (l.value.kind != r.value.kind || l.value.content_root != r.value.content_root);
+        content = !directories && !same_content(reader, &l, &r)?;
         if with_hunks
             && content
             && l.value.kind == InodeKind::RegularFile
@@ -322,7 +351,19 @@ fn emit(
         };
         let pair_differs = match (before, after) {
             (Some(x), Some(y)) if x.serial == y.serial => {
-                !same_inode(reader, &x.value, &y.value, &mut work).map_err(args::content)?
+                // Bytes are compared only when the roots differ and nothing else did.
+                let same = same_inode(reader, &x.value, &y.value, &mut work)
+                    .map_err(args::content)?
+                    || (same_metadata(
+                        reader,
+                        x.value.kind,
+                        x.value.metadata_root,
+                        y.value.metadata_root,
+                        &mut work,
+                    )
+                    .map_err(args::content)?
+                        && same_content(reader, x, y)?);
+                !same
             }
             _ => before != after,
         };

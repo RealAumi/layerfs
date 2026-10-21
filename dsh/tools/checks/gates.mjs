@@ -41,9 +41,13 @@ export function expectedOutcomes(scenario, linesOf) {
     const groups = [];
     for (const line of linesOf(agent).filter((l) => l.ok !== undefined && l.method !== "sandbox.service")) {
       let group = groups.find((g) => g.step === line.step);
-      if (!group) groups.push(group = { step: line.step, codes: [] });
+      if (!group) groups.push(group = { step: line.step, codes: [], start: line.start });
       group.codes.push(codeOf(line));
+      if (line.start < group.start) group.start = line.start;
     }
+    // bash calls in the order they began: a background call's first line may
+    // end after a later call's (the lines arrive as their calls end)
+    groups.sort((a, b) => (a.start < b.start ? -1 : a.start > b.start ? 1 : 0));
     const expecting = steps.filter((s) => s.kind === "call" && s.call.name === "bash" && s.expect);
     if (expecting.length && !groups.length) { failures.push(`${agent}: no LayerFS calls on the trace`); continue; }
     let next = 0;

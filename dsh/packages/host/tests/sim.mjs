@@ -34,7 +34,7 @@ try {
   assert.deepEqual(steps, ["scan", "volume", "import"]);
   assert.equal(project.backend, "sim");
   assert.equal(bindings.byName(NAME).backend, "sim");
-  assert.deepEqual(deploymentEnv(spec, project), { HOME: home, DOCKER: "sim", IMAGE: "sim", DAEMON: "sim", VOLUME: `sim-${NAME}` });
+  assert.deepEqual(deploymentEnv(spec, project), { HOME: home, DOCKER: "sim", IMAGE: "sim", DAEMON: "sim", VOLUME: `sim-${NAME}`, STORE_PATH: "sim" });
 
   // The SDK on the simulator, with the environment the Host gives a simulated project's bash calls.
   for (const [name, value] of Object.entries(deploymentEnv(spec, project))) process.env[`LAYERFS_${name}`] = value;
@@ -126,15 +126,17 @@ try {
   assert.match(lines.find((l) => l.method === "sandbox.commit" && l.ok).commit, ID.commit);
   assert.equal(lines.find((l) => l.method === "sandbox.create").sandbox, sb);
 
-  // The Host's views read the simulator: the state, a saved tree and the Store.
+  // The Host's views read the simulator: the state, Files reads of saved ids and the Store.
   const trees = new TreeReader(spec);
   const state = await trees.state(project, [sb]);
   assert.deepEqual(Object.keys(state.s.branches).sort(), ["both", "feature"]);
   assert.equal(Object.keys(state.s.commits).length, 3, "headline, greeting, welcome; the merge with main fast-forwards");
   const head = Object.entries(state.labels).find(([, label]) => label === state.s.branches.feature.head)[0];
-  const tree = await trees.read(project, head);
-  assert.match(tree.tree["/app/page.tsx"].content, /Welcome/);
-  assert.equal(tree.partial, "Partial tree: .next folders are not opened; node_modules folders are not opened.");
+  const q = (o) => new URLSearchParams(o);
+  assert.ok((await trees.files(project, "list", q({ ref: head, dir: "/app" }))).items.some((e) => e.path === "/app/page.tsx" && e.type === "file"));
+  assert.match((await trees.files(project, "read", q({ ref: head, path: "/app/page.tsx" }))).text, /Welcome/);
+  const parent = Object.entries(state.labels).find(([, label]) => label === state.s.commits[state.s.branches.feature.head].parent)[0];
+  assert.ok((await trees.files(project, "changes", q({ from: parent, to: head }))).items.some((e) => e.path === "/app/page.tsx" && e.kind === "Modified"));
   const storage = await trees.storage(project);
   assert.ok(storage.store.logical > 0 && storage.init.files > 0);
   assert.equal(typeof storage.store.dedupe, "number");

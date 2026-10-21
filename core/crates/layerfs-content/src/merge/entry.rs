@@ -67,6 +67,12 @@ pub fn merge_roots(
         timing,
         conflicts: Vec::new(),
         lww: Vec::new(),
+        // A bounded merge is the lane's (#355): its hold must not grow with
+        // a file's size, so larger files are compared by root there (F-073).
+        compared: match input.bound {
+            Some(_) => crate::compare::MAXIMUM_TEXT_BYTES,
+            None => u64::MAX,
+        },
     };
     let rules = Rules::load(&mut |path| {
         let entry = resolver.entry(rules_side, path)?;

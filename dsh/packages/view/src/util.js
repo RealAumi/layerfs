@@ -2,7 +2,18 @@
 
 export const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-export const fmtBytes = (n) => (n == null ? "not reported" : n < 1024 ? `${n} B` : n < 1048576 ? `${(n / 1024).toFixed(1)} KB` : `${(n / 1048576).toFixed(1)} MB`);
+const UNITS = ["B", "KB", "MB", "GB", "TB", "PB"];
+/** Bytes in decimal units, to three significant figures: past 1000 a unit gives way to the next. */
+export const fmtBytes = (n) => {
+  if (n == null) return "not reported";
+  let i = 0;
+  while (Math.abs(n) >= 1000 && i < UNITS.length - 1) { n /= 1000; i++; }
+  if (i === 0) return `${Math.round(n)} B`;
+  const fig = (x) => (Math.abs(x) >= 100 ? x.toFixed(0) : Math.abs(x) >= 10 ? x.toFixed(1) : x.toFixed(2));
+  // 999.6 rounds to 1000: that is the next unit's 1.00
+  if (Math.abs(Number(fig(n))) >= 1000 && i < UNITS.length - 1) { n /= 1000; i++; }
+  return `${fig(n)} ${UNITS[i]}`;
+};
 
 export const ratio = (a, b) => (b > 0 ? `×${(a / b).toFixed(a / b >= 10 ? 0 : 1)}` : "–");
 

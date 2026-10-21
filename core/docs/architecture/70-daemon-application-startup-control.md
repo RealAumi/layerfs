@@ -277,7 +277,7 @@ descriptions do not constitute performance admission evidence.
 
 ## SDK refactor addition — 2026-10-12
 
-The current [SDK surface](../../../sdk.md) has Project init/fork/branches/commits,
+The current [SDK surface](../../../docs/general/sdk.md) has Project init/fork/branches/commits,
 Sandbox create/close and Workspace mount/exec/commit/status/unmount. Create folds
 the original installation and requires its ready observation; close is explicit
 container stop/delete and makes no application drain claim. Optional Workspace

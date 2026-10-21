@@ -1,4 +1,4 @@
-// The demo stories' tool calls, after sdk_sim's terminals (sdk_sim/demo.js):
+// The demo stories' tool calls, after the simulation engine's terminals (dsh/sim/demo.js):
 // each export is one line typed at a terminal there, made of the same SDK
 // calls, and prints what the terminal printed. A scenario step's bash `run`
 // imports this file and awaits these in order (scenario.js).
@@ -218,7 +218,7 @@ export const sandbox = (branch) => line(async () => {
   console.log(`● ${await shared(branch)}: ${branch}'s Sandbox · each agent call mounts a Workspace of its own in it`);
 });
 
-// When the original's calls ran (sdk_sim/demo.js schedule): typing, then running.
+// When the original's calls ran (dsh/sim/demo.js schedule): typing, then running.
 // LAYERFS_DEMO_FAST=1 (development runs) skips both: order comes from the
 // scenario's waits, never from time.
 const FAST = process.env.LAYERFS_DEMO_FAST === "1";

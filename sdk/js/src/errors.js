@@ -18,7 +18,8 @@ export class LayerFSError extends Error {
 /** Codes a caller is expected to handle. */
 export const CODES = Object.freeze([
   "Conflict", "HeadMoved", "Dirty", "Busy", "NoSuchPath", "NoSuchBranch", "NoSuchCommit",
-  "NoSuchProject", "IsDirectory", "NotDirectory", "Binary", "NotText", "NoMatch", "AmbiguousMatch",
+  "NoSuchProject", "NoCommit", "NoMergeBase", "IsDirectory", "NotDirectory", "NotFile", "Binary",
+  "NotText", "NoMatch", "AmbiguousMatch",
   "Exists", "NotEmpty", "NameTaken", "ReservedName", "ReadOnly", "MountsActive", "TooLarge",
   "InvalidInput", "NotMounted", "NoSuchSandbox", "NoSuchProcess",
 ]);

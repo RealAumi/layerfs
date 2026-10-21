@@ -345,9 +345,14 @@ async function answer(table, op, args = {}) {
   }
 }
 
-/** The binding's two entry points, as the SDK's client.js calls them. */
+/** The binding's entry points, as the SDK's client.js calls them. The
+ * simulator keeps its Store in its own records, so opening and releasing a
+ * client's Store (#352 F-020) only checks the project and home. */
 export const call = (op, args) => answer(CALLS, op, args);
 export const operatorCall = (op, args) => answer(OPERATOR, op, args);
+const STORE = { open: async () => null, close: async () => null };
+export const storeOpen = (args) => answer(STORE, "open", args);
+export const storeClose = (args) => answer(STORE, "close", args);
 
 /**
  * The SDK's `inspect.snapshot` over every open Sandbox of the project, for

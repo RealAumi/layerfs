@@ -1,4 +1,4 @@
-// A simulated LayerFS project: sdk_sim's model (model.js `Sim`) kept in
+// A simulated LayerFS project: dsh/sim's model (model.js `Sim`) kept in
 // <home>/<project>/sim/state.json and changed by one call at a time under a
 // lock file. A mounted Workspace's files are a real folder,
 // <home>/<project>/sim/ws/<sandbox>/<n>, where its commands run: each call
@@ -12,9 +12,9 @@ import { join } from "node:path";
 import { setTimeout as pause } from "node:timers/promises";
 import { alive } from "./shell.js";
 
-export const model = createRequire(import.meta.url)("../../../../../sdk_sim/simulation_engine/model.js");
+export const model = createRequire(import.meta.url)("../../../../sim/simulation_engine/model.js");
 /** The simulator's read-side helpers (blame over saved versions). */
-export const fileViews = createRequire(import.meta.url)("../../../../../sdk_sim/simulation_engine/files.js");
+export const fileViews = createRequire(import.meta.url)("../../../../sim/simulation_engine/files.js");
 export const { Refusal } = model;
 
 const LOCK_MS = 30_000;

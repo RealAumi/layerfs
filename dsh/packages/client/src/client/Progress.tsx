@@ -62,7 +62,7 @@ export function jobText(job: InitJob, now = Date.now()) {
   }
   const counts = t ?? job.scanned
   const what = counts ? `${number.format(counts.files)} files · ${size(counts.bytes)}` : ''
-  const step = { scan: 'Counting files', volume: 'Creating the volume', import: 'Importing', done: 'Imported', failed: 'Failed' }[job.step]
+  const step = { scan: 'Counting files', volume: 'Creating the volume', import: 'Importing', install: 'Installing the Store', done: 'Imported', failed: 'Failed' }[job.step]
   return [step, what, elapsed].filter(Boolean).join(' · ')
 }
 

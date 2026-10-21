@@ -20,7 +20,7 @@ simplification.
 
 | Workstream | Current scope | Entry point |
 | --- | --- | --- |
-| Cluster one | Implemented content, storage, history, persistence, project Init and telemetry libraries | [Cluster-one handbook](cluster_one_handbook.md), [CAS/CDC/delta handbook](cas_cdc_deltaencoding_handbook.md) |
+| Cluster one | Implemented content, storage, history, persistence, project Init and telemetry libraries | [Cluster-one handbook](docs/general/cluster_one_handbook.md), [CAS/CDC/delta handbook](docs/general/cas_cdc_deltaencoding_handbook.md) |
 | Cluster two | Workspace, FUSE, daemon, execution and Commit/runtime integration design and implementation | [Current design index](core/docs/issues/303/README.md) and its seven primary contracts |
 | Legacy reference | v0.1.6, retired from `main` by R9c; read at the recovery tag only | [R9c record](core/docs/issues/307/R9C-COMPLETION-20261010.md) |
 
@@ -132,6 +132,14 @@ remains a separate MEMORY/OFF/EXCLUSIVE database file.
   retired, not extended. See the
   [integration contract](core/docs/issues/303/06-cluster-one-integration.md)
   and [direct Store access](core/docs/issues/352/DIRECT_STORE.md).
+  **Exception (owner, 2026-10-20, revised the same day): dsh Live on macOS
+  only.** The dsh-layerfs plugin may give macOS processes a ported SDK with
+  the SDK's API whose calls run in one long-lived worker per LayerFS box: a
+  Linux container running the real SDK, which opens each project's Store
+  directly and keeps it and its daemon connections open while the project is
+  in use (closed after a quiet minute). The worker listens on loopback only,
+  behind a secret. The product SDK and daemon do not change. Nothing else may
+  route Store calls this way.
 - **One global database, one writer, short holds (owner decision 2026-10-18).**
   All committed state lives in one SQLite Store file; no sharding, second
   database, concurrent-writer engine or objects outside it. Writes go one at a
@@ -172,17 +180,17 @@ For documentation/release work, read the
 [release policy](docs/general/release-policy.md).
 For measurements, read the [agent measurement workflow](docs/general/agent-measurement-policy.md),
 [benchmark rules](docs/general/benchmark_rules.md),
-[report template](benchmark_agent_report.md) and owning harness/family contract.
-Core routing is [core/benchmark/fs-bench-pro/AGENTS.md](core/benchmark/fs-bench-pro/AGENTS.md).
+[report template](docs/general/benchmark_agent_report.md) and owning harness/family contract.
+Core routing is [benchmark/fs-bench-pro/AGENTS.md](benchmark/fs-bench-pro/AGENTS.md).
 **fs-bench-pro is frozen and left broken (owner, 2026-10-18).** Do not edit,
 build, run or repair it, and leave it out of workspace builds and checks. Its
 call sites broken by #352 F-020 (`ProjectApi` fork and commits,
 `ForkRequest`, a `SandboxCreate` without `connect_host`; listed in the F-020
 fix record) stay broken; a product change never adapts it. Only an
 explicit owner instruction reopens it.
-Root [benchmark/AGENTS.md](benchmark/AGENTS.md) and its
-[Quickstart](benchmark/fs-bench-pro/QUICKSTART.md) are historical: that harness
-built the retired reference and is not runnable at HEAD.
+The root `benchmark/` harness that built and measured the retired reference was
+removed from HEAD; read it at tag `reference-v0.1.6-final`. Released
+fs-bench-pro results (v0.1.4–v0.1.6) are in [benchmark/data/fs-bench-pro](benchmark/data/fs-bench-pro/README.md).
 
 ## 1. A warm cache must never credit a measured phase
 
@@ -234,6 +242,28 @@ remain binding; moving them out of this file does not weaken them.
 
 ## 4. Code, build and docs
 
+- For parallel worktree build caches, E2E resource retention, disk headroom and
+  cleanup, follow [the cleanup policy](docs/general/cleanup.md#9-parallel-worktree-build-and-e2e-retention).
+  Keep each active worktree's target private and warm; release completed caches
+  and disposable test resources without turning cleanup into a global build gate.
+- Use [the parallel worktree launcher](docs/general/parallel-worktrees.md) for
+  registered private Cargo homes/targets and pinned SDK E2E bundles. Build and
+  test within the selected worktree's resources; independent E2E runs own their
+  writable Stores, SDK homes, containers, and traces. Preserve a test's intentional
+  multi-daemon shared Store. Export exact cache releases to the cleanup script at
+  handoff; no cross-worktree build lock or lead-issued go window is introduced.
+- Check host free space at assignment start, at least every 30 minutes during
+  sustained work, before large builds, target copies or fixture creation, after
+  build/E2E batches, and at handoff. Run
+  `python3 tools/cleanup.py check` (GB here means 1,000,000,000 bytes). When free
+  space is **below 100 GB**, run the cleanup script's plan/apply procedure with
+  `--reclaim-gb 300` and reclaim **at least 300 GB of net host free space** across
+  that cleanup episode. Existing cleanup authorization applies; do not ask again
+  for routine removal of confirmed disposable resources. Use exact owner-released
+  selections and protect active work, warm targets, pinned binaries, and evidence.
+  Verify actual free-byte recovery; do not substitute candidate allocation totals.
+  If confirmed disposable data cannot meet 300 GB, report the shortfall and the
+  remaining protected/uncertain allocation without deleting it or claiming success.
 - Preserve unrelated work. Build the current core implementation, not legacy
   aliases, source includes or error-driven substitutes. Keep platform cfgs.
 - No new dependency if an existing crate supplies the capability. Never patch,

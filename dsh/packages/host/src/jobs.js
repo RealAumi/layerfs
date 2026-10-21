@@ -1,6 +1,6 @@
 // Init jobs: POST /layerfs/init checks the request, starts the Init and
 // answers with its job at once; the page reads the job until it ends.
-//   step      scan | volume | import | done | failed
+//   step      scan | volume | import | install | done | failed
 //   scanned   running counts while the source is counted
 //   totals    { entries, files, bytes } once counted
 //   imported  LayerFS's counts while it imports: { step: scan | files | tree |

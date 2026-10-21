@@ -1,7 +1,8 @@
-// Project bindings: the LayerFS projects, the dsh workspace folder each is
-// attached to (at most one; a project may be detached), which project each
-// root session uses, and the names of the agents seen. One JSON file under
-// the state directory, replaced atomically on every change.
+// Project bindings: the LayerFS projects, each dsh workspace folder's default
+// project (the one chosen there last), which project each root session uses,
+// and the names of the agents seen. A session may use any project; the folder
+// only remembers a default. One JSON file under the state directory, replaced
+// atomically on every change.
 import { existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -12,25 +13,33 @@ import { join } from "node:path";
  * @property {string} volume Docker volume holding the project's Store
  * @property {"sim"} [backend] "sim": a simulated project (sim/), with no volume
  * @property {number} created Unix epoch milliseconds
- * @property {string|null} folder the workspace folder it is attached to, or null
  */
 
-/** Version 1 kept each folder's projects in the folder; version 2 keeps projects by name. */
+/**
+ * Version 1 kept each folder's projects in the folder; version 2 kept projects
+ * by name, each attached to a folder; version 3 keeps only each folder's
+ * default. A folder whose one attached project was its default by being the
+ * only one keeps it as the default.
+ */
 function upgrade(data) {
-  if (data.version !== 1) return data;
-  const projects = {}, workspaces = {};
-  for (const [folder, w] of Object.entries(data.workspaces)) {
-    for (const p of w.projects) projects[p.name] = { ...p, folder };
-    workspaces[folder] = { lastUsed: w.lastUsed ?? null };
+  if (data.version === 3) return data;
+  const projects = {}, workspaces = {}, attached = {};
+  const add = (p, folder) => { const { folder: _, ...rest } = p; projects[p.name] = rest; if (folder) (attached[folder] ||= []).push(p.name); };
+  if (data.version === 1) {
+    for (const [folder, w] of Object.entries(data.workspaces)) { for (const p of w.projects) add(p, folder); workspaces[folder] = { lastUsed: w.lastUsed ?? null }; }
+  } else {
+    for (const p of Object.values(data.projects)) add(p, p.folder);
+    for (const [folder, w] of Object.entries(data.workspaces)) workspaces[folder] = { lastUsed: w.lastUsed ?? null };
   }
-  return { ...data, version: 2, projects, workspaces };
+  for (const [folder, names] of Object.entries(attached)) if (names.length === 1) (workspaces[folder] ||= { lastUsed: null }).lastUsed ??= names[0];
+  return { ...data, version: 3, projects, workspaces };
 }
 
 export class BindingStore {
   /** @param {string} stateDir */
   constructor(stateDir) {
     this.file = join(stateDir, "bindings.json");
-    this.data = existsSync(this.file) ? upgrade(JSON.parse(readFileSync(this.file, "utf8"))) : { version: 2, projects: {}, workspaces: {}, sessions: {}, agents: {} };
+    this.data = existsSync(this.file) ? upgrade(JSON.parse(readFileSync(this.file, "utf8"))) : { version: 3, projects: {}, workspaces: {}, sessions: {}, agents: {} };
   }
 
   save() {
@@ -39,13 +48,22 @@ export class BindingStore {
     renameSync(tmp, this.file);
   }
 
-  /** @param {string} folder @returns {{ projects: Project[], lastUsed: string|null }} */
+  /**
+   * Every project a session in `folder` may use, those imported from the
+   * folder first, and the folder's default.
+   * @param {string} folder @returns {{ projects: Project[], lastUsed: string|null }}
+   */
   workspace(folder) {
-    const lastUsed = this.data.workspaces[folder]?.lastUsed ?? null;
-    return { projects: this.projects().filter((p) => p.folder === folder), lastUsed };
+    const all = this.projects(), lastUsed = this.data.workspaces[folder]?.lastUsed ?? null;
+    return { projects: [...all.filter((p) => p.source === folder), ...all.filter((p) => p.source !== folder)], lastUsed };
   }
 
-  /** @returns {Project[]} every project, attached or not, oldest first */
+  /** Each workspace folder's default project, as { folder: name }. */
+  defaults() {
+    return Object.fromEntries(Object.entries(this.data.workspaces).filter(([, w]) => w.lastUsed).map(([folder, w]) => [folder, w.lastUsed]));
+  }
+
+  /** @returns {Project[]} every project, oldest first */
   projects() {
     return Object.values(this.data.projects).sort((a, b) => a.created - b.created);
   }
@@ -55,17 +73,10 @@ export class BindingStore {
     return new Set(Object.keys(this.data.projects));
   }
 
-  /** Adds a project attached to a folder. @param {string} folder @param {Omit<Project, "folder">} project */
+  /** Adds a project, as the default of the folder it was imported for. @param {string} folder @param {Project} project */
   addProject(folder, project) {
-    this.data.projects[project.name] = { ...project, folder };
-    (this.data.workspaces[folder] ||= { lastUsed: null }).lastUsed = project.name;
-    this.save();
-  }
-
-  /** A project attached to a folder. @param {string} folder @param {string} name @returns {Project|null} */
-  project(folder, name) {
-    const p = this.byName(name);
-    return p && p.folder === folder ? p : null;
+    this.data.projects[project.name] = project;
+    this.setDefault(folder, project.name);
   }
 
   /** @param {string} name @returns {Project|null} */
@@ -74,18 +85,14 @@ export class BindingStore {
   }
 
   /**
-   * Attaches a project to a workspace folder, as that folder's most recently
-   * used project, or detaches it (null). Sessions that already use it keep it.
-   * @param {string} name @param {string|null} folder @returns {Project}
+   * Makes a project the default of a workspace folder: a new session there
+   * uses it until it chooses another. Sessions that already chose keep theirs.
+   * @param {string} folder @param {string} name
    */
-  attach(name, folder) {
-    const p = this.byName(name);
-    if (!p) throw Object.assign(new Error(`no LayerFS project named ${name}`), { code: "not-found", status: 404 });
-    if (p.folder && this.data.workspaces[p.folder]?.lastUsed === name) this.data.workspaces[p.folder].lastUsed = null;
-    p.folder = folder;
-    if (folder) (this.data.workspaces[folder] ||= { lastUsed: null }).lastUsed = name;
+  setDefault(folder, name) {
+    if (!this.byName(name)) throw Object.assign(new Error(`no LayerFS project named ${name}`), { code: "not-found", status: 404 });
+    (this.data.workspaces[folder] ||= { lastUsed: null }).lastUsed = name;
     this.save();
-    return p;
   }
 
   /** The session's own choice: { project, locked, folder }, or null before one is made. */
@@ -94,30 +101,28 @@ export class BindingStore {
   }
 
   /**
-   * The project a root session uses: its choice (kept when the project is
-   * later detached), else the only project of its folder, else the folder's
-   * most recently used one. Null when the folder has no project (a session
-   * without LayerFS).
+   * The project a root session uses: its choice, else its folder's default.
+   * Null when neither names one (a session without LayerFS).
    * @param {string} rootId @param {string|undefined} folder @returns {Project|null}
    */
   projectFor(rootId, folder) {
     const chosen = this.session(rootId);
     if (chosen) return chosen.project ? this.byName(chosen.project) : null;
-    if (!folder) return null;
-    const { projects, lastUsed } = this.workspace(folder);
-    return projects.length === 1 ? projects[0] : projects.find((p) => p.name === lastUsed) ?? null;
+    const name = folder ? this.data.workspaces[folder]?.lastUsed : null;
+    return name ? this.byName(name) : null;
   }
 
   /**
-   * Chooses a session's project (null: no LayerFS). Refused once locked.
+   * Chooses a session's project (null: no LayerFS), any project; a project
+   * also becomes the folder's default. Refused once locked.
    * @returns {boolean} whether the choice was taken
    */
   choose(rootId, folder, name) {
     const current = this.session(rootId);
     if (current && current.locked) return false;
-    if (name !== null && !this.project(folder, name)) throw Object.assign(new Error(`no LayerFS project ${name} in ${folder}`), { code: "not-found" });
+    if (name !== null && !this.byName(name)) throw Object.assign(new Error(`no LayerFS project named ${name}`), { code: "not-found" });
     this.data.sessions[rootId] = { project: name, locked: false, folder };
-    if (name !== null) this.data.workspaces[folder].lastUsed = name;
+    if (name !== null) (this.data.workspaces[folder] ||= { lastUsed: null }).lastUsed = name;
     this.save();
     return true;
   }

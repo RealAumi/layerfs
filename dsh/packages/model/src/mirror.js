@@ -84,7 +84,7 @@ export class Mirror {
     if (this.s.layers[id]) return;
     this.s.layers[id] = {
       id, parent: this.node(l.parent), root: this.root(l.root), sourceBranch: l.sourceBranch ?? null,
-      sourceCommit: l.sourceCommit ? this.commitLabel(l.sourceCommit) : null, slot: this.slot++, time: this.slot,
+      sourceCommit: l.sourceCommit ? this.commitLabel(l.sourceCommit) : null, logical: l.logical ?? null, slot: this.slot++, time: this.slot,
     };
   }
   absorbCommit(c) {

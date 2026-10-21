@@ -756,3 +756,71 @@ terminal, and measures r47, r48 and r49 on the new binaries.
   with the note and `acceptedRows`.
 - **F-063:** active in all three ranges (RESULTS 2026-10-20).
 
+
+### Re-baseline on main `d06a2b81fa` binaries for r58 on (owner 2026-10-20)
+
+Owner, 2026-10-20 (option 1): "rebuild binaries from main d06a2b81fa,
+re-baseline on recent ranges (e.g. 55-57), then replay r58 on them and
+continue 59-60." `d06a2b81fa` carries fix 073: equal-bytes files are no
+change in diffs and merges.
+
+- **Binaries:** built from `d06a2b81fa` (the worktree clean at that HEAD) in
+  image `378b799ef433`, with cargo `+1.85.1 --release --locked --offline -j 6`
+  (QUIET absent) and `--network none`. The build ran incrementally on the
+  prep51 cargo-target volume.
+  - daemon `c41a86d23822…`: `core/target/lead58/daemon-c41a86d2/`
+  - addon `a1078e6935cd…`: `core/target/lead58/sdk-linux-a1078e69/`
+  - SDK JS: `git archive` of `sdk/js`, at `core/target/lead58/sdk-js-d06a2b81/`
+  - Each folder has a `SOURCE` file.
+- **Run:** `rb-p3-c41a86d2-a1078e69`, prefix `layerfs-issue352-rb57`.
+  - `rebaseline --prepare --from-run p3-main-x --range 54 --ranges 55-57`.
+  - Its own copies: `plan-rb57` and `oracle-rb57` (of the r51 ones), and the
+    volume `layerfs-issue352-rb57-pnpm-store` (of prep51's).
+  - `--native-states none`, with the chain's native-state entries pointed at
+    the empty `layerfs-issue352-rb57-native-states`.
+- **Oracle aliases** (copies, oracle-rb57 only). The r54 snapshot's chain is
+  pre-adopt and its r53 tar was pruned, so the keys differ from `p3-main-x`'s:
+
+  | Range | Old key → new key | sha256 |
+  | --- | --- | --- |
+  | 55 | `a3bf7a2e…` → `3c4f63e6…` | `5d72bb63…` |
+  | 56 | `b639c9ae…` → `a9344c5e…` | `adcb1e19…` |
+  | 57 | `7834d61d…` → `2115e605…` | `85d40da4…` |
+
+- **Ranges:**
+
+  | Range | Verdict | Repair s | Finish s | F-063 PREFIX / FULL |
+  | --- | --- | --- | --- | --- |
+  | 55 | watch | 138 | 62 | 454 / 145 |
+  | 56 | watch | 145 | 48 | 698 / 235 |
+  | 57 | optimize, one row | 146 | 63 | 486 / 201 |
+
+  Host load was 5.6–12.8.
+- **The accepted row** (liaison ruling, the r49 form, narrowed to r57):
+  Counters `glob_tree.statements per tree file`, depth exponent 3.52.
+
+  | | r55 | r56 | r57 |
+  | --- | --- | --- | --- |
+  | depth | 65,543 | 66,733 | 67,927 |
+  | statements | 139 | 136 | 163 |
+  | vm_steps | 21,627 | 20,735 | 22,244 |
+  | returned rows | 2,201 | 2,106 | 2,207 |
+  | statements on `p3-main-x` (old binaries `32eda22d`) | 138 | 134 | 164 |
+
+  It is one +27 step on the r57 tree, seen on both builds. Fix 074 lets
+  `--accept-counter` name a per-unit counter.
+- **Written:** `baseline-c41a86d23822-a1078e6935cd-p3.json`, 108 classes,
+  with `acceptedRows` and the reason.
+
+### Timing-sensitive tests (judged, not skipped; liaison 2026-10-20)
+
+Some test files pass or fail depending on how fast the run is, not on the
+tree. Each one is named here when a liaison ruling accepts a P5 stop on it.
+It stays in the calibrated run list and P5 judges it in every later range.
+Nothing skips it. If it fails again, the lead stops and sends the liaison the
+same evidence: the assertion, the run's vitest and tsc ms against an earlier
+pass on the same point or tree, and the host load.
+
+| Test file | First stop | Why it is timing-sensitive |
+| --- | --- | --- |
+| `packages/skill/skill-local/tests/skill-local-watcher.spec.ts` | r58 a3 `r058-1-root.end` (passed a1, a2) | asserts the rewatch and invalidation that follow a watcher error after two `setTimeout(0)` settles, racing real async I/O in tmpdir |

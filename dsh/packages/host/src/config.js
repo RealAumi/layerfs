@@ -3,11 +3,14 @@ import { mkdirSync, realpathSync } from "node:fs";
 import { homedir, tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { boxName } from "./box.js";
 
 /**
  * @typedef {object} Config
  * @property {string} [image] LayerFS runtime image digest (`sha256:…`) Sandboxes run; Init refuses without it.
  * @property {string} [daemon] Host path of the built Linux layerfs-daemon; Init refuses without it.
+ * @property {string} [bundle] Folder of a sealed Linux LayerFS build (layerfs-daemon, layerfs.node,
+ *   sdk/js). On macOS, Live projects need it: their SDK calls run in the LayerFS box (box.js).
  * @property {string} [docker] Local Docker Engine Unix socket.
  * @property {string} [home] LayerFS home for discovery records, shared by the Host and agents' bash calls.
  * @property {string} [stateDir] Directory for project bindings and agent names.
@@ -19,13 +22,15 @@ import { fileURLToPath } from "node:url";
  * @typedef {object} Spec
  * @property {string|null} image
  * @property {string|null} daemon
+ * @property {string|null} bundle
+ * @property {string|null} box the LayerFS box's container name, on macOS with a bundle (else null)
  * @property {string} docker
  * @property {string} home
  * @property {string} stateDir
  * @property {string} traceDir
  * @property {number} pollMs
- * @property {string} sdk file URL of the LayerFS JavaScript SDK entry
- * @property {string} operator file URL of the SDK's operator entry
+ * @property {string} sdk file URL of the SDK entry Live projects use (on macOS, port/sdk.js)
+ * @property {string} operator file URL of its operator entry
  * @property {string} simSdk file URL of the SDK on the simulator (sim/sdk.js), for simulated projects
  * @property {string} simOperator file URL of its operator entry (sim/operator.js)
  */
@@ -41,16 +46,21 @@ import { fileURLToPath } from "node:url";
  */
 export function resolveConfig(config, profile) {
   const temp = join(realpathSync(tmpdir()), "dsh-layerfs");
+  const bundle = config.bundle || null, home = config.home || join(temp, "home");
+  // macOS runs no Store call itself: a bundle's SDK calls run in the box (port/)
+  const ported = process.platform === "darwin" && bundle !== null;
   const spec = {
     image: config.image || null,
-    daemon: config.daemon || null,
+    daemon: config.daemon || (bundle && join(bundle, "layerfs-daemon")),
+    bundle,
+    box: ported ? boxName(home, bundle) : null,
     docker: config.docker || "/var/run/docker.sock",
-    home: config.home || join(temp, "home"),
+    home,
     stateDir: config.stateDir || join(profile ? profile.dir : join(homedir(), ".dsh"), "dsh-layerfs"),
     traceDir: config.traceDir || join(temp, "traces"),
     pollMs: config.pollMs ?? 400,
-    sdk: import.meta.resolve("@layerfs/sdk"),
-    operator: import.meta.resolve("@layerfs/sdk/operator"),
+    sdk: ported ? new URL("./port/sdk.js", import.meta.url).href : import.meta.resolve("@layerfs/sdk"),
+    operator: ported ? new URL("./port/operator.js", import.meta.url).href : import.meta.resolve("@layerfs/sdk/operator"),
     simSdk: new URL("./sim/sdk.js", import.meta.url).href,
     simOperator: new URL("./sim/operator.js", import.meta.url).href,
   };
@@ -59,8 +69,8 @@ export function resolveConfig(config, profile) {
   return spec;
 }
 
-/** Deployment settings Init and bash calls need that are not configured. */
-export const missingDeployment = (spec) => ["image", "daemon"].filter((name) => !spec[name]);
+/** Deployment settings Init and bash calls need that are not configured (macOS: a bundle too). */
+export const missingDeployment = (spec) => ["image", "daemon", ...(process.platform === "darwin" ? ["bundle"] : [])].filter((name) => !spec[name]);
 
 /** The SDK entry as a path, for Node imports in the Host. */
 export const sdkPath = (spec) => fileURLToPath(spec.sdk);

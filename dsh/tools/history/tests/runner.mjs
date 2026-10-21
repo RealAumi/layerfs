@@ -284,6 +284,16 @@ test("a baseline takes one named counter at optimize, never Counters in general 
   assert.equal(baselineRows([[49, r49]], { row: "Reinstall growth", ranges: [49], reason: "x" }).refused.length, 1, "the storage form does not take a counter row");
 });
 
+test("a per-unit counter can be the named one (fix 074, rb-p3-c41a86d2 r057 glob_tree)", () => {
+  const at = (value) => ({ attempt: 1, gate: { verdict: "optimize", checks: [{ name: "Counters", result: "optimize", value }] } });
+  const r57 = at("glob_tree.statements per tree file: depth exponent 3.52");
+  const accept = { row: "Counters", counter: "glob_tree.statements per tree file", ranges: [57], reason: "liaison 2026-10-20" };
+  assert.equal(baselineRows([[57, r57]], accept).accepted.length, 1);
+  assert.equal(baselineRows([[57, at("glob_tree.vm_steps per tree file: depth exponent 1.2")]], accept).refused.length, 1, "another counter of the probe is refused");
+  assert.equal(baselineRows([[57, at("glob_tree.statements: depth exponent 3.52")]], accept).refused.length, 1, "the per-unit name is exact");
+  assert.equal(baselineRows([[57, r57]], { ...accept, counter: "glob_tree.statements; rm" }).refused.length, 1, "only letters, the dot and a per-unit tail");
+});
+
 test("a lanes cut: any plan order outside a held sequence (commit-conflict, stale-clean-merge)", () => {
   const plan = { steps: [["s1", 1], ["s2", 2], ["s3", 2.5], ["s4", 3], ["s5", 4], ["s6", 5]].map(([id, order]) => ({ id, order })),
     conflicts: [{ kind: "commit-conflict", lane: "L1", steps: ["s2", "s3", "s4"] }, { kind: "stale-clean-merge", lane: "L2", steps: ["s5", "x", "s6"] }, { kind: "lww", lane: "L1", steps: ["s1", "s6"] }] };

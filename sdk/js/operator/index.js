@@ -1,12 +1,12 @@
 // Internal operator surface; public dispatch cannot admit these names.
 import { snapshot } from "./inspect/snapshot.js";
-import { invokeOperator, sandboxId, page } from "../src/client.js";
+import { invokeOperator, sandboxArgs, page } from "../src/client.js";
 export class LayerFSOperator {
   constructor(client) {
     // Workspace and process calls go to the named Sandbox; Store calls run in
     // this process against the client's Store.
     const call = async (method, args = {}, sandbox) => sandbox
-      ? invokeOperator(`operator.${method}`, { ...args, project: client.projectName, home: client.options.home, sandbox: sandboxId(sandbox) }, client.options)
+      ? invokeOperator(`operator.${method}`, { ...args, ...sandboxArgs(client, sandbox) }, client.options)
       : (await client.store(), invokeOperator(`operator.${method}`, { ...args, project: client.projectName, home: client.options.home, storePath: client.options.storePath }, client.options));
     this.store = {
       stats: async () => { const v = await call("store.stats"); return { ...v, dedupe: v.dedupe === null ? null : Number(v.dedupe), compression: v.compression === null ? null : Number(v.compression) }; },

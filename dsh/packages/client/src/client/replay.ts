@@ -1,29 +1,19 @@
-// A project's LayerFS state as the view model, and saved trees on demand
+// A project's LayerFS state as the view model, with Files read on demand
 // (a session's trace lines are played by playback.ts).
 import * as X from '../../../model/src/index.js'
+import { createFilesSource } from '../../../view/src/index.js'
 import { api, type ProjectState } from './api.ts'
 
-/** Trees by real id, kept across rebuilds: a saved id never changes. */
-export type TreeCache = Map<string, Promise<object>>
-
-export function treeLoader(sessionId: string, cache: TreeCache, read = (real: string) => api.tree(sessionId, real)) {
-  return (real: string) => {
-    if (!cache.has(real)) {
-      const reading = read(real).then(({ tree, partial }) => (partial ? Object.defineProperty(tree, 'partial', { value: partial }) : tree))
-      reading.catch(() => cache.delete(real))
-      cache.set(real, reading)
-    }
-    return cache.get(real)!
-  }
-}
+/** The Files pane's reads on demand (view/src/filesource.js), kept across rebuilds: a saved id never changes. */
+export type FilesSource = ReturnType<typeof createFilesSource>
 
 /**
  * A project's view model from its LayerFS state (no session): the Host's
- * labelled mirror, with trees loaded on demand and each node's author.
+ * labelled mirror, with Files read on demand and each node's author.
  */
-export function projectModel(state: ProjectState, loadTree: (real: string) => Promise<object>, onchange: () => void) {
-  const engine: any = new X.ReplayEngine({ project: state.s.project?.name ?? 'project', loadTree })
-  engine.m.s = { ...state.s, roots: engine.m.s.roots }
+export function projectModel(state: ProjectState, files: FilesSource, onchange: () => void) {
+  const engine: any = new X.ReplayEngine({ project: state.s.project?.name ?? 'project', files })
+  engine.m.s = { ...state.s, roots: {} }
   for (const [real, label] of Object.entries(state.labels)) { engine.m.toLabel.set(real, label); engine.m.toReal.set(label, real) }
   for (const node of [...Object.values(engine.s.commits), ...Object.values(engine.s.layers)] as any[]) node.root = node.id
   chronological(engine.s, state)

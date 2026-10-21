@@ -930,7 +930,8 @@ async function cmdRebaselineSplit(o) {
 
 /**
  * The storage rows a baseline may take at optimize as a named exception (`--accept-storage-row`). A Counters row is
- * accepted only for one named counter (`--accept-counter <probe.counter>`, liaison 2026-10-20, rb-p3-32eda22d-…-b
+ * accepted only for one named counter (`--accept-counter <probe.counter>`, or a per-unit one such as
+ * "glob_tree.statements per tree file", fix 074, liaison 2026-10-20, rb-p3-32eda22d-…-b
  * r049: `oneshot_mount_unmount.statements`), never Counters in general; the counter stays judged in later ranges.
  */
 export const ACCEPTABLE_STORAGE_ROWS = new Set(["Reinstall growth"]);
@@ -944,7 +945,7 @@ const acceptsRow = (accept, c) => c.name === accept.row && (accept.row !== "Coun
  */
 export function baselineRows(attempts, accept = null) {
   const refused = [], accepted = [];
-  const named = accept && (ACCEPTABLE_STORAGE_ROWS.has(accept.row) || (accept.row === "Counters" && /^[a-z_]+\.[a-z_]+$/.test(accept.counter ?? "")));
+  const named = accept && (ACCEPTABLE_STORAGE_ROWS.has(accept.row) || (accept.row === "Counters" && /^[a-z_]+\.[a-z_]+( per [a-z ]+)?$/.test(accept.counter ?? "")));
   if (accept && (!named || !accept.ranges.length || !accept.reason)) return { refused: [`--accept-storage-row needs one of ${[...ACCEPTABLE_STORAGE_ROWS].join(", ")} (or --accept-counter <probe.counter>), --accept-ranges and --reason`], accepted };
   for (const [k, m] of attempts) {
     const v = m?.gate?.verdict ?? "none";

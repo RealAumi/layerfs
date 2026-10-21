@@ -85,7 +85,7 @@ export async function runCall(W, st, env) {
 }
 
 // ------------------------------------------------------------------ demo stories
-// A demo story (sdk_sim/demo.js) plays through the simulation engine's
+// A demo story (dsh/sim/demo.js) plays through the simulation engine's
 // terminal (terminal.js Engine), so its outcomes are the engine's.
 // dsh adds which agent made each call. An agent step is one Bash tool call:
 // mount a Workspace in the Branch's shared Sandbox, run, commit, unmount.
@@ -124,7 +124,7 @@ async function runDemo(W, fr, env) {
   const liftCreates = (rec) => {
     for (const c of rec.calls.filter((x) => x.call === "sandbox.create")) {
       W.hist.push({ agent: n, text: cliOf("sandbox.create", { ...c.args, name: c.args?.name ?? (c.outcome.ok ? c.outcome.result.id : undefined) }), out: outcome(c.call, c.outcome), t: seq, calls: callsOf({ calls: [c] }) });
-      if (c.outcome.ok) W.sbBy[c.outcome.result.id] = { made: n };
+      if (c.outcome.ok) { W.sbBy[c.outcome.result.id] = { made: n }; W.sbAt[c.outcome.result.id] = { made: W.clock, last: W.clock, image: c.args?.image || null, calls: 1, execs: 0 }; }
     }
     return rec;
   };
@@ -134,6 +134,9 @@ async function runDemo(W, fr, env) {
   const inPane = (b, rec, text, dim) => {
     const out = outLines(rec).filter((x) => !/^✓ created sb_/.test(x.t)); // the create printed in the project terminal
     const k = paneLine(b, { text, dim, out, calls: callsOf(rec, LIFTED) }), branch = wsBranch(b);
+    W.panes[k].branch ??= branch;
+    if (rec.unmounted) W.panes[k].left = seq;
+    const at = (W.sbAt[b.sandbox] ||= { calls: 0, execs: 0 }); at.last = W.clock; at.calls++; if (rec.calls?.some((c) => c.call === "sandbox.exec")) at.execs++;
     A.lastLoc = rec.unmounted ? { kind: "bench" } : { kind: "ws", branch, ws: k }; A.lastBranch = branch; W.lastTab = branch; W.touched[branch] = W.clock;
   };
   let code = null;

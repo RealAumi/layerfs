@@ -14,7 +14,7 @@
   are append-only checkpoints.
 - `docs/general/` contains maintained project practices and concepts.
 - `docs/research/` contains informative studies and historical design material.
-- `release-notes/<release>/` contains release evidence and announcements.
+- `docs/release-notes/<release>/` contains release evidence and announcements.
 - benchmark and research directories contain supporting evidence or design
   exploration, not released product contracts.
 

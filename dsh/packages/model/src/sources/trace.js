@@ -2,12 +2,13 @@
 // agent events. A trace holds ids, never content, so ReplayEngine rebuilds
 // the project from the lines alone: Branches, Commits, Layers, Sandboxes,
 // Workspaces and processes, under the mirror's display ids (C1, L0, sb_01).
-// Files and sizes are not in a trace; those views stay empty unless the
-// engine is given `loadTree`, which reads a saved tree by its real id (the dsh
-// Host's /layerfs/session/<id>/tree route does).
+// Files and sizes are not in a trace; the Files pane stays empty unless the
+// engine is given `files`, which reads saved ids on demand (the dsh Host's
+// Files reads, view/src/filesource.js).
 import { Mirror } from "../mirror.js";
 import { prepare, record } from "../attribution.js";
 
+// No tree is held: the Files pane reads through `files` instead.
 const EMPTY = Object.freeze({});
 /** A traced call's time: the SDK call as the calling process measured it. */
 const timingOf = (line) => ({ totalMs: line.ms || 0, sdkMs: line.ms || 0, traced: true });
@@ -33,39 +34,21 @@ export class ReplayEngine {
   /**
    * @param {object} [o]
    * @param {string} [o.project] project name for the views
-   * @param {(real: string) => Promise<object>} [o.loadTree] a saved tree by its
-   *   real Commit or Layer id, in the simulator's shape ({ path: { type, content } })
+   * @param {object} [o.files] the Files pane's reads by real id (view/src/filesource.js)
    */
-  constructor({ project = "project", loadTree = null } = {}) {
+  constructor({ project = "project", files = null } = {}) {
     this.m = new Mirror();
     this.project = project;
     this.live = true;
     this.replay = true;
-    this.trees = {};
     this.published = false;
     this.initAlias = null;
     this.onchange = null;
-    this.loadTree = loadTree;
-    this.loadsTrees = !!loadTree;
-    this.loading = {};
-    // a node's root is its own display id: s.roots[id] loads that node's tree
-    if (loadTree) this.m.s.roots = new Proxy({}, { get: (_, id) => (typeof id === "string" ? this.treeOf(id) : undefined) });
+    this.files = files;
   }
   get s() { return this.m.s; }
-  rootOf(id) { return this.loadsTrees ? id : null; }
-  /** A node's saved tree: loaded on first use, empty until it arrives. */
-  treeOf(id) {
-    if (!id || !this.loadsTrees) return EMPTY;
-    if (this.trees[id]) return this.trees[id];
-    const real = this.m.toReal.get(id);
-    if (!real || !/^[0-9a-f]{64,68}$/.test(real)) return EMPTY;
-    if (!this.loading[id]) {
-      this.loading[id] = this.loadTree(real).then((tree) => { this.trees[id] = tree; }, (error) => {
-        this.trees[id] = Object.defineProperty({}, "partial", { value: `The tree could not be read: ${error.message}` });
-      }).then(() => { if (this.onchange) this.onchange(); });
-    }
-    return EMPTY;
-  }
+  // a node's root is its own display id when files can be read: it changes when the head moves
+  rootOf(id) { return this.files ? id : null; }
 
   // ------------------------------------------------------------ ids
   layer(real) {
@@ -238,13 +221,13 @@ export class ReplayEngine {
   }
   resolve(ref) {
     const s = this.s, refuse = (code, message) => { throw Object.assign(new Error(message), { code }); };
-    if (ref === "main") { const l = s.layers[s.main.head]; return { label: `main @ ${l.id}`, kind: "main", root: l.root, tree: this.treeOf(l.id), layer: l.id }; }
-    if (s.commits[ref]) return { label: ref, kind: "commit", root: s.commits[ref].root, tree: this.treeOf(ref), commit: ref };
-    if (s.layers[ref]) return { label: ref, kind: "layer", root: s.layers[ref].root, tree: this.treeOf(ref), layer: ref };
+    if (ref === "main") { const l = s.layers[s.main.head]; return { label: `main @ ${l.id}`, kind: "main", root: l.root, tree: EMPTY, layer: l.id }; }
+    if (s.commits[ref]) return { label: ref, kind: "commit", root: s.commits[ref].root, tree: EMPTY, commit: ref };
+    if (s.layers[ref]) return { label: ref, kind: "layer", root: s.layers[ref].root, tree: EMPTY, layer: ref };
     if (ref.includes(":/")) return { label: `${ref} (live)`, kind: "live", root: null, tree: EMPTY, workspace: ref };
     const b = s.branches[ref] || refuse("NoSuchBranch", `no Branch named ${ref}`);
     const node = b.head || b.base;
-    return { label: `${b.name} @ ${node}`, kind: "branch", root: this.rootOf(node), tree: this.treeOf(node), head: b.head };
+    return { label: `${b.name} @ ${node}`, kind: "branch", root: this.rootOf(node), tree: EMPTY, head: b.head };
   }
 }
 

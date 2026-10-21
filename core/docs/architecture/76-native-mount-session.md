@@ -146,7 +146,7 @@ locate are available only in the hidden component-proof/recovery module. If the
 second acknowledgement fails, MountFailure retains the already bound Workspace;
 no operation is rolled back or resent. Ordinary Workspace exec delegates existing
 Sandbox execution at the acknowledged mount, without a daemon Exec registration.
-See [the implemented SDK interface](../../../sdk.md).
+See [the implemented SDK interface](../../../docs/general/sdk.md).
 
 ## Registry state
 

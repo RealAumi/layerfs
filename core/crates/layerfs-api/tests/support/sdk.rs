@@ -25,6 +25,9 @@ pub enum Change<'a> {
     Mtime(&'a str, i64),
     /// Overwrite the bytes from offset 0.
     Write(&'a str, &'a [u8]),
+    /// Save as git and editors do: the bytes go to a new sibling
+    /// `<name>.save` in 64 KiB writes, which is then renamed over the path.
+    SaveOver(&'a str, &'a [u8]),
 }
 
 pub struct Fixture {
@@ -178,10 +181,7 @@ impl Fixture {
             .acquire_base_source(route, 9001)
             .unwrap();
         let view = operation.workspace().view_for_source(source).unwrap();
-        for change in changes {
-            let path = match change {
-                Change::Mode(path, _) | Change::Mtime(path, _) | Change::Write(path, _) => path,
-            };
+        let lookup = |path: &str| {
             let mut serial = view.root_serial();
             for name in path.split('/').filter(|part| !part.is_empty()) {
                 serial = view
@@ -189,34 +189,16 @@ impl Fixture {
                     .unwrap()
                     .serial;
             }
+            serial
+        };
+        let apply = |op: Operation| {
             let applied = operation
                 .workspace()
                 .mutate(
                     operation.overlay(),
                     operation.ports(),
                     &view,
-                    match change {
-                        Change::Mode(_, mode) => Operation::SetAttributes {
-                            serial,
-                            mode: Some(*mode),
-                            mtime: None,
-                            size: None,
-                        },
-                        Change::Mtime(_, seconds) => Operation::SetAttributes {
-                            serial,
-                            mode: None,
-                            mtime: Some(Time {
-                                seconds: *seconds,
-                                nanoseconds: 0,
-                            }),
-                            size: None,
-                        },
-                        Change::Write(_, bytes) => Operation::Write {
-                            serial,
-                            position: Position::At(0),
-                            data: bytes.to_vec().into(),
-                        },
-                    },
+                    op,
                     Time {
                         seconds: 123,
                         nanoseconds: 0,
@@ -227,6 +209,65 @@ impl Fixture {
                 panic!("Workspace mutation: {applied:?}");
             };
             operation.overlay().reply_attempted(publication).unwrap();
+        };
+        for change in changes {
+            if let Change::SaveOver(path, bytes) = change {
+                let (parent, name) = path.rsplit_once('/').unwrap();
+                let (parent, save) = (lookup(parent), format!("{name}.save"));
+                apply(Operation::Create {
+                    parent,
+                    name: PathName::new(&save).unwrap(),
+                    mode: 0o644,
+                });
+                let serial = lookup(&format!("{path}.save"));
+                // in 64 KiB writes, as the kernel sends them
+                for (index, piece) in bytes.chunks(64 * 1024).enumerate() {
+                    apply(Operation::Write {
+                        serial,
+                        position: Position::At(index as u64 * 64 * 1024),
+                        data: piece.to_vec().into(),
+                    });
+                }
+                apply(Operation::Rename {
+                    parent,
+                    name: PathName::new(&save).unwrap(),
+                    new_parent: parent,
+                    new_name: PathName::new(name).unwrap(),
+                    replace: true,
+                    destination_path: None,
+                });
+                continue;
+            }
+            let path = match change {
+                Change::Mode(path, _)
+                | Change::Mtime(path, _)
+                | Change::Write(path, _)
+                | Change::SaveOver(path, _) => path,
+            };
+            let serial = lookup(path);
+            apply(match change {
+                Change::Mode(_, mode) => Operation::SetAttributes {
+                    serial,
+                    mode: Some(*mode),
+                    mtime: None,
+                    size: None,
+                },
+                Change::Mtime(_, seconds) => Operation::SetAttributes {
+                    serial,
+                    mode: None,
+                    mtime: Some(Time {
+                        seconds: *seconds,
+                        nanoseconds: 0,
+                    }),
+                    size: None,
+                },
+                Change::Write(_, bytes) => Operation::Write {
+                    serial,
+                    position: Position::At(0),
+                    data: bytes.to_vec().into(),
+                },
+                Change::SaveOver(..) => unreachable!(),
+            });
         }
         drop(view);
         operation

@@ -44,7 +44,7 @@ records the owner's serverless direction, not completed integrated qualification
 
 This alignment implements owner ruling O-1/K28–K33 in the
 [cluster-two design](../../core/docs/issues/303/README.md). Read the
-[cluster-one handbook](../../cluster_one_handbook.md) for implemented APIs and
+[cluster-one handbook](cluster_one_handbook.md) for implemented APIs and
 source pins. Placement policy alone does not admit a sample: registration,
 correctness, source custody, cache enforcement and the owning gates still apply.
 

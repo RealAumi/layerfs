@@ -8,7 +8,7 @@ The active six-crate workspace uses the combined `layerfs-persistence` SQLite
 provider. Earlier MinIO/PostgreSQL descriptions below retain their dated source
 pins as historical context; they describe no currently available provider.
 This selective update does not advance the older algorithm/format source pins.
-See the [current cluster one handbook](../../../cluster_one_handbook.md).
+See the [current cluster one handbook](../../../docs/general/cluster_one_handbook.md).
 
 Part of the [replacement-core architecture](README.md) set. Source pin
 `1884e3eca`; scope, method, measurement status and upkeep are stated in the

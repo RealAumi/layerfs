@@ -93,7 +93,11 @@ Mounts a Workspace showing the Branch head at this moment. Doesn't scan or copy 
 **Returns:** the Workspace path, a string such as `"/workspaces/1"`. Pass it to
 `exec`, `status`, `commit` and `unmount`; `status` tells which Commit it shows.
 
-**Refusals:** `NoSuchBranch` (fork first), `NoSuchSandbox`, `Busy`.
+**Refusals:** `NoSuchBranch` (fork first), `NoSuchSandbox`, `Busy`, and `Failed` with
+`Capacity` ("daemon Workspace capacity") in the message: the Sandbox's daemon already
+holds its limit of Workspaces (16 by default). Don't retry the mount as it is. Unmount
+Workspaces you no longer need; to find leftovers, see
+[Clearing idle Workspaces](#clearing-idle-workspaces).
 
 ```js
 const path = await layerfs.sandbox.mount(id, "work");   // a NEW Workspace: "/workspaces/1"; never hard-code it
@@ -334,6 +338,31 @@ Unmounts a Workspace.
 await layerfs.sandbox.unmount(id, path);
 ```
 
+## Clearing idle Workspaces
+
+Nothing unmounts a Workspace for you: a script that exits, throws or is cut off before
+its `unmount` leaves it mounted until the Sandbox closes, and it counts against the
+daemon's Workspace limit. Put every `unmount` in a `finally` block.
+
+To clear leftovers, for example after a mount is refused for capacity, scan the
+Sandbox's paths with `status` (paths are numbered per Sandbox) and unmount only the
+Workspaces that are idle, have nothing uncommitted, and that no agent is keeping on
+purpose, such as a build Workspace or one running a dev server:
+
+```js
+const keep = new Set([/* paths agents said they're keeping */]);
+for (let n = 1; n <= 1024; n++) {
+  const path = `/workspaces/${n}`;
+  let s;
+  try { s = await layerfs.sandbox.status(id, path); } catch (e) { if (e.code === "NotMounted") continue; throw e; }
+  const clean = !s.overlay.inodes && !s.overlay.entries && !s.overlay.pendingMerge;
+  if (s.activity === "Idle" && clean && !keep.has(path)) await layerfs.sandbox.unmount(id, path);
+}
+```
+
+Don't pass `discard` for a Workspace another agent mounted. Without it, a Workspace
+with uncommitted changes is refused `Dirty` and stays mounted for its owner to commit.
+
 ## `sandbox.close(id)`
 
 Stops and deletes the Sandbox container and frees its name for a new `create`. The
@@ -348,6 +377,9 @@ host, save `docker logs <container-id> > <run>/daemon-<container-id>.log 2>&1`,
 where `<container-id>` is `$(cat $LAYERFS_HOME/_sandboxes/<id>/container)` and `<run>`
 is the folder containing `LAYERFS_TRACE`. Closing deletes the container and its log.
 This is diagnostic collection; project reads and changes still use the SDK.
+
+Inside dsh, skip the next paragraph: the service Sandbox is shared by every
+agent and the dsh view, so never close it there.
 
 Direct Store calls also create or reuse an automatic service Sandbox. At the end,
 after all `fs.*` and Branch calls, obtain its id (`_service.<project>`) with `await layerfs.service()`,

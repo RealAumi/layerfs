@@ -1,5 +1,5 @@
 // The Host's client of a simulated project: the few calls the Host makes
-// (Init and the views' reads) sent to the simulator's binding directly. The
+// (Init, the views' state and Files reads) sent to the simulator's binding directly. The
 // SDK in the Host's process keeps the native binding for live projects.
 import { LayerFSError } from "@layerfs/sdk";
 import { call, operatorCall, snapshotAll } from "./binding.js";
@@ -18,10 +18,16 @@ export function simClient(home, name) {
       init: (path) => send(call, "project.init", { path, name }),
       list_branches: (pageSize = 50, pagePos = 0) => send(call, "project.list_branches", { pageSize, pagePos }),
     },
-    branch: { list_commits: (branch, pageSize = 50, pagePos = 0) => send(call, "branch.list_commits", { branch, pageSize, pagePos }) },
+    branch: {
+      list_commits: (branch, pageSize = 50, pagePos = 0) => send(call, "branch.list_commits", { branch, pageSize, pagePos }),
+      diff_commits: (from, to, pageSize = 50, pagePos = 0) => send(call, "branch.diff_commits", { from, to, pageSize, pagePos }),
+    },
     fs: {
       list: (ref, path = "/", pageSize = 50, pagePos = 0) => send(call, "fs.list", { branch: ref, path, pageSize, pagePos }),
       read: (ref, path, startLine = 1, endLine) => send(call, "fs.read", { branch: ref, path, startLine, endLine }),
+      stat: (ref, path) => send(call, "fs.stat", { branch: ref, path }),
+      blame: (ref, path, fromLine = 1) => send(call, "fs.blame", { branch: ref, path, fromLine }),
+      diff_files: (leftRef, leftPath, rightRef, rightPath) => send(call, "fs.diff_files", { branch: leftRef, left: { commit: leftRef, path: leftPath }, right: { commit: rightRef, path: rightPath } }),
     },
     sandbox: { close: async () => ({ kind: "Closed" }) },
   };

@@ -14,6 +14,7 @@
 
 use super::lww::Rules;
 use super::Side;
+use crate::compare::bytes::same_content;
 use crate::compare::changes::{ChangeWalk, Pair, Plan};
 use crate::compare::tree::{same_metadata, same_value, EntryFacts, TreeTable};
 use crate::compare::BindingHints;
@@ -22,6 +23,7 @@ use crate::filesystem::attributes::{read_portable, AttributeReadWork};
 use crate::filesystem::FilesystemRootId;
 use crate::object::inode_leaf::InodeKind;
 use crate::object::AuthenticatedObjects;
+use layerfs_telemetry::timer::Timing;
 
 /// One unit as requested: its name and patterns.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -67,7 +69,11 @@ impl Units {
             if admitted.iter().any(|(name, _)| *name == unit.name) {
                 return Err(format!("unit {:?} is listed twice", unit.name));
             }
-            if !unit.patterns.iter().any(|pattern| !pattern.starts_with('!')) {
+            if !unit
+                .patterns
+                .iter()
+                .any(|pattern| !pattern.starts_with('!'))
+            {
                 return Err(format!("unit {:?} has no pattern to match", unit.name));
             }
             for pattern in &unit.patterns {
@@ -254,7 +260,16 @@ fn changed(
     if same_value(&b, &s) {
         return Ok(false);
     }
-    if b.kind != s.kind || (b.kind != InodeKind::Directory && b.content_root != s.content_root) {
+    if b.kind != s.kind {
+        return Ok(true);
+    }
+    // A file written away and back keeps its bytes under a new root (#352 F-073).
+    if b.kind != InodeKind::Directory
+        && !Timing::disabled("merge.unit", |scope| {
+            same_content(reader, &b, &s, u64::MAX, scope.child("compare"))
+        })
+        .0?
+    {
         return Ok(true);
     }
     Ok(!same_metadata(

@@ -79,6 +79,16 @@ const RACES = [
 const PROOF_RACES = [
   { step: /^P1b-01(18|23) /, errors: ["selenium.common.exceptions.StaleElementReferenceException", "selenium.common.exceptions.NoSuchElementException"], where: "scripts/people-browser.py" },
 ];
+/**
+ * Process censuses written for the recorded runtime, which started a
+ * command under the Sandbox's daemon: P1f-045 counts every live process that
+ * is not the command's ancestor (nor pid 1) as left over. The current
+ * runtime starts a command beside the daemon (the daemon supervises no
+ * commands), so the census also finds the daemon. Such a command may exit 0
+ * or 1, and a failure must list only the Sandbox's own processes (`own`) as
+ * unexpected (replay.mjs reads the census's JSON line).
+ */
+const SANDBOX_CENSUSES = [{ step: /^P1f-045 /, own: ["layerfs-daemon"] }];
 /** The names of the tests a node --test run reports passed or failed. */
 const ranTests = (output) => [...String(output).matchAll(/^(?:not )?ok \d+ - (.*)$/gm)].map((m) => m[1].trim());
 
@@ -189,6 +199,11 @@ export function readCrew({ traces, agents }) {
         call.output = record ? `${record.result?.stdout ?? ""}${record.result?.stderr ?? ""}` : "";
         call.exitCode = record?.result?.exitCode ?? null;
         if (drivesBrowser(call.command, call.output)) call.browser = true;
+        const census = SANDBOX_CENSUSES.find((f) => f.step.test(step.label));
+        if (census) {
+          if (!/"unexpected"/.test(call.command) || call.exitCode !== 0) throw new Error(`${origin} ${step.label}: the record is not a passing census of unexpected processes`);
+          call.sandboxOwn = census.own;
+        }
         const proof = PROOF_RACES.find((f) => f.step.test(step.label));
         if (proof) {
           if (call.exitCode !== 0 && !raceError(call.output, proof)) throw new Error(`${origin} ${step.label}: the record does not fail with ${proof.errors.join(" or ")} in ${proof.where}`);

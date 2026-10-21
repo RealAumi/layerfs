@@ -14,6 +14,11 @@ pub struct Mutation<'a> {
     pub now: Time,
     serials: (u64, u64),
 }
+/// A name of the caller's `path`; one the name grammar refuses (a `\` or
+/// more than 255 bytes) is invalid input, as on the read route.
+fn checked(path: &str, name: &str) -> Result<PathName> {
+    PathName::new(name).map_err(|_| args::invalid(format!("`{path}` is not valid")))
+}
 pub fn failure(e: WorkspaceError) -> SdkRefusal {
     let code = match &e {
         WorkspaceError::Refused(r) => match r {
@@ -103,7 +108,7 @@ impl<'a> Mutation<'a> {
             .stat(self.op.overlay(), self.view.root_serial())
             .map_err(failure)?;
         for name in path.split('/').filter(|s| !s.is_empty()) {
-            let name = PathName::new(name).map_err(args::content)?;
+            let name = checked(path, name)?;
             stat = self
                 .view
                 .lookup(self.op.overlay(), stat.serial, &name)
@@ -126,7 +131,7 @@ impl<'a> Mutation<'a> {
             .rsplit_once('/')
             .ok_or_else(|| args::invalid("absolute path"))?;
         let parent = self.resolve(if parent.is_empty() { "/" } else { parent })?;
-        Ok((parent.serial, PathName::new(name).map_err(args::content)?))
+        Ok((parent.serial, checked(path, name)?))
     }
     pub fn read(&self, serial: u64, offset: u64, length: u32) -> Result<Vec<u8>> {
         let mut bytes = Vec::new();
@@ -182,7 +187,11 @@ impl<'a> Mutation<'a> {
             Some(stat) => {
                 if stat.kind != layerfs_content::object::inode_leaf::InodeKind::RegularFile {
                     return Err(args::refuse(
-                        "IsDirectory",
+                        if stat.kind == layerfs_content::object::inode_leaf::InodeKind::Directory {
+                            "IsDirectory"
+                        } else {
+                            "NotFile"
+                        },
                         "expected a regular file",
                         SdkValue::Null,
                     ));

@@ -383,9 +383,16 @@ fn abandon(directory: &Path, id: &str, mut failure: Box<SandboxFailure>) -> SdkR
 }
 
 /// `sandbox.close(sandbox)`: refused while Workspaces are mounted or an
-/// operation still holds the Sandbox; then stop and delete the container.
+/// operation still holds the Sandbox; then stop and delete the container. A
+/// container the Engine no longer has is already gone: its records go alone.
 pub(crate) fn close(args: &SdkValue) -> Outcome {
-    let state = sandbox_refreshed(args)?;
+    let state = match sandbox_refreshed(args) {
+        Err(refusal) => match crate::discovery::gone_container(&refusal) {
+            Some(container) => return close_gone(args, container),
+            None => return Err(refusal),
+        },
+        Ok(state) => state,
+    };
     let mounts = lock(&state.mounts)?.keys().cloned().collect::<Vec<_>>();
     if !mounts.is_empty() {
         return Err(SdkRefusal {
@@ -415,29 +422,71 @@ pub(crate) fn close(args: &SdkValue) -> Outcome {
     // Every lock is taken before anything is removed: a Busy refusal leaves
     // the container and its record, and a later close reopens and retries.
     let _guard = crate::discovery::guard(&owned.directory)?;
-    // only the service Sandbox has a record in its project (service.record);
-    // that project is the Sandbox's own, from its record, not the caller's
-    let project = if id.starts_with(crate::discovery::SERVICE) {
-        let directory = crate::discovery::home(args)?.join(&owned.project);
-        let guard = crate::discovery::guard(&directory)?;
-        Some((directory, guard))
-    } else {
-        None
-    };
-    owned.runtime.stop(1).map_err(failed)?;
-    owned.runtime.delete().map_err(failed)?;
-    std::fs::remove_file(owned.directory.join("sandbox.record")).map_err(failed)?;
-    if let Some((directory, _guard)) = &project {
-        let service = directory.join("service.record");
-        if service.exists() && crate::discovery::load(&service)?.get_text("id") == Some(&id) {
+    let project = project_guard(args, &id, &owned.project)?;
+    match owned.runtime.stop(1) {
+        Ok(()) => owned.runtime.delete().map_err(failed)?,
+        // the Engine no longer has the container: nothing is left to stop or delete
+        Err(failure) if failure.container_gone() => {}
+        Err(failure) => return Err(failed(failure)),
+    }
+    forget(&owned.directory, &id, project)
+}
+
+/// Closes a Sandbox whose container the Engine no longer has (reopen refused
+/// it as gone): nothing runs it, so only its records go, under the same locks
+/// as any close. The record is read again under them: a Sandbox created again
+/// under the name meanwhile has another container and is left alone.
+fn close_gone(args: &SdkValue, container: &str) -> Outcome {
+    let id = text(args, "sandbox")?;
+    let directory = crate::discovery::sandbox_dir(args, id)?;
+    let _guard = crate::discovery::guard(&directory)?;
+    let record = directory.join("sandbox.record");
+    if !record.exists() {
+        return Err(refused("NoSuchSandbox", format!("no Sandbox named {id}")));
+    }
+    let value = crate::discovery::load(&record)?;
+    if text(&value, "container")? != container {
+        return Err(refused(
+            "Busy",
+            format!("{id} was created again while it was closed; nothing was removed"),
+        ));
+    }
+    let project = project_guard(args, id, text(&value, "project")?)?;
+    forget(&directory, id, project)
+}
+
+/// Only the service Sandbox has a record in its project (service.record); that
+/// project is the Sandbox's own, from its record, not the caller's.
+fn project_guard(
+    args: &SdkValue,
+    id: &str,
+    project: &str,
+) -> Result<Option<(PathBuf, crate::discovery::Guard)>, SdkRefusal> {
+    if !id.starts_with(crate::discovery::SERVICE) {
+        return Ok(None);
+    }
+    let directory = crate::discovery::home(args)?.join(project);
+    let guard = crate::discovery::guard(&directory)?;
+    Ok(Some((directory, guard)))
+}
+
+/// Removes a closed Sandbox's records, held under its locks, so its name is free again.
+fn forget(
+    directory: &Path,
+    id: &str,
+    project: Option<(PathBuf, crate::discovery::Guard)>,
+) -> Outcome {
+    std::fs::remove_file(directory.join("sandbox.record")).map_err(failed)?;
+    if let Some((project, _guard)) = &project {
+        let service = project.join("service.record");
+        if service.exists() && crate::discovery::load(&service)?.get_text("id") == Some(id) {
             std::fs::remove_file(service).map_err(failed)?;
         }
     }
-    // its records go with it, so its name is free again
-    std::fs::remove_dir_all(&owned.directory).map_err(failed)?;
+    std::fs::remove_dir_all(directory).map_err(failed)?;
     Ok(SdkValue::map([
         ("kind", SdkValue::text("Closed")),
-        ("id", SdkValue::Text(id)),
+        ("id", SdkValue::text(id)),
     ]))
 }
 
@@ -535,3 +584,7 @@ pub(crate) fn unmount(args: &SdkValue) -> Outcome {
     lock(&state.mounts)?.remove(path);
     Ok(value)
 }
+
+#[cfg(test)]
+#[path = "../tests/unit/close_gone.rs"]
+mod close_gone;

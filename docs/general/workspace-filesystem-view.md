@@ -176,7 +176,7 @@ over one combined host database.
 In the current SQLite composition, encoded packs or complete encoded groups are
 stored as BLOBs in the host database. There is no required external payload-pack
 directory. See the
-[cluster-one persistence/layout contract](../../cluster_one_handbook.md#8-persistence-profiles-physical-layout-and-integration-limits).
+[cluster-one persistence/layout contract](cluster_one_handbook.md#8-persistence-profiles-physical-layout-and-integration-limits).
 `store.sqlite` is an explanatory filename; the application selects its actual
 database path. Global means the committed Store shared by the relevant
 Workspaces, not a mandatory universal database for every project on the host.

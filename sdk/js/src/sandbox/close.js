@@ -1,4 +1,5 @@
 // `sandbox.close`: stops and deletes the container; refused while Workspaces are mounted.
+// A container Docker no longer has is already gone, and only its records are removed.
 import { invokeClient, sandboxId } from "../client.js";
 
 /** `sandbox.close(sandbox)`: `{ kind: "Closed" }`; `MountsActive`, `Busy`. */

@@ -1,6 +1,7 @@
 // The Host's /layerfs route, from the page that dsh web or Desktop serves
 // (same origin, its session cookie).
-export interface Project { name: string, source: string, volume: string, created: number, folder: string | null }
+/** `empty`: started with nothing in it; `source` was a temporary empty folder. */
+export interface Project { name: string, source: string, volume: string, created: number, empty?: boolean }
 /**
  * inspect.snapshot through the Host's mirror (labelled state, labels by real
  * id), with what the session journals add: who made each node, when each
@@ -18,7 +19,8 @@ export interface SessionView {
   running: any[]
   agents: Record<string, string>
 }
-export interface Status { configured: boolean, missing: string[] }
+/** `empty`: this Host makes new empty projects (an older one would import the folder instead). */
+export interface Status { configured: boolean, missing: string[], empty?: boolean }
 /** A project's Store as LayerFS reports it, with what Init recorded and each recent Commit's cost (Host storage.js). */
 export interface Storage {
   store: { logical: number, canonical: number, stored: number, metadata: number, file: number, free: number, dedupe: number | null, compression: number | null }
@@ -34,7 +36,7 @@ export interface InitJob {
   name: string
   source: string
   started: number
-  step: 'scan' | 'volume' | 'import' | 'done' | 'failed'
+  step: 'scan' | 'volume' | 'import' | 'install' | 'done' | 'failed'
   scanned: Counts | null
   totals: Counts | null
   /** LayerFS's own counts while it imports (SDK operator project.progress). */
@@ -45,9 +47,9 @@ export interface InitJob {
 const POLL_MS = 300
 const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-/** Starts an Init and reads its job until it ends; `onProgress` sees each read. */
-async function init(folder: string, name?: string, source?: string, onProgress: (job: InitJob) => void = () => {}): Promise<{ project: Project }> {
-  let { job } = await call<{ job: InitJob }>('POST', '/init', { folder, name, source })
+/** Starts an Init and reads its job until it ends; `onProgress` sees each read. `empty`: a new empty project with a random name. */
+async function init(folder: string, name?: string, source?: string, onProgress: (job: InitJob) => void = () => {}, empty = false): Promise<{ project: Project }> {
+  let { job } = await call<{ job: InitJob }>('POST', '/init', { folder, name, source, ...(empty ? { empty } : {}) })
   for (;;) {
     onProgress(job)
     if (job.step === 'done') return { project: job.project! }
@@ -72,6 +74,7 @@ async function call<T>(method: string, path: string, body?: unknown): Promise<T>
 }
 
 const sid = (id: string) => encodeURIComponent(id)
+const filesQuery = (query: Record<string, string | number>) => new URLSearchParams(Object.entries(query).map(([k, v]) => [k, String(v)])).toString()
 
 export const api = {
   status: () => call<Status>('GET', '/status'),
@@ -79,12 +82,13 @@ export const api = {
   session: (id: string) => call<SessionView>('GET', `/session/${sid(id)}`),
   choose: (id: string, project: string | null) => call<SessionView>('POST', `/session/${sid(id)}/project`, { project }),
   init,
-  projects: () => call<{ projects: Project[] }>('GET', '/projects'),
+  projects: () => call<{ projects: Project[], defaults: Record<string, string> }>('GET', '/projects'),
+  setDefault: (folder: string, project: string) => call<{ projects: Project[], lastUsed: string | null }>('POST', '/workspace', { folder, project }),
   projectState: (name: string) => call<ProjectState>('GET', `/project/${encodeURIComponent(name)}/state`),
   projectStorage: (name: string) => call<Storage>('GET', `/project/${encodeURIComponent(name)}/storage`),
-  projectTree: (name: string, ref: string) => call<{ tree: Record<string, unknown>, partial: string | null }>('GET', `/project/${encodeURIComponent(name)}/tree?ref=${encodeURIComponent(ref)}`),
+  /** One Files read of saved ids (the Host's reads.js): list, read, changes or diff. */
+  projectFiles: (name: string, kind: string, query: Record<string, string | number>) => call<any>('GET', `/project/${encodeURIComponent(name)}/${kind}?${filesQuery(query)}`),
   /** stopSandboxes: stop the project's running Sandboxes instead of refusing (a demo's own project) */
   remove: (name: string, stopSandboxes = false) => call<{ removed: string, volume: string }>('POST', `/project/${encodeURIComponent(name)}/remove`, { confirm: name, stopSandboxes }),
-  attach: (name: string, folder: string | null) => call<{ project: Project }>('POST', `/project/${encodeURIComponent(name)}/attach`, { folder }),
-  tree: (id: string, ref: string) => call<{ tree: Record<string, unknown>, partial: string | null }>('GET', `/session/${sid(id)}/tree?ref=${encodeURIComponent(ref)}`),
+  files: (id: string, kind: string, query: Record<string, string | number>) => call<any>('GET', `/session/${sid(id)}/${kind}?${filesQuery(query)}`),
 }

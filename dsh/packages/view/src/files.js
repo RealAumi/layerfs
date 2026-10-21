@@ -1,17 +1,28 @@
-// The Files pane, one per tab. The subject is the tab's Branch
-// (or main) at its latest head or at one fixed point; the base is what it is
-// compared with. Reads go through the files helpers (simulation_engine/files.js)
-// on the engine state, so they work on any engine that has trees.
-import { bar, esc, fmtBytes, ratio } from "./util.js";
+// Files, as History draws them (view.js drawIde): the tree at one point in
+// the sidebar, and the open file in the File tab (File | Blame, and History
+// where the trees are in memory). The point is a tab's Branch (or main) at its
+// latest head, or a node picked in History; the parent is kept as the base,
+// which marks what changed in the tree. Reads go through the files helpers
+// (simulation_engine/files.js) on the engine state, so they work on any engine
+// that has trees. An engine with `files` (filesource.js, a dsh project) holds
+// no trees: a folder is listed when it is opened and a file is read a window
+// at a time when it is shown, so Files cost what is on screen whatever the
+// project's size.
+import { iconOf } from "./fileicons.js";
+import { highlightLines } from "./highlight.js";
+import { esc, fmtBytes, ratio } from "./util.js";
 
 const COLLAPSE = ["/node_modules", "/.git", "/.next"];
 const INODE_BYTES = 73; // one inode value row; directory entries and pooling ignored
 const bytesOf = (t) => new TextEncoder().encode(t || "").length;
-// Where a changed path belongs in the Changes list: dependencies and build
-// output fold into one row each, so the source changes come first.
-const DEPS = /^\/(node_modules\/|package-lock\.json$|yarn\.lock$|pnpm-lock\.yaml$)/, BUILD = /^\/(\.next|dist|build|out|\.turbo|coverage)\//, VCS = /^\/\.git\//;
-const groupOf = (path) => (DEPS.test(path) ? "deps" : BUILD.test(path) ? "build" : VCS.test(path) ? "vcs" : "src");
-const codeLines = (text) => text.split("\n").map((t, i) => `<div class="cl"><span class="no">${i + 1}</span><span class="tx">${esc(t) || " "}</span></div>`).join("");
+// a file's lines, coloured by its language (highlight.js) when it has one
+const codeLines = (text, path, first = 1) => {
+  const lit = path ? highlightLines(text, path) : null;
+  return text.split("\n").map((t, i) => `<div class="cl"><span class="no">${i + first}</span><span class="tx">${(lit ? lit[i] : esc(t)) || " "}</span></div>`).join("");
+};
+const CHEV = (open) => `<svg class="chev${open ? " open" : ""}" width="10" height="10" viewBox="0 0 10 10" aria-hidden="true"><path d="M3.5 2 6.5 5 3.5 8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+// indent guides: one faint rule per folder level
+const indent = (depth) => (depth ? `<span class="ind" style="width:${depth * 14}px"></span>` : "");
 
 /**
  * @param {object} v the view: W, FM (files helpers), lineDiff, live,
@@ -26,6 +37,23 @@ export function createFiles(v) {
   // open file (the file page) or null (the list); wide: the column takes half the window.
   const filesOf = (tab) => (FILES[tab] ||= { at: "latest", base: defaultBase(tab), path: null, toggled: [], mode: "view", list: "changes", sdk: false, wide: false });
   const subjectOf = (tab, p) => (p.at === "latest" ? tab : p.at);
+  const SRC = () => W().engine.files || null;
+  // a ref's saved node and its real id, what the Host reads by
+  const savedOf = (ref) => {
+    const r = ref ? FM.resolveRef(W().engine, ref) : null, real = r && r.node ? W().engine.m?.toReal.get(r.node) : null;
+    return real ? { node: r.node, real } : null;
+  };
+  // path -> "A" | "M" | "D", each path's type and folder roll-ups, from the changed paths read so far
+  function lazyChanges(sub, base) {
+    const c = SRC().changes(base.real, sub.real), files = {}, types = {}, dirs = {};
+    for (const it of c.items) {
+      if (it.type === "dir" && it.kind === "Modified") continue;
+      files[it.path] = it.kind === "Added" ? "A" : it.kind === "Removed" ? "D" : "M";
+      types[it.path] = it.type;
+      for (let d = it.path.slice(0, it.path.lastIndexOf("/")); d; d = d.slice(0, d.lastIndexOf("/"))) dirs[d] = (dirs[d] || 0) + 1;
+    }
+    return { files, types, dirs, more: c.more, loading: c.loading, error: c.error };
+  }
   function pointLabel(ref) {
     if (!ref) return "nothing";
     if (ref === "main" || W().branches[ref]) return `${ref} · latest`;
@@ -33,68 +61,60 @@ export function createFiles(v) {
     const n = W().nodes[ref];
     return n ? `${n.branch || "main"} · ${ref}` : ref;
   }
-  function atSelect(tab, p) {
-    const s = W().engine.s, o = (val, label) => `<option value="${esc(val)}"${val === p.at ? " selected" : ""}>${esc(label)}</option>`;
-    // a project page looks at any node; a lane's tab, at its own
-    const commitsOf = (lane) => Object.values(s.commits).filter((c) => lane === null || c.branch === lane).sort((a, b) => b.slot - a.slot).map((c) => o(c.id, `${lane === null ? c.branch + " · " : ""}${c.id} · ${c.message || c.via}`)).join("");
-    const opts = tab === "main"
-      ? Object.values(s.layers).sort((a, b) => b.slot - a.slot).map((l) => o(l.id, `${l.id} · ${l.sourceCommit ? "from " + l.sourceCommit : "init"}`)).join("") + (v.project ? commitsOf(null) : "")
-      : commitsOf(tab) + o("fork:" + tab, `fork point · ${s.branches[tab].from}`);
-    const live = p.at === "latest";
-    return `<span class="sync ${live ? "live" : "pinned"}" title="${live ? "Follows the head: new Commits show up as they land" : "Fixed at one point in history"}">${live ? "●" : "⊙"}</span><select class="fsel" data-fat="${esc(tab)}" title="What you look at: latest, or a fixed point">${o("latest", `${tab} @ ${tab === "main" ? W().mainHead : W().branches[tab].head.replace("fork:", "fork ")}`)}${opts}</select>`;
-  }
-  // What the point is compared with: parent, fork point, main, none, or a node picked in History.
-  function baseSelect(tab, p, subject) {
-    const parent = FM.parentRef(W().engine, subject) || "", choices = [];
-    if (parent) choices.push([parent, `vs parent · ${parent.replace("fork:", "fork ")}`]);
-    if (tab !== "main") choices.push(["fork:" + tab, "vs fork point"], ["main", "vs main"]);
-    if (p.base && !choices.some(([val]) => val === p.base)) choices.push([p.base, `vs ${pointLabel(p.base)}`]);
-    choices.push(["", "no compare"]);
-    return `<select class="fsel cmp" data-fbasesel="${esc(tab)}" title="What it is compared with">${choices.map(([val, l]) => `<option value="${esc(val)}"${val === p.base ? " selected" : ""}>${esc(l)}</option>`).join("")}</select>`;
-  }
-  function changesHtml(tab, p, sv, bv, ch, flash) {
-    const files = Object.entries(ch.files).filter(([path]) => ((sv.tree[path] || bv.tree[path]) || {}).type === "file");
-    if (!files.length) return `<div class="fempty">No file differences between ${esc(pointLabel(p.base))} and ${esc(pointLabel(subjectOf(tab, p)))}.</div>`;
-    const row = (path, k, label, indent) => `<div class="frow${flash.has(path) ? " flash" : ""}" data-fopen="${esc(path)}" style="padding-left:${indent}px" title="${esc(path)}"><span class="fb ${k} lead">${k}</span><span class="nm">${esc(label)}</span></div>`;
-    const by = { src: [], build: [], deps: [], vcs: [] };
-    for (const f of files) by[groupOf(f[0])].push(f);
-    // source: by folder, root files first
-    const dirs = new Map();
-    for (const [path, k] of by.src.sort(([a], [b]) => a.localeCompare(b))) { const d = path.slice(0, path.lastIndexOf("/") + 1); (dirs.get(d) || dirs.set(d, []).get(d)).push([path, k]); }
-    let html = "";
-    for (const [d, list] of [...dirs].sort(([a], [b]) => (a === "/" ? -1 : b === "/" ? 1 : a.localeCompare(b)))) {
-      if (d !== "/") html += `<div class="fdir">${esc(d.slice(1))}</div>`;
-      html += list.map(([path, k]) => row(path, k, path.slice(d.length), d === "/" ? 10 : 22)).join("");
-    }
-    const lww = sv.tree["/.lww"] ? " · .lww: newest wins" : "";
-    const fold = (g, label, hint) => {
-      const list = by[g]; if (!list.length) return "";
-      const open = p.toggled.includes("group:" + g), roots = [...new Set(list.map(([path]) => path.split("/")[1]))].join(", ");
-      return `<div class="fgroup" data-fgroup="${esc(tab)}|${g}"><span class="car">${open ? "▾" : "▸"}</span><b>${label}</b><span class="nm">${esc(roots)}</span><span class="fr">${list.length} file${list.length === 1 ? "" : "s"}${hint}</span></div>`
-        + (open ? list.sort(([a], [b]) => a.localeCompare(b)).map(([path, k]) => row(path, k, path.slice(1), 22)).join("") : "");
-    };
-    return `<div class="flist">${html || `<div class="fempty">Only generated files and dependencies changed.</div>`}${fold("build", "build output", lww)}${fold("deps", "dependencies", "")}${fold("vcs", "version control", "")}</div>`;
-  }
   const dirOpen = (p, path) => (COLLAPSE.includes(path) ? p.toggled.includes(path) : !p.toggled.includes(path));
   function treeHtml(p, subj, base, ch, dir, depth, flash) {
     return FM.listBoth(subj, base, dir).map((e) => {
       const open = e.type === "dir" && dirOpen(p, e.path), k = ch && ch.files[e.path], roll = ch && !k && ch.dirs[e.path];
-      const row = `<div class="frow${e.path === p.path ? " sel" : ""}${e.gone ? " gone" : ""}${flash.has(e.path) ? " flash" : ""}" data-ftree="${esc(e.path)}" data-ftype="${e.type}" style="padding-left:${8 + depth * 13}px" title="${esc(e.path)}">
-        <span class="car">${e.type === "dir" ? (open ? "▾" : "▸") : ""}</span><span class="nm">${esc(e.name)}${e.type === "dir" ? "/" : ""}</span>${k ? `<span class="fb ${k}">${k}</span>` : roll ? `<span class="fr">${roll}</span>` : ""}</div>`;
+      const row = `<div class="frow${e.type === "dir" ? " dir" : ""}${e.path === p.path ? " sel" : ""}${e.gone ? " gone" : ""}${flash.has(e.path) ? " flash" : ""}" data-ftree="${esc(e.path)}" data-ftype="${e.type}" title="${esc(e.path)}">
+        ${indent(depth)}<span class="car">${e.type === "dir" ? CHEV(open) : ""}</span>${iconOf(e.name, e.type, open)}<span class="nm">${esc(e.name)}</span>${k ? `<span class="fb ${k}">${k}</span>` : roll ? `<span class="fr" title="changed entries inside">${roll}</span>` : ""}</div>`;
       return row + (open ? treeHtml(p, subj, base, ch, e.path, depth + 1, flash) : "");
     }).join("");
   }
-  function sdkCalls(subject, p) {
-    const ref = JSON.stringify(subject), path = JSON.stringify(p.path || "/");
-    const calls = [`layerfs.fs.list(${ref}, dir, pageSize, pagePos) // per open folder`];
-    if (p.base) calls.push(`layerfs.branch.diff_branches(${JSON.stringify(p.base)}, ${ref}, pageSize, pagePos)`);
-    if (p.path) {
-      if (p.mode === "view") calls.push(`layerfs.fs.read(${ref}, ${path}, startLine, endLine)`);
-      if (p.mode === "blame") calls.push(`layerfs.fs.blame(${ref}, ${path}, fromLine)`);
-      if (p.mode === "diff" && p.base) calls.push(`layerfs.fs.diff_files(${JSON.stringify(p.base)}, ${path}, ${ref}, ${path})`);
-      calls.push(`operator.files.stats(${ref}, ${path})`, `operator.files.history(${ref}, ${path}, pageSize, pagePos)`);
-    }
-    return calls.map(esc).join("\n");
+  // one folder's loaded pages, folders first; an open folder is listed below its row
+  function lazyTreeHtml(p, sub, ch, dir, depth, flash) {
+    const l = SRC().list(sub.real, dir), isDir = (e) => e.type === "dir";
+    const items = [...l.items].sort((a, b) => (isDir(a) === isDir(b) ? 0 : isDir(a) ? -1 : 1));
+    const note = (text, attrs = "") => `<div class="frow note"${attrs}>${indent(depth)}<span class="car"></span>${text}</div>`;
+    return items.map((e) => {
+      const open = isDir(e) && p.toggled.includes(e.path), k = ch && ch.files[e.path], roll = ch && !k && ch.dirs[e.path];
+      return `<div class="frow${isDir(e) ? " dir" : ""}${e.path === p.path ? " sel" : ""}${flash.has(e.path) ? " flash" : ""}" data-ftree="${esc(e.path)}" data-ftype="${e.type}" title="${esc(e.path)}">
+        ${indent(depth)}<span class="car">${isDir(e) ? CHEV(open) : ""}</span>${iconOf(e.name, e.type, open)}<span class="nm">${esc(e.name)}</span>${k ? `<span class="fb ${k}">${k}</span>` : roll ? `<span class="fr" title="changed entries inside">${roll}${ch.more ? "+" : ""}</span>` : ""}</div>`
+        + (open ? lazyTreeHtml(p, sub, ch, e.path, depth + 1, flash) : "");
+    }).join("")
+      + (l.error ? note(esc(l.error.message)) : l.loading ? note("Listing…") : l.more ? note(`Show the next 1,000 of ${esc(dir === "/" ? "/" : dir.slice(dir.lastIndexOf("/") + 1))}`, ` data-fmore="${esc(dir)}"`)
+        : !items.length && depth === 0 ? note("No files: this version is empty.") : "");
+  }
+  // A file, one window of fs.read at a time (at most 2000 lines or 48 KiB): p.line is where it starts.
+  function lazyViewHtml(ref, p, tab) {
+    const r = SRC().read(ref.real, p.path, p.line || 1), w = r.value;
+    if (r.error) return `<div class="fempty">${esc(r.error.message)}</div>`;
+    if (!w) return `<div class="fempty">Reading ${esc(p.path)}…</div>`;
+    if (w.binary) return `<div class="fempty">A binary file${w.size != null ? ` of ${fmtBytes(w.size)}` : ""}: it has no text to show.</div>`;
+    const text = w.text.endsWith("\n") ? w.text.slice(0, -1) : w.text, last = w.startLine + text.split("\n").length - 1;
+    const nav = (dir, label, on) => `<button class="fseg" data-fwin="${esc(tab)}|${dir}"${on ? "" : " disabled"}>${label}</button>`;
+    const bar = w.startLine > 1 || w.nextLine != null
+      ? `<div class="fmodes">${nav("prev", "‹ Earlier", w.startLine > 1)}<span class="fstat">lines ${w.startLine.toLocaleString()}–${last.toLocaleString()}${w.size != null ? ` of ${fmtBytes(w.size)}` : ""}${w.lineTruncated ? " · a long line is cut short" : ""}</span>${nav("next", "Later ›", w.nextLine != null)}<span class="sp"></span><input class="fline" data-fline="${esc(tab)}" type="number" min="1" step="1" placeholder="Go to line"></div>` : "";
+    return bar + `<div class="code">${codeLines(text, p.path, w.startLine)}</div>`;
+  }
+  // Which Commit wrote each line (fs.blame), a window at a time like the file
+  function lazyBlameHtml(subject, sub, p, tab) {
+    const r = SRC().blame(sub.real, p.path, p.line || 1), b = r.value;
+    if (r.error) return `<div class="fempty">${esc(r.error.message)}</div>`;
+    if (!b) return `<div class="fempty">Reading which Commit wrote each line…</div>`;
+    if (!b.lines.length) return `<div class="fempty">${esc(p.path)} has no lines here.</div>`;
+    const labelOf = (real) => (real ? W().engine.m?.toLabel.get(real) ?? real.slice(0, 12) : "?");
+    const text = b.lines.map((ln) => String(ln.text ?? "").replace(/\r?\n$/, "")), lit = highlightLines(text.join("\n"), p.path);
+    let last = null;
+    const rows = b.lines.map((ln, i) => {
+      const id = labelOf(ln.commit), first = id !== last, c = W().engine.s.commits[id];
+      last = id;
+      const color = id.startsWith("L") ? "var(--purple)" : laneColor(c && c.branch), attr = W().nodes[id] ? ` data-fblame="${esc(id)}"` : "";
+      return `<div class="cl"><span class="bch${first ? "" : " cont"}" style="--bc:${color}"${attr} title="${esc(id)} · ${esc(ln.message || "")}">${first ? esc(id) : ""}</span><span class="no">${ln.n}</span><span class="tx">${(lit ? lit[i] : esc(text[i])) || " "}</span></div>`;
+    }).join("");
+    const nav = (dir, label, on) => `<button class="fseg" data-fwin="${esc(tab)}|${dir}"${on ? "" : " disabled"}>${label}</button>`;
+    const first = b.lines[0].n, end = b.lines[b.lines.length - 1].n;
+    const bar = first > 1 || b.nextLine != null ? `<div class="fmodes">${nav("prev", "‹ Earlier", first > 1)}<span class="fstat">lines ${first.toLocaleString()}–${end.toLocaleString()}</span>${nav("next", "Later ›", b.nextLine != null)}</div>` : "";
+    return `<div class="fsum">Blame at <b>${esc(pointLabel(subject))}</b> · product attribution (fs.blame)${b.versions ? ` · ${b.versions} versions compared` : ""}</div>${bar}<div class="code">${rows}</div>`;
   }
   // Per-file revisions, dedupe and compression: sim estimates, or the
   // product's operator.files.stats/history and fs.blame (engine.fileReport).
@@ -135,13 +155,12 @@ export function createFiles(v) {
     return `<div class="fsum">${f.revisions} revision${f.revisions === 1 ? "" : "s"} behind <b>${esc(pointLabel(subject))}</b>, newest first · new = bytes this version added (an identical earlier version is reused)${f.hasMore ? " · first 50 shown" : ""}</div>
       <table class="frev"><tr><th>version</th><th></th><th class="n">size</th><th class="n">new</th>${v.live ? "" : '<th class="n">stored ≈</th>'}</tr>${rows}</table>`;
   }
-  function viewHtml(subject, p, sv, bv) {
-    const se = sv.tree[p.path], be = bv && bv.tree[p.path];
+  function viewHtml(subject, p, sv) {
+    const se = sv.tree[p.path];
     if (p.mode === "view") {
       if (!se) return `<div class="fempty">${esc(p.path)} does not exist at ${esc(pointLabel(subject))}${be ? " (deleted; switch to Diff to see what was removed)" : ""}.</div>`;
-      return se.type === "file" ? (se.content == null ? `<div class="fempty">${esc(se.note || "Content not loaded.")}</div>` : `<div class="code">${codeLines(se.content)}</div>`) : `<div class="fempty">${esc(p.path)} is a folder.</div>`;
+      return se.type === "file" ? (se.content == null ? `<div class="fempty">${esc(se.note || "Content not loaded.")}</div>` : `<div class="code">${codeLines(se.content, p.path)}</div>`) : `<div class="fempty">${esc(p.path)} is a folder.</div>`;
     }
-    if (p.mode === "history") return fileHistoryHtml(subject, p.path);
     if (p.mode === "blame") {
       let b;
       if (v.live) {
@@ -152,119 +171,119 @@ export function createFiles(v) {
       } else b = FM.blame(W().engine, subject, p.path);
       if (!b) return `<div class="fempty">${esc(p.path)} does not exist at ${esc(pointLabel(subject))}.</div>`;
       let last = null;
-      const rows = b.lines.map((ln) => {
+      const lit = highlightLines(b.lines.map((ln) => ln.text).join("\n"), p.path);
+      const rows = b.lines.map((ln, i) => {
         const o = ln.origin, first = o.id !== last; last = o.id;
-        return `<div class="cl"><span class="bch${first ? "" : " cont"}" style="--bc:${o.kind === "layer" ? "var(--purple)" : laneColor(o.branch)}" data-fblame="${o.id}" title="${esc(o.id)} · ${esc(W().attrib[o.id] || "")} · click to diff with its parent">${first ? o.id : ""}</span><span class="no">${ln.n}</span><span class="tx">${esc(ln.text) || " "}</span></div>`;
+        return `<div class="cl"><span class="bch${first ? "" : " cont"}" style="--bc:${o.kind === "layer" ? "var(--purple)" : laneColor(o.branch)}" data-fblame="${o.id}" title="${esc(o.id)} · ${esc(W().attrib[o.id] || "")} · click to diff with its parent">${first ? o.id : ""}</span><span class="no">${ln.n}</span><span class="tx">${(lit ? lit[i] : esc(ln.text)) || " "}</span></div>`;
       }).join("");
       return `<div class="fsum">Blame at <b>${esc(pointLabel(subject))}</b> · ${v.live ? "product attribution (fs.blame)" : `composed from ${b.versions} saved versions`}</div><div class="code">${rows}</div>`;
     }
-    if (!bv) return `<div class="fempty">Diff needs something to compare with: pick it next to the point above.</div>`;
-    if (!se && !be) return `<div class="fempty">${esc(p.path)} is in neither side.</div>`;
-    const before = be && be.type === "file" ? be.content : null, after = se && se.type === "file" ? se.content : null;
-    if (before === after) return `<div class="fsum">No changes between <b>${esc(pointLabel(p.base))}</b> and <b>${esc(pointLabel(subject))}</b>.</div><div class="code">${codeLines(after || "")}</div>`;
-    let o = 0, n = 0;
-    const rows = v.lineDiff(before ?? "", after ?? "").map((d) => {
-      if ((before == null && d.op === "-") || (after == null && d.op === "+")) return "";
-      const on = d.op === "+" ? "" : ++o, nn = d.op === "-" ? "" : ++n;
-      return `<div class="cl ${d.op === "+" ? "add" : d.op === "-" ? "del" : ""}"><span class="no">${on}</span><span class="no">${nn}</span><span class="op">${d.op === " " ? "" : d.op}</span><span class="tx">${esc(d.text) || " "}</span></div>`;
-    }).join("");
-    return `<div class="fsum">${before == null ? "added" : after == null ? "deleted" : "modified"} · <b>${esc(pointLabel(p.base))}</b> → <b>${esc(pointLabel(subject))}</b></div><div class="code diff">${rows}</div>`;
+    return fileHistoryHtml(subject, p.path);
   }
-  function filesHtml(tab) {
-    const p = filesOf(tab);
-    if (p.at !== "latest" && !W().nodes[p.at] && !p.at.startsWith("fork:")) p.at = "latest";
-    const subject = subjectOf(tab, p), sv = FM.resolveRef(W().engine, subject);
-    if (!sv) return `<div class="fempty">Nothing to show yet.</div>`;
-    const bv = p.base ? FM.resolveRef(W().engine, p.base) : null, ch = bv ? FM.changeMap(sv.tree, bv.tree) : null;
-    const flash = p.at === "latest" ? W().flash[tab] || new Set() : new Set();
-    const nFiles = ch ? Object.keys(ch.files).filter((path) => ((sv.tree[path] || bv.tree[path]) || {}).type === "file").length : 0;
-    // one header row: what (point), against what (compare), how much changed, the SDK calls, wider
-    const head = `<div class="fhead">${atSelect(tab, p)}${baseSelect(tab, p, subject)}<span class="sp"></span>${ch ? `<span class="fcount" title="Files changed from the compared point">${nFiles} Δ</span>` : ""}`
-      + `<button class="sdkbtn" data-fsdk="${esc(tab)}" title="The SDK calls behind this view">sdk</button><button class="fwide${p.wide ? " on" : ""}" data-fwide="${esc(tab)}" title="${p.wide ? "Back to the normal width" : "Widen Files to half the window"}">${p.wide ? "⤡" : "⤢"}</button></div>`
-      + (p.sdk ? `<pre class="fsdk">${sdkCalls(subject, p)}</pre>` : "");
-    const partial = sv.tree.partial ? `<div class="fsum">${esc(sv.tree.partial)}</div>` : "";
-    if (p.path) return head + filePage(tab, p, subject, sv, bv, ch);
-    const list = ch ? p.list : "all";
-    const sw = ch ? `<div class="fsw"><span class="segs"><button class="fseg${list === "changes" ? " on" : ""}" data-flist="${esc(tab)}|changes">Changes <b>${nFiles}</b></button><button class="fseg${list === "all" ? " on" : ""}" data-flist="${esc(tab)}|all">All files</button></span></div>` : "";
-    const empty = !Object.keys(sv.tree).length ? `<div class="fempty">${esc(W().engine.replay && !W().engine.loadsTrees ? "Files are not in a trace: it holds ids, never content." : "Loading the tree…")}</div>` : "";
-    const body = empty || (list === "changes" ? changesHtml(tab, p, sv, bv, ch, flash) : `<div class="ftree">${treeHtml(p, sv.tree, bv ? bv.tree : null, ch, "/", 0, flash)}</div>`);
-    return head + sw + partial + `<div class="fbody">${body}</div>`;
-  }
-  // One file: back to the list, its path and change badge, the modes and a
-  // one-line summary, then the file itself.
-  function filePage(tab, p, subject, sv, bv, ch) {
-    const k = ch && ch.files[p.path], cut = p.path.lastIndexOf("/") + 1;
-    const back = ch && p.list === "changes" ? "Changes" : "All files";
+  // One file, as the File tab shows it: File | Blame, then the file or its blame.
+  function lazyFilePage(tab, p, subject, sub) {
     const seg = (m, label) => `<button class="fseg${p.mode === m ? " on" : ""}" data-fmode="${esc(tab)}|${m}">${label}</button>`;
-    return `<div class="fpage"><button class="fback" data-fback="${esc(tab)}" title="Back to the list">‹ ${back}</button><span class="fpathx" title="${esc(p.path)} @ ${esc(pointLabel(subject))}"><span class="dir">${esc(p.path.slice(1, cut))}</span><b>${esc(p.path.slice(cut))}</b></span>${k ? `<span class="fb ${k}">${k}</span>` : ""}</div>
-      <div class="fmodes"><span class="segs">${bv ? seg("diff", "Diff") : ""}${seg("view", "File")}${seg("blame", "Blame")}${seg("history", "History")}</span><span class="sp"></span>${fileStatsHtml(subject, p, sv)}</div>
-      <div class="fbody"><div class="fview">${viewHtml(subject, p, sv, bv)}</div></div>`;
+    // a saved id's file history has no read yet: History shows only where the full trees are
+    if (p.mode === "history") p.mode = "view";
+    const body = p.mode === "blame" ? lazyBlameHtml(subject, sub, p, tab) : lazyViewHtml(sub, p, tab);
+    return `<div class="fmodes"><span class="segs">${seg("view", "File")}${seg("blame", "Blame")}</span></div>
+      <div class="fbody"><div class="fview">${body}</div></div>`;
   }
-  // The global Store: dedupe and compression rates. Sim estimates them from the
-  // model (SimBackend.storage); live shows the Store's publication counters.
-  function storeHtml() {
-    const z = W().engine.storage();
-    if (!z) return `<div class="store"><div class="srow"><span class="kind">STORE</span><span>${v.live ? "not reported yet" : "empty"}</span></div></div>`;
-    const tip = !z.estimate ? `Store publication counters: logical history states ${fmtBytes(z.logical)}, unique canonical objects ${fmtBytes(z.payload)}, complete pack bodies ${fmtBytes(z.stored)}; metadata ${fmtBytes(z.metadata)}. DB logical pages ${fmtBytes(z.store)}. WAL allocation is separate.` : `Global Store, project ${W().engine.s.project ? W().engine.s.project.name : ""} (sim estimate). Logical ${fmtBytes(z.logical)}: every file in every saved root. Dedupe to ${fmtBytes(z.payload)}: distinct contents once (whole files; the product also dedupes chunks). Payload ${fmtBytes(z.stored)}: those contents compressed with deflate as a stand-in for zstd, no deltas. Metadata ${fmtBytes(z.metadata)}: 64 B per distinct entry + 256 B per Commit or Layer.`;
-    return `<div class="store" title="${esc(tip)}"><div class="srow"><span class="kind">STORE</span><b>${fmtBytes(z.store)}</b>${bar(z.stored, z.metadata)}<span><span class="pc">payload</span> ${fmtBytes(z.stored)} · <span class="mc">meta</span> ${fmtBytes(z.metadata)}</span></div>
-      <div class="srow"><span class="kind">RATE</span><span>logical <b>${fmtBytes(z.logical)}</b> · dedupe <b>${ratio(z.logical, z.payload)}</b> · compression <b>${ratio(z.payload, z.stored)}</b>${z.pending ? " · compressing…" : ""}</span><span class="est">${z.estimate ? "sim est." : "product"}</span></div></div>`;
+  // One file in memory (the sim's full trees): File | Blame | History and its
+  // one-line summary, then the file itself.
+  function filePage(tab, p, subject, sv) {
+    const seg = (m, label) => `<button class="fseg${p.mode === m ? " on" : ""}" data-fmode="${esc(tab)}|${m}">${label}</button>`;
+    return `<div class="fmodes"><span class="segs">${seg("view", "File")}${seg("blame", "Blame")}${seg("history", "History")}</span><span class="sp"></span>${fileStatsHtml(subject, p, sv)}</div>
+      <div class="fbody"><div class="fview">${viewHtml(subject, p, sv)}</div></div>`;
   }
-  // A Workspace's overlay: its uncommitted changes in the daemon's own database, not in the Store.
-  function overlayHtml(w) {
-    const o = W().engine.overlayOf(w.eng);
-    if (!o) return "";
-    if (!o.estimate) return `<div class="store" title="Workspace operator counters (operator.workspace.overlay): payload is stored overlay cell bytes. It lives in the daemon's database, not in the global Store."><div class="srow"><span class="kind">OVERLAY</span><b>${fmtBytes(o.payload)}</b><span>payload · ${o.inodes} inodes · ${o.entries} names${o.changes ? ` · +${o.changes.added} ~${o.changes.modified} −${o.changes.removed}` : ""}</span><span class="est">product</span></div></div>`;
-    const n = o.added + o.modified + o.removed;
-    const tip = `This Workspace's overlay (sim estimate): ${n} change${n === 1 ? "" : "s"}; payload ${fmtBytes(o.payload)} is the changed files' bytes, metadata ${fmtBytes(o.metadata)} is 64 B per changed entry. It lives in the daemon's database, not in the global Store.`;
-    return `<div class="store" title="${esc(tip)}"><div class="srow"><span class="kind">OVERLAY</span><b>${fmtBytes(o.payload + o.metadata)}</b>${bar(o.payload, o.metadata)}<span>+${o.added} ~${o.modified} −${o.removed} · <span class="pc">payload</span> ${fmtBytes(o.payload)} · <span class="mc">meta</span> ${fmtBytes(o.metadata)}</span><span class="est">sim est.</span></div></div>`;
+  // A project page splits Files like an editor: the tree at the picked point
+  // (and its compare) in the sidebar, the open file in its own tab.
+  /** The subject and its compare, saved or in memory: { subject, sub, base, ch, nFiles } or null. */
+  function pointOf(tab, p) {
+    if (p.at !== "latest" && !W().nodes[p.at] && !p.at.startsWith("fork:")) p.at = "latest";
+    const subject = subjectOf(tab, p);
+    if (SRC()) {
+      const sub = savedOf(subject); if (!sub) return null;
+      const base = p.base ? savedOf(p.base) : null, ch = base ? lazyChanges(sub, base) : null;
+      return { subject, sub, base, ch, nFiles: ch ? `${Object.keys(ch.files).filter((path) => ch.types[path] === "file").length}${ch.more ? "+" : ""}` : null };
+    }
+    const sv = FM.resolveRef(W().engine, subject); if (!sv) return null;
+    const bv = p.base ? FM.resolveRef(W().engine, p.base) : null, ch = bv ? FM.changeMap(sv.tree, bv.tree) : null;
+    return { subject, sv, bv, ch, nFiles: ch ? String(Object.keys(ch.files).filter((path) => ((sv.tree[path] || bv.tree[path]) || {}).type === "file").length) : null };
   }
+  function sideHtml(tab) {
+    const p = filesOf(tab), pt = pointOf(tab, p), flash = p.at === "latest" ? W().flash[tab] || new Set() : new Set();
+    // the point is picked in History (a node): the sidebar names its Branch over the tree
+    if (!pt) return `<div class="fempty">Nothing to show yet.</div>`;
+    const tree = SRC() ? lazyTreeHtml(p, pt.sub, pt.ch, "/", 0, flash) : treeHtml(p, pt.sv.tree, pt.bv ? pt.bv.tree : null, pt.ch, "/", 0, flash);
+    const n = p.at === "latest" ? null : W().nodes[p.at] || null, lane = n ? n.branch || "main" : tab;
+    const point = !n ? `${tab === "main" ? W().mainHead : W().branches[tab].head.replace("fork:", "fork ")} · latest` : n.kind === "fork" ? "fork point" : n.id;
+    const back = n ? `<button class="ide-latest" data-idelatest="1" title="Back to ${esc(tab)} at its latest head">latest</button>` : "";
+    return `<div class="ide-title" title="Pick a node in History to see the files there"><span class="dot" style="background:${laneColor(lane)}"></span><b>${esc(lane)}</b><span class="pt">${esc(point)}</span>${back}</div><div class="ftree">${tree}</div>`;
+  }
+  // the open file, read or blamed (the tree's badges say what changed since the parent)
+  function pageHtml(tab) {
+    const p = filesOf(tab), pt = pointOf(tab, p);
+    if (!pt) return `<div class="fempty">Nothing to show yet.</div>`;
+    if (!p.path) return `<div class="fempty">Pick a file in the tree: it opens here at ${esc(pointLabel(pt.subject))}.</div>`;
+    if (p.mode !== "blame" && p.mode !== "history") p.mode = "view";
+    return SRC() ? lazyFilePage(tab, p, pt.subject, pt.sub) : filePage(tab, p, pt.subject, pt.sv);
+  }
+  const safe = (draw) => (tab) => {
+    try { return draw(tab); } catch (error) {
+      console.error("Files could not draw", error);
+      return `<div class="fempty">Files could not draw this view: ${esc(error.message)}. Pick another file or point.</div>`;
+    }
+  };
   // Opening a file shows what changed when it changed, else the file.
   function openFile(p, path) {
+    p.line = 1; p.starts = [];
+    if (SRC()) {
+      const sub = savedOf(subjectOf(v.active, p)), base = p.base ? savedOf(p.base) : null;
+      p.path = path; p.mode = "view";
+      return;
+    }
     const sv = FM.resolveRef(W().engine, subjectOf(v.active, p)), bv = p.base ? FM.resolveRef(W().engine, p.base) : null;
     const changed = sv && bv && FM.changeMap(sv.tree, bv.tree).files[path];
-    p.path = path; p.mode = changed ? "diff" : "view";
+    p.path = path; p.mode = "view";
   }
-  // Points Files at one node: on this tab's lane it pins the subject there; any
-  // other node becomes the subject's base. The base defaults to its parent.
-  function showPoint(tab, id) {
-    const p = filesOf(tab), n = W().nodes[id]; if (!n) return;
-    const lane = n.branch || "main";
-    if (lane === tab) { p.at = n.kind === "fork" ? "fork:" + tab : id; p.base = FM.parentRef(W().engine, p.at) || ""; }
-    else p.base = id;
-    v.rightMode[tab] = "files";
-  }
-  /** Files at any node, compared with its parent (a project page). */
+  /** Files at any node, compared with its parent (a project page): an open file stays open there. */
   function showAt(tab, id) {
     const p = filesOf(tab), n = W().nodes[id]; if (!n) return;
     p.at = n.kind === "fork" ? "fork:" + n.branch : id;
     p.base = FM.parentRef(W().engine, p.at) || "";
-    p.path = null;
+    p.line = 1; p.starts = [];
+    v.rightMode[tab] = "files";
   }
   // Files controls, and History nodes that open Files at that point.
   function click(e) {
     const at = (sel) => e.target.closest(sel), tab = v.active;
     let el;
-    if ((el = at("[data-fmode]"))) { const [t, m] = el.dataset.fmode.split("|"); filesOf(t).mode = m; v.render(); return true; }
-    if ((el = at("[data-flist]"))) { const [t, val] = el.dataset.flist.split("|"); filesOf(t).list = val; v.render(); return true; }
-    if ((el = at("[data-fback]"))) { filesOf(el.dataset.fback).path = null; v.render(); return true; }
-    if ((el = at("[data-fwide]"))) { const p = filesOf(el.dataset.fwide); p.wide = !p.wide; v.render(); return true; }
-    if ((el = at("[data-fgroup]"))) { const [t, g] = el.dataset.fgroup.split("|"), p = filesOf(t), key = "group:" + g; p.toggled = p.toggled.includes(key) ? p.toggled.filter((x) => x !== key) : [...p.toggled, key]; v.render(); return true; }
-    if ((el = at("[data-fsdk]"))) { const p = filesOf(el.dataset.fsdk); p.sdk = !p.sdk; v.render(); return true; }
+    if ((el = at("[data-fmode]"))) { const [t, m] = el.dataset.fmode.split("|"), p = filesOf(t); p.mode = m; p.line = 1; p.starts = []; v.render(); return true; }
+    if ((el = at("[data-fmore]"))) { const p = filesOf(tab), sub = savedOf(subjectOf(tab, p)); if (sub) SRC().moreList(sub.real, el.dataset.fmore); v.render(); return true; }
+    if ((el = at("[data-fwin]"))) {
+      // Later starts where the window ended; Earlier goes back the way it came, else 2000 lines up
+      const [t, dir] = el.dataset.fwin.split("|"), p = filesOf(t), sub = savedOf(subjectOf(t, p));
+      const w = sub && (p.mode === "blame" ? SRC().blame(sub.real, p.path, p.line || 1) : SRC().read(sub.real, p.path, p.line || 1)).value;
+      p.starts ||= [];
+      if (dir === "next" && w?.nextLine) { p.starts.push(p.line || 1); p.line = w.nextLine; }
+      if (dir === "prev") p.line = p.starts.pop() ?? Math.max(1, (p.line || 1) - 2000);
+      v.render(); return true;
+    }
     if ((el = at("[data-ftree]"))) {
       const p = filesOf(tab), path = el.dataset.ftree;
       if (el.dataset.ftype === "dir") { p.toggled = p.toggled.includes(path) ? p.toggled.filter((x) => x !== path) : [...p.toggled, path]; }
       else openFile(p, path);
       v.render(); return true;
     }
-    if ((el = at("[data-fopen]"))) { openFile(filesOf(tab), el.dataset.fopen); v.render(); return true; }
-    if ((el = at("[data-fblame]"))) { const p = filesOf(tab); showPoint(tab, el.dataset.fblame); p.mode = "diff"; v.render(); return true; }
-    if ((el = at(".gview [data-node], .blist [data-node]"))) { (v.project ? showAt : showPoint)(tab, el.dataset.node); v.render(); return true; }
+    if ((el = at("[data-fblame]"))) { showAt(tab, el.dataset.fblame); v.render(); return true; }
+    if ((el = at(".gview [data-node], svg.tree [data-node]"))) { showAt(tab, el.dataset.node); v.render(); return true; }
+    if ((el = at("[data-idelatest]"))) { const p = filesOf(tab); p.at = "latest"; p.base = defaultBase(tab); p.line = 1; p.starts = []; v.render(); return true; }
     return false;
   }
   function change(e) {
     const t = e.target;
-    if (t.dataset.fat) { const p = filesOf(t.dataset.fat); p.at = t.value; p.base = p.at === "latest" ? defaultBase(t.dataset.fat) : FM.parentRef(W().engine, p.at) || ""; v.render(); }
-    else if (t.dataset.fbasesel !== undefined) { filesOf(t.dataset.fbasesel).base = t.value; v.render(); }
+    if (t.dataset.fline !== undefined) { const p = filesOf(t.dataset.fline), n = Math.floor(Number(t.value)); if (n >= 1) { p.starts = []; p.line = n; v.render(); } }
   }
-  return { filesOf, filesHtml, storeHtml, overlayHtml, showPoint, showAt, click, change, wide: (tab) => (FILES[tab] || {}).wide };
+  return { filesOf, sideHtml: safe(sideHtml), pageHtml: safe(pageHtml), showAt, click, change };
 }
