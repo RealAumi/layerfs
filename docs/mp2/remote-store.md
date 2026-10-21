@@ -1345,4 +1345,11 @@ After 7.7 idle minutes, a cold read took 0.08 s and a Commit 0.09 s.
 
 A local proxy that silences the open connections and lets new ones through
 measured the probe, one sample each: a cold read went from 10.98 s to 2.51 s and
-a Commit from 10.67 s to 2.26 s. The probe has not yet run on the sandboxes.
+a Commit from 10.67 s to 2.26 s.
+
+On the sandboxes with the probe, after a 60 s pause, one sample each: a cold read
+took 2.09 s and a Commit 2.12 s, against 10.22 s and 10.29 s without it. Each
+channel was replaced exactly once, and the tests and both unmounts passed. On a
+live link, five pairs of cold reads, without and with a probe after 3 s of quiet,
+put the probe's median cost at 6.2 ms. All seven Commits were published or
+UpToDate, with none unknown.
